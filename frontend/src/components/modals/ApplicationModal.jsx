@@ -74,7 +74,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
               setTimeout(() => setDraftSavedMessage(null), 3000);
             }
           })
-          .catch(() => {});
+          .catch(() => { });
       }
     }
 
@@ -271,7 +271,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={step === 'form' ? 'Cohort Registration Form' : 'Payment & Seat Reservation'}
+      title={step === 'form' ? 'Registration Form' : 'Payment & Seat Reservation'}
       subtitle={course.title}
       maxWidth="max-w-3xl"
     >
@@ -287,11 +287,15 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
         {step === 'form' ? (
           <form onSubmit={handleFormSubmit} className="space-y-6">
             {/* Summary Card */}
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="p-5 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="gold">{course.category}</Badge>
-                  <Badge variant="default">{course.mode}</Badge>
+                  <span className="px-3 py-0.5 rounded-full bg-yellow-50 text-yellow-900 border border-yellow-300 font-mono text-[10px] font-bold">
+                    {course.category}
+                  </span>
+                  <span className="px-3 py-0.5 rounded-full bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] font-mono text-[10px] font-bold">
+                    {course.mode}
+                  </span>
                 </div>
                 <h4 className="text-base font-bold text-slate-900 font-display uppercase tracking-tight mt-2">
                   {course.title}
@@ -301,10 +305,10 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono text-emerald-700">
+                <div className="text-2xl font-bold font-mono text-[#0B4F50]">
                   ₹{course.price.toLocaleString('en-IN')}
                 </div>
-                <span className="text-[10px] font-mono text-emerald-600 uppercase font-semibold">
+                <span className="text-[10px] font-mono text-[#0B4F50] uppercase font-semibold">
                   Inclusive of 18% GST & Tax Invoice
                 </span>
               </div>
@@ -312,7 +316,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
 
             {/* Form Fields */}
             <div className="space-y-4">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B4F50] border-b border-[#d8ecec] pb-2">
                 1. Personal & Contact Information
               </h4>
 
@@ -326,7 +330,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
                 <div>
@@ -338,7 +342,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -353,11 +357,11 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
 
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2 pt-2">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B4F50] border-b border-[#d8ecec] pb-2 pt-2">
                 2. Academic & Background Context
               </h4>
 
@@ -372,7 +376,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     value={institution}
                     onChange={(e) => setInstitution(e.target.value)}
                     placeholder="Stanford University / Enterprise Tech"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
                 <div>
@@ -385,7 +389,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     value={degree}
                     onChange={(e) => setDegree(e.target.value)}
                     placeholder="B.S. Computer Science"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -398,7 +402,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <select
                     value={yearOfStudy}
                     onChange={(e) => setYearOfStudy(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   >
                     <option value="1st Year">1st Year Undergraduate</option>
                     <option value="2nd Year">2nd Year Undergraduate</option>
@@ -415,7 +419,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <select
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   >
                     <option value="Beginner">Beginner (Basic JS/HTML)</option>
                     <option value="Intermediate">Intermediate (React/Node basics)</option>
@@ -433,7 +437,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   value={statementOfIntent}
                   onChange={(e) => setStatementOfIntent(e.target.value)}
                   placeholder="Share what you hope to build or accomplish during this cohort..."
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-2xl p-3.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
 
@@ -444,7 +448,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
+                    className="rounded border-[#d8ecec] text-[#0B4F50]"
                   />
                   <span>I agree to Claxic Cohort Terms & Code of Conduct.</span>
                 </label>
@@ -453,7 +457,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     type="checkbox"
                     checked={agreedToRefundPolicy}
                     onChange={(e) => setAgreedToRefundPolicy(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
+                    className="rounded border-[#d8ecec] text-[#0B4F50]"
                   />
                   <span>I acknowledge the 7-day unconditional 100% money-back guarantee policy.</span>
                 </label>
@@ -461,7 +465,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
 
               {/* Draft Status Alert */}
               {draftSavedMessage && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
+                <div className="p-3 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{draftSavedMessage}</span>
                 </div>
@@ -469,33 +473,29 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="lg"
                 onClick={handleSaveDraft}
-                isLoading={isSavingDraft}
-                className="w-full sm:w-auto shrink-0"
+                disabled={isSavingDraft}
+                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-all cursor-pointer shrink-0"
               >
                 Save Draft
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                variant="primary"
-                fullWidth
-                size="lg"
-                isLoading={isLoading}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+                disabled={isLoading}
+                className="w-full py-3.5 px-8 bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                Proceed to Razorpay Secure Payment
-              </Button>
+                <span>Proceed to Razorpay Secure Payment</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </form>
         ) : (
           /* Step 2: Payment Checkout Overview */
           <div className="space-y-6">
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-300 flex items-center justify-center mx-auto">
+            <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] text-center space-y-4 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] flex items-center justify-center mx-auto">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -508,7 +508,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </p>
               </div>
 
-              <div className="py-4 border-y border-slate-200 max-w-sm mx-auto space-y-2 font-mono text-sm">
+              <div className="py-4 border-y border-[#d8ecec] max-w-sm mx-auto space-y-2 font-mono text-sm">
                 <div className="flex justify-between text-slate-600">
                   <span>Tuition Base:</span>
                   <span>₹{Math.round(course.price / 1.18).toLocaleString('en-IN')}</span>
@@ -517,27 +517,25 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <span>GST (18%):</span>
                   <span>₹{(course.price - Math.round(course.price / 1.18)).toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between text-slate-900 font-bold text-base pt-2 border-t border-slate-200">
+                <div className="flex justify-between text-slate-900 font-bold text-base pt-2 border-t border-[#d8ecec]">
                   <span>Total Due:</span>
-                  <span className="text-emerald-700">₹{course.price.toLocaleString('en-IN')}</span>
+                  <span className="text-[#0B4F50]">₹{course.price.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
               <div className="space-y-3 pt-2 max-w-md mx-auto">
-                <Button
-                  variant="primary"
-                  fullWidth
-                  size="lg"
+                <button
                   onClick={handleRazorpayCheckout}
-                  isLoading={isLoading}
-                  leftIcon={<CreditCard className="w-5 h-5" />}
+                  disabled={isLoading}
+                  className="w-full py-3.5 px-6 rounded-full bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  Pay via Razorpay (UPI, Cards, NetBanking, EMI)
-                </Button>
+                  <CreditCard className="w-5 h-5" />
+                  <span>Pay via Razorpay (UPI, Cards, NetBanking, EMI)</span>
+                </button>
 
                 <button
                   onClick={simulatePaymentSuccess}
-                  className="w-full text-center text-xs font-mono text-indigo-600 hover:text-indigo-800 underline py-1 font-semibold"
+                  className="w-full text-center text-xs font-mono text-[#0B4F50] hover:text-[#073637] underline py-1 font-bold cursor-pointer"
                 >
                   ⚡ Instant Demo Payment Simulation (Skip Gateway)
                 </button>

@@ -24,47 +24,44 @@ export const Navbar = ({ currentView, onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-2xs font-sans">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#d8ecec] shadow-2xs font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo & Main Navigation */}
           <div className="flex items-center gap-8">
             <button
               onClick={() => onNavigate('home')}
-              className="flex items-center gap-3 focus:outline-none group"
+              className="flex items-center gap-2 focus:outline-none group cursor-pointer"
+              aria-label="Claxic Home"
             >
-              <div className="w-9 h-9 rounded-md bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-2xs group-hover:bg-slate-800 transition-colors">
-                C
-              </div>
-              <div className="text-left">
-                <span className="text-lg font-extrabold tracking-tight text-slate-900 block uppercase leading-none font-display">
-                  CLAXIC
-                </span>
-                <span className="text-[10px] font-mono tracking-wider text-slate-500 uppercase block mt-0.5 font-medium">
-                  Academic Portal
-                </span>
-              </div>
+              <img
+                src="/logob.png"
+                alt="Claxic"
+                className="h-6 sm:h-7 w-auto object-contain transition-transform group-hover:scale-102"
+              />
             </button>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Desktop Navigation Links - Always Show Apply Form */}
+            <nav className="flex items-center gap-1 sm:gap-2">
               <button
+                type="button"
                 onClick={() => onNavigate('home')}
-                className={`px-3.5 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
                   currentView === 'home'
-                    ? 'text-slate-900 bg-slate-100 border border-slate-300'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'text-[#0B4F50] bg-[#eef7f7] border border-[#cbe4e4] shadow-2xs'
+                    : 'text-slate-700 hover:text-[#0B4F50] hover:bg-[#f2f7f7] border border-transparent'
                 }`}
               >
                 Apply Form & Programs
               </button>
 
               <button
+                type="button"
                 onClick={() => onNavigate('courses')}
-                className={`px-3.5 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
                   currentView === 'courses' || currentView === 'course-detail'
-                    ? 'text-slate-900 bg-slate-100 border border-slate-300'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'text-[#0B4F50] bg-[#eef7f7] border border-[#cbe4e4] shadow-2xs'
+                    : 'text-slate-700 hover:text-[#0B4F50] hover:bg-[#f2f7f7] border border-transparent'
                 }`}
               >
                 Course Catalog
@@ -73,11 +70,12 @@ export const Navbar = ({ currentView, onNavigate }) => {
               {/* Student Portal Quick Link for logged in students */}
               {user && user.role !== 'ADMIN' && (
                 <button
+                  type="button"
                   onClick={() => onNavigate('dashboard')}
-                  className={`px-3.5 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${
+                  className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer ${
                     currentView === 'dashboard'
-                      ? 'text-indigo-900 bg-indigo-50 border border-indigo-200'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'text-[#0B4F50] bg-[#eef7f7] border border-[#cbe4e4] shadow-2xs'
+                      : 'text-slate-700 hover:text-[#0B4F50] hover:bg-[#f2f7f7] border border-transparent'
                   }`}
                 >
                   My Dashboard
@@ -87,10 +85,11 @@ export const Navbar = ({ currentView, onNavigate }) => {
               {/* Admin Access Button - STRICTLY VISIBLE ONLY TO AUTHENTICATED ADMINS */}
               {user && user.role === 'ADMIN' && (
                 <button
+                  type="button"
                   onClick={() => onNavigate('admin')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-mono uppercase font-bold tracking-wider transition-all flex items-center gap-1.5 ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer ${
                     currentView === 'admin'
-                      ? 'text-amber-900 bg-amber-100 border border-amber-300'
+                      ? 'text-amber-900 bg-amber-100 border border-amber-300 shadow-2xs'
                       : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200'
                   }`}
                 >
@@ -102,7 +101,7 @@ export const Navbar = ({ currentView, onNavigate }) => {
           </div>
 
           {/* Right Controls */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
                 {user.role === 'ADMIN' && (
@@ -120,18 +119,18 @@ export const Navbar = ({ currentView, onNavigate }) => {
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center gap-2.5 p-1 pl-2.5 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors text-left"
+                    className="flex items-center gap-2.5 p-1 pl-2.5 rounded-full bg-[#f2f7f7] border border-[#d8ecec] hover:border-[#b4dede] transition-colors text-left cursor-pointer"
                   >
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-7 h-7 rounded-md object-cover border border-slate-200"
+                      className="w-7 h-7 rounded-full object-cover border border-[#cbe4e4]"
                     />
                     <div className="hidden xl:block pr-1">
                       <span className="text-xs font-bold text-slate-900 block leading-none">
                         {user.name}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-500 block mt-0.5 font-semibold">
+                      <span className="text-[10px] font-mono text-[#0B4F50] block mt-0.5 font-bold">
                         {user.role}
                       </span>
                     </div>
@@ -139,8 +138,8 @@ export const Navbar = ({ currentView, onNavigate }) => {
                   </button>
 
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-1.5 animate-in fade-in zoom-in-95">
-                      <div className="p-2 border-b border-slate-100">
+                    <div className="absolute right-0 mt-2 w-52 bg-white border border-[#d8ecec] rounded-2xl shadow-xl z-50 p-1.5 animate-in fade-in zoom-in-95">
+                      <div className="p-2.5 border-b border-[#eef7f7] bg-[#f8fbfb] rounded-t-xl">
                         <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
                         <p className="text-[11px] text-slate-500 truncate mt-0.5 font-mono">{user.email}</p>
                       </div>
@@ -152,10 +151,10 @@ export const Navbar = ({ currentView, onNavigate }) => {
                               onNavigate('admin');
                               setIsUserMenuOpen(false);
                             }}
-                            className="w-full text-left px-2.5 py-1.5 text-xs text-amber-900 hover:bg-amber-50 rounded-md flex items-center gap-2 font-medium"
+                            className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-[#eef7f7] hover:text-[#0B4F50] rounded-xl flex items-center gap-2 transition-colors font-medium cursor-pointer"
                           >
-                            <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                            Admin Console
+                            <ShieldCheck className="w-3.5 h-3.5 text-[#0B4F50]" />
+                            Executive Dashboard
                           </button>
                         ) : (
                           <button
@@ -163,22 +162,20 @@ export const Navbar = ({ currentView, onNavigate }) => {
                               onNavigate('dashboard');
                               setIsUserMenuOpen(false);
                             }}
-                            className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-md flex items-center gap-2 font-medium"
+                            className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-[#eef7f7] hover:text-[#0B4F50] rounded-xl flex items-center gap-2 transition-colors font-medium cursor-pointer"
                           >
-                            <BookOpen className="w-3.5 h-3.5 text-slate-700" />
-                            Student Portal
+                            <LayoutDashboard className="w-3.5 h-3.5 text-[#0B4F50]" />
+                            Student Dashboard
                           </button>
                         )}
-                      </div>
 
-                      <div className="pt-1 border-t border-slate-100">
                         <button
                           onClick={() => {
                             logout();
                             setIsUserMenuOpen(false);
                             onNavigate('home');
                           }}
-                          className="w-full text-left px-2.5 py-1.5 text-xs text-rose-700 hover:bg-rose-50 rounded-md flex items-center gap-2 transition-colors font-medium"
+                          className="w-full text-left px-3 py-2 text-xs text-rose-700 hover:bg-rose-50 rounded-xl flex items-center gap-2 transition-colors font-medium cursor-pointer"
                         >
                           <LogOut className="w-3.5 h-3.5" />
                           Sign Out
@@ -189,21 +186,21 @@ export const Navbar = ({ currentView, onNavigate }) => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
                   onClick={() => onNavigate('login')}
+                  className="px-4 py-2 text-xs font-bold text-[#0B4F50] hover:text-[#073637] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] rounded-full transition-all cursor-pointer"
                 >
                   Sign In
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
+                </button>
+                <button
+                  type="button"
                   onClick={() => onNavigate('register')}
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] rounded-full shadow-xs hover:shadow-md transition-all active:scale-[0.99] cursor-pointer"
                 >
                   Register
-                </Button>
+                </button>
               </div>
             )}
           </div>
@@ -212,7 +209,7 @@ export const Navbar = ({ currentView, onNavigate }) => {
           <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700"
+              className="p-2 rounded-xl bg-[#eef7f7] border border-[#cbe4e4] text-[#0B4F50]"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

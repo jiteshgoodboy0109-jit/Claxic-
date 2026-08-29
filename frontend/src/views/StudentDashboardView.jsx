@@ -165,89 +165,92 @@ export const StudentDashboardView = ({
   const confirmedApps = applications.filter((a) => a.status === 'CONFIRMED');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 font-sans text-slate-900 bg-slate-50 min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 font-sans text-slate-900 bg-[#f6fafa] min-h-screen">
       {/* Student Identity Header */}
-      <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <img
-            src={user?.avatar}
+            src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
             alt={user?.name}
-            className="w-16 h-16 rounded-2xl object-cover border-2 border-slate-200 shadow-md"
+            onError={(e) => {
+              e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+            }}
+            className="w-16 h-16 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm"
           />
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900 font-display uppercase">{user?.name}</h1>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{user?.name}</h1>
               {user?.isVerified && (
                 <Badge variant="success" size="sm">Verified Account</Badge>
               )}
             </div>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">{user?.email}</p>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">{user?.email}</p>
             <p className="text-xs text-slate-600 mt-1 font-normal">
-              {user?.institution || 'Institution Unspecified'} • {user?.degree || 'Student'}
+              {user?.institution || 'Institution Unspecified'} • {user?.degree || 'Student Member'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 font-mono text-xs">
-          <div className="px-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-center">
-            <span className="text-lg font-bold text-slate-900 block">{confirmedApps.length}</span>
-            <span className="text-[10px] text-slate-500 uppercase font-semibold">Enrolled Cohorts</span>
+        <div className="flex items-center gap-3 text-xs font-medium">
+          <div className="px-5 py-3 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] text-center">
+            <span className="text-xl font-bold text-[#0B4F50] block">{confirmedApps.length}</span>
+            <span className="text-[11px] text-slate-500 font-semibold">Enrolled Cohorts</span>
           </div>
-          <div className="px-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-center">
-            <span className="text-lg font-bold text-slate-900 block">{payments.length}</span>
-            <span className="text-[10px] text-slate-500 uppercase font-semibold">Tax Invoices</span>
+          <div className="px-5 py-3 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] text-center">
+            <span className="text-xl font-bold text-[#0B4F50] block">{payments.length}</span>
+            <span className="text-[11px] text-slate-500 font-semibold">Tax Invoices</span>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 font-mono text-xs uppercase tracking-wider overflow-x-auto">
+      <div className="flex border-b border-[#d8ecec] text-xs font-semibold uppercase tracking-wider overflow-x-auto">
         <button
           onClick={() => handleTabChange('courses')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeTab === 'courses'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#0B4F50] text-[#0B4F50]'
+              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
           }`}
         >
           <BookOpen className="w-4 h-4" />
-          Enrolled Cohorts ({confirmedApps.length})
+          <span>Enrolled Cohorts ({confirmedApps.length})</span>
         </button>
 
         <button
           onClick={() => handleTabChange('applications')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeTab === 'applications'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#0B4F50] text-[#0B4F50]'
+              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
           }`}
         >
           <FileText className="w-4 h-4" />
-          My Applications ({applications.length})
+          <span>My Applications ({applications.length})</span>
         </button>
 
         <button
           onClick={() => handleTabChange('payments')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeTab === 'payments'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#0B4F50] text-[#0B4F50]'
+              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
           }`}
         >
           <CreditCard className="w-4 h-4" />
-          Payment Receipts ({payments.length})
+          <span>Payment Receipts ({payments.length})</span>
         </button>
 
         <button
           onClick={() => handleTabChange('profile')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${
+          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
             activeTab === 'profile'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#0B4F50] text-[#0B4F50]'
+              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
           }`}
         >
           <UserIcon className="w-4 h-4" />
-          Account Profile
+          <span>Account Profile</span>
         </button>
       </div>
 
@@ -255,22 +258,25 @@ export const StudentDashboardView = ({
       {activeTab === 'courses' && (
         <div className="space-y-6">
           {confirmedApps.length === 0 ? (
-            <div className="py-16 text-center bg-white border border-slate-200 rounded-3xl space-y-4 shadow-xs">
+            <div className="py-16 text-center bg-white border border-[#d8ecec] rounded-[32px] space-y-4 shadow-xs">
               <BookOpen className="w-12 h-12 text-slate-400 mx-auto" />
-              <h3 className="text-lg font-bold text-slate-900 uppercase font-display">No Confirmed Enrollments Yet</h3>
+              <h3 className="text-lg font-bold text-slate-900">No Confirmed Enrollments Yet</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto font-normal">
                 Explore our accredited engineering programs and register to secure your seat.
               </p>
-              <Button variant="primary" size="sm" onClick={onBrowseCourses}>
+              <button
+                onClick={onBrowseCourses}
+                className="px-6 py-2.5 bg-[#0B4F50] text-white rounded-full font-bold text-xs shadow-xs hover:bg-[#073637] cursor-pointer"
+              >
                 Browse Course Catalog
-              </Button>
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {confirmedApps.map((app) => (
                 <div
                   key={app.id}
-                  className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4 flex flex-col justify-between"
+                  className="p-6 rounded-[28px] bg-white border border-[#d8ecec] shadow-xs space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -279,22 +285,21 @@ export const StudentDashboardView = ({
                         App #{app.applicationNumber}
                       </span>
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 font-display uppercase">
+                    <h3 className="text-lg font-bold text-slate-900">
                       {app.courseTitle}
                     </h3>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                    <div className="text-xs font-mono text-slate-600">
-                      Fee Paid: <strong className="text-slate-900">₹{app.coursePrice.toLocaleString('en-IN')}</strong>
+                  <div className="pt-4 border-t border-[#f2f7f7] flex items-center justify-between">
+                    <div className="text-xs text-slate-600">
+                      Fee Paid: <strong className="text-[#0B4F50]">₹{app.coursePrice.toLocaleString('en-IN')}</strong>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
                       onClick={() => onViewReceipt(app.id)}
+                      className="px-4 py-1.5 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-colors cursor-pointer"
                     >
                       View Receipt
-                    </Button>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -306,9 +311,9 @@ export const StudentDashboardView = ({
       {/* Tab 2: Applications */}
       {activeTab === 'applications' && (
         <div className="space-y-6">
-          <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+          <div className="border border-[#d8ecec] rounded-[28px] overflow-hidden bg-white shadow-xs">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 font-mono text-slate-600 uppercase text-[11px] border-b border-slate-200">
+              <thead className="bg-[#f2f7f7] font-mono text-[#0B4F50] uppercase text-[11px] border-b border-[#d8ecec]">
                 <tr>
                   <th className="p-4">Application #</th>
                   <th className="p-4">Course Program</th>
@@ -319,7 +324,7 @@ export const StudentDashboardView = ({
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800">
                 {applications.map((a) => (
-                  <tr key={a.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={a.id} className="hover:bg-[#f8fbfb] transition-colors">
                     <td className="p-4 font-mono font-bold text-slate-900">{a.applicationNumber}</td>
                     <td className="p-4 font-semibold text-slate-900">{a.courseTitle}</td>
                     <td className="p-4 font-mono text-slate-600">
@@ -338,7 +343,7 @@ export const StudentDashboardView = ({
                         {a.status}
                       </Badge>
                     </td>
-                    <td className="p-4 text-right font-mono font-bold text-slate-900">
+                    <td className="p-4 text-right font-mono font-bold text-[#0B4F50]">
                       ₹{a.coursePrice.toLocaleString('en-IN')}
                     </td>
                   </tr>
@@ -352,9 +357,9 @@ export const StudentDashboardView = ({
       {/* Tab 3: Payments */}
       {activeTab === 'payments' && (
         <div className="space-y-6">
-          <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+          <div className="border border-[#d8ecec] rounded-[28px] overflow-hidden bg-white shadow-xs">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 font-mono text-slate-600 uppercase text-[11px] border-b border-slate-200">
+              <thead className="bg-[#f2f7f7] font-mono text-[#0B4F50] uppercase text-[11px] border-b border-[#d8ecec]">
                 <tr>
                   <th className="p-4">Receipt #</th>
                   <th className="p-4">Course Program</th>
@@ -366,24 +371,23 @@ export const StudentDashboardView = ({
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800">
                 {payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={p.id} className="hover:bg-[#f8fbfb] transition-colors">
                     <td className="p-4 font-mono font-bold text-slate-900">{p.receiptNumber}</td>
                     <td className="p-4 font-semibold text-slate-900">{p.courseTitle}</td>
                     <td className="p-4 font-mono text-slate-600">
                       {new Date(p.createdAt).toLocaleDateString()}
                     </td>
                     <td className="p-4 text-slate-600">{p.paymentMethod || 'Razorpay Gateway'}</td>
-                    <td className="p-4 text-right font-mono font-bold text-emerald-600">
+                    <td className="p-4 text-right font-mono font-bold text-[#0B4F50]">
                       ₹{p.amount.toLocaleString('en-IN')}
                     </td>
                     <td className="p-4 text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
                         onClick={() => onViewReceipt(p.receiptNumber)}
+                        className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-colors cursor-pointer"
                       >
                         View Tax Invoice
-                      </Button>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -395,9 +399,9 @@ export const StudentDashboardView = ({
 
       {/* Tab 4: Profile Settings */}
       {activeTab === 'profile' && (
-        <div className="max-w-2xl p-8 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-6">
+        <div className="max-w-2xl p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs space-y-6">
           {profileSaveMsg && (
-            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{profileSaveMsg}</span>
             </div>
@@ -412,7 +416,7 @@ export const StudentDashboardView = ({
                 type="text"
                 value={profileName}
                 onChange={(e) => setProfileName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
               />
             </div>
 
@@ -425,7 +429,7 @@ export const StudentDashboardView = ({
                   type="text"
                   value={profileMobile}
                   onChange={(e) => setProfileMobile(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
               <div>
@@ -436,7 +440,7 @@ export const StudentDashboardView = ({
                   type="text"
                   value={profileYear}
                   onChange={(e) => setProfileYear(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
@@ -450,7 +454,7 @@ export const StudentDashboardView = ({
                   type="text"
                   value={profileInstitution}
                   onChange={(e) => setProfileInstitution(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
               <div>
@@ -461,15 +465,19 @@ export const StudentDashboardView = ({
                   type="text"
                   value={profileDegree}
                   onChange={(e) => setProfileDegree(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
 
-            <div className="pt-2">
-              <Button type="submit" variant="primary" leftIcon={<Save className="w-4 h-4" />}>
-                Save Profile Changes
-              </Button>
+            <div className="pt-3">
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-xs rounded-full shadow-xs hover:shadow-md transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                <span>Save Profile Changes</span>
+              </button>
             </div>
           </form>
         </div>

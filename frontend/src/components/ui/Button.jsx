@@ -13,23 +13,23 @@ export const Button = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-lg';
+    'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0B4F50]/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-full sm:rounded-xl cursor-pointer';
 
   const sizeStyles = {
-    sm: 'text-xs px-3 py-1.5 gap-1.5 font-semibold',
-    md: 'text-sm px-4 py-2 gap-2 font-semibold',
-    lg: 'text-sm px-5 py-2.5 gap-2 font-bold',
+    sm: 'text-xs px-3.5 py-1.5 gap-1.5 font-semibold',
+    md: 'text-sm px-4.5 py-2.5 gap-2 font-semibold',
+    lg: 'text-sm px-6 py-3 gap-2 font-bold',
   };
 
   const variantStyles = {
     primary:
-      'bg-slate-900 text-white hover:bg-slate-800 active:bg-slate-950 border border-slate-900 shadow-2xs',
+      'bg-[#0B4F50] text-white hover:bg-[#073637] active:bg-[#052627] border border-[#0B4F50] shadow-xs hover:shadow-md transition-all active:scale-[0.99]',
     secondary:
-      'bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300 border border-slate-200 shadow-2xs',
+      'bg-[#eef7f7] text-[#0B4F50] hover:bg-[#e2f0f0] active:bg-[#d8ecec] border border-[#cbe4e4] shadow-2xs font-semibold',
     outline:
-      'bg-white text-slate-700 hover:text-slate-900 border border-slate-300 hover:border-slate-400 hover:bg-slate-50 shadow-2xs',
+      'bg-white text-[#0B4F50] hover:text-[#063334] border border-[#d8ecec] hover:border-[#0B4F50]/40 hover:bg-[#f8fbfb] shadow-2xs',
     ghost:
-      'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-100',
+      'bg-transparent text-[#0B4F50] hover:text-[#063334] hover:bg-[#eef7f7]',
     danger:
       'bg-red-700 text-white hover:bg-red-800 border border-red-700 shadow-2xs',
     success:

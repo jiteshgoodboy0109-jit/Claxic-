@@ -236,11 +236,15 @@ const MainApp = () => {
     fetchCourses();
   };
 
-  const isAuthView = currentView === 'login' || currentView === 'register' || currentView === 'admin-login';
+  const isAuthView =
+    currentView === 'login' ||
+    currentView === 'register' ||
+    currentView === 'admin-login' ||
+    (currentView === 'admin' && (!user || user.role !== 'ADMIN'));
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white font-sans antialiased">
-      {/* Top Navbar (Hidden on Login/Register/Admin-Login views) */}
+      {/* Top Navbar (Strictly hidden on Student Login / Register and Admin Login views) */}
       {!isAuthView && <Navbar currentView={currentView} onNavigate={handleNavigate} />}
 
       {/* Main Content Router */}

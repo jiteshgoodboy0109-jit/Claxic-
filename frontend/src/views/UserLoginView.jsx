@@ -378,16 +378,13 @@ export const UserLoginView = ({ initialMode = 'login', onNavigate }) => {
         <div className="lg:col-span-7 p-6 sm:p-8 lg:p-9 flex flex-col justify-center bg-white">
           <div className="space-y-4 sm:space-y-5">
             
-            {/* Header Brand: EXCELLENCE EDUCATION / CLAXIC */}
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm font-extrabold tracking-widest text-[#0B4F50] uppercase font-display">
-                  CLAXIC
-                </span>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#0e7474]/80 font-semibold font-mono">
-                  ACADEMY
-                </span>
-              </div>
+            {/* Header Brand: CLAXIC */}
+            <div className="pb-1">
+              <img
+                src="/logob.png"
+                alt="Claxic"
+                className="h-6 sm:h-7 w-auto object-contain"
+              />
             </div>
 
             {/* Main Greeting & Tagline */}

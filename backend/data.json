@@ -802,71 +802,10 @@
   ],
   "courses": [
     {
-      "id": "crs_d0aa18ad010d",
-      "slug": "prashanth",
-      "title": "PRASHANTH",
-      "shortDescription": "bcxzbckda ckjsecf",
-      "fullDescription": "BXKJASBNCSNDCNSDCVSRV",
-      "bannerImage": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
-      "category": "AI & Full Stack",
-      "level": "Intermediate",
-      "mode": "Live Interactive",
-      "duration": "10 Weeks",
-      "startDate": "2026-10-01",
-      "endDate": "2026-11-26",
-      "registrationDeadline": "2026-09-25",
-      "price": 1999,
-      "originalPrice": 999,
-      "capacity": 20,
-      "enrolledCount": 0,
-      "status": "PUBLISHED",
-      "featured": true,
-      "rating": 5,
-      "reviewsCount": 0,
-      "tags": [
-        "Education",
-        "Technology"
-      ],
-      "instructor": {
-        "id": "inst_ac188615",
-        "name": "Lead Industry Faculty",
-        "title": "Senior Staff Engineer & Claxic Fellow",
-        "company": "Claxic Faculty Council",
-        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-        "bio": "Distinguished practitioner with deep industrial expertise."
-      },
-      "modules": [
-        {
-          "id": "m1",
-          "title": "Core Fundamentals & Industry Workflows",
-          "duration": "2 Weeks (12 Hours)",
-          "topics": [
-            "Architecture overview",
-            "Practical implementations",
-            "Live assignments"
-          ]
-        }
-      ],
-      "learningOutcomes": [
-        "Build production-grade systems with industry best practices."
-      ],
-      "requirements": [
-        "Basic programming proficiency."
-      ],
-      "faq": [
-        {
-          "question": "Will I get live project reviews?",
-          "answer": "Yes, full 1-on-1 code and architecture reviews are included."
-        }
-      ],
-      "createdAt": "2026-08-29T16:28:37.094Z",
-      "updatedAt": "2026-08-29T16:28:37.094Z"
-    },
-    {
       "id": "crs_ai_fullstack_2026",
       "slug": "applied-genai-fullstack-engineering",
-      "title": "Applied GenAI",
-      "shortDescription": "Master modern full-stack development with Gemini 2.5 Flash, TypeScript, Vector DBs, Agentic Workflows, and Distributed Microservices.",
+      "title": "Applied GenAI & Full-Stack System Architecture",
+      "shortDescription": "Build production-ready agentic AI systems, RAG pipelines with Vector DBs, Gemini 2.5 Flash, React 19, TypeScript, and auto-scaling microservices on Kubernetes.",
       "fullDescription": "An intensive, hands-on 12-week professional program engineered for software developers wanting to bridge modern React/Node architecture with state-of-the-art Generative AI. You will build enterprise RAG pipelines, deploy real-time multi-agent systems, optimize LLM context caching, and deploy auto-scaling microservices on Google Cloud Run and Kubernetes.",
       "bannerImage": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
       "category": "AI & Full Stack",
@@ -878,8 +817,8 @@
       "registrationDeadline": "2026-09-10",
       "price": 14999,
       "originalPrice": 24999,
-      "capacity": 45,
-      "enrolledCount": 44,
+      "capacity": 50,
+      "enrolledCount": 14,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 4.94,
@@ -889,90 +828,264 @@
         "React 19",
         "TypeScript",
         "Node.js",
-        "PostgreSQL",
+        "Vector DB",
         "Docker"
       ],
       "instructor": {
         "id": "inst_dr_aravind",
         "name": "Dr. Aravind Sundararajan",
-        "title": "Principal AI Architect & Ex-Google DeepMind Staff Engineer",
+        "title": "Principal AI Architect & Ex-Google Staff Engineer",
         "company": "Claxic AI Research Labs",
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
         "bio": "Over 14 years building planetary-scale AI systems and leading production ML infra teams across Silicon Valley and Bengaluru."
       },
       "modules": [
         {
-          "id": "mod_1",
+          "id": "m1",
           "title": "Foundations of Modern Distributed Web Architecture",
-          "duration": "2 Weeks (14 Hours)",
+          "duration": "2 Weeks",
           "topics": [
-            "High-throughput Express/Fastify TypeScript patterns",
-            "ACID transaction guarantees and relational schema modeling with PostgreSQL & Prisma",
-            "Caching hierarchies: Redis multi-tier invalidation strategies",
-            "Containerized local setups with Docker Compose & DevContainers"
+            "Fastify TypeScript Patterns",
+            "ACID Transactions & PostgreSQL",
+            "Redis Cache Invalidation",
+            "Docker Compose Setups"
           ]
         },
         {
-          "id": "mod_2",
+          "id": "m2",
           "title": "Deep Dive: LLM Integrations & Agentic Frameworks",
-          "duration": "3 Weeks (21 Hours)",
+          "duration": "3 Weeks",
           "topics": [
-            "Google GenAI SDK deep dive: Multimodal prompts, Structured JSON schema outputs",
-            "Building autonomous tool-calling Agents with ReAct & Graph workflows",
-            "Production RAG: Chunking heuristics, hybrid BM25 + dense embeddings search",
-            "Cost controls: Context caching, token streaming, and fallback routing"
+            "Google GenAI SDK & Structured Outputs",
+            "ReAct Tool-Calling Agents",
+            "Hybrid BM25 + Vector Search",
+            "Context Caching & Streaming"
           ]
         },
         {
-          "id": "mod_3",
+          "id": "m3",
           "title": "Real-Time Systems & Collaborative Frontends",
-          "duration": "3 Weeks (21 Hours)",
+          "duration": "3 Weeks",
           "topics": [
-            "React 19 Server Components, Actions, and Optimistic UI updates",
-            "WebSocket orchestration with Redis Pub/Sub backplanes",
-            "State management with Zustand and TanStack React Query cache synchronization",
-            "Accessibility compliance (WCAG 2.1 AA) and resilient design systems"
+            "React 19 Server Components",
+            "WebSocket Orchestration",
+            "Zustand & TanStack Query",
+            "Accessible UI Systems"
           ]
         },
         {
-          "id": "mod_4",
+          "id": "m4",
           "title": "Production Observability, Security & Cloud Deployment",
-          "duration": "4 Weeks (28 Hours)",
+          "duration": "4 Weeks",
           "topics": [
-            "Zero-trust authentication: OAuth 2.1, RBAC, JWT rotation, and PKCE flows",
-            "CI/CD pipelines on GitHub Actions with automated linting & end-to-end testing",
-            "Deploying to Cloud Run with scale-to-zero and VPC serverless connectors",
-            "Capstone project evaluation and 1-on-1 industry architectural review"
+            "Zero-Trust Auth (OAuth 2.1, RBAC)",
+            "GitHub Actions CI/CD Pipelines",
+            "Cloud Run & Kubernetes Deployment",
+            "1-on-1 Architectural Review"
           ]
         }
       ],
       "learningOutcomes": [
-        "Architect production-ready full-stack applications with bulletproof type safety and schema validation.",
-        "Deploy autonomous AI agents with function calling, tool execution, and vector-backed knowledge bases.",
-        "Optimize database queries, indexes, and connection pooling for 10k+ concurrent users.",
-        "Implement real-world payment processing, OAuth flows, and webhooks with idempotent recovery."
+        "Architect production-ready full-stack applications with bulletproof type safety.",
+        "Deploy autonomous AI agents with function calling and vector-backed search.",
+        "Optimize database queries and connection pooling for 10k+ concurrent users."
       ],
       "requirements": [
-        "Proficiency in JavaScript/TypeScript and foundational understanding of React.",
-        "Basic familiarity with RESTful APIs, Git, and relational databases.",
-        "A development laptop with at least 8GB RAM (16GB recommended) and Node.js v20+."
+        "Proficiency in JavaScript/TypeScript and React basics."
       ],
       "faq": [
         {
-          "question": "Are the live sessions recorded for later access?",
-          "answer": "Yes, all live workshops are recorded in 4K resolution and uploaded within 2 hours of class completion along with complete code repositories, slide decks, and sandbox notes."
+          "question": "Are live sessions recorded?",
+          "answer": "Yes, 4K recordings with code repositories are provided after every workshop."
+        }
+      ]
+    },
+    {
+      "id": "crs_uiux_product_2026",
+      "slug": "digital-product-design-design-systems",
+      "title": "Digital Product Design & Enterprise Design Systems",
+      "shortDescription": "Master user research heuristics, interactive Figma prototyping, multi-brand tokenized design systems, accessibility math, and design-to-code handoffs.",
+      "fullDescription": "Craft intuitive, world-class user experiences for complex software products. Learn UX research heuristics, rapid prototyping, building tokenized multi-brand design systems in Figma, and collaborating seamlessly with frontend engineering teams.",
+      "bannerImage": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
+      "category": "Product & Design",
+      "level": "All Levels",
+      "mode": "Self-Paced",
+      "duration": "6 Weeks (36 Live & Lab Hours)",
+      "startDate": "2026-09-18",
+      "endDate": "2026-10-30",
+      "registrationDeadline": "2026-09-15",
+      "price": 9999,
+      "originalPrice": 15999,
+      "capacity": 50,
+      "enrolledCount": 14,
+      "status": "PUBLISHED",
+      "featured": true,
+      "rating": 4.92,
+      "reviewsCount": 210,
+      "tags": [
+        "UI/UX",
+        "Figma",
+        "Design Systems",
+        "Micro-interactions",
+        "Accessibility",
+        "Tailwind"
+      ],
+      "instructor": {
+        "id": "inst_tanya_roy",
+        "name": "Tanya Roy",
+        "title": "Lead Product Designer & Design Systems Advocate",
+        "company": "HyperCraft Studio",
+        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+        "bio": "Design systems consultant and international design juror with expertise in tokenized multi-brand UI design."
+      },
+      "modules": [
+        {
+          "id": "d1",
+          "title": "User Psychology & Heuristic Discovery",
+          "duration": "1.5 Weeks",
+          "topics": [
+            "User Interviews & Journey Maps",
+            "Information Architecture",
+            "Wireframing Low-to-High Fidelity"
+          ]
         },
         {
-          "question": "Will I receive a verified certificate upon completion?",
-          "answer": "Yes! Upon completing the capstone project and maintaining 80%+ attendance, you will receive a cryptographically verified Claxic Certificate of Mastery that you can showcase on LinkedIn."
+          "id": "d2",
+          "title": "Advanced Figma & Tokenized Design Systems",
+          "duration": "2 Weeks",
+          "topics": [
+            "Auto-Layout 5.0 & Variables",
+            "Component Variant Architecture",
+            "Dark Mode Token Derivations"
+          ]
         },
         {
-          "question": "Is there installment or EMI payment support?",
-          "answer": "Yes, our Razorpay payment integration supports all major credit/debit card EMIs, UPI, Net Banking, and PayLater schemes with zero-cost EMI options."
+          "id": "d3",
+          "title": "Micro-Interactions & Prototyping",
+          "duration": "1.5 Weeks",
+          "topics": [
+            "Smart Animate Prototyping",
+            "Tactile Feedback Curves",
+            "WCAG AA Color Contrast Math"
+          ]
+        },
+        {
+          "id": "d4",
+          "title": "Design-to-Code & Portfolio Showcase",
+          "duration": "1 Week",
+          "topics": [
+            "Figma to Tailwind CSS Mappings",
+            "Creating Standout Hiring Case Studies"
+          ]
         }
       ],
-      "createdAt": "2026-08-01T10:00:00.000Z",
-      "updatedAt": "2026-08-28T07:44:58.342Z"
+      "learningOutcomes": [
+        "Create multi-platform design systems with scalable design tokens.",
+        "Produce polished case studies ready for product designer interviews at top startups."
+      ],
+      "requirements": [
+        "Curiosity and a computer with access to Figma."
+      ],
+      "faq": [
+        {
+          "question": "Is prior design experience required?",
+          "answer": "No prior experience is necessary; we start from first principles."
+        }
+      ]
+    },
+    {
+      "id": "crs_cybersec_2026",
+      "slug": "advanced-cybersecurity-ethical-hacking",
+      "title": "Advanced Cyber Defense & Practical Ethical Hacking",
+      "shortDescription": "Master web application security (OWASP Top 10), network penetration testing, API vulnerability exploitation, and DevSecOps safeguards.",
+      "fullDescription": "Comprehensive training in modern cybersecurity defense and ethical penetration testing. Learn how attackers think, how to audit codebases for zero-day flaws, how to secure cloud environments, and how to build automated security gates in CI/CD pipelines.",
+      "bannerImage": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
+      "category": "Cyber Security",
+      "level": "Intermediate",
+      "mode": "Hybrid Workshop",
+      "duration": "8 Weeks (56 Live Hours)",
+      "startDate": "2026-09-20",
+      "endDate": "2026-11-15",
+      "registrationDeadline": "2026-09-16",
+      "price": 12999,
+      "originalPrice": 19999,
+      "capacity": 50,
+      "enrolledCount": 14,
+      "status": "PUBLISHED",
+      "featured": true,
+      "rating": 4.91,
+      "reviewsCount": 154,
+      "tags": [
+        "Cybersecurity",
+        "Ethical Hacking",
+        "OWASP Top 10",
+        "Burp Suite",
+        "DevSecOps",
+        "Cloud IAM"
+      ],
+      "instructor": {
+        "id": "inst_meera_nair",
+        "name": "Meera Nair, CISSP",
+        "title": "Head of Information Security & Red Teamer",
+        "company": "Fortress Defense Labs",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+        "bio": "Certified Red Team Operator with a decade of enterprise security audits for banking and telecom systems."
+      },
+      "modules": [
+        {
+          "id": "s1",
+          "title": "Modern Threat Modeling & Web App Pen-Testing",
+          "duration": "2 Weeks",
+          "topics": [
+            "Burp Suite Professional Suite",
+            "SQL Injection, XSS, SSRF & IDOR",
+            "OAuth2 Token Forgery & JWT Flaws"
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "API Security & Microservice Defense",
+          "duration": "2 Weeks",
+          "topics": [
+            "REST & GraphQL Pen-Testing",
+            "BOLA Discovery",
+            "Rate Limit Bypasses"
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Cloud Security Posture Management & DevSecOps",
+          "duration": "2 Weeks",
+          "topics": [
+            "AWS & GCP IAM Privilege Escalation",
+            "SAST & DAST Automated Scanners",
+            "HashiCorp Vault Secrets Management"
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Live Capture The Flag (CTF) Clinic",
+          "duration": "2 Weeks",
+          "topics": [
+            "Competitive Cyber Range Labs",
+            "Executive Remediation Reports",
+            "Blue-Team Hardening Playbooks"
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        "Conduct end-to-end vulnerability assessments on web and API services.",
+        "Remediate high-severity OWASP vulnerabilities before production releases."
+      ],
+      "requirements": [
+        "Basic understanding of networking, HTTP, and terminal commands."
+      ],
+      "faq": [
+        {
+          "question": "Is the lab environment safe and isolated?",
+          "answer": "Yes, all labs run on our dedicated, isolated Claxic Cyber Range."
+        }
+      ]
     },
     {
       "id": "crs_cloud_k8s_2026",
@@ -990,8 +1103,8 @@
       "registrationDeadline": "2026-09-25",
       "price": 18999,
       "originalPrice": 28999,
-      "capacity": 35,
-      "enrolledCount": 22,
+      "capacity": 50,
+      "enrolledCount": 14,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 4.88,
@@ -1008,76 +1121,72 @@
       "instructor": {
         "id": "inst_dev_kapoor",
         "name": "Rohan Kapoor",
-        "title": "Principal Infrastructure Engineer",
+        "title": "Principal Infrastructure Architect",
         "company": "CloudScale Global",
         "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
-        "bio": "AWS Certified Solutions Architect Fellow with 11+ years managing 500+ node multi-region Kubernetes clusters."
+        "bio": "AWS Certified Solutions Architect Fellow with 11+ years managing 500+ node multi-region clusters."
       },
       "modules": [
         {
-          "id": "kmod_1",
-          "title": "Linux Internals, Cgroups & Production Containers",
-          "duration": "2 Weeks (14 Hours)",
+          "id": "k1",
+          "title": "Linux Internals & Production Containers",
+          "duration": "2 Weeks",
           "topics": [
-            "Linux namespaces, cgroups, systemd",
-            "Multi-stage Docker builds",
-            "Container vulnerability scanning with Trivy"
+            "Linux Namespaces & Cgroups",
+            "Multi-Stage Docker Builds",
+            "Trivy Vulnerability Scanning"
           ]
         },
         {
-          "id": "kmod_2",
-          "title": "Kubernetes Core Objects & Cluster Provisioning",
-          "duration": "3 Weeks (21 Hours)",
+          "id": "k2",
+          "title": "Kubernetes Core & Cluster Provisioning",
+          "duration": "3 Weeks",
           "topics": [
-            "Pods, Deployments, StatefulSets, DaemonSets",
-            "Ingress controllers, Cert-Manager, TLS termination",
-            "Persistent Volumes & CSI drivers"
+            "Pods, Deployments & StatefulSets",
+            "Ingress & TLS Termination",
+            "Persistent Volumes & CSI Drivers"
           ]
         },
         {
-          "id": "kmod_3",
+          "id": "k3",
           "title": "GitOps, CI/CD & Automated Delivery",
-          "duration": "3 Weeks (21 Hours)",
+          "duration": "3 Weeks",
           "topics": [
-            "Infrastructure as Code with Terraform & OpenTofu",
-            "ArgoCD GitOps declarative deployments",
-            "Canary & Blue-Green progressive delivery with Flagger"
+            "Terraform & OpenTofu IaC",
+            "ArgoCD Declarative Deployments",
+            "Canary Rollouts with Flagger"
           ]
         },
         {
-          "id": "kmod_4",
-          "title": "Observability, SRE & Incident Response",
-          "duration": "2 Weeks (14 Hours)",
+          "id": "k4",
+          "title": "Observability & SRE Incident Response",
+          "duration": "2 Weeks",
           "topics": [
-            "Prometheus metrics, PromQL, Grafana dashboards",
-            "Distributed tracing with OpenTelemetry & Jaeger",
-            "Chaos engineering with LitmusChaos"
+            "Prometheus & Grafana Dashboards",
+            "OpenTelemetry Tracing",
+            "Chaos Engineering with LitmusChaos"
           ]
         }
       ],
       "learningOutcomes": [
-        "Build and operate production-grade Kubernetes clusters on GCP (GKE) and AWS (EKS).",
-        "Automate complete infrastructure provisioning using Terraform and GitOps with ArgoCD.",
-        "Configure enterprise observability, alert manager rules, and MTTR reduction runbooks."
+        "Operate production-grade Kubernetes clusters on GCP and AWS.",
+        "Automate infrastructure provisioning with Terraform and ArgoCD."
       ],
       "requirements": [
-        "Basic knowledge of Linux command line and Git.",
-        "Understanding of networking concepts (DNS, TCP/IP, HTTP, Load Balancing)."
+        "Basic Linux command line and Git familiarity."
       ],
       "faq": [
         {
-          "question": "Do I need a paid cloud account for the labs?",
-          "answer": "No! We provide dedicated cloud sandbox credits and local Minikube/Kind configurations so you can practice without personal cloud expenses."
+          "question": "Do I need paid cloud accounts?",
+          "answer": "No, all sandbox cloud accounts are included for the labs."
         }
-      ],
-      "createdAt": "2026-08-05T10:00:00.000Z",
-      "updatedAt": "2026-08-22T12:00:00.000Z"
+      ]
     },
     {
       "id": "crs_system_design_2026",
       "slug": "distributed-system-design-high-scale",
       "title": "Distributed System Design & High-Concurrency Architecture",
-      "shortDescription": "Master the architectural patterns used by Netflix, Uber, and Google. Sharding, Consistent Hashing, Event-Driven Architecture, and Resiliency.",
+      "shortDescription": "Master the architectural patterns used by Netflix, Uber, and Google: Sharding, Consistent Hashing, Event-Driven Architecture, and Resiliency.",
       "fullDescription": "Designed specifically for mid-level and senior engineers targeting Staff Engineer roles. Learn how to design fault-tolerant systems handling millions of queries per second with sub-millisecond latency, distributed consensus (Raft/Paxos), and event-driven patterns.",
       "bannerImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
       "category": "System Architecture",
@@ -1090,7 +1199,7 @@
       "price": 16999,
       "originalPrice": 25999,
       "capacity": 50,
-      "enrolledCount": 46,
+      "enrolledCount": 14,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 4.97,
@@ -1109,257 +1218,63 @@
         "title": "Distinguished Systems Architect",
         "company": "ScaleX Systems",
         "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-        "bio": "Author of \"Scaling to 100M Daily Actives\" and former lead architect behind high-concurrency payment switches."
+        "bio": "Former lead architect behind high-concurrency real-time payment switches handling 100k+ transactions/second."
       },
       "modules": [
         {
-          "id": "sys_1",
-          "title": "Core Building Blocks of Distributed Computing",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd1",
+          "title": "Building Blocks of Distributed Systems",
+          "duration": "2 Weeks",
           "topics": [
-            "CAP theorem in practice, PACELC",
-            "Consistent hashing & ring topologies",
-            "LSM trees vs B-Trees in database engines"
+            "CAP & PACELC Trade-offs",
+            "Consistent Hashing & Partitioning",
+            "LSM Trees vs B-Trees"
           ]
         },
         {
-          "id": "sys_2",
-          "title": "Message Queues, Streaming & Event Sourcing",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd2",
+          "title": "Message Queues & Event Sourcing",
+          "duration": "2 Weeks",
           "topics": [
-            "Apache Kafka internals: partitions, consumer groups, offsets",
-            "Idempotent consumer patterns & Saga transactions",
-            "Change Data Capture (CDC) with Debezium"
+            "Apache Kafka Partitions & Offsets",
+            "Saga Distributed Transactions",
+            "Debezium CDC Streams"
           ]
         },
         {
-          "id": "sys_3",
-          "title": "Real-World System Case Studies",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd3",
+          "title": "Real-World Production Case Studies",
+          "duration": "2 Weeks",
           "topics": [
-            "Designing a Global Ride-Hailing Match Engine (Uber)",
-            "Designing a Collaborative Real-Time Whiteboard (Figma)",
-            "Designing a Video Streaming CDN with Adaptive Bitrate (Netflix)"
+            "Global Ride Match Engine (Uber)",
+            "Collaborative Whiteboard (Figma)",
+            "Video CDN Streaming (Netflix)"
           ]
         },
         {
-          "id": "sys_4",
-          "title": "Disaster Recovery, Rate Limiting & Mock Interviews",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd4",
+          "title": "Resiliency & Mock System Interviews",
+          "duration": "2 Weeks",
           "topics": [
-            "Token bucket, leaky bucket & distributed sliding window limiters",
-            "Circuit breakers (Resilience4j) and bulkhead patterns",
-            "1-on-1 mock system design interview simulations"
+            "Sliding Window Rate Limiters",
+            "Circuit Breaker Patterns",
+            "1-on-1 Mock Interview Evaluations"
           ]
         }
       ],
       "learningOutcomes": [
-        "Design reliable, fault-tolerant distributed systems capable of scaling to millions of QPS.",
-        "Confidently lead Staff/Principal engineering system design interviews at Tier-1 tech giants."
+        "Design reliable distributed systems scaling to millions of queries per second.",
+        "Lead Staff and Principal Engineering system design interviews with confidence."
       ],
       "requirements": [
-        "At least 2 years of backend or full-stack software development experience."
+        "At least 2 years of software engineering experience."
       ],
       "faq": [
         {
-          "question": "Does this course include 1-on-1 design mock sessions?",
-          "answer": "Yes! Every enrolled participant receives a scheduled 45-minute live mock design interview with our lead faculty."
+          "question": "Are 1-on-1 mock interviews included?",
+          "answer": "Yes, every enrolled student receives a private 45-minute live mock session."
         }
-      ],
-      "createdAt": "2026-08-10T10:00:00.000Z",
-      "updatedAt": "2026-08-25T11:00:00.000Z"
-    },
-    {
-      "id": "crs_cybersec_2026",
-      "slug": "advanced-cybersecurity-ethical-hacking",
-      "title": "Advanced Cyber Defense & Practical Ethical Hacking",
-      "shortDescription": "Master web application security (OWASP Top 10), network penetration testing, API vulnerability exploitation, and DevSecOps safeguards.",
-      "fullDescription": "Comprehensive training in modern cybersecurity defense and ethical penetration testing. Learn how attackers think, how to audit codebases for zero-day flaws, how to secure cloud environments, and how to build automated security gates in CI/CD pipelines.",
-      "bannerImage": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
-      "category": "Cyber Security",
-      "level": "Intermediate",
-      "mode": "Hybrid Workshop",
-      "duration": "8 Weeks (56 Live Hours)",
-      "startDate": "2026-09-20",
-      "endDate": "2026-11-15",
-      "registrationDeadline": "2026-09-16",
-      "price": 12999,
-      "originalPrice": 19999,
-      "capacity": 40,
-      "enrolledCount": 33,
-      "status": "PUBLISHED",
-      "featured": false,
-      "rating": 4.91,
-      "reviewsCount": 154,
-      "tags": [
-        "Cybersecurity",
-        "Ethical Hacking",
-        "OWASP",
-        "Burp Suite",
-        "DevSecOps",
-        "Network Security"
-      ],
-      "instructor": {
-        "id": "inst_meera_nair",
-        "name": "Meera Nair, CISSP",
-        "title": "Head of Information Security & Red Teamer",
-        "company": "Fortress Defense Labs",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
-        "bio": "Certified Red Team Operator with a decade of enterprise security audits for banking and government infrastructure."
-      },
-      "modules": [
-        {
-          "id": "sec_1",
-          "title": "Modern Threat Modeling & Web App Penetration Testing",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "Burp Suite Professional masterclass",
-            "SQL Injection, XSS, SSRF, IDOR, CSRF bypasses",
-            "OAuth2 token forgery and JWT flaws"
-          ]
-        },
-        {
-          "id": "sec_2",
-          "title": "API Security & Microservice Defense",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "REST & GraphQL penetration testing",
-            "BOLA (Broken Object Level Auth) discovery",
-            "Rate limit bypass and API gateway security"
-          ]
-        },
-        {
-          "id": "sec_3",
-          "title": "Cloud Security Posture Management & DevSecOps",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "AWS & GCP IAM privilege escalation auditing",
-            "SAST & DAST tool integration with GitHub Actions",
-            "Secrets management with HashiCorp Vault"
-          ]
-        },
-        {
-          "id": "sec_4",
-          "title": "Live Capture The Flag (CTF) & Remediation Clinic",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "Competitive CTF lab scenarios",
-            "Writing executive penetration test reports",
-            "Defensive blue-team hardening playbooks"
-          ]
-        }
-      ],
-      "learningOutcomes": [
-        "Conduct end-to-end vulnerability assessments on modern web and API applications.",
-        "Identify and remediate high-severity OWASP Top 10 vulnerabilities before production release.",
-        "Implement automated security scanning into continuous deployment pipelines."
-      ],
-      "requirements": [
-        "Solid grasp of networking fundamentals, HTTP protocol, and basic programming."
-      ],
-      "faq": [
-        {
-          "question": "Will we have legal permissions to hack in this course?",
-          "answer": "All exercises are hosted on our dedicated, isolated Claxic Cyber Range containing realistic vulnerable target systems."
-        }
-      ],
-      "createdAt": "2026-08-08T10:00:00.000Z",
-      "updatedAt": "2026-08-24T15:00:00.000Z"
-    },
-    {
-      "id": "crs_uiux_product_2026",
-      "slug": "digital-product-design-design-systems",
-      "title": "Digital Product Design & Enterprise Design Systems",
-      "shortDescription": "From user research to design systems in Figma, interactive micro-interactions, accessibility math, and design-to-code handoffs.",
-      "fullDescription": "Craft intuitive, world-class user experiences for complex software products. Learn UX research heuristics, rapid prototyping, building tokenized multi-brand design systems in Figma, and collaborating seamlessly with frontend engineering teams.",
-      "bannerImage": "https://images.unsplash.com/photo-1581291518655-9523c932edcf?auto=format&fit=crop&w=1200&q=80",
-      "category": "Product & Design",
-      "level": "All Levels",
-      "mode": "Self-Paced",
-      "duration": "6 Weeks (36 Live & Lab Hours)",
-      "startDate": "2026-09-18",
-      "endDate": "2026-10-30",
-      "registrationDeadline": "2026-09-15",
-      "price": 9999,
-      "originalPrice": 15999,
-      "capacity": 60,
-      "enrolledCount": 48,
-      "status": "PUBLISHED",
-      "featured": false,
-      "rating": 4.92,
-      "reviewsCount": 210,
-      "tags": [
-        "UI/UX",
-        "Figma",
-        "Design Systems",
-        "Micro-interactions",
-        "Accessibility",
-        "Prototyping"
-      ],
-      "instructor": {
-        "id": "inst_tanya_roy",
-        "name": "Tanya Roy",
-        "title": "Lead Product Designer",
-        "company": "HyperCraft Studio",
-        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
-        "bio": "Design systems advocate and judge for international digital product design competitions."
-      },
-      "modules": [
-        {
-          "id": "des_1",
-          "title": "User Psychology & Heuristic Discovery",
-          "duration": "1.5 Weeks (9 Hours)",
-          "topics": [
-            "User interviews & journey mapping",
-            "Information architecture & tree testing",
-            "Wireframing low-to-high fidelity progressions"
-          ]
-        },
-        {
-          "id": "des_2",
-          "title": "Advanced Figma & Tokenized Design Systems",
-          "duration": "2 Weeks (12 Hours)",
-          "topics": [
-            "Auto-layout 5.0, variables, typography tokens",
-            "Component variant architecture & state matrices",
-            "Dark mode token derivation"
-          ]
-        },
-        {
-          "id": "des_3",
-          "title": "Micro-Interactions & Prototyping",
-          "duration": "1.5 Weeks (9 Hours)",
-          "topics": [
-            "Interactive component prototyping with smart animate",
-            "Mathematical easing curves & tactile feedback",
-            "Accessibility WCAG AA color contrast math"
-          ]
-        },
-        {
-          "id": "des_4",
-          "title": "Design-to-Code & Portfolio Showcase",
-          "duration": "1 Week (6 Hours)",
-          "topics": [
-            "Figma to Tailwind CSS / Shadcn mappings",
-            "Creating a standout case study for hiring managers"
-          ]
-        }
-      ],
-      "learningOutcomes": [
-        "Create end-to-end multi-platform design systems with scalable design tokens.",
-        "Produce polished case studies ready for product designer interviews at top startups."
-      ],
-      "requirements": [
-        "No prior design experience required. Just curiosity and a laptop."
-      ],
-      "faq": [
-        {
-          "question": "Is Figma required?",
-          "answer": "Yes, a free Figma account is all you need to participate in all live workshops and assignments."
-        }
-      ],
-      "createdAt": "2026-08-12T10:00:00.000Z",
-      "updatedAt": "2026-08-25T16:00:00.000Z"
+      ]
     },
     {
       "id": "crs_data_science_2026",
@@ -1377,10 +1292,10 @@
       "registrationDeadline": "2026-10-10",
       "price": 13999,
       "originalPrice": 21999,
-      "capacity": 40,
-      "enrolledCount": 40,
-      "status": "FULL",
-      "featured": false,
+      "capacity": 50,
+      "enrolledCount": 14,
+      "status": "PUBLISHED",
+      "featured": true,
       "rating": 4.89,
       "reviewsCount": 165,
       "tags": [
@@ -1402,61 +1317,59 @@
       },
       "modules": [
         {
-          "id": "ds_1",
-          "title": "Exploratory Data Analysis & Statistical Modeling",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "id": "ds1",
+          "title": "Exploratory Data Analysis & Statistics",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Pandas & Polars performance comparisons",
-            "Hypothesis testing, Bayesian priors & A/B testing stats",
-            "Advanced feature selection and imputation"
+            "Pandas & Polars",
+            "Hypothesis & A/B Testing",
+            "Feature Engineering"
           ]
         },
         {
-          "id": "ds_2",
+          "id": "ds2",
           "title": "Supervised & Unsupervised Machine Learning",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Gradient Boosting with XGBoost and LightGBM",
-            "Hyperparameter tuning with Optuna",
-            "Dimensionality reduction: UMAP vs t-SNE"
+            "XGBoost & LightGBM",
+            "Optuna Hyperparameter Tuning",
+            "UMAP vs t-SNE"
           ]
         },
         {
-          "id": "ds_3",
+          "id": "ds3",
           "title": "Deep Learning with PyTorch",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Neural network architectures from scratch",
-            "Transformers, self-attention mechanisms",
-            "Transfer learning & embeddings fine-tuning"
+            "Neural Network Architectures",
+            "Transformers & Attention",
+            "Embeddings Fine-Tuning"
           ]
         },
         {
-          "id": "ds_4",
+          "id": "ds4",
           "title": "MLOps, Model Serving & Monitoring",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Model tracking with MLflow",
-            "Packaging inference APIs with FastAPI and Docker",
-            "Data drift detection with Evidently AI"
+            "MLflow Experiment Tracking",
+            "FastAPI & Docker Model APIs",
+            "Evidently AI Drift Detection"
           ]
         }
       ],
       "learningOutcomes": [
-        "Build, evaluate, and fine-tune complex statistical and deep learning models.",
-        "Deploy production-ready inference endpoints with automated monitoring and drift alarms."
+        "Build and evaluate complex statistical machine learning models.",
+        "Deploy production inference endpoints with automated drift monitoring."
       ],
       "requirements": [
-        "Comfort with Python programming and basic calculus/linear algebra."
+        "Python programming fundamentals and basic math."
       ],
       "faq": [
         {
-          "question": "Is GPU hardware provided for deep learning labs?",
-          "answer": "Yes, cloud GPU instances (NVIDIA T4/A100) are provided at no extra cost."
+          "question": "Are GPU instances provided for deep learning labs?",
+          "answer": "Yes, GPU cloud instances are provided for PyTorch model training."
         }
-      ],
-      "createdAt": "2026-08-14T10:00:00.000Z",
-      "updatedAt": "2026-08-26T18:00:00.000Z"
+      ]
     }
   ],
   "applications": [

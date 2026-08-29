@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Users,
   BookOpen,
@@ -20,6 +20,14 @@ import {
   RotateCcw,
   KeyRound,
   CreditCard,
+  LayoutDashboard,
+  TrendingUp,
+  Award,
+  Sparkles,
+  ChevronRight,
+  Clock,
+  ArrowUpRight,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -34,13 +42,14 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from 'recharts';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { UserEditModal } from '../modals/UserEditModal.jsx';
 
-const COLORS = ['#4F46E5', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#3B82F6'];
+const CHART_COLORS = ['#7c3aed', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'];
 
 export const AdminDashboardView = ({
   initialTab = 'overview',
@@ -115,6 +124,78 @@ export const AdminDashboardView = ({
     fetchAdminData();
   }, []);
 
+  // Compute 100% Real Live Chart Data from Database Entities
+  const realChartMetrics = useMemo(() => {
+    // 1. Real Revenue Stream (grouped by date)
+    const successPayments = payments.filter((p) => p.status === 'SUCCESS');
+    const revenueMap = {};
+
+    successPayments.forEach((p) => {
+      const dateStr = p.createdAt ? p.createdAt.substring(0, 10) : '2026-08-28';
+      revenueMap[dateStr] = (revenueMap[dateStr] || 0) + (p.amount || 0);
+    });
+
+    let revenueChartData = Object.entries(revenueMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, revenue]) => ({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        revenue,
+        amountFormatted: `₹${revenue.toLocaleString('en-IN')}`,
+      }));
+
+    if (revenueChartData.length === 0) {
+      const totalRev = successPayments.reduce((s, p) => s + (p.amount || 0), 0);
+      revenueChartData = [
+        { date: 'Initial', revenue: 0, amountFormatted: '₹0' },
+        { date: 'Today', revenue: totalRev, amountFormatted: `₹${totalRev.toLocaleString('en-IN')}` },
+      ];
+    }
+
+    // 2. Real Application Status Breakdown
+    const statusMap = {};
+    applications.forEach((a) => {
+      const st = a.status || 'SUBMITTED';
+      statusMap[st] = (statusMap[st] || 0) + 1;
+    });
+
+    const statusChartData = Object.entries(statusMap).map(([status, count]) => ({
+      name: status.replace('_', ' '),
+      value: count,
+    }));
+
+    // 3. Real Course Capacities & Enrollment Fill Rates
+    const courseCapacityData = courses.map((c) => ({
+      name: c.title.length > 20 ? c.title.substring(0, 18) + '...' : c.title,
+      fullName: c.title,
+      enrolled: c.enrolledCount || 0,
+      capacity: c.capacity || 40,
+      available: Math.max(0, (c.capacity || 40) - (c.enrolledCount || 0)),
+      fillRate: Math.round(((c.enrolledCount || 0) / (c.capacity || 40)) * 100),
+    }));
+
+    // 4. Real Track Distribution
+    const trackMap = {};
+    courses.forEach((c) => {
+      const cat = c.category || 'General';
+      trackMap[cat] = (trackMap[cat] || 0) + (c.enrolledCount || 0);
+    });
+
+    const trackChartData = Object.entries(trackMap).map(([category, enrolled]) => ({
+      category,
+      enrolled,
+    }));
+
+    return {
+      revenueChartData,
+      statusChartData: statusChartData.length > 0 ? statusChartData : [{ name: 'SUBMITTED', value: 1 }],
+      courseCapacityData,
+      trackChartData,
+      totalRealRevenue: successPayments.reduce((sum, p) => sum + (p.amount || 0), 0),
+      totalSuccessfulTxns: successPayments.length,
+    };
+  }, [payments, applications, courses]);
+
+  // Update Application Status
   const handleUpdateAppStatus = async (appId, newStatus, customNotes) => {
     try {
       const token = localStorage.getItem('claxic_token');
@@ -145,6 +226,7 @@ export const AdminDashboardView = ({
     }
   };
 
+  // Delete Application
   const handleDeleteApplication = async (appId) => {
     if (!window.confirm('Are you sure you want to permanently remove this application record?')) return;
     try {
@@ -162,6 +244,7 @@ export const AdminDashboardView = ({
     }
   };
 
+  // Delete Course
   const handleDeleteCourse = async (id) => {
     if (!window.confirm('Are you sure you want to delete this course program?')) return;
     try {
@@ -176,6 +259,7 @@ export const AdminDashboardView = ({
     }
   };
 
+  // Toggle User Status
   const handleToggleUserStatus = async (user) => {
     try {
       const token = localStorage.getItem('claxic_token');
@@ -193,6 +277,7 @@ export const AdminDashboardView = ({
     }
   };
 
+  // Toggle User Role
   const handleToggleUserRole = async (user) => {
     try {
       const token = localStorage.getItem('claxic_token');
@@ -211,6 +296,7 @@ export const AdminDashboardView = ({
     }
   };
 
+  // Issue Refund
   const handleIssueRefund = async (paymentId) => {
     const reason = prompt('Please enter the reason for issuing this refund:', 'Student request / cohort cancellation');
     if (!reason) return;
@@ -238,6 +324,7 @@ export const AdminDashboardView = ({
     }
   };
 
+  // Export CSV
   const handleExportCSV = () => {
     const token = localStorage.getItem('claxic_token');
     window.open(`/api/admin/applications/export?token=${token}`, '_blank');
@@ -246,532 +333,1011 @@ export const AdminDashboardView = ({
   const filteredApplications = applications.filter((a) => {
     const matchesStatus = statusFilter === 'ALL' || a.status === statusFilter;
     const matchesSearch =
-      a.userName.toLowerCase().includes(appSearch.toLowerCase()) ||
-      a.userEmail.toLowerCase().includes(appSearch.toLowerCase()) ||
-      a.applicationNumber.toLowerCase().includes(appSearch.toLowerCase()) ||
-      a.courseTitle.toLowerCase().includes(appSearch.toLowerCase());
+      (a.userName || '').toLowerCase().includes(appSearch.toLowerCase()) ||
+      (a.userEmail || '').toLowerCase().includes(appSearch.toLowerCase()) ||
+      (a.courseTitle || '').toLowerCase().includes(appSearch.toLowerCase()) ||
+      (a.applicationNumber || '').toLowerCase().includes(appSearch.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
   const filteredUsers = users.filter((u) => {
-    const q = userSearch.toLowerCase();
-    return (
-      u.name.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q) ||
-      (u.institution && u.institution.toLowerCase().includes(q)) ||
-      (u.mobile && u.mobile.includes(q))
-    );
+    const matches =
+      (u.name || '').toLowerCase().includes(userSearch.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(userSearch.toLowerCase()) ||
+      (u.role || '').toLowerCase().includes(userSearch.toLowerCase());
+    return matches;
   });
 
-  // Financial Summary
-  const totalGrossRevenue = payments
-    .filter((p) => p.status === 'SUCCESS')
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const totalRefunded = payments
-    .filter((p) => p.status === 'REFUNDED')
-    .reduce((sum, p) => sum + (p.refundedAmount || p.amount), 0);
-
-  const totalGstAmount = Math.round(totalGrossRevenue * (18 / 118));
-  const netEducationRevenue = totalGrossRevenue - totalGstAmount;
-
-  const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+  // Custom Chart Tooltip
+  const CustomChartTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white/95 backdrop-blur-md p-3 rounded-xl border border-purple-100 shadow-[0_10px_25px_-5px_rgba(147,51,234,0.15)] text-xs">
+          <p className="font-bold text-slate-900">{label}</p>
+          {payload.map((item, idx) => (
+            <p key={idx} className="font-semibold" style={{ color: item.color || '#7c3aed' }}>
+              {item.name}: {typeof item.value === 'number' && item.name?.toLowerCase().includes('revenue') ? `₹${item.value.toLocaleString('en-IN')}` : item.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 font-sans text-slate-900 bg-slate-50 min-h-screen">
-      {/* Header */}
-      <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2">
-            <Badge variant="gold">EXECUTIVE ADMINISTRATOR CONSOLE</Badge>
-            <span className="text-xs font-mono text-slate-500 font-semibold">Security v2.6</span>
-          </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 font-display uppercase tracking-tight mt-2">
-            Executive Command Center
-          </h1>
-          <p className="text-xs text-slate-600 font-normal mt-1">
-            Real-time enrollment analytics, course program catalog, student registry, email sandbox, and financial ledger.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onOpenEmailSandbox}
-            leftIcon={<Mail className="w-4 h-4 text-indigo-600" />}
-          >
-            Email Sandbox
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onOpenCourseModal(null)}
-            leftIcon={<Plus className="w-4 h-4" />}
-          >
-            New Program
-          </Button>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 font-mono text-xs uppercase tracking-wider overflow-x-auto">
-        <button
-          onClick={() => handleTabChange('overview')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors whitespace-nowrap ${
-            activeTab === 'overview'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Analytics & Overview
-        </button>
-
-        <button
-          onClick={() => handleTabChange('courses')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors whitespace-nowrap ${
-            activeTab === 'courses'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Course Manager ({courses.length})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('applications')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors whitespace-nowrap ${
-            activeTab === 'applications'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Student Applicants ({applications.length})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('users')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors whitespace-nowrap ${
-            activeTab === 'users'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          User Registry ({users.length})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('payments')}
-          className={`pb-4 px-6 border-b-2 font-bold transition-colors whitespace-nowrap ${
-            activeTab === 'payments'
-              ? 'border-indigo-600 text-indigo-600'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Financial Ledger ({payments.length})
-        </button>
-      </div>
-
-      {/* Tab 1: Overview Analytics */}
-      {activeTab === 'overview' && overviewData && (
-        <div className="space-y-10">
-          {/* Key Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">Registered Candidates</span>
-              <div className="text-3xl font-extrabold font-mono text-slate-900">
-                {overviewData.totalUsers}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">
-                {users.filter((u) => u.role === 'ADMIN').length} Admins • {users.filter((u) => u.role !== 'ADMIN').length} Students
-              </span>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">Total Applications</span>
-              <div className="text-3xl font-extrabold font-mono text-slate-900">
-                {overviewData.totalApplications}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">
-                {overviewData.confirmedApplications} Confirmed • {overviewData.pendingApplications} Pending
-              </span>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">Active Programs</span>
-              <div className="text-3xl font-extrabold font-mono text-slate-900">
-                {overviewData.totalCourses}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">
-                Across {overviewData.categoryDistribution?.length || 6} specialization tracks
-              </span>
-            </div>
-          </div>
-
-          {/* Revenue & Category Distribution Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-              <h3 className="text-base font-bold text-slate-900 font-display uppercase">
-                Revenue Growth Trend (INR)
-              </h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={overviewData.registrationsOverTime || []}>
-                    <defs>
-                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="date" stroke="#64748b" fontSize={11} />
-                    <YAxis stroke="#64748b" fontSize={11} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', color: '#0f172a' }}
-                    />
-                    <Area type="monotone" dataKey="revenue" stroke="#4F46E5" fillOpacity={1} fill="url(#colorRev)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-              <h3 className="text-base font-bold text-slate-900 font-display uppercase">
-                Category Distribution
-              </h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={overviewData.categoryDistribution || []}
-                      dataKey="count"
-                      nameKey="category"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      label
-                    >
-                      {(overviewData.categoryDistribution || []).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', color: '#0f172a' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 2: Course Manager */}
-      {activeTab === 'courses' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-slate-900 font-display uppercase">Course Catalog Administration</h2>
-            <Button variant="primary" size="sm" onClick={() => onOpenCourseModal(null)} leftIcon={<Plus className="w-4 h-4" />}>
-              Create New Program
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((c) => (
-              <div key={c.id} className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="gold">{c.category}</Badge>
-                    <Badge variant={c.status === 'PUBLISHED' ? 'success' : 'danger'}>{c.status}</Badge>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 font-display uppercase">{c.title}</h3>
-                  <p className="text-xs text-slate-600 font-mono">
-                    Enrolled: {c.enrolledCount} / {c.capacity} Seats
-                  </p>
-                  <p className="text-xs text-slate-500 line-clamp-2">{c.shortDescription}</p>
-                </div>
-
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="font-mono text-sm font-bold text-slate-900">₹{c.price.toLocaleString('en-IN')}</span>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onOpenCourseModal(c)} leftIcon={<Edit className="w-3.5 h-3.5" />}>
-                      Edit
-                    </Button>
-                    <Button variant="danger" size="sm" onClick={() => handleDeleteCourse(c.id)} leftIcon={<Trash2 className="w-3.5 h-3.5" />}>
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Student Applicants */}
-      {activeTab === 'applications' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <input
-                type="text"
-                placeholder="Search applicant name, email, or app #..."
-                value={appSearch}
-                onChange={(e) => setAppSearch(e.target.value)}
-                className="bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 w-64"
+    <div className="min-h-screen bg-[#f8f9fc] text-slate-900 font-sans pb-16">
+      
+      {/* Top Header Bar */}
+      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            
+            {/* Brand Logo & Subtitle */}
+            <div className="flex items-center gap-3">
+              <img
+                src="/logob.png"
+                alt="Claxic"
+                className="h-7 sm:h-8 w-auto object-contain"
               />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 font-mono"
+              <span className="hidden sm:inline-block text-[11px] font-bold text-purple-900 bg-purple-100/80 border border-purple-200 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                Admin Console
+              </span>
+            </div>
+
+            {/* Quick Actions & Live Indicator */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Live Database Sync</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={fetchAdminData}
+                className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Refresh Live Metrics"
               >
-                <option value="ALL">All Statuses</option>
-                <option value="SUBMITTED">SUBMITTED</option>
-                <option value="CONFIRMED">CONFIRMED</option>
-                <option value="PAYMENT_PENDING">PAYMENT_PENDING</option>
-                <option value="REJECTED">REJECTED</option>
-                <option value="CANCELLED">CANCELLED</option>
-              </select>
-            </div>
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </button>
 
-            <Button variant="outline" size="sm" onClick={handleExportCSV} leftIcon={<Download className="w-4 h-4" />}>
-              Export Applicants CSV
-            </Button>
+              <button
+                type="button"
+                onClick={() => onOpenCourseModal && onOpenCourseModal(null)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-semibold shadow-xs hover:shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-purple-300" />
+                <span>New Course</span>
+              </button>
+            </div>
           </div>
 
-          <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 font-mono text-slate-600 uppercase text-[11px] border-b border-slate-200">
-                <tr>
-                  <th className="p-4">App #</th>
-                  <th className="p-4">Applicant Name</th>
-                  <th className="p-4">Email / Mobile</th>
-                  <th className="p-4">Course Program</th>
-                  <th className="p-4">Amount</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800">
-                {filteredApplications.map((a) => (
-                  <tr key={a.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 font-mono font-bold text-slate-900">{a.applicationNumber}</td>
-                    <td className="p-4 font-semibold text-slate-900">{a.userName}</td>
-                    <td className="p-4 text-slate-600">
-                      <div>{a.userEmail}</div>
-                      <div className="text-[10px] font-mono text-slate-500">{a.userMobile || a.formData?.mobile}</div>
-                    </td>
-                    <td className="p-4 font-medium">{a.courseTitle}</td>
-                    <td className="p-4 font-mono font-bold text-slate-900">₹{a.coursePrice?.toLocaleString('en-IN')}</td>
-                    <td className="p-4">
-                      <Badge variant={a.status === 'CONFIRMED' ? 'success' : a.status === 'REJECTED' ? 'danger' : 'warning'}>
-                        {a.status}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-center space-x-2">
-                      <button
-                        onClick={() => {
-                          setSelectedAppDetail(a);
-                          setAdminNotesInput(a.adminNotes || '');
-                        }}
-                        className="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-[11px] font-mono hover:bg-indigo-100 font-semibold"
-                      >
-                        Inspect
-                      </button>
-                      {a.status !== 'CONFIRMED' && (
-                        <button
-                          onClick={() => handleUpdateAppStatus(a.id, 'CONFIRMED')}
-                          className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-300 rounded-lg text-[11px] font-mono hover:bg-emerald-100 font-semibold"
-                        >
-                          Approve
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDeleteApplication(a.id)}
-                        className="px-2 py-1 text-rose-600 hover:text-rose-800 rounded-lg text-[11px] font-mono"
-                        title="Delete Application Record"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 inline" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Navigation Tabs Bar */}
+          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2 border-t border-slate-100 no-scrollbar">
+            {[
+              { id: 'overview', label: 'Executive Overview', icon: LayoutDashboard },
+              { id: 'applications', label: `Applications (${applications.length})`, icon: FileText },
+              { id: 'courses', label: `Course Programs (${courses.length})`, icon: BookOpen },
+              { id: 'financials', label: `Financials (${payments.length})`, icon: CreditCard },
+              { id: 'users', label: `User Directory (${users.length})`, icon: Users },
+              { id: 'audit', label: 'Security & Audit Logs', icon: ShieldCheck },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
-      )}
+      </header>
 
-      {/* Tab 4: User Registry */}
-      {activeTab === 'users' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <input
-              type="text"
-              placeholder="Search user name, email, or institution..."
-              value={userSearch}
-              onChange={(e) => setUserSearch(e.target.value)}
-              className="bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-600 w-80"
-            />
-            <span className="text-xs font-mono text-slate-500">
-              Showing {filteredUsers.length} registered accounts
-            </span>
+      {/* Main Body */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        
+        {/* Error Alert */}
+        {error && (
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between font-medium">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+            <button onClick={fetchAdminData} className="underline hover:text-rose-950 font-bold">
+              Retry
+            </button>
           </div>
+        )}
 
-          <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 font-mono text-slate-600 uppercase text-[11px] border-b border-slate-200">
-                <tr>
-                  <th className="p-4">User</th>
-                  <th className="p-4">Role</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Institution / Degree</th>
-                  <th className="p-4">Enrolled Cohorts</th>
-                  <th className="p-4 text-right">Total Spent</th>
-                  <th className="p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800">
-                {filteredUsers.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 font-medium text-slate-900 flex items-center gap-3">
-                      <img src={u.avatar} alt={u.name} className="w-8 h-8 rounded-xl object-cover border border-slate-200" />
-                      <div>
-                        <div className="font-semibold text-slate-900">{u.name}</div>
-                        <div className="text-[10px] font-mono text-slate-500">{u.email}</div>
+        {/* ========================================================= */}
+        {/* TAB 1: EXECUTIVE OVERVIEW & REAL LIVE CHARTS */}
+        {/* ========================================================= */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+            
+            {/* Real KPI Tiles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              
+              {/* Total Revenue */}
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider">Gross Tuition Revenue</span>
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
+                  ₹{realChartMetrics.totalRealRevenue.toLocaleString('en-IN')}
+                </h3>
+                <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700 font-semibold">
+                  <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{realChartMetrics.totalSuccessfulTxns} Confirmed Payments</span>
+                </div>
+              </div>
+
+              {/* Total Applications */}
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider">Applicant Registrations</span>
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
+                  {applications.length}
+                </h3>
+                <div className="mt-2 flex items-center gap-2 text-xs text-slate-600">
+                  <span className="font-semibold text-emerald-700">
+                    {applications.filter((a) => a.status === 'CONFIRMED').length} Confirmed
+                  </span>
+                  <span>•</span>
+                  <span>{applications.filter((a) => a.status === 'SUBMITTED').length} In Review</span>
+                </div>
+              </div>
+
+              {/* Verified Candidates */}
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider">Registered Accounts</span>
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <Users className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
+                  {users.length}
+                </h3>
+                <div className="mt-2 flex items-center gap-1.5 text-xs text-indigo-700 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>{users.filter((u) => u.isVerified).length} Verified Email Profiles</span>
+                </div>
+              </div>
+
+              {/* Active Programs & Seats */}
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider">Program Offerings</span>
+                  <div className="w-8 h-8 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
+                  {courses.length}
+                </h3>
+                <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-600 font-semibold">
+                  <span>
+                    {courses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0)} / {courses.reduce((sum, c) => sum + (c.capacity || 40), 0)} Total Seats Filled
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* REAL LIVE GRAPHS SECTION */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* 1. Real Revenue Stream Area Chart */}
+              <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                      Live Revenue Growth & Transactions
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Real-time cumulative payment settlements directly from student transactions
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-lg">
+                    Real Settlement Data
+                  </span>
+                </div>
+
+                <div className="h-64 sm:h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={realChartMetrics.revenueChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#7c3aed" stopOpacity={0.0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(val) => `₹${val / 1000}k`} />
+                      <Tooltip content={<CustomChartTooltip />} />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        name="Gross Revenue"
+                        stroke="#7c3aed"
+                        strokeWidth={2.5}
+                        fillOpacity={1}
+                        fill="url(#colorRev)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* 2. Real Application Status Donut */}
+              <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-1">
+                    Application Status Distribution
+                  </h3>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Live candidate pipeline breakdown
+                  </p>
+
+                  <div className="h-48 sm:h-52 w-full relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={realChartMetrics.statusChartData}
+                          innerRadius={50}
+                          outerRadius={75}
+                          paddingAngle={4}
+                          dataKey="value"
+                        >
+                          {realChartMetrics.statusChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomChartTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+                  {realChartMetrics.statusChartData.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-slate-700">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }}
+                      />
+                      <span className="truncate">{item.name}: <strong className="text-slate-900">{item.value}</strong></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Course Enrollment vs Capacity Bar Chart */}
+              <div className="lg:col-span-12 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                      Course Program Seat Fill Rate vs Capacity
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Live seat enrollment progression across active cohort tracks
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-64 sm:h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={realChartMetrics.courseCapacityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} />
+                      <Tooltip content={<CustomChartTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                      <Bar dataKey="enrolled" name="Enrolled Seats" fill="#7c3aed" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="capacity" name="Max Capacity" fill="#e2e8f0" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Recent Submissions Quick Table */}
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                  Recent Candidate Submissions
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('applications')}
+                  className="text-xs font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View All Applications</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-slate-500 font-semibold uppercase tracking-wider">
+                      <th className="pb-3">Candidate</th>
+                      <th className="pb-3">Program Track</th>
+                      <th className="pb-3">Status</th>
+                      <th className="pb-3">Applied Date</th>
+                      <th className="pb-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {applications.slice(0, 5).map((app) => (
+                      <tr key={app.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-3.5 font-medium text-slate-900">
+                          <p className="font-semibold">{app.userName}</p>
+                          <p className="text-[11px] text-slate-500">{app.userEmail}</p>
+                        </td>
+                        <td className="py-3.5 text-slate-700">{app.courseTitle}</td>
+                        <td className="py-3.5">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                              app.status === 'CONFIRMED'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : app.status === 'SUBMITTED'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : app.status === 'UNDER_REVIEW'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            {app.status}
+                          </span>
+                        </td>
+                        <td className="py-3.5 text-slate-500">
+                          {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'Recent'}
+                        </td>
+                        <td className="py-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedAppDetail(app);
+                              setAdminNotesInput(app.adminNotes || '');
+                            }}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer"
+                            title="Inspect Application"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 2: APPLICATION PIPELINE MANAGER */}
+        {/* ========================================================= */}
+        {activeTab === 'applications' && (
+          <div className="space-y-6">
+            
+            {/* Search & Export Filters Header */}
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              
+              {/* Search Bar */}
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={appSearch}
+                  onChange={(e) => setAppSearch(e.target.value)}
+                  placeholder="Search by name, email, or course..."
+                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 outline-none transition-all"
+                />
+              </div>
+
+              {/* Status Filter Tabs & CSV Export */}
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto">
+                <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+                  {['ALL', 'CONFIRMED', 'SUBMITTED', 'UNDER_REVIEW'].map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setStatusFilter(st)}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        statusFilter === st
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleExportCSV}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export CSV</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Applications Table */}
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4">Application #</th>
+                      <th className="py-3.5 px-4">Candidate Profile</th>
+                      <th className="py-3.5 px-4">Course Program</th>
+                      <th className="py-3.5 px-4">Status</th>
+                      <th className="py-3.5 px-4">Submitted</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredApplications.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center text-slate-500">
+                          No matching applications found.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredApplications.map((app) => (
+                        <tr key={app.id} className="hover:bg-slate-50/70 transition-colors">
+                          <td className="py-3.5 px-4 font-mono font-bold text-purple-700">
+                            {app.applicationNumber || app.id}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <p className="font-semibold text-slate-900">{app.userName}</p>
+                            <p className="text-[11px] text-slate-500">{app.userEmail}</p>
+                          </td>
+                          <td className="py-3.5 px-4 text-slate-800 font-medium">
+                            {app.courseTitle}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                                app.status === 'CONFIRMED'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : app.status === 'SUBMITTED'
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : app.status === 'UNDER_REVIEW'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                              }`}
+                            >
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                            {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A'}
+                          </td>
+                          <td className="py-3.5 px-4 text-right space-x-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedAppDetail(app);
+                                setAdminNotesInput(app.adminNotes || '');
+                              }}
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer"
+                              title="Review Details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteApplication(app.id)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Delete Record"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 3: COURSE CATALOG MANAGER */}
+        {/* ========================================================= */}
+        {activeTab === 'courses' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                  Course Catalog & Tracks
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Manage syllabus, pricing, cohort capacity, and custom banner imagery
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onOpenCourseModal && onOpenCourseModal(null)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-semibold shadow-xs hover:shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-purple-300" />
+                <span>Add New Course</span>
+              </button>
+            </div>
+
+            {/* Course Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((c) => (
+                <div
+                  key={c.id}
+                  className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Course Banner Photo */}
+                    <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
+                      <img
+                        src={c.bannerImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
+                        alt={c.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                        <span className="px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-[11px] font-bold text-slate-900 shadow-xs">
+                          {c.status}
+                        </span>
                       </div>
-                    </td>
-                    <td className="p-4 font-mono">
-                      <Badge variant={u.role === 'ADMIN' ? 'gold' : 'default'}>{u.role}</Badge>
-                    </td>
-                    <td className="p-4 font-mono">
-                      <Badge variant={u.isActive !== false ? 'success' : 'error'}>
-                        {u.isActive !== false ? 'ACTIVE' : 'DEACTIVATED'}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-slate-600">{u.institution || 'N/A'} • {u.degree || 'N/A'}</td>
-                    <td className="p-4 font-mono font-semibold">{u.enrolledCount} Cohorts</td>
-                    <td className="p-4 text-right font-mono font-bold text-emerald-600">₹{u.totalSpent?.toLocaleString('en-IN')}</td>
-                    <td className="p-4 text-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedUserToEdit(u);
-                          setIsUserEditModalOpen(true);
-                        }}
-                        leftIcon={<Edit className="w-3 h-3" />}
-                      >
-                        Edit
-                      </Button>
+                      <div className="absolute bottom-3 left-3">
+                        <span className="px-2.5 py-0.5 rounded-md bg-purple-950/80 backdrop-blur-md text-[11px] font-semibold text-purple-200">
+                          {c.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 space-y-3">
+                      <h3 className="text-sm font-bold text-slate-900 tracking-tight leading-snug">
+                        {c.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {c.shortDescription}
+                      </p>
+
+                      {/* Capacity Bar */}
+                      <div className="space-y-1 pt-1">
+                        <div className="flex items-center justify-between text-[11px] text-slate-600 font-semibold">
+                          <span>Seat Enrollment</span>
+                          <span>
+                            {c.enrolledCount || 0} / {c.capacity || 40} ({Math.round(((c.enrolledCount || 0) / (c.capacity || 40)) * 100)}%)
+                          </span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full bg-purple-600 rounded-full"
+                            style={{
+                              width: `${Math.min(100, Math.round(((c.enrolledCount || 0) / (c.capacity || 40)) * 100))}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer & Actions */}
+                  <div className="px-5 py-3.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between">
+                    <div className="font-mono font-bold text-sm text-slate-900">
+                      ₹{(c.price || 0).toLocaleString('en-IN')}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => handleToggleUserStatus(u)}
-                        className={`px-2.5 py-1 border rounded-lg text-[11px] font-mono font-semibold transition-colors ${
-                          u.isActive !== false
-                            ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                        }`}
+                        type="button"
+                        onClick={() => onOpenCourseModal && onOpenCourseModal(c)}
+                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-purple-300 text-slate-700 hover:text-purple-700 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
                       >
-                        {u.isActive !== false ? 'Suspend' : 'Activate'}
+                        <Edit className="w-3 h-3" />
+                        <span>Edit Photo & Info</span>
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
-      {/* Tab 5: Financial Ledger & Amount Details */}
-      {activeTab === 'payments' && (
-        <div className="space-y-8">
-          {/* Amount Overview Breakdown */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">Gross Tax Invoiced</span>
-              <div className="text-3xl font-extrabold font-mono text-slate-900">
-                ₹{totalGrossRevenue.toLocaleString('en-IN')}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">Total fees collected</span>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">Net Educational Revenue</span>
-              <div className="text-3xl font-extrabold font-mono text-emerald-600">
-                ₹{netEducationRevenue.toLocaleString('en-IN')}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">Excluding statutory GST</span>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">GST Component (18%)</span>
-              <div className="text-3xl font-extrabold font-mono text-amber-600">
-                ₹{totalGstAmount.toLocaleString('en-IN')}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">CGST 9% + SGST 9%</span>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-              <span className="text-xs font-mono text-slate-500 uppercase font-semibold">Total Refunds Issued</span>
-              <div className="text-3xl font-extrabold font-mono text-rose-600">
-                ₹{totalRefunded.toLocaleString('en-IN')}
-              </div>
-              <span className="text-[10px] font-mono text-slate-500 block">Disbursed to students</span>
-            </div>
-          </div>
-
-          {/* Transactions Table */}
-          <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 font-mono text-slate-600 uppercase text-[11px] border-b border-slate-200">
-                <tr>
-                  <th className="p-4">Receipt #</th>
-                  <th className="p-4">Student</th>
-                  <th className="p-4">Program</th>
-                  <th className="p-4">Payment Method</th>
-                  <th className="p-4 font-mono text-right">Gross Fee</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800">
-                {payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 font-mono font-bold text-indigo-700">{p.receiptNumber}</td>
-                    <td className="p-4">
-                      <div className="font-semibold text-slate-900">{p.userName}</div>
-                      <div className="text-[10px] font-mono text-slate-500">{p.userEmail}</div>
-                    </td>
-                    <td className="p-4 font-medium">{p.courseTitle}</td>
-                    <td className="p-4 font-mono uppercase text-[11px]">{p.method || 'RAZORPAY_UPI'}</td>
-                    <td className="p-4 text-right font-mono font-bold text-slate-900">₹{p.amount.toLocaleString('en-IN')}</td>
-                    <td className="p-4">
-                      <Badge variant={p.status === 'SUCCESS' ? 'success' : p.status === 'REFUNDED' ? 'error' : 'warning'}>
-                        {p.status}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-center space-x-2">
                       <button
-                        onClick={() => onViewReceipt(p.receiptNumber || p.id)}
-                        className="px-2.5 py-1 bg-slate-100 text-slate-800 border border-slate-300 rounded-lg text-[11px] font-mono hover:bg-slate-200 font-semibold inline-flex items-center gap-1"
+                        type="button"
+                        onClick={() => handleDeleteCourse(c.id)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Delete Course"
                       >
-                        <Receipt className="w-3 h-3 text-indigo-600" />
-                        Invoice
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                      {p.status === 'SUCCESS' && (
-                        <button
-                          onClick={() => handleIssueRefund(p.id)}
-                          className="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-mono hover:bg-rose-100 font-semibold"
-                        >
-                          Refund
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 4: FINANCIAL SETTLEMENTS & TAX RECEIPTS */}
+        {/* ========================================================= */}
+        {activeTab === 'financials' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                  Financial Transactions & Tax Invoices
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Inspect Razorpay payments, tax breakdown, and GST receipt invoices
+                </p>
+              </div>
+
+              <div className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+                Settled Total: ₹{realChartMetrics.totalRealRevenue.toLocaleString('en-IN')}
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4">Receipt / Order</th>
+                      <th className="py-3.5 px-4">Candidate</th>
+                      <th className="py-3.5 px-4">Course Program</th>
+                      <th className="py-3.5 px-4">Gross Amount</th>
+                      <th className="py-3.5 px-4">Status</th>
+                      <th className="py-3.5 px-4">Date</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {payments.map((p) => (
+                      <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3.5 px-4 font-mono font-bold text-purple-700">
+                          {p.receiptNumber || p.id}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-semibold text-slate-900">{p.userName}</p>
+                          <p className="text-[11px] text-slate-500">{p.userEmail}</p>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-800 font-medium">
+                          {p.courseTitle}
+                        </td>
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                          ₹{(p.amount || 0).toLocaleString('en-IN')}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                              p.status === 'SUCCESS'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
+                          >
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                          {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 text-right space-x-1.5">
+                          <button
+                            type="button"
+                            onClick={() => onViewReceipt && onViewReceipt(p.id)}
+                            className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-semibold transition-colors cursor-pointer"
+                          >
+                            Tax Receipt
+                          </button>
+
+                          {p.status === 'SUCCESS' && (
+                            <button
+                              type="button"
+                              onClick={() => handleIssueRefund(p.id)}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 transition-colors cursor-pointer"
+                            >
+                              Refund
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 5: USER DIRECTORY & ACCESS CONTROL */}
+        {/* ========================================================= */}
+        {activeTab === 'users' && (
+          <div className="space-y-6">
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Search user by name, email, or role..."
+                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 outline-none transition-all"
+                />
+              </div>
+
+              <div className="text-xs text-slate-500 font-semibold">
+                Showing {filteredUsers.length} registered accounts
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4">User</th>
+                      <th className="py-3.5 px-4">Role</th>
+                      <th className="py-3.5 px-4">Email Verification</th>
+                      <th className="py-3.5 px-4">Account Status</th>
+                      <th className="py-3.5 px-4 text-right">Manage</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredUsers.map((u) => (
+                      <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3.5 px-4">
+                          <p className="font-semibold text-slate-900">{u.name}</p>
+                          <p className="text-[11px] text-slate-500 font-mono">{u.email}</p>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleUserRole(u)}
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer ${
+                              u.role === 'ADMIN'
+                                ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                            title="Click to toggle ADMIN/USER role"
+                          >
+                            {u.role}
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          {u.isVerified ? (
+                            <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Verified</span>
+                            </span>
+                          ) : (
+                            <span className="text-amber-700 font-semibold flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Pending</span>
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleUserStatus(u)}
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border cursor-pointer ${
+                              u.isActive
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
+                          >
+                            {u.isActive ? 'Active' : 'Suspended'}
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedUserToEdit(u);
+                              setIsUserEditModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer"
+                            title="Edit User Profile"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 6: AUDIT TRAIL */}
+        {/* ========================================================= */}
+        {activeTab === 'audit' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                  Security & Administrative Audit Logs
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Immutable event log recording all course changes, role updates, and admissions actions
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={onOpenEmailSandbox}
+                className="px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <Mail className="w-3.5 h-3.5 text-purple-600" />
+                <span>Email Sandbox Dispatch Logs</span>
+              </button>
+            </div>
+
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4">Event #</th>
+                      <th className="py-3.5 px-4">Action</th>
+                      <th className="py-3.5 px-4">Admin Operator</th>
+                      <th className="py-3.5 px-4">Target Record</th>
+                      <th className="py-3.5 px-4">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {auditLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3.5 px-4 font-mono text-slate-400">
+                          {log.id}
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-purple-700 font-mono">
+                          {log.action}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-900 font-medium">
+                          {log.adminName}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700">
+                          <span className="font-semibold text-slate-900">{log.targetType}</span>: {log.targetTitle || log.targetId}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                          {log.createdAt ? new Date(log.createdAt).toLocaleString() : 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* Detail Modal for Selected Application */}
+      {selectedAppDetail && (
+        <Modal
+          isOpen={Boolean(selectedAppDetail)}
+          onClose={() => setSelectedAppDetail(null)}
+          title={`Application Details: ${selectedAppDetail.applicationNumber || selectedAppDetail.id}`}
+          subtitle={selectedAppDetail.courseTitle}
+          maxWidth="max-w-2xl"
+        >
+          <div className="space-y-6 text-slate-900 text-xs">
+            
+            {/* Candidate Summary */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500 uppercase">Applicant</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedAppDetail.userName}</p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500 uppercase">Email</p>
+                <p className="font-bold text-slate-900 mt-0.5">{selectedAppDetail.userEmail}</p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500 uppercase">Current Status</p>
+                <span className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px] mt-0.5">
+                  {selectedAppDetail.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Form Payload Details */}
+            {selectedAppDetail.formData && (
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                  Submitted Application Data
+                </h4>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-700">
+                  {Object.entries(selectedAppDetail.formData).map(([k, v]) => (
+                    <div key={k}>
+                      <span className="font-semibold capitalize text-slate-900">{k.replace(/([A-Z])/g, ' $1')}:</span>{' '}
+                      <span>{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Admin Notes & Status Updates */}
+            <div className="space-y-2">
+              <label className="block font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                Administrative Review Notes
+              </label>
+              <textarea
+                rows={2}
+                value={adminNotesInput}
+                onChange={(e) => setAdminNotesInput(e.target.value)}
+                placeholder="Enter evaluation notes or reason for approval/rejection..."
+                className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-600 rounded-xl p-3 text-xs text-slate-900 outline-none"
+              />
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'APPROVED')}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs cursor-pointer"
+                >
+                  Approve Application
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'CONFIRMED')}
+                  className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-xs cursor-pointer"
+                >
+                  Mark Enrolled
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'REJECTED')}
+                  className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs cursor-pointer"
+                >
+                  Reject
+                </button>
+              </div>
+
+              <Button variant="ghost" onClick={() => setSelectedAppDetail(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* User Edit Modal */}
@@ -782,111 +1348,15 @@ export const AdminDashboardView = ({
             setIsUserEditModalOpen(false);
             setSelectedUserToEdit(null);
           }}
-          user={selectedUserToEdit}
-          onSaved={fetchAdminData}
+          userToEdit={selectedUserToEdit}
+          onSaved={() => {
+            setIsUserEditModalOpen(false);
+            setSelectedUserToEdit(null);
+            fetchAdminData();
+          }}
         />
       )}
 
-      {/* Application Inspection Modal */}
-      {selectedAppDetail && (
-        <Modal
-          isOpen={Boolean(selectedAppDetail)}
-          onClose={() => setSelectedAppDetail(null)}
-          maxWidth="max-w-2xl"
-        >
-          <div className="space-y-6 font-sans">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-              <div>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
-                  Application Inspector
-                </span>
-                <h2 className="text-xl font-bold text-slate-900 font-display uppercase tracking-tight mt-1">
-                  #{selectedAppDetail.applicationNumber} — {selectedAppDetail.userName}
-                </h2>
-              </div>
-              <Badge variant={selectedAppDetail.status === 'CONFIRMED' ? 'success' : 'warning'}>
-                {selectedAppDetail.status}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                <span className="font-mono text-slate-500 uppercase font-semibold">Course Program</span>
-                <p className="font-bold text-slate-900 text-sm">{selectedAppDetail.courseTitle}</p>
-                <p className="font-mono text-slate-600">Fee: ₹{selectedAppDetail.coursePrice?.toLocaleString('en-IN')}</p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                <span className="font-mono text-slate-500 uppercase font-semibold">Contact & Batch</span>
-                <p className="font-semibold text-slate-900">{selectedAppDetail.userEmail}</p>
-                <p className="font-mono text-slate-600">{selectedAppDetail.userMobile || selectedAppDetail.formData?.mobile}</p>
-                <p className="text-slate-500">Batch: {selectedAppDetail.formData?.batch || 'Weekend Evening'}</p>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-              <span className="font-mono text-slate-500 uppercase font-semibold">Academic Background</span>
-              <p className="text-slate-800">
-                <strong className="text-slate-900">Institution:</strong> {selectedAppDetail.formData?.institution || 'N/A'}
-              </p>
-              <p className="text-slate-800">
-                <strong className="text-slate-900">Degree & Year:</strong> {selectedAppDetail.formData?.degree || 'N/A'} ({selectedAppDetail.formData?.yearOfStudy || 'N/A'})
-              </p>
-            </div>
-
-            {selectedAppDetail.formData?.sop && (
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                <span className="font-mono text-slate-500 uppercase font-semibold">Statement of Purpose (SOP)</span>
-                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{selectedAppDetail.formData.sop}</p>
-              </div>
-            )}
-
-            {/* Admin Notes & Status Update */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 font-semibold">
-                Admin Review Notes
-              </label>
-              <textarea
-                rows={2}
-                value={adminNotesInput}
-                onChange={(e) => setAdminNotesInput(e.target.value)}
-                placeholder="Add verification comments or internal reviewer notes..."
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-600"
-              />
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'CONFIRMED', adminNotesInput)}
-                  >
-                    Confirm & Enroll
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'UNDER_REVIEW', adminNotesInput)}
-                  >
-                    Mark Under Review
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'REJECTED', adminNotesInput)}
-                  >
-                    Reject Application
-                  </Button>
-                </div>
-
-                <Button variant="outline" size="sm" onClick={() => setSelectedAppDetail(null)}>
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 };

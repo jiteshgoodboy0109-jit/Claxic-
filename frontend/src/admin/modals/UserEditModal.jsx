@@ -14,7 +14,8 @@ import {
   Lock,
 } from 'lucide-react';
 
-export const UserEditModal = ({ isOpen, onClose, user, onSaved }) => {
+export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) => {
+  const targetUser = user || userToEdit;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
@@ -33,20 +34,20 @@ export const UserEditModal = ({ isOpen, onClose, user, onSaved }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setEmail(user.email || '');
-      setMobile(user.mobile || '');
-      setInstitution(user.institution || '');
-      setDegree(user.degree || '');
-      setYearOfStudy(user.yearOfStudy || '');
-      setRole(user.role || 'USER');
-      setIsActive(user.isActive !== false);
+    if (targetUser) {
+      setName(targetUser.name || '');
+      setEmail(targetUser.email || '');
+      setMobile(targetUser.mobile || '');
+      setInstitution(targetUser.institution || '');
+      setDegree(targetUser.degree || '');
+      setYearOfStudy(targetUser.yearOfStudy || '');
+      setRole(targetUser.role || 'USER');
+      setIsActive(targetUser.isActive !== false);
       setNewPassword('');
       setError(null);
       setResetSuccess(null);
     }
-  }, [user, isOpen]);
+  }, [targetUser, isOpen]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();

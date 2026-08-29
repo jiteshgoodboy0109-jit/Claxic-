@@ -102,45 +102,48 @@ export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
       ) : receiptData ? (
         <div className="space-y-6 font-sans">
           {/* Action Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec]">
             <div className="flex items-center gap-2">
               <Badge variant="gold">PAID & VERIFIED</Badge>
-              <span className="text-xs font-mono text-slate-500 font-medium">
+              <span className="text-xs font-mono text-[#0B4F50] font-bold">
                 GSTIN: {receiptData.organization.gstin}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 onClick={handleCopyReceiptNumber}
-                leftIcon={<Copy className="w-3.5 h-3.5 text-slate-600" />}
+                className="px-4 py-1.5 rounded-full text-xs font-bold text-[#0B4F50] bg-white hover:bg-[#ebf4f4] border border-[#d8ecec] transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
-                {copied ? 'Copied!' : 'Copy Receipt #'}
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
+                <Copy className="w-3.5 h-3.5 text-[#0B4F50]" />
+                <span>{copied ? 'Copied!' : 'Copy Receipt #'}</span>
+              </button>
+              <button
                 onClick={handleDownloadPDF}
-                leftIcon={<Download className="w-3.5 h-3.5" />}
+                className="px-4 py-1.5 rounded-full text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
-                Download PDF
-              </Button>
+                <Download className="w-3.5 h-3.5" />
+                <span>Download PDF</span>
+              </button>
             </div>
           </div>
 
           {/* Printable Invoice Container */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-300 space-y-6 shadow-sm">
+          <div className="p-6 sm:p-8 rounded-[28px] bg-white border border-[#d8ecec] space-y-6 shadow-xs">
             {/* Header branding & CIN */}
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-6 border-b border-slate-200">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 font-display uppercase tracking-tight">
+              <div className="space-y-2">
+                <img
+                  src="/logob.png"
+                  alt="Claxic"
+                  className="h-6 sm:h-7 w-auto object-contain"
+                />
+                <h2 className="text-base font-bold text-slate-900 font-display uppercase tracking-tight">
                   {receiptData.organization.name}
                 </h2>
-                <p className="text-xs text-slate-600 max-w-sm mt-1">
+                <p className="text-xs text-slate-600 max-w-sm">
                   {receiptData.organization.address}
                 </p>
-                <div className="flex items-center gap-3 text-[11px] font-mono text-slate-500 mt-2 font-medium">
+                <div className="flex items-center gap-3 text-[11px] font-mono text-slate-500 font-medium">
                   <span>CIN: {receiptData.organization.cin}</span>
                   <span>GSTIN: {receiptData.organization.gstin}</span>
                 </div>

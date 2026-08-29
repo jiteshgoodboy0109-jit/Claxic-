@@ -1478,75 +1478,473 @@
       "salt": "1818a0b211c4e90fb91868b5fe06dded",
       "createdAt": "2026-08-29T18:23:07.046Z",
       "updatedAt": "2026-08-29T18:23:07.046Z"
+    },
+    {
+      "id": "usr_00d150a0bec7d23c",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788028613255@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "caa0df32ebd2ef023e31b081b9e5493245459d542433e2683980c7024176fcb9b30df091b40b3f15de98028167ad730aab6d613ddc808ae4fc0d05dc968d31c6",
+      "salt": "ffbdd5d41df5a3f7c0e7aa220aa81d3f",
+      "createdAt": "2026-08-29T18:36:53.374Z",
+      "updatedAt": "2026-08-29T18:36:54.173Z"
+    },
+    {
+      "id": "usr_eb236c3217974c82",
+      "name": "Unverified Student",
+      "email": "unverified_1788028613477@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "149a74f23fdbfdf6212ecb019f1bf0a8147eeaf9aae5c9e4567285d8e855ef12945044c67f03b22559083592553d2657579e38849797f2733387904cbe8731b4",
+      "salt": "fe0af23c8401d710e1ff29ec745bfbcc",
+      "createdAt": "2026-08-29T18:36:53.494Z",
+      "updatedAt": "2026-08-29T18:36:53.494Z"
+    },
+    {
+      "id": "usr_a6bf41f6c76bce32",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788029673995@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "c36e9dece1fdc8350351a0346bcc23cc90f97dda1f269f551bcd062b3fa14f08a04934d5174c0ddc0bd72965b87e25246a24e3a1a39995b98e0ee8283bb37a4e",
+      "salt": "902f343b075c6469e618423b6016334e",
+      "createdAt": "2026-08-29T18:54:34.295Z",
+      "updatedAt": "2026-08-29T18:54:35.631Z"
+    },
+    {
+      "id": "usr_57322801f54065ca",
+      "name": "Unverified Student",
+      "email": "unverified_1788029674479@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "8254a0d3191dce6a97aeb84cf1dd40643e804fa30aceb525d50070348ce371bb47c15ce706698208e21d57c7f9e2f4da7b27e6d329c20a54005746b2a4911131",
+      "salt": "1716f15be02d179080501ef920f94003",
+      "createdAt": "2026-08-29T18:54:34.504Z",
+      "updatedAt": "2026-08-29T18:54:34.504Z"
+    },
+    {
+      "id": "usr_b3b5c9319f616cde",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788030062474@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "b826fba1ac9ea6ad672a74b2c03e58cc04ccb267f26d294b1aa94be091ef647343afb4d5d54ae4e938726242bcd5864b74ffcda2a309f422222763e15ad27304",
+      "salt": "83b1b083f2c0fff79c1c1ea036b413a9",
+      "createdAt": "2026-08-29T19:01:02.834Z",
+      "updatedAt": "2026-08-29T19:01:04.667Z"
+    },
+    {
+      "id": "usr_b514f27b0bebf5af",
+      "name": "Unverified Student",
+      "email": "unverified_1788030063142@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "25257c9853a4d30d5aec677f30ed77440bbb2f5849215a7213ef3a99fcb7dfafca2f64acc4f19f586f703600587e24684efca847cfb062861027c1175da74312",
+      "salt": "5e300e4da6028fd5d9993f02c020f360",
+      "createdAt": "2026-08-29T19:01:03.166Z",
+      "updatedAt": "2026-08-29T19:01:03.166Z"
+    },
+    {
+      "id": "usr_b92835b418f54e62",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788030374358@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "5d17dde0e92e2e3cfa0b101f3e00ee946159c00bfb8f92f934547f10f3a6131e337f052626642e3c06668e4ed04960aa6a449304d15d7767193e4ba6a4040860",
+      "salt": "721b3d5f7cf9d990d0b9d9741a6b0ce6",
+      "createdAt": "2026-08-29T19:06:14.756Z",
+      "updatedAt": "2026-08-29T19:06:16.059Z"
+    },
+    {
+      "id": "usr_93f98633d1cdf2eb",
+      "name": "Unverified Student",
+      "email": "unverified_1788030375015@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "591ad00174780732351d25dbf05421b477ff926de0ce878d261a941367903383091c724e4c1bdd8f07082147011ccee4690fa7b019da4fb4c5fa9aefd2465269",
+      "salt": "818508a0353761e4e93b76304080950b",
+      "createdAt": "2026-08-29T19:06:15.037Z",
+      "updatedAt": "2026-08-29T19:06:15.037Z"
+    },
+    {
+      "id": "usr_1604f1fb5f0e6280",
+      "name": "Gliffy.X",
+      "email": "gliffy.xstdio@gmail.com",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKSMe8QdkdGnESu5f__STCkWpzN2kq5BEzX6NoOInOPhHQ83iM=s96-c",
+      "institution": "Verified Google Student",
+      "degree": "Academic Program",
+      "yearOfStudy": "Current",
+      "isActive": true,
+      "passwordHash": "GOOGLE_OAUTH_USER",
+      "salt": "GOOGLE_SALT",
+      "createdAt": "2026-08-29T19:11:00.059Z",
+      "updatedAt": "2026-08-29T19:11:00.059Z"
+    },
+    {
+      "id": "usr_f393203e6d10c77d",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788030821730@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "35e72ff4372f00a1f44789ae0d46f611a2e6f58c7366ca73c6a2c25b3168e41992f20861114676ef971d55d4ca9e544362a3e980d95611da61feadc93faa02e2",
+      "salt": "e152fe2faa7e67ee23e2f8638e0c61cc",
+      "createdAt": "2026-08-29T19:13:42.159Z",
+      "updatedAt": "2026-08-29T19:13:43.530Z"
+    },
+    {
+      "id": "usr_9b0f4aa574cc4a28",
+      "name": "Unverified Student",
+      "email": "unverified_1788030822373@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "30a70649c223f03b5b36e71d7fc6a5b322428559833b4b40783d8ccbb484826ce89d453765bf3112db674730c730404219bb47c12346c25fa53057c090a5e9c7",
+      "salt": "0b35597d6144d00512a353e933feb67d",
+      "createdAt": "2026-08-29T19:13:42.386Z",
+      "updatedAt": "2026-08-29T19:13:42.386Z"
+    },
+    {
+      "id": "usr_58bb3daf7f0fce46",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788031140919@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "b7c11c854b34ff4aea1de958c7244555bc29a3eb41ffaa552696bd7e098032f1b724c6e4350c08cc684be36bf67b4a5b182e224abb506144aa592ea189cec630",
+      "salt": "7d46216f5f5e67dda1a2b18843a5e8e8",
+      "createdAt": "2026-08-29T19:19:01.567Z",
+      "updatedAt": "2026-08-29T19:19:07.683Z"
+    },
+    {
+      "id": "usr_db47a6b9cc6d4816",
+      "name": "Unverified Student",
+      "email": "unverified_1788031142324@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "3c971b8cfe853234179713595ea9f97fb83f0c0c6e354e73055c6407a5e176c25e905bbfa263681418642c3b23bf5f53e8a05729bc35861be76ddc520b5b819e",
+      "salt": "9eca3062edced679af0b74ffec68f300",
+      "createdAt": "2026-08-29T19:19:02.388Z",
+      "updatedAt": "2026-08-29T19:19:02.388Z"
+    },
+    {
+      "id": "usr_7d48253a3316a955",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788031793615@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "e977faa3a93d97caa4d08631a9e6ecef00306dcfb830ef826b7635b9092227819274486bfc5404112712b9d9c4c2e9f0e785bc404593feba2cc5a69a12be2bd8",
+      "salt": "194afbcc024197627d0b52f6e3009266",
+      "createdAt": "2026-08-29T19:29:53.952Z",
+      "updatedAt": "2026-08-29T19:29:55.964Z"
+    },
+    {
+      "id": "usr_5a4ec095084129f1",
+      "name": "Unverified Student",
+      "email": "unverified_1788031794402@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "9f9ec64d9fde9bce31d46a899a9d6594c95841c39a101e463fbe15b62d87b698d670e404de3398a6e6c9c4e5cf4b574b5f7bc0372bf9d23eacfe645db8c0d639",
+      "salt": "34b462c0b869a8e48c1dfcde40e64dab",
+      "createdAt": "2026-08-29T19:29:54.427Z",
+      "updatedAt": "2026-08-29T19:29:54.427Z"
+    },
+    {
+      "id": "usr_0534a787f389bd64",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788032210655@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "577736d1a15217a042258a9cf3815a2331d1b134183b9a46656ffbe7abfb07b8b4498bd68df31cc9e7d7dec36e9779f313795fd70ade3ff64579df2b886c37ba",
+      "salt": "4695455c791f55ee548e943a7c85a695",
+      "createdAt": "2026-08-29T19:36:50.975Z",
+      "updatedAt": "2026-08-29T19:36:52.779Z"
+    },
+    {
+      "id": "usr_09a3570cf9ed98b4",
+      "name": "Unverified Student",
+      "email": "unverified_1788032211242@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "b8f1c2a8a5432ca0fc9eca101a898dd771622138fa40e9bd5dc6b62301395f430eb1eff44b80c5f69f0b2879cb5351939d04b1797e912806bdfb2bee9960d775",
+      "salt": "e77ee6d4ab71b6db80f212f5729103a8",
+      "createdAt": "2026-08-29T19:36:51.275Z",
+      "updatedAt": "2026-08-29T19:36:51.275Z"
+    },
+    {
+      "id": "usr_a87e5ae5ed942c70",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788032389462@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "561089cdae6df8f4b6af422c0ffce3fd1cc8658aa0cca2a6af51fb04477bedef94680d04287fdb7bdd76499544e128672cc45abdae5d2f33e9cdc4b7a0d400e2",
+      "salt": "c3b6334799ac3747beb6155e1929de88",
+      "createdAt": "2026-08-29T19:39:49.788Z",
+      "updatedAt": "2026-08-29T19:39:51.460Z"
+    },
+    {
+      "id": "usr_8324f56c92e5f74b",
+      "name": "Unverified Student",
+      "email": "unverified_1788032390081@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "6fb8a3f8635621e9e31d8c8ec2bf7828934fb03b1111ceee9e1ba3e8b6359b76fd41f73bbc1778be034d7cab73cb570b57290aa26c877f18c946f084399162fb",
+      "salt": "5c00b706bb51d60bd847e80b57eaf77d",
+      "createdAt": "2026-08-29T19:39:50.119Z",
+      "updatedAt": "2026-08-29T19:39:50.119Z"
+    },
+    {
+      "id": "usr_86169d51f62ef9f4",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788032666674@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "e0a0963318332a2baae9362309d2897141cf947d607369f291750ddc28c6d10766b1c75844238d1ebd8dcffb568be7694e862a1bff0adb2080eca7b6990f53ba",
+      "salt": "b5377256f26d63a587ebfc02bdc78782",
+      "createdAt": "2026-08-29T19:44:27.057Z",
+      "updatedAt": "2026-08-29T19:44:28.467Z"
+    },
+    {
+      "id": "usr_66df6319afc08119",
+      "name": "Unverified Student",
+      "email": "unverified_1788032667222@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "ec33b94f5e24fed5b12f17c6e91b31558b293cd98f642c70c94c0d629ea4bf39108869f21e40eaa0c7cafc63dcdce07d3c1a3e0d81dcc88673b604dbb44419ec",
+      "salt": "9285527fb267fd809da1c975ad91149e",
+      "createdAt": "2026-08-29T19:44:27.245Z",
+      "updatedAt": "2026-08-29T19:44:27.245Z"
+    },
+    {
+      "id": "usr_94c4b5cf2f2c2d8b",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788033097229@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "946d8a7ffe968dc63983cc4c005038b4c7d75a3b6506493aa265a6b888ad29d873ccc2db74363ba30ff086a18e169966cf82cd8293e8261efa8d0178f42018de",
+      "salt": "144033e183441528b32eddd2196ae103",
+      "createdAt": "2026-08-29T19:51:37.549Z",
+      "updatedAt": "2026-08-29T19:51:38.989Z"
+    },
+    {
+      "id": "usr_e8defeccf2462538",
+      "name": "Unverified Student",
+      "email": "unverified_1788033097817@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "c86d1f4a74074be498ac739cafd87156735bc421289d8886bad77498f459bf84f86b441f2c291f0ba05d0174a6ce5ff88964d82bdedad4e9342dfcb182977edc",
+      "salt": "dde5cc64568b83d5e656e7ae984581f0",
+      "createdAt": "2026-08-29T19:51:37.835Z",
+      "updatedAt": "2026-08-29T19:51:37.835Z"
+    },
+    {
+      "id": "usr_6e0935830e350b42",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788033217709@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "0446bac7e5ca6c7fd3f869cfb25e1a362341d695f18f104acd2b61521141070b1a0440e7a74a20da82df97078cad00141fe8096fce5756f1429eae53e0e402d0",
+      "salt": "46af7f53b9483971226965a967c29f7f",
+      "createdAt": "2026-08-29T19:53:37.943Z",
+      "updatedAt": "2026-08-29T19:53:39.234Z"
+    },
+    {
+      "id": "usr_eb3b0a2085f689e5",
+      "name": "Unverified Student",
+      "email": "unverified_1788033218164@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "e87458d924a0516fe72efee6a45949314da216f46f5d16fc1a829b38f93bc428c58e48021452aa7ab1c92bcd65232d6316fcbf247ef76b0e5d3786013582031c",
+      "salt": "ae37f8dff2e0a7c0c70056719d34afd6",
+      "createdAt": "2026-08-29T19:53:38.177Z",
+      "updatedAt": "2026-08-29T19:53:38.177Z"
+    },
+    {
+      "id": "usr_e91d3685269bbec8",
+      "name": "Updated Student Name",
+      "email": "audit_student_1788033587375@university.edu",
+      "mobile": "+91 9999988888",
+      "role": "USER",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "Indian Institute of Science",
+      "degree": "M.Tech AI",
+      "yearOfStudy": "2nd Year",
+      "isActive": true,
+      "passwordHash": "6286cd7c8383f5cd791231d45b6c993e99f182b27ad98668d6ed2d7269abb9642f394878b25d1c0665d7a1ea350a31d72198a6514aa3df4067d5dba54d80ce16",
+      "salt": "0f0122534bb82242f407e5c6a68dd90f",
+      "createdAt": "2026-08-29T19:59:47.715Z",
+      "updatedAt": "2026-08-29T19:59:49.288Z"
+    },
+    {
+      "id": "usr_51f6c1d36a0b8555",
+      "name": "Unverified Student",
+      "email": "unverified_1788033588020@stanford.edu",
+      "mobile": "",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Unverified%20Student",
+      "institution": "Not Specified",
+      "degree": "Undergraduate",
+      "yearOfStudy": "1st Year",
+      "isActive": true,
+      "passwordHash": "8917899a99b2b91fa8ade1deba50a85e4650c9d65f5dba9df42551cff1517337e3bba834f21ebb63709fd339d3f62926cbac19a2097ba198bb7f7485e5a9cd02",
+      "salt": "0d7d5068262e7bba204c8c30bb447ce6",
+      "createdAt": "2026-08-29T19:59:48.042Z",
+      "updatedAt": "2026-08-29T19:59:48.042Z"
     }
   ],
   "courses": [
     {
-      "id": "crs_d0aa18ad010d",
-      "slug": "prashanth",
-      "title": "PRASHANTH",
-      "shortDescription": "bcxzbckda ckjsecf",
-      "fullDescription": "BXKJASBNCSNDCNSDCVSRV",
-      "bannerImage": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
-      "category": "AI & Full Stack",
-      "level": "Intermediate",
-      "mode": "Live Interactive",
-      "duration": "10 Weeks",
-      "startDate": "2026-10-01",
-      "endDate": "2026-11-26",
-      "registrationDeadline": "2026-09-25",
-      "price": 1999,
-      "originalPrice": 999,
-      "capacity": 20,
-      "enrolledCount": 0,
-      "status": "PUBLISHED",
-      "featured": true,
-      "rating": 5,
-      "reviewsCount": 0,
-      "tags": [
-        "Education",
-        "Technology"
-      ],
-      "instructor": {
-        "id": "inst_ac188615",
-        "name": "Lead Industry Faculty",
-        "title": "Senior Staff Engineer & Claxic Fellow",
-        "company": "Claxic Faculty Council",
-        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-        "bio": "Distinguished practitioner with deep industrial expertise."
-      },
-      "modules": [
-        {
-          "id": "m1",
-          "title": "Core Fundamentals & Industry Workflows",
-          "duration": "2 Weeks (12 Hours)",
-          "topics": [
-            "Architecture overview",
-            "Practical implementations",
-            "Live assignments"
-          ]
-        }
-      ],
-      "learningOutcomes": [
-        "Build production-grade systems with industry best practices."
-      ],
-      "requirements": [
-        "Basic programming proficiency."
-      ],
-      "faq": [
-        {
-          "question": "Will I get live project reviews?",
-          "answer": "Yes, full 1-on-1 code and architecture reviews are included."
-        }
-      ],
-      "createdAt": "2026-08-29T16:28:37.094Z",
-      "updatedAt": "2026-08-29T16:28:37.094Z"
-    },
-    {
       "id": "crs_ai_fullstack_2026",
       "slug": "applied-genai-fullstack-engineering",
-      "title": "Applied GenAI",
-      "shortDescription": "Master modern full-stack development with Gemini 2.5 Flash, TypeScript, Vector DBs, Agentic Workflows, and Distributed Microservices.",
+      "title": "Applied GenAI & Full-Stack System Architecture",
+      "shortDescription": "Build production-ready agentic AI systems, RAG pipelines with Vector DBs, Gemini 2.5 Flash, React 19, TypeScript, and auto-scaling microservices on Kubernetes.",
       "fullDescription": "An intensive, hands-on 12-week professional program engineered for software developers wanting to bridge modern React/Node architecture with state-of-the-art Generative AI. You will build enterprise RAG pipelines, deploy real-time multi-agent systems, optimize LLM context caching, and deploy auto-scaling microservices on Google Cloud Run and Kubernetes.",
       "bannerImage": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
       "category": "AI & Full Stack",
@@ -1558,8 +1956,8 @@
       "registrationDeadline": "2026-09-10",
       "price": 14999,
       "originalPrice": 24999,
-      "capacity": 100,
-      "enrolledCount": 51,
+      "capacity": 50,
+      "enrolledCount": 18,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 4.94,
@@ -1569,90 +1967,270 @@
         "React 19",
         "TypeScript",
         "Node.js",
-        "PostgreSQL",
+        "Vector DB",
         "Docker"
       ],
       "instructor": {
         "id": "inst_dr_aravind",
         "name": "Dr. Aravind Sundararajan",
-        "title": "Principal AI Architect & Ex-Google DeepMind Staff Engineer",
+        "title": "Principal AI Architect & Ex-Google Staff Engineer",
         "company": "Claxic AI Research Labs",
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
         "bio": "Over 14 years building planetary-scale AI systems and leading production ML infra teams across Silicon Valley and Bengaluru."
       },
       "modules": [
         {
-          "id": "mod_1",
+          "id": "m1",
           "title": "Foundations of Modern Distributed Web Architecture",
-          "duration": "2 Weeks (14 Hours)",
+          "duration": "2 Weeks",
           "topics": [
-            "High-throughput Express/Fastify TypeScript patterns",
-            "ACID transaction guarantees and relational schema modeling with PostgreSQL & Prisma",
-            "Caching hierarchies: Redis multi-tier invalidation strategies",
-            "Containerized local setups with Docker Compose & DevContainers"
+            "Fastify TypeScript Patterns",
+            "ACID Transactions & PostgreSQL",
+            "Redis Cache Invalidation",
+            "Docker Compose Setups"
           ]
         },
         {
-          "id": "mod_2",
+          "id": "m2",
           "title": "Deep Dive: LLM Integrations & Agentic Frameworks",
-          "duration": "3 Weeks (21 Hours)",
+          "duration": "3 Weeks",
           "topics": [
-            "Google GenAI SDK deep dive: Multimodal prompts, Structured JSON schema outputs",
-            "Building autonomous tool-calling Agents with ReAct & Graph workflows",
-            "Production RAG: Chunking heuristics, hybrid BM25 + dense embeddings search",
-            "Cost controls: Context caching, token streaming, and fallback routing"
+            "Google GenAI SDK & Structured Outputs",
+            "ReAct Tool-Calling Agents",
+            "Hybrid BM25 + Vector Search",
+            "Context Caching & Streaming"
           ]
         },
         {
-          "id": "mod_3",
+          "id": "m3",
           "title": "Real-Time Systems & Collaborative Frontends",
-          "duration": "3 Weeks (21 Hours)",
+          "duration": "3 Weeks",
           "topics": [
-            "React 19 Server Components, Actions, and Optimistic UI updates",
-            "WebSocket orchestration with Redis Pub/Sub backplanes",
-            "State management with Zustand and TanStack React Query cache synchronization",
-            "Accessibility compliance (WCAG 2.1 AA) and resilient design systems"
+            "React 19 Server Components",
+            "WebSocket Orchestration",
+            "Zustand & TanStack Query",
+            "Accessible UI Systems"
           ]
         },
         {
-          "id": "mod_4",
+          "id": "m4",
           "title": "Production Observability, Security & Cloud Deployment",
-          "duration": "4 Weeks (28 Hours)",
+          "duration": "4 Weeks",
           "topics": [
-            "Zero-trust authentication: OAuth 2.1, RBAC, JWT rotation, and PKCE flows",
-            "CI/CD pipelines on GitHub Actions with automated linting & end-to-end testing",
-            "Deploying to Cloud Run with scale-to-zero and VPC serverless connectors",
-            "Capstone project evaluation and 1-on-1 industry architectural review"
+            "Zero-Trust Auth (OAuth 2.1, RBAC)",
+            "GitHub Actions CI/CD Pipelines",
+            "Cloud Run & Kubernetes Deployment",
+            "1-on-1 Architectural Review"
           ]
         }
       ],
       "learningOutcomes": [
-        "Architect production-ready full-stack applications with bulletproof type safety and schema validation.",
-        "Deploy autonomous AI agents with function calling, tool execution, and vector-backed knowledge bases.",
-        "Optimize database queries, indexes, and connection pooling for 10k+ concurrent users.",
-        "Implement real-world payment processing, OAuth flows, and webhooks with idempotent recovery."
+        "Architect production-ready full-stack applications with bulletproof type safety.",
+        "Deploy autonomous AI agents with function calling and vector-backed search.",
+        "Optimize database queries and connection pooling for 10k+ concurrent users."
       ],
       "requirements": [
-        "Proficiency in JavaScript/TypeScript and foundational understanding of React.",
-        "Basic familiarity with RESTful APIs, Git, and relational databases.",
-        "A development laptop with at least 8GB RAM (16GB recommended) and Node.js v20+."
+        "Proficiency in JavaScript/TypeScript and React basics."
       ],
       "faq": [
         {
-          "question": "Are the live sessions recorded for later access?",
-          "answer": "Yes, all live workshops are recorded in 4K resolution and uploaded within 2 hours of class completion along with complete code repositories, slide decks, and sandbox notes."
-        },
-        {
-          "question": "Will I receive a verified certificate upon completion?",
-          "answer": "Yes! Upon completing the capstone project and maintaining 80%+ attendance, you will receive a cryptographically verified Claxic Certificate of Mastery that you can showcase on LinkedIn."
-        },
-        {
-          "question": "Is there installment or EMI payment support?",
-          "answer": "Yes, our Razorpay payment integration supports all major credit/debit card EMIs, UPI, Net Banking, and PayLater schemes with zero-cost EMI options."
+          "question": "Are live sessions recorded?",
+          "answer": "Yes, 4K recordings with code repositories are provided after every workshop."
         }
       ],
-      "createdAt": "2026-08-01T10:00:00.000Z",
-      "updatedAt": "2026-08-28T07:44:58.342Z"
+      "createdAt": "2026-08-29T18:48:46.408Z",
+      "updatedAt": "2026-08-29T18:48:46.409Z"
+    },
+    {
+      "id": "crs_uiux_product_2026",
+      "slug": "digital-product-design-design-systems",
+      "title": "Digital Product Design & Enterprise Design Systems",
+      "shortDescription": "Master user research heuristics, interactive Figma prototyping, multi-brand tokenized design systems, accessibility math, and design-to-code handoffs.",
+      "fullDescription": "Craft intuitive, world-class user experiences for complex software products. Learn UX research heuristics, rapid prototyping, building tokenized multi-brand design systems in Figma, and collaborating seamlessly with frontend engineering teams.",
+      "bannerImage": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
+      "category": "Product & Design",
+      "level": "All Levels",
+      "mode": "Self-Paced",
+      "duration": "6 Weeks (36 Live & Lab Hours)",
+      "startDate": "2026-09-18",
+      "endDate": "2026-10-30",
+      "registrationDeadline": "2026-09-15",
+      "price": 9999,
+      "originalPrice": 15999,
+      "capacity": 50,
+      "enrolledCount": 14,
+      "status": "PUBLISHED",
+      "featured": true,
+      "rating": 4.92,
+      "reviewsCount": 210,
+      "tags": [
+        "UI/UX",
+        "Figma",
+        "Design Systems",
+        "Micro-interactions",
+        "Accessibility",
+        "Tailwind"
+      ],
+      "instructor": {
+        "id": "inst_tanya_roy",
+        "name": "Tanya Roy",
+        "title": "Lead Product Designer & Design Systems Advocate",
+        "company": "HyperCraft Studio",
+        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+        "bio": "Design systems consultant and international design juror with expertise in tokenized multi-brand UI design."
+      },
+      "modules": [
+        {
+          "id": "d1",
+          "title": "User Psychology & Heuristic Discovery",
+          "duration": "1.5 Weeks",
+          "topics": [
+            "User Interviews & Journey Maps",
+            "Information Architecture",
+            "Wireframing Low-to-High Fidelity"
+          ]
+        },
+        {
+          "id": "d2",
+          "title": "Advanced Figma & Tokenized Design Systems",
+          "duration": "2 Weeks",
+          "topics": [
+            "Auto-Layout 5.0 & Variables",
+            "Component Variant Architecture",
+            "Dark Mode Token Derivations"
+          ]
+        },
+        {
+          "id": "d3",
+          "title": "Micro-Interactions & Prototyping",
+          "duration": "1.5 Weeks",
+          "topics": [
+            "Smart Animate Prototyping",
+            "Tactile Feedback Curves",
+            "WCAG AA Color Contrast Math"
+          ]
+        },
+        {
+          "id": "d4",
+          "title": "Design-to-Code & Portfolio Showcase",
+          "duration": "1 Week",
+          "topics": [
+            "Figma to Tailwind CSS Mappings",
+            "Creating Standout Hiring Case Studies"
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        "Create multi-platform design systems with scalable design tokens.",
+        "Produce polished case studies ready for product designer interviews at top startups."
+      ],
+      "requirements": [
+        "Curiosity and a computer with access to Figma."
+      ],
+      "faq": [
+        {
+          "question": "Is prior design experience required?",
+          "answer": "No prior experience is necessary; we start from first principles."
+        }
+      ],
+      "createdAt": "2026-08-29T18:48:46.410Z",
+      "updatedAt": "2026-08-29T18:48:46.410Z"
+    },
+    {
+      "id": "crs_cybersec_2026",
+      "slug": "advanced-cybersecurity-ethical-hacking",
+      "title": "Advanced Cyber Defense & Practical Ethical Hacking",
+      "shortDescription": "Master web application security (OWASP Top 10), network penetration testing, API vulnerability exploitation, and DevSecOps safeguards.",
+      "fullDescription": "Comprehensive training in modern cybersecurity defense and ethical penetration testing. Learn how attackers think, how to audit codebases for zero-day flaws, how to secure cloud environments, and how to build automated security gates in CI/CD pipelines.",
+      "bannerImage": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
+      "category": "Cyber Security",
+      "level": "Intermediate",
+      "mode": "Hybrid Workshop",
+      "duration": "8 Weeks (56 Live Hours)",
+      "startDate": "2026-09-20",
+      "endDate": "2026-11-15",
+      "registrationDeadline": "2026-09-16",
+      "price": 12999,
+      "originalPrice": 19999,
+      "capacity": 50,
+      "enrolledCount": 14,
+      "status": "PUBLISHED",
+      "featured": true,
+      "rating": 4.91,
+      "reviewsCount": 154,
+      "tags": [
+        "Cybersecurity",
+        "Ethical Hacking",
+        "OWASP Top 10",
+        "Burp Suite",
+        "DevSecOps",
+        "Cloud IAM"
+      ],
+      "instructor": {
+        "id": "inst_meera_nair",
+        "name": "Meera Nair, CISSP",
+        "title": "Head of Information Security & Red Teamer",
+        "company": "Fortress Defense Labs",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+        "bio": "Certified Red Team Operator with a decade of enterprise security audits for banking and telecom systems."
+      },
+      "modules": [
+        {
+          "id": "s1",
+          "title": "Modern Threat Modeling & Web App Pen-Testing",
+          "duration": "2 Weeks",
+          "topics": [
+            "Burp Suite Professional Suite",
+            "SQL Injection, XSS, SSRF & IDOR",
+            "OAuth2 Token Forgery & JWT Flaws"
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "API Security & Microservice Defense",
+          "duration": "2 Weeks",
+          "topics": [
+            "REST & GraphQL Pen-Testing",
+            "BOLA Discovery",
+            "Rate Limit Bypasses"
+          ]
+        },
+        {
+          "id": "s3",
+          "title": "Cloud Security Posture Management & DevSecOps",
+          "duration": "2 Weeks",
+          "topics": [
+            "AWS & GCP IAM Privilege Escalation",
+            "SAST & DAST Automated Scanners",
+            "HashiCorp Vault Secrets Management"
+          ]
+        },
+        {
+          "id": "s4",
+          "title": "Live Capture The Flag (CTF) Clinic",
+          "duration": "2 Weeks",
+          "topics": [
+            "Competitive Cyber Range Labs",
+            "Executive Remediation Reports",
+            "Blue-Team Hardening Playbooks"
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        "Conduct end-to-end vulnerability assessments on web and API services.",
+        "Remediate high-severity OWASP vulnerabilities before production releases."
+      ],
+      "requirements": [
+        "Basic understanding of networking, HTTP, and terminal commands."
+      ],
+      "faq": [
+        {
+          "question": "Is the lab environment safe and isolated?",
+          "answer": "Yes, all labs run on our dedicated, isolated Claxic Cyber Range."
+        }
+      ],
+      "createdAt": "2026-08-29T18:48:46.411Z",
+      "updatedAt": "2026-08-29T18:48:46.411Z"
     },
     {
       "id": "crs_cloud_k8s_2026",
@@ -1670,8 +2248,8 @@
       "registrationDeadline": "2026-09-25",
       "price": 18999,
       "originalPrice": 28999,
-      "capacity": 35,
-      "enrolledCount": 22,
+      "capacity": 50,
+      "enrolledCount": 14,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 4.88,
@@ -1688,76 +2266,74 @@
       "instructor": {
         "id": "inst_dev_kapoor",
         "name": "Rohan Kapoor",
-        "title": "Principal Infrastructure Engineer",
+        "title": "Principal Infrastructure Architect",
         "company": "CloudScale Global",
         "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
-        "bio": "AWS Certified Solutions Architect Fellow with 11+ years managing 500+ node multi-region Kubernetes clusters."
+        "bio": "AWS Certified Solutions Architect Fellow with 11+ years managing 500+ node multi-region clusters."
       },
       "modules": [
         {
-          "id": "kmod_1",
-          "title": "Linux Internals, Cgroups & Production Containers",
-          "duration": "2 Weeks (14 Hours)",
+          "id": "k1",
+          "title": "Linux Internals & Production Containers",
+          "duration": "2 Weeks",
           "topics": [
-            "Linux namespaces, cgroups, systemd",
-            "Multi-stage Docker builds",
-            "Container vulnerability scanning with Trivy"
+            "Linux Namespaces & Cgroups",
+            "Multi-Stage Docker Builds",
+            "Trivy Vulnerability Scanning"
           ]
         },
         {
-          "id": "kmod_2",
-          "title": "Kubernetes Core Objects & Cluster Provisioning",
-          "duration": "3 Weeks (21 Hours)",
+          "id": "k2",
+          "title": "Kubernetes Core & Cluster Provisioning",
+          "duration": "3 Weeks",
           "topics": [
-            "Pods, Deployments, StatefulSets, DaemonSets",
-            "Ingress controllers, Cert-Manager, TLS termination",
-            "Persistent Volumes & CSI drivers"
+            "Pods, Deployments & StatefulSets",
+            "Ingress & TLS Termination",
+            "Persistent Volumes & CSI Drivers"
           ]
         },
         {
-          "id": "kmod_3",
+          "id": "k3",
           "title": "GitOps, CI/CD & Automated Delivery",
-          "duration": "3 Weeks (21 Hours)",
+          "duration": "3 Weeks",
           "topics": [
-            "Infrastructure as Code with Terraform & OpenTofu",
-            "ArgoCD GitOps declarative deployments",
-            "Canary & Blue-Green progressive delivery with Flagger"
+            "Terraform & OpenTofu IaC",
+            "ArgoCD Declarative Deployments",
+            "Canary Rollouts with Flagger"
           ]
         },
         {
-          "id": "kmod_4",
-          "title": "Observability, SRE & Incident Response",
-          "duration": "2 Weeks (14 Hours)",
+          "id": "k4",
+          "title": "Observability & SRE Incident Response",
+          "duration": "2 Weeks",
           "topics": [
-            "Prometheus metrics, PromQL, Grafana dashboards",
-            "Distributed tracing with OpenTelemetry & Jaeger",
-            "Chaos engineering with LitmusChaos"
+            "Prometheus & Grafana Dashboards",
+            "OpenTelemetry Tracing",
+            "Chaos Engineering with LitmusChaos"
           ]
         }
       ],
       "learningOutcomes": [
-        "Build and operate production-grade Kubernetes clusters on GCP (GKE) and AWS (EKS).",
-        "Automate complete infrastructure provisioning using Terraform and GitOps with ArgoCD.",
-        "Configure enterprise observability, alert manager rules, and MTTR reduction runbooks."
+        "Operate production-grade Kubernetes clusters on GCP and AWS.",
+        "Automate infrastructure provisioning with Terraform and ArgoCD."
       ],
       "requirements": [
-        "Basic knowledge of Linux command line and Git.",
-        "Understanding of networking concepts (DNS, TCP/IP, HTTP, Load Balancing)."
+        "Basic Linux command line and Git familiarity."
       ],
       "faq": [
         {
-          "question": "Do I need a paid cloud account for the labs?",
-          "answer": "No! We provide dedicated cloud sandbox credits and local Minikube/Kind configurations so you can practice without personal cloud expenses."
+          "question": "Do I need paid cloud accounts?",
+          "answer": "No, all sandbox cloud accounts are included for the labs."
         }
       ],
-      "createdAt": "2026-08-05T10:00:00.000Z",
-      "updatedAt": "2026-08-22T12:00:00.000Z"
+      "createdAt": "2026-08-29T18:48:46.412Z",
+      "updatedAt": "2026-08-29T18:48:46.412Z"
     },
     {
       "id": "crs_system_design_2026",
       "slug": "distributed-system-design-high-scale",
       "title": "Distributed System Design & High-Concurrency Architecture",
-      "shortDescription": "Master the architectural patterns used by Netflix, Uber, and Google. Sharding, Consistent Hashing, Event-Driven Architecture, and Resiliency.",
+      "shortDescription": "Master the architectural patterns used by Netflix, Uber, and Google: Sharding, Consistent Hashing, Event-Driven Architecture, and Resiliency.",
       "fullDescription": "Designed specifically for mid-level and senior engineers targeting Staff Engineer roles. Learn how to design fault-tolerant systems handling millions of queries per second with sub-millisecond latency, distributed consensus (Raft/Paxos), and event-driven patterns.",
       "bannerImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
       "category": "System Architecture",
@@ -1770,7 +2346,7 @@
       "price": 16999,
       "originalPrice": 25999,
       "capacity": 50,
-      "enrolledCount": 46,
+      "enrolledCount": 14,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 4.97,
@@ -1789,257 +2365,65 @@
         "title": "Distinguished Systems Architect",
         "company": "ScaleX Systems",
         "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-        "bio": "Author of \"Scaling to 100M Daily Actives\" and former lead architect behind high-concurrency payment switches."
+        "bio": "Former lead architect behind high-concurrency real-time payment switches handling 100k+ transactions/second."
       },
       "modules": [
         {
-          "id": "sys_1",
-          "title": "Core Building Blocks of Distributed Computing",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd1",
+          "title": "Building Blocks of Distributed Systems",
+          "duration": "2 Weeks",
           "topics": [
-            "CAP theorem in practice, PACELC",
-            "Consistent hashing & ring topologies",
-            "LSM trees vs B-Trees in database engines"
+            "CAP & PACELC Trade-offs",
+            "Consistent Hashing & Partitioning",
+            "LSM Trees vs B-Trees"
           ]
         },
         {
-          "id": "sys_2",
-          "title": "Message Queues, Streaming & Event Sourcing",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd2",
+          "title": "Message Queues & Event Sourcing",
+          "duration": "2 Weeks",
           "topics": [
-            "Apache Kafka internals: partitions, consumer groups, offsets",
-            "Idempotent consumer patterns & Saga transactions",
-            "Change Data Capture (CDC) with Debezium"
+            "Apache Kafka Partitions & Offsets",
+            "Saga Distributed Transactions",
+            "Debezium CDC Streams"
           ]
         },
         {
-          "id": "sys_3",
-          "title": "Real-World System Case Studies",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd3",
+          "title": "Real-World Production Case Studies",
+          "duration": "2 Weeks",
           "topics": [
-            "Designing a Global Ride-Hailing Match Engine (Uber)",
-            "Designing a Collaborative Real-Time Whiteboard (Figma)",
-            "Designing a Video Streaming CDN with Adaptive Bitrate (Netflix)"
+            "Global Ride Match Engine (Uber)",
+            "Collaborative Whiteboard (Figma)",
+            "Video CDN Streaming (Netflix)"
           ]
         },
         {
-          "id": "sys_4",
-          "title": "Disaster Recovery, Rate Limiting & Mock Interviews",
-          "duration": "2 Weeks (12 Hours)",
+          "id": "sd4",
+          "title": "Resiliency & Mock System Interviews",
+          "duration": "2 Weeks",
           "topics": [
-            "Token bucket, leaky bucket & distributed sliding window limiters",
-            "Circuit breakers (Resilience4j) and bulkhead patterns",
-            "1-on-1 mock system design interview simulations"
+            "Sliding Window Rate Limiters",
+            "Circuit Breaker Patterns",
+            "1-on-1 Mock Interview Evaluations"
           ]
         }
       ],
       "learningOutcomes": [
-        "Design reliable, fault-tolerant distributed systems capable of scaling to millions of QPS.",
-        "Confidently lead Staff/Principal engineering system design interviews at Tier-1 tech giants."
+        "Design reliable distributed systems scaling to millions of queries per second.",
+        "Lead Staff and Principal Engineering system design interviews with confidence."
       ],
       "requirements": [
-        "At least 2 years of backend or full-stack software development experience."
+        "At least 2 years of software engineering experience."
       ],
       "faq": [
         {
-          "question": "Does this course include 1-on-1 design mock sessions?",
-          "answer": "Yes! Every enrolled participant receives a scheduled 45-minute live mock design interview with our lead faculty."
+          "question": "Are 1-on-1 mock interviews included?",
+          "answer": "Yes, every enrolled student receives a private 45-minute live mock session."
         }
       ],
-      "createdAt": "2026-08-10T10:00:00.000Z",
-      "updatedAt": "2026-08-25T11:00:00.000Z"
-    },
-    {
-      "id": "crs_cybersec_2026",
-      "slug": "advanced-cybersecurity-ethical-hacking",
-      "title": "Advanced Cyber Defense & Practical Ethical Hacking",
-      "shortDescription": "Master web application security (OWASP Top 10), network penetration testing, API vulnerability exploitation, and DevSecOps safeguards.",
-      "fullDescription": "Comprehensive training in modern cybersecurity defense and ethical penetration testing. Learn how attackers think, how to audit codebases for zero-day flaws, how to secure cloud environments, and how to build automated security gates in CI/CD pipelines.",
-      "bannerImage": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
-      "category": "Cyber Security",
-      "level": "Intermediate",
-      "mode": "Hybrid Workshop",
-      "duration": "8 Weeks (56 Live Hours)",
-      "startDate": "2026-09-20",
-      "endDate": "2026-11-15",
-      "registrationDeadline": "2026-09-16",
-      "price": 12999,
-      "originalPrice": 19999,
-      "capacity": 40,
-      "enrolledCount": 33,
-      "status": "PUBLISHED",
-      "featured": false,
-      "rating": 4.91,
-      "reviewsCount": 154,
-      "tags": [
-        "Cybersecurity",
-        "Ethical Hacking",
-        "OWASP",
-        "Burp Suite",
-        "DevSecOps",
-        "Network Security"
-      ],
-      "instructor": {
-        "id": "inst_meera_nair",
-        "name": "Meera Nair, CISSP",
-        "title": "Head of Information Security & Red Teamer",
-        "company": "Fortress Defense Labs",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
-        "bio": "Certified Red Team Operator with a decade of enterprise security audits for banking and government infrastructure."
-      },
-      "modules": [
-        {
-          "id": "sec_1",
-          "title": "Modern Threat Modeling & Web App Penetration Testing",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "Burp Suite Professional masterclass",
-            "SQL Injection, XSS, SSRF, IDOR, CSRF bypasses",
-            "OAuth2 token forgery and JWT flaws"
-          ]
-        },
-        {
-          "id": "sec_2",
-          "title": "API Security & Microservice Defense",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "REST & GraphQL penetration testing",
-            "BOLA (Broken Object Level Auth) discovery",
-            "Rate limit bypass and API gateway security"
-          ]
-        },
-        {
-          "id": "sec_3",
-          "title": "Cloud Security Posture Management & DevSecOps",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "AWS & GCP IAM privilege escalation auditing",
-            "SAST & DAST tool integration with GitHub Actions",
-            "Secrets management with HashiCorp Vault"
-          ]
-        },
-        {
-          "id": "sec_4",
-          "title": "Live Capture The Flag (CTF) & Remediation Clinic",
-          "duration": "2 Weeks (14 Hours)",
-          "topics": [
-            "Competitive CTF lab scenarios",
-            "Writing executive penetration test reports",
-            "Defensive blue-team hardening playbooks"
-          ]
-        }
-      ],
-      "learningOutcomes": [
-        "Conduct end-to-end vulnerability assessments on modern web and API applications.",
-        "Identify and remediate high-severity OWASP Top 10 vulnerabilities before production release.",
-        "Implement automated security scanning into continuous deployment pipelines."
-      ],
-      "requirements": [
-        "Solid grasp of networking fundamentals, HTTP protocol, and basic programming."
-      ],
-      "faq": [
-        {
-          "question": "Will we have legal permissions to hack in this course?",
-          "answer": "All exercises are hosted on our dedicated, isolated Claxic Cyber Range containing realistic vulnerable target systems."
-        }
-      ],
-      "createdAt": "2026-08-08T10:00:00.000Z",
-      "updatedAt": "2026-08-24T15:00:00.000Z"
-    },
-    {
-      "id": "crs_uiux_product_2026",
-      "slug": "digital-product-design-design-systems",
-      "title": "Digital Product Design & Enterprise Design Systems",
-      "shortDescription": "From user research to design systems in Figma, interactive micro-interactions, accessibility math, and design-to-code handoffs.",
-      "fullDescription": "Craft intuitive, world-class user experiences for complex software products. Learn UX research heuristics, rapid prototyping, building tokenized multi-brand design systems in Figma, and collaborating seamlessly with frontend engineering teams.",
-      "bannerImage": "https://images.unsplash.com/photo-1581291518655-9523c932edcf?auto=format&fit=crop&w=1200&q=80",
-      "category": "Product & Design",
-      "level": "All Levels",
-      "mode": "Self-Paced",
-      "duration": "6 Weeks (36 Live & Lab Hours)",
-      "startDate": "2026-09-18",
-      "endDate": "2026-10-30",
-      "registrationDeadline": "2026-09-15",
-      "price": 9999,
-      "originalPrice": 15999,
-      "capacity": 60,
-      "enrolledCount": 48,
-      "status": "PUBLISHED",
-      "featured": false,
-      "rating": 4.92,
-      "reviewsCount": 210,
-      "tags": [
-        "UI/UX",
-        "Figma",
-        "Design Systems",
-        "Micro-interactions",
-        "Accessibility",
-        "Prototyping"
-      ],
-      "instructor": {
-        "id": "inst_tanya_roy",
-        "name": "Tanya Roy",
-        "title": "Lead Product Designer",
-        "company": "HyperCraft Studio",
-        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
-        "bio": "Design systems advocate and judge for international digital product design competitions."
-      },
-      "modules": [
-        {
-          "id": "des_1",
-          "title": "User Psychology & Heuristic Discovery",
-          "duration": "1.5 Weeks (9 Hours)",
-          "topics": [
-            "User interviews & journey mapping",
-            "Information architecture & tree testing",
-            "Wireframing low-to-high fidelity progressions"
-          ]
-        },
-        {
-          "id": "des_2",
-          "title": "Advanced Figma & Tokenized Design Systems",
-          "duration": "2 Weeks (12 Hours)",
-          "topics": [
-            "Auto-layout 5.0, variables, typography tokens",
-            "Component variant architecture & state matrices",
-            "Dark mode token derivation"
-          ]
-        },
-        {
-          "id": "des_3",
-          "title": "Micro-Interactions & Prototyping",
-          "duration": "1.5 Weeks (9 Hours)",
-          "topics": [
-            "Interactive component prototyping with smart animate",
-            "Mathematical easing curves & tactile feedback",
-            "Accessibility WCAG AA color contrast math"
-          ]
-        },
-        {
-          "id": "des_4",
-          "title": "Design-to-Code & Portfolio Showcase",
-          "duration": "1 Week (6 Hours)",
-          "topics": [
-            "Figma to Tailwind CSS / Shadcn mappings",
-            "Creating a standout case study for hiring managers"
-          ]
-        }
-      ],
-      "learningOutcomes": [
-        "Create end-to-end multi-platform design systems with scalable design tokens.",
-        "Produce polished case studies ready for product designer interviews at top startups."
-      ],
-      "requirements": [
-        "No prior design experience required. Just curiosity and a laptop."
-      ],
-      "faq": [
-        {
-          "question": "Is Figma required?",
-          "answer": "Yes, a free Figma account is all you need to participate in all live workshops and assignments."
-        }
-      ],
-      "createdAt": "2026-08-12T10:00:00.000Z",
-      "updatedAt": "2026-08-25T16:00:00.000Z"
+      "createdAt": "2026-08-29T18:48:46.413Z",
+      "updatedAt": "2026-08-29T18:48:46.413Z"
     },
     {
       "id": "crs_data_science_2026",
@@ -2057,10 +2441,10 @@
       "registrationDeadline": "2026-10-10",
       "price": 13999,
       "originalPrice": 21999,
-      "capacity": 40,
-      "enrolledCount": 40,
-      "status": "FULL",
-      "featured": false,
+      "capacity": 50,
+      "enrolledCount": 14,
+      "status": "PUBLISHED",
+      "featured": true,
       "rating": 4.89,
       "reviewsCount": 165,
       "tags": [
@@ -2082,61 +2466,61 @@
       },
       "modules": [
         {
-          "id": "ds_1",
-          "title": "Exploratory Data Analysis & Statistical Modeling",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "id": "ds1",
+          "title": "Exploratory Data Analysis & Statistics",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Pandas & Polars performance comparisons",
-            "Hypothesis testing, Bayesian priors & A/B testing stats",
-            "Advanced feature selection and imputation"
+            "Pandas & Polars",
+            "Hypothesis & A/B Testing",
+            "Feature Engineering"
           ]
         },
         {
-          "id": "ds_2",
+          "id": "ds2",
           "title": "Supervised & Unsupervised Machine Learning",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Gradient Boosting with XGBoost and LightGBM",
-            "Hyperparameter tuning with Optuna",
-            "Dimensionality reduction: UMAP vs t-SNE"
+            "XGBoost & LightGBM",
+            "Optuna Hyperparameter Tuning",
+            "UMAP vs t-SNE"
           ]
         },
         {
-          "id": "ds_3",
+          "id": "ds3",
           "title": "Deep Learning with PyTorch",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Neural network architectures from scratch",
-            "Transformers, self-attention mechanisms",
-            "Transfer learning & embeddings fine-tuning"
+            "Neural Network Architectures",
+            "Transformers & Attention",
+            "Embeddings Fine-Tuning"
           ]
         },
         {
-          "id": "ds_4",
+          "id": "ds4",
           "title": "MLOps, Model Serving & Monitoring",
-          "duration": "2.5 Weeks (17.5 Hours)",
+          "duration": "2.5 Weeks",
           "topics": [
-            "Model tracking with MLflow",
-            "Packaging inference APIs with FastAPI and Docker",
-            "Data drift detection with Evidently AI"
+            "MLflow Experiment Tracking",
+            "FastAPI & Docker Model APIs",
+            "Evidently AI Drift Detection"
           ]
         }
       ],
       "learningOutcomes": [
-        "Build, evaluate, and fine-tune complex statistical and deep learning models.",
-        "Deploy production-ready inference endpoints with automated monitoring and drift alarms."
+        "Build and evaluate complex statistical machine learning models.",
+        "Deploy production inference endpoints with automated drift monitoring."
       ],
       "requirements": [
-        "Comfort with Python programming and basic calculus/linear algebra."
+        "Python programming fundamentals and basic math."
       ],
       "faq": [
         {
-          "question": "Is GPU hardware provided for deep learning labs?",
-          "answer": "Yes, cloud GPU instances (NVIDIA T4/A100) are provided at no extra cost."
+          "question": "Are GPU instances provided for deep learning labs?",
+          "answer": "Yes, GPU cloud instances are provided for PyTorch model training."
         }
       ],
-      "createdAt": "2026-08-14T10:00:00.000Z",
-      "updatedAt": "2026-08-26T18:00:00.000Z"
+      "createdAt": "2026-08-29T18:48:46.414Z",
+      "updatedAt": "2026-08-29T18:48:46.414Z"
     }
   ],
   "applications": [
@@ -2358,9 +2742,246 @@
       },
       "createdAt": "2026-08-29T17:12:53.990Z",
       "updatedAt": "2026-08-29T17:12:53.990Z"
+    },
+    {
+      "id": "app_50427eed095bc5fa",
+      "applicationNumber": "APP-2026-7447",
+      "userId": "usr_a87e5ae5ed942c70",
+      "userEmail": "audit_student_1788032389462@university.edu",
+      "userName": "Audit Student",
+      "userMobile": "",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "coursePrice": 0,
+      "status": "DRAFT",
+      "formData": {
+        "fullName": "Audit Student Draft",
+        "email": "audit_student_1788032389462@university.edu",
+        "mobile": "+91 9876543210",
+        "institution": "IIT Delhi",
+        "degree": "B.Tech"
+      },
+      "createdAt": "2026-08-29T19:39:51.003Z",
+      "updatedAt": "2026-08-29T19:39:51.003Z"
     }
   ],
   "payments": [
+    {
+      "id": "pay_f631261cb391dfba",
+      "receiptNumber": "REC-2026-7541",
+      "orderId": "order_clx_96f5d2160686e804",
+      "paymentId": "pay_audit_test_1788033588945",
+      "userId": "usr_e91d3685269bbec8",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788033587375@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_5a5b0b9df42b1c84",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:59:48.950Z",
+      "updatedAt": "2026-08-29T19:59:48.950Z"
+    },
+    {
+      "id": "pay_fa568eba0720fa51",
+      "receiptNumber": "REC-2026-7175",
+      "orderId": "order_clx_0d938f6f4afbb340",
+      "paymentId": "pay_audit_test_1788033218967",
+      "userId": "usr_6e0935830e350b42",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788033217709@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_f6d29dfaf93c6640",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:53:38.968Z",
+      "updatedAt": "2026-08-29T19:53:38.968Z"
+    },
+    {
+      "id": "pay_9ae56efc96f271f9",
+      "receiptNumber": "REC-2026-8467",
+      "orderId": "order_clx_3c3a5e946f3df3c6",
+      "paymentId": "pay_audit_test_1788033098697",
+      "userId": "usr_94c4b5cf2f2c2d8b",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788033097229@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_408e4ce0a8a7c297",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:51:38.695Z",
+      "updatedAt": "2026-08-29T19:51:38.695Z"
+    },
+    {
+      "id": "pay_bc22111c7686b1ba",
+      "receiptNumber": "REC-2026-5328",
+      "orderId": "order_clx_ac9abc92b54a58b3",
+      "paymentId": "pay_audit_test_1788032668158",
+      "userId": "usr_86169d51f62ef9f4",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788032666674@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_190519b9d182401c",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:44:28.161Z",
+      "updatedAt": "2026-08-29T19:44:28.161Z"
+    },
+    {
+      "id": "pay_b8318322b4feefde",
+      "receiptNumber": "REC-2026-4946",
+      "orderId": "order_clx_b350875228e6a657",
+      "paymentId": "pay_audit_test_1788032212301",
+      "userId": "usr_0534a787f389bd64",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788032210655@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_da81d5a6a71cb97d",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:36:52.311Z",
+      "updatedAt": "2026-08-29T19:36:52.311Z"
+    },
+    {
+      "id": "pay_e5775ddd331eb8c9",
+      "receiptNumber": "REC-2026-3298",
+      "orderId": "order_clx_0051d75b60e279f3",
+      "paymentId": "pay_audit_test_1788031795457",
+      "userId": "usr_7d48253a3316a955",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788031793615@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_f224143ba6d57c8f",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:29:55.476Z",
+      "updatedAt": "2026-08-29T19:29:55.476Z"
+    },
+    {
+      "id": "pay_f5b4402da0cac9e7",
+      "receiptNumber": "REC-2026-5363",
+      "orderId": "order_clx_6595e854c27a8a65",
+      "paymentId": "pay_audit_test_1788031145350",
+      "userId": "usr_58bb3daf7f0fce46",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788031140919@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_e5f45f9390eb3f5d",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:19:05.381Z",
+      "updatedAt": "2026-08-29T19:19:05.381Z"
+    },
+    {
+      "id": "pay_324cd2e3a3c06730",
+      "receiptNumber": "REC-2026-6230",
+      "orderId": "order_clx_c4552c4b27b83af2",
+      "paymentId": "pay_audit_test_1788030823178",
+      "userId": "usr_f393203e6d10c77d",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788030821730@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_91f7eafa8e9704bb",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:13:43.193Z",
+      "updatedAt": "2026-08-29T19:13:43.193Z"
+    },
+    {
+      "id": "pay_813f587fb79fd030",
+      "receiptNumber": "REC-2026-1120",
+      "orderId": "order_clx_3342f4f39de7237b",
+      "paymentId": "pay_audit_test_1788030375772",
+      "userId": "usr_b92835b418f54e62",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788030374358@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_ebb8eaa02504344a",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:06:15.784Z",
+      "updatedAt": "2026-08-29T19:06:15.784Z"
+    },
+    {
+      "id": "pay_3935e41fa57be6b8",
+      "receiptNumber": "REC-2026-8816",
+      "orderId": "order_clx_7efe0f61a45c7738",
+      "paymentId": "pay_audit_test_1788030064287",
+      "userId": "usr_b3b5c9319f616cde",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788030062474@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_ba9a98b7758b13e6",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T19:01:04.289Z",
+      "updatedAt": "2026-08-29T19:01:04.289Z"
+    },
+    {
+      "id": "pay_c1b9e797bed03ebd",
+      "receiptNumber": "REC-2026-5353",
+      "orderId": "order_clx_800d342efd2ee1e7",
+      "paymentId": "pay_audit_test_1788029675268",
+      "userId": "usr_a6bf41f6c76bce32",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788029673995@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI & Full-Stack System Architecture",
+      "applicationId": "app_b07def59b6bfc182",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T18:54:35.289Z",
+      "updatedAt": "2026-08-29T18:54:35.289Z"
+    },
+    {
+      "id": "pay_0c15e319a013eb26",
+      "receiptNumber": "REC-2026-9745",
+      "orderId": "order_clx_7b7328af001ae0fa",
+      "paymentId": "pay_audit_test_1788028613945",
+      "userId": "usr_00d150a0bec7d23c",
+      "userName": "Audit Student",
+      "userEmail": "audit_student_1788028613255@university.edu",
+      "courseId": "crs_ai_fullstack_2026",
+      "courseTitle": "Applied GenAI",
+      "applicationId": "app_eed1995b1d44af03",
+      "amount": 14999,
+      "currency": "INR",
+      "status": "SUCCESS",
+      "paymentMethod": "Razorpay Gateway (UPI/Card)",
+      "createdAt": "2026-08-29T18:36:53.958Z",
+      "updatedAt": "2026-08-29T18:36:53.958Z"
+    },
     {
       "id": "pay_8d8f50e7826046de",
       "receiptNumber": "REC-2026-9014",
@@ -3697,10 +4318,6 @@
       "userId": "usr_ff5f148d6dcb4e72",
       "expiresAt": "2026-09-05T18:19:35.927Z"
     },
-    "stk_c0ae5bd02721c5e072e66d9c904549a208e33832bf63b61464ca384016b46ba4": {
-      "userId": "usr_admin_001",
-      "expiresAt": "2026-09-05T18:19:51.361Z"
-    },
     "stk_7aa527ecbe1595c08e36119824ccd0920a5778c84de8f71dc69e5dc6721446eb": {
       "userId": "usr_324b0d85b1c8a73e",
       "expiresAt": "2026-09-05T18:23:07.062Z"
@@ -3720,6 +4337,282 @@
     "stk_6305a220170bf519470a0538ff70de1e6abc760fb455df0e3ba8c3f5c07114ee": {
       "userId": "usr_74d535ddb47c15c8",
       "expiresAt": "2026-09-05T18:23:07.871Z"
+    },
+    "stk_19bdc95c03e844a8cadae1719a01fc95700d6db9e5dd50a1300ecfeeeede2d4c": {
+      "userId": "usr_bb71d1f6815ee587",
+      "expiresAt": "2026-09-05T18:35:59.823Z"
+    },
+    "stk_706e3eca42fa0d84e7df8058a69840b041abfa586ddc2cd03135583cfc300bc1": {
+      "userId": "usr_eb236c3217974c82",
+      "expiresAt": "2026-09-05T18:36:53.512Z"
+    },
+    "stk_881cde7b813bde4eaad2f790199be1ea128bd2dc81534bda881f2e59c9b3bbeb": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T18:36:53.598Z"
+    },
+    "stk_85ca217101dae435b56abd1cd08800f051741b4247f5ef5918390a5b2d9cac3a": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T18:36:53.791Z"
+    },
+    "stk_aa04b0567686e9ba508bf38182e5ca6f0c4ebe0d2cd67811a236db9322abb9b3": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T18:36:54.101Z"
+    },
+    "stk_0eee5782cc99ae1e9a75d43f615b28320655702b33be06e63f349dc52c435f51": {
+      "userId": "usr_00d150a0bec7d23c",
+      "expiresAt": "2026-09-05T18:36:54.235Z"
+    },
+    "stk_a77d7910bb99e8666210c37dd0cc99400d8d1dca15dac2f2a51f8de30820bbd1": {
+      "userId": "usr_bb71d1f6815ee587",
+      "expiresAt": "2026-09-05T18:46:35.185Z"
+    },
+    "stk_ca4e70010ef86c2691f608364282720dc6d013b44692ba40a2300d77e342752c": {
+      "userId": "usr_57322801f54065ca",
+      "expiresAt": "2026-09-05T18:54:34.528Z"
+    },
+    "stk_e4316b1271d51667bbe0f650b6c7e4070411751056de2e3fff15522d4b2f9c5b": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T18:54:34.671Z"
+    },
+    "stk_6fcab04a7631d12c007c17978c501fc22b88e5507f83fd77577a0087a51b4dde": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T18:54:34.999Z"
+    },
+    "stk_b9233c5f15c5c030a0cc8c65e41667739053a4c5955eedd9ca61f5cdcb9e3217": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T18:54:35.514Z"
+    },
+    "stk_15702fefa190637646986f0a457d99e965eabbbc0575ce232b47d35f3acd330e": {
+      "userId": "usr_a6bf41f6c76bce32",
+      "expiresAt": "2026-09-05T18:54:35.718Z"
+    },
+    "stk_a729d04feb3950226f80093738e30d44d1a0a059b0695e90d5e8a2781b8d94bf": {
+      "userId": "usr_b514f27b0bebf5af",
+      "expiresAt": "2026-09-05T19:01:03.220Z"
+    },
+    "stk_61822ffc890d422d2b73f48f4eb2f3b8e66f8c3fe067d2bc6480c5c66068f520": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:01:03.457Z"
+    },
+    "stk_75b9a1338b85f72602fc95118930c4d47875901600190ac808d0eb2d064f69a0": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:01:03.986Z"
+    },
+    "stk_6aeb43e12576a36502cf3ec9be4ac8beed0dd9f24e8173d178d6dfd1a1467acb": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:01:04.529Z"
+    },
+    "stk_6a32e47eb451fe8fefe47223832bf0c70279fb88f08d58a09b7436e331e755af": {
+      "userId": "usr_b3b5c9319f616cde",
+      "expiresAt": "2026-09-05T19:01:04.815Z"
+    },
+    "stk_79d67b850ced2c463d3d4993d4505a9012d71dc383fac02260e97def742c14fc": {
+      "userId": "usr_93f98633d1cdf2eb",
+      "expiresAt": "2026-09-05T19:06:15.064Z"
+    },
+    "stk_31b82278994d39486759037c24d0047afbfb3fb9b156517d7f18489d969fca66": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:06:15.216Z"
+    },
+    "stk_f95a0372906356e8a014340455e3ba93a0c2226709d7fdc86c35c7657cbcefbb": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:06:15.543Z"
+    },
+    "stk_da6ef2ab20bf576192a7c395fa7e727f50ea76976c50aa870c29e524fcc0562c": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:06:15.965Z"
+    },
+    "stk_add465f2be89c343ac2d8af18c3407f0e9c6b6c315fe44cb3485f990fbde60e5": {
+      "userId": "usr_b92835b418f54e62",
+      "expiresAt": "2026-09-05T19:06:16.149Z"
+    },
+    "stk_6f822bef2e1e17fc5f3dbbba38e4846e628bbc522b3e4269feebdd97bbdf7270": {
+      "userId": "usr_1604f1fb5f0e6280",
+      "expiresAt": "2026-09-05T19:11:00.156Z"
+    },
+    "stk_5e1b21f284a8cc1401ec79f7475de942e11a3cd1a59edac2a56adab923ceb12a": {
+      "userId": "usr_9b0f4aa574cc4a28",
+      "expiresAt": "2026-09-05T19:13:42.412Z"
+    },
+    "stk_ef6c9272167ea22f2eaa02c9daf7a2a414113635dd237607e6ccb29cbfeb9bf7": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:13:42.591Z"
+    },
+    "stk_2f00cfdcb91eb96c59c0b2295c504c7847135c5a2597a80bce72a8b8854238b5": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:13:42.926Z"
+    },
+    "stk_f83e351f80597003fe5e6343f552ba26997e63e2e4d1c3ab8affe4e4c6e02a0d": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:13:43.393Z"
+    },
+    "stk_c1e04104545a387633dc1f213e3fa7414c9e52e7b60e73f7acc746ca181b0cce": {
+      "userId": "usr_f393203e6d10c77d",
+      "expiresAt": "2026-09-05T19:13:43.661Z"
+    },
+    "stk_40f79aebb0a7698e511318dc2d2379766befdeed2b7eec943e4f439cf18d89e4": {
+      "userId": "usr_db47a6b9cc6d4816",
+      "expiresAt": "2026-09-05T19:19:02.513Z"
+    },
+    "stk_d7ac70071dc9c5efb397b63ae4b3681ad6b13c12bc667a536e56b27b27725dc8": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:19:02.883Z"
+    },
+    "stk_d1261e4deae003b2c59b4672b6ece931d8bfab6e47337b6312e010bc2657c231": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:19:03.983Z"
+    },
+    "stk_5d424763c0e9c06d0abdcb875cdc57377c1606dea277f58725d1c5b3eeccdc4d": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:19:07.041Z"
+    },
+    "stk_bba963a5d7dc13f7f8f81b281f0b6c2379340583b42e58ed159d35352b601957": {
+      "userId": "usr_58bb3daf7f0fce46",
+      "expiresAt": "2026-09-05T19:19:08.109Z"
+    },
+    "stk_013d9fe64c5ef2090b6e6670d1c14a95ee02863e2821c2c95b4088847af495b0": {
+      "userId": "usr_1604f1fb5f0e6280",
+      "expiresAt": "2026-09-05T19:23:15.168Z"
+    },
+    "stk_82f84d281dfb6e5d7a6e6942daa9c35753b77ed6ea341c97e755b0715faa2495": {
+      "userId": "usr_5a4ec095084129f1",
+      "expiresAt": "2026-09-05T19:29:54.460Z"
+    },
+    "stk_188286a858de8d83e44a31a9e834ba0967e014bf19cd245f563f680d5bef500f": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:29:54.699Z"
+    },
+    "stk_ec12710e4d3d3be0bc9aa7de75250acb79e60efea511da882cfaedddfd6a798e": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:29:55.206Z"
+    },
+    "stk_f4c37f0837edf3fe22869a70088baca0bc3dfe9bfc34dc232c35bf1e58ce3937": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:29:55.811Z"
+    },
+    "stk_1c7c82ac54e53faa595b37d665a8884b4e08b9bb72da8c9e319e0feec7d7a827": {
+      "userId": "usr_7d48253a3316a955",
+      "expiresAt": "2026-09-05T19:29:56.084Z"
+    },
+    "stk_97bc7cc699c2cc1b6d2f9550fe53ae54bd58166f1d8d09d4e340a0d15e7e070d": {
+      "userId": "usr_09a3570cf9ed98b4",
+      "expiresAt": "2026-09-05T19:36:51.311Z"
+    },
+    "stk_045708c2b74ee7b77ecbaf6873db5cd474ae1578206fe620861fc3bbfc8a3dd8": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:36:51.493Z"
+    },
+    "stk_6ecf9da5e1b5c548fd6ef04952d1561c62361e3db1683a77508230785e2d1787": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:36:52.005Z"
+    },
+    "stk_1ba1deafa2c3b7454a0b93bc062e35bc0e8cf0137a3481d09d5ab37b0dbd6e07": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:36:52.553Z"
+    },
+    "stk_10c95f098bd415a8ffb3252df267b4f01ef4685b67958a17965c4757e68f79ca": {
+      "userId": "usr_0534a787f389bd64",
+      "expiresAt": "2026-09-05T19:36:52.964Z"
+    },
+    "stk_5eff41146c9a26f132c9a62478bc6c77cd1b0782cd21aea433f17bd6045df221": {
+      "userId": "usr_8324f56c92e5f74b",
+      "expiresAt": "2026-09-05T19:39:50.167Z"
+    },
+    "stk_d69bb4401b30e72092ea862eb3ceb5588c8a5b98e1064e4cb2f49bc86b5a0dc1": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:39:50.360Z"
+    },
+    "stk_652a0ee519c369ecaba5e1605f1c25891dae0adb59314a60cdd0881292b8ba48": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:39:50.900Z"
+    },
+    "stk_abe56877dbdd934388c231a32cbdeec0df36a3c679dc1c0d442818059d62822e": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:39:51.301Z"
+    },
+    "stk_818ed5c6cc3b8a6468765b25f827f4d8908c570fc075257511835d3c61e1f429": {
+      "userId": "usr_a87e5ae5ed942c70",
+      "expiresAt": "2026-09-05T19:39:51.602Z"
+    },
+    "stk_39904facfb3f337e24d9bcdc0c602860bf09cfba14eeb2fa0571eec2b4718feb": {
+      "userId": "usr_66df6319afc08119",
+      "expiresAt": "2026-09-05T19:44:27.276Z"
+    },
+    "stk_39ca31554d2fcfa5fd381fe93c36fea28025dc892659bc71f16948574b74469d": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:44:27.455Z"
+    },
+    "stk_c51a4fd2f662709db7c2e4314306969b9e317ef3dc179c8a94e359b77f56cd0a": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:44:27.831Z"
+    },
+    "stk_a7fb82457c8e8dfee0924290e546015d7f8502c3abf6c6aa839db72a81bc3320": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:44:28.372Z"
+    },
+    "stk_e7c48faeabbca4ab5f70fba3e151a025fad11446b530b382a8cd79485b15dde3": {
+      "userId": "usr_86169d51f62ef9f4",
+      "expiresAt": "2026-09-05T19:44:28.591Z"
+    },
+    "stk_228ea701d6dd44a65dcc6a6a2551a8acb3035331b9ab237b5d76a45c25c3518f": {
+      "userId": "usr_e8defeccf2462538",
+      "expiresAt": "2026-09-05T19:51:37.887Z"
+    },
+    "stk_e46c931203281d3c785bc072e9bc72da9dbc6105d09fdd728216a02c485b200e": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:51:38.044Z"
+    },
+    "stk_d5d43cd445b19d31fdc887d2ddd07bf79685fc9f6ca4bdd90a90f04e30a78424": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:51:38.438Z"
+    },
+    "stk_357d10d818e4fb3b8db43df1aef325e27ed8e940328c03a596bfcf409e9c468a": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:51:38.865Z"
+    },
+    "stk_0185a5710a196184fbfac8bcd24efcc1b4b6178ee1d0e2dc7264dd0811a53c57": {
+      "userId": "usr_94c4b5cf2f2c2d8b",
+      "expiresAt": "2026-09-05T19:51:39.075Z"
+    },
+    "stk_9ddbc3dba797d092bcfcf61e811ff37f786d176455ee5f342f81af4d050897c9": {
+      "userId": "usr_eb3b0a2085f689e5",
+      "expiresAt": "2026-09-05T19:53:38.209Z"
+    },
+    "stk_4775eb2773d93cf74ccbca7c050304ea350257332bc3eef32265a73bddc3f18b": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:53:38.360Z"
+    },
+    "stk_3c65a01480cd6ea4ea6c8e2386b1b1a4ef43763adc1bfc40421025daea6342b9": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:53:38.748Z"
+    },
+    "stk_bbda276c95b62185fbc441ba17e2db7c9242e58f89ca1b42784dd32224cc5a88": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:53:39.131Z"
+    },
+    "stk_4ef0ba16709d3a510d36b4ec1c4cf067bfcce496e5ac1561782eb05c46c20173": {
+      "userId": "usr_6e0935830e350b42",
+      "expiresAt": "2026-09-05T19:53:39.318Z"
+    },
+    "stk_12f50468f1608abd4fe785cc4eec462043b3977bf6beb25794c0979ad370c0bf": {
+      "userId": "usr_51f6c1d36a0b8555",
+      "expiresAt": "2026-09-05T19:59:48.080Z"
+    },
+    "stk_16fc040f39cf6a3df7a1faf865c0907543302865bf160d6e631ca9997afb1856": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:59:48.265Z"
+    },
+    "stk_327dcadabdc73dbeffa1e0884da427d08f7b126afe80c8fd9bcec8a495ea92ec": {
+      "userId": "usr_g_57eb3794e538f8eb",
+      "expiresAt": "2026-09-05T19:59:48.676Z"
+    },
+    "stk_bca96b53392df3bc87aefc7752a200cdab18d8cb4ee005cf1bcb2cc45b065665": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T19:59:49.191Z"
+    },
+    "stk_4c7b03e444eebca23af4daf9b1c1b41e0c9e55771dd27844629d9994166977be": {
+      "userId": "usr_e91d3685269bbec8",
+      "expiresAt": "2026-09-05T19:59:49.365Z"
     }
   },
   "verificationTokens": [
@@ -4499,6 +5392,279 @@
       "expiresAt": "2026-08-30T18:23:07.107Z",
       "userId": "usr_324b0d85b1c8a73e",
       "used": false
+    },
+    {
+      "token": "265939",
+      "email": "audit_student_1788028613255@university.edu",
+      "expiresAt": "2026-08-30T18:36:53.374Z",
+      "userId": "usr_00d150a0bec7d23c",
+      "used": true
+    },
+    {
+      "token": "138625",
+      "email": "unverified_1788028613477@stanford.edu",
+      "expiresAt": "2026-08-30T18:36:53.494Z",
+      "userId": "usr_eb236c3217974c82",
+      "used": false
+    },
+    {
+      "token": "834024",
+      "email": "unverified_1788028613477@stanford.edu",
+      "expiresAt": "2026-08-30T18:36:53.562Z",
+      "userId": "usr_eb236c3217974c82",
+      "used": false
+    },
+    {
+      "token": "480145",
+      "email": "audit_student_1788029673995@university.edu",
+      "expiresAt": "2026-08-30T18:54:34.296Z",
+      "userId": "usr_a6bf41f6c76bce32",
+      "used": true
+    },
+    {
+      "token": "834439",
+      "email": "unverified_1788029674479@stanford.edu",
+      "expiresAt": "2026-08-30T18:54:34.504Z",
+      "userId": "usr_57322801f54065ca",
+      "used": false
+    },
+    {
+      "token": "153036",
+      "email": "unverified_1788029674479@stanford.edu",
+      "expiresAt": "2026-08-30T18:54:34.602Z",
+      "userId": "usr_57322801f54065ca",
+      "used": false
+    },
+    {
+      "token": "550340",
+      "email": "audit_student_1788030062474@university.edu",
+      "expiresAt": "2026-08-30T19:01:02.834Z",
+      "userId": "usr_b3b5c9319f616cde",
+      "used": true
+    },
+    {
+      "token": "547223",
+      "email": "unverified_1788030063142@stanford.edu",
+      "expiresAt": "2026-08-30T19:01:03.166Z",
+      "userId": "usr_b514f27b0bebf5af",
+      "used": false
+    },
+    {
+      "token": "140024",
+      "email": "unverified_1788030063142@stanford.edu",
+      "expiresAt": "2026-08-30T19:01:03.332Z",
+      "userId": "usr_b514f27b0bebf5af",
+      "used": false
+    },
+    {
+      "token": "698504",
+      "email": "audit_student_1788030374358@university.edu",
+      "expiresAt": "2026-08-30T19:06:14.757Z",
+      "userId": "usr_b92835b418f54e62",
+      "used": true
+    },
+    {
+      "token": "442923",
+      "email": "unverified_1788030375015@stanford.edu",
+      "expiresAt": "2026-08-30T19:06:15.038Z",
+      "userId": "usr_93f98633d1cdf2eb",
+      "used": false
+    },
+    {
+      "token": "281054",
+      "email": "unverified_1788030375015@stanford.edu",
+      "expiresAt": "2026-08-30T19:06:15.130Z",
+      "userId": "usr_93f98633d1cdf2eb",
+      "used": false
+    },
+    {
+      "token": "386325",
+      "email": "audit_student_1788030821730@university.edu",
+      "expiresAt": "2026-08-30T19:13:42.160Z",
+      "userId": "usr_f393203e6d10c77d",
+      "used": true
+    },
+    {
+      "token": "872009",
+      "email": "unverified_1788030822373@stanford.edu",
+      "expiresAt": "2026-08-30T19:13:42.386Z",
+      "userId": "usr_9b0f4aa574cc4a28",
+      "used": false
+    },
+    {
+      "token": "986236",
+      "email": "unverified_1788030822373@stanford.edu",
+      "expiresAt": "2026-08-30T19:13:42.494Z",
+      "userId": "usr_9b0f4aa574cc4a28",
+      "used": false
+    },
+    {
+      "token": "488248",
+      "email": "audit_student_1788031140919@university.edu",
+      "expiresAt": "2026-08-30T19:19:01.568Z",
+      "userId": "usr_58bb3daf7f0fce46",
+      "used": true
+    },
+    {
+      "token": "373062",
+      "email": "unverified_1788031142324@stanford.edu",
+      "expiresAt": "2026-08-30T19:19:02.389Z",
+      "userId": "usr_db47a6b9cc6d4816",
+      "used": false
+    },
+    {
+      "token": "185744",
+      "email": "unverified_1788031142324@stanford.edu",
+      "expiresAt": "2026-08-30T19:19:02.699Z",
+      "userId": "usr_db47a6b9cc6d4816",
+      "used": false
+    },
+    {
+      "token": "935502",
+      "email": "audit_student_1788031793615@university.edu",
+      "expiresAt": "2026-08-30T19:29:53.953Z",
+      "userId": "usr_7d48253a3316a955",
+      "used": true
+    },
+    {
+      "token": "836096",
+      "email": "unverified_1788031794402@stanford.edu",
+      "expiresAt": "2026-08-30T19:29:54.427Z",
+      "userId": "usr_5a4ec095084129f1",
+      "used": false
+    },
+    {
+      "token": "989199",
+      "email": "unverified_1788031794402@stanford.edu",
+      "expiresAt": "2026-08-30T19:29:54.545Z",
+      "userId": "usr_5a4ec095084129f1",
+      "used": false
+    },
+    {
+      "token": "389093",
+      "email": "audit_student_1788032210655@university.edu",
+      "expiresAt": "2026-08-30T19:36:50.975Z",
+      "userId": "usr_0534a787f389bd64",
+      "used": true
+    },
+    {
+      "token": "357599",
+      "email": "unverified_1788032211242@stanford.edu",
+      "expiresAt": "2026-08-30T19:36:51.276Z",
+      "userId": "usr_09a3570cf9ed98b4",
+      "used": false
+    },
+    {
+      "token": "362723",
+      "email": "unverified_1788032211242@stanford.edu",
+      "expiresAt": "2026-08-30T19:36:51.398Z",
+      "userId": "usr_09a3570cf9ed98b4",
+      "used": false
+    },
+    {
+      "token": "329135",
+      "email": "audit_student_1788032389462@university.edu",
+      "expiresAt": "2026-08-30T19:39:49.789Z",
+      "userId": "usr_a87e5ae5ed942c70",
+      "used": true
+    },
+    {
+      "token": "158086",
+      "email": "unverified_1788032390081@stanford.edu",
+      "expiresAt": "2026-08-30T19:39:50.120Z",
+      "userId": "usr_8324f56c92e5f74b",
+      "used": false
+    },
+    {
+      "token": "811514",
+      "email": "unverified_1788032390081@stanford.edu",
+      "expiresAt": "2026-08-30T19:39:50.261Z",
+      "userId": "usr_8324f56c92e5f74b",
+      "used": false
+    },
+    {
+      "token": "717699",
+      "email": "audit_student_1788032666674@university.edu",
+      "expiresAt": "2026-08-30T19:44:27.057Z",
+      "userId": "usr_86169d51f62ef9f4",
+      "used": true
+    },
+    {
+      "token": "485421",
+      "email": "unverified_1788032667222@stanford.edu",
+      "expiresAt": "2026-08-30T19:44:27.245Z",
+      "userId": "usr_66df6319afc08119",
+      "used": false
+    },
+    {
+      "token": "316770",
+      "email": "unverified_1788032667222@stanford.edu",
+      "expiresAt": "2026-08-30T19:44:27.366Z",
+      "userId": "usr_66df6319afc08119",
+      "used": false
+    },
+    {
+      "token": "335635",
+      "email": "audit_student_1788033097229@university.edu",
+      "expiresAt": "2026-08-30T19:51:37.551Z",
+      "userId": "usr_94c4b5cf2f2c2d8b",
+      "used": true
+    },
+    {
+      "token": "874704",
+      "email": "unverified_1788033097817@stanford.edu",
+      "expiresAt": "2026-08-30T19:51:37.835Z",
+      "userId": "usr_e8defeccf2462538",
+      "used": false
+    },
+    {
+      "token": "540302",
+      "email": "unverified_1788033097817@stanford.edu",
+      "expiresAt": "2026-08-30T19:51:37.967Z",
+      "userId": "usr_e8defeccf2462538",
+      "used": false
+    },
+    {
+      "token": "569501",
+      "email": "audit_student_1788033217709@university.edu",
+      "expiresAt": "2026-08-30T19:53:37.944Z",
+      "userId": "usr_6e0935830e350b42",
+      "used": true
+    },
+    {
+      "token": "145688",
+      "email": "unverified_1788033218164@stanford.edu",
+      "expiresAt": "2026-08-30T19:53:38.177Z",
+      "userId": "usr_eb3b0a2085f689e5",
+      "used": false
+    },
+    {
+      "token": "814465",
+      "email": "unverified_1788033218164@stanford.edu",
+      "expiresAt": "2026-08-30T19:53:38.288Z",
+      "userId": "usr_eb3b0a2085f689e5",
+      "used": false
+    },
+    {
+      "token": "613942",
+      "email": "audit_student_1788033587375@university.edu",
+      "expiresAt": "2026-08-30T19:59:47.717Z",
+      "userId": "usr_e91d3685269bbec8",
+      "used": true
+    },
+    {
+      "token": "491093",
+      "email": "unverified_1788033588020@stanford.edu",
+      "expiresAt": "2026-08-30T19:59:48.042Z",
+      "userId": "usr_51f6c1d36a0b8555",
+      "used": false
+    },
+    {
+      "token": "440243",
+      "email": "unverified_1788033588020@stanford.edu",
+      "expiresAt": "2026-08-30T19:59:48.184Z",
+      "userId": "usr_51f6c1d36a0b8555",
+      "used": false
     }
   ],
   "passwordResetTokens": [
@@ -4732,9 +5898,340 @@
       "expiresAt": "2026-08-29T19:23:07.258Z",
       "userId": "usr_74d535ddb47c15c8",
       "used": true
+    },
+    {
+      "token": "871400",
+      "email": "audit_student_1788028613255@university.edu",
+      "expiresAt": "2026-08-29T19:36:53.693Z",
+      "userId": "usr_00d150a0bec7d23c",
+      "used": true
+    },
+    {
+      "token": "351306",
+      "email": "audit_student_1788029673995@university.edu",
+      "expiresAt": "2026-08-29T19:54:34.826Z",
+      "userId": "usr_a6bf41f6c76bce32",
+      "used": true
+    },
+    {
+      "token": "304092",
+      "email": "audit_student_1788030062474@university.edu",
+      "expiresAt": "2026-08-29T20:01:03.643Z",
+      "userId": "usr_b3b5c9319f616cde",
+      "used": true
+    },
+    {
+      "token": "709981",
+      "email": "audit_student_1788030374358@university.edu",
+      "expiresAt": "2026-08-29T20:06:15.361Z",
+      "userId": "usr_b92835b418f54e62",
+      "used": true
+    },
+    {
+      "token": "538716",
+      "email": "audit_student_1788030821730@university.edu",
+      "expiresAt": "2026-08-29T20:13:42.743Z",
+      "userId": "usr_f393203e6d10c77d",
+      "used": true
+    },
+    {
+      "token": "525982",
+      "email": "audit_student_1788031140919@university.edu",
+      "expiresAt": "2026-08-29T20:19:03.230Z",
+      "userId": "usr_58bb3daf7f0fce46",
+      "used": true
+    },
+    {
+      "token": "163498",
+      "email": "audit_student_1788031793615@university.edu",
+      "expiresAt": "2026-08-29T20:29:54.910Z",
+      "userId": "usr_7d48253a3316a955",
+      "used": true
+    },
+    {
+      "token": "209721",
+      "email": "audit_student_1788032210655@university.edu",
+      "expiresAt": "2026-08-29T20:36:51.666Z",
+      "userId": "usr_0534a787f389bd64",
+      "used": true
+    },
+    {
+      "token": "801697",
+      "email": "audit_student_1788032389462@university.edu",
+      "expiresAt": "2026-08-29T20:39:50.593Z",
+      "userId": "usr_a87e5ae5ed942c70",
+      "used": true
+    },
+    {
+      "token": "713047",
+      "email": "audit_student_1788032666674@university.edu",
+      "expiresAt": "2026-08-29T20:44:27.618Z",
+      "userId": "usr_86169d51f62ef9f4",
+      "used": true
+    },
+    {
+      "token": "301893",
+      "email": "audit_student_1788033097229@university.edu",
+      "expiresAt": "2026-08-29T20:51:38.203Z",
+      "userId": "usr_94c4b5cf2f2c2d8b",
+      "used": true
+    },
+    {
+      "token": "865882",
+      "email": "audit_student_1788033217709@university.edu",
+      "expiresAt": "2026-08-29T20:53:38.546Z",
+      "userId": "usr_6e0935830e350b42",
+      "used": true
+    },
+    {
+      "token": "172016",
+      "email": "audit_student_1788033587375@university.edu",
+      "expiresAt": "2026-08-29T20:59:48.419Z",
+      "userId": "usr_e91d3685269bbec8",
+      "used": true
     }
   ],
   "notifications": [
+    {
+      "id": "notif_3ku37ve",
+      "userId": "usr_e91d3685269bbec8",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-7541 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:59:48.950Z"
+    },
+    {
+      "id": "notif_694q7e3",
+      "userId": "usr_e91d3685269bbec8",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-3999 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:59:48.823Z"
+    },
+    {
+      "id": "notif_xth6ds5",
+      "userId": "usr_6e0935830e350b42",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-7175 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:53:38.968Z"
+    },
+    {
+      "id": "notif_hmj5yyt",
+      "userId": "usr_6e0935830e350b42",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-8037 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:53:38.859Z"
+    },
+    {
+      "id": "notif_rmfj7n6",
+      "userId": "usr_94c4b5cf2f2c2d8b",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-8467 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:51:38.695Z"
+    },
+    {
+      "id": "notif_gc5uh7z",
+      "userId": "usr_94c4b5cf2f2c2d8b",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-9170 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:51:38.572Z"
+    },
+    {
+      "id": "notif_qteh49b",
+      "userId": "usr_86169d51f62ef9f4",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-5328 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:44:28.161Z"
+    },
+    {
+      "id": "notif_xzgh8pj",
+      "userId": "usr_86169d51f62ef9f4",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-4320 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:44:27.973Z"
+    },
+    {
+      "id": "notif_fuodmy9",
+      "userId": "usr_0534a787f389bd64",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-4946 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:36:52.311Z"
+    },
+    {
+      "id": "notif_rvsad1e",
+      "userId": "usr_0534a787f389bd64",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-6071 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:36:52.165Z"
+    },
+    {
+      "id": "notif_l0eihws",
+      "userId": "usr_7d48253a3316a955",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-3298 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:29:55.476Z"
+    },
+    {
+      "id": "notif_ig32m7t",
+      "userId": "usr_7d48253a3316a955",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-5119 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:29:55.349Z"
+    },
+    {
+      "id": "notif_eyoib4t",
+      "userId": "usr_58bb3daf7f0fce46",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-5363 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:19:05.381Z"
+    },
+    {
+      "id": "notif_yy83oqd",
+      "userId": "usr_58bb3daf7f0fce46",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-7029 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:19:04.367Z"
+    },
+    {
+      "id": "notif_byyony2",
+      "userId": "usr_f393203e6d10c77d",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-6230 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:13:43.193Z"
+    },
+    {
+      "id": "notif_09cettz",
+      "userId": "usr_f393203e6d10c77d",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-9715 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:13:43.055Z"
+    },
+    {
+      "id": "notif_bez6xn3",
+      "userId": "usr_b92835b418f54e62",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-1120 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:06:15.784Z"
+    },
+    {
+      "id": "notif_xj6aa3w",
+      "userId": "usr_b92835b418f54e62",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-4700 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:06:15.669Z"
+    },
+    {
+      "id": "notif_13x82wh",
+      "userId": "usr_b3b5c9319f616cde",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-8816 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:01:04.289Z"
+    },
+    {
+      "id": "notif_0arm2t0",
+      "userId": "usr_b3b5c9319f616cde",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-4805 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T19:01:04.126Z"
+    },
+    {
+      "id": "notif_7yof8yz",
+      "userId": "usr_a6bf41f6c76bce32",
+      "title": "Payment Successful: Applied GenAI & Full-Stack System Architecture",
+      "message": "Receipt #REC-2026-5353 generated. Your seat is confirmed for Applied GenAI & Full-Stack System Architecture.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T18:54:35.289Z"
+    },
+    {
+      "id": "notif_4ebc3em",
+      "userId": "usr_a6bf41f6c76bce32",
+      "title": "Application Received: Applied GenAI & Full-Stack System Architecture",
+      "message": "Your application #APP-2026-1798 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T18:54:35.136Z"
+    },
+    {
+      "id": "notif_nov5ngg",
+      "userId": "usr_00d150a0bec7d23c",
+      "title": "Payment Successful: Applied GenAI",
+      "message": "Receipt #REC-2026-9745 generated. Your seat is confirmed for Applied GenAI.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T18:36:53.958Z"
+    },
+    {
+      "id": "notif_gseuohm",
+      "userId": "usr_00d150a0bec7d23c",
+      "title": "Application Received: Applied GenAI",
+      "message": "Your application #APP-2026-8663 has been received for review.",
+      "type": "info",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-08-29T18:36:53.878Z"
+    },
     {
       "id": "notif_4nmwk9w",
       "userId": "usr_74d535ddb47c15c8",
@@ -5907,6 +7404,756 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit_056kdmo",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_5a5b0b9df42b1c84",
+      "targetTitle": "Removed #APP-2026-3999 (Audit Student)",
+      "createdAt": "2026-08-29T19:59:49.417Z"
+    },
+    {
+      "id": "audit_4wdtuai",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_e91d3685269bbec8",
+      "targetTitle": "Updated Student Name (audit_student_1788033587375@university.edu)",
+      "createdAt": "2026-08-29T19:59:49.288Z"
+    },
+    {
+      "id": "audit_5kjgzuw",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_e91d3685269bbec8",
+      "targetTitle": "Updated Student Name (audit_student_1788033587375@university.edu)",
+      "createdAt": "2026-08-29T19:59:49.236Z"
+    },
+    {
+      "id": "audit_2g7t4vf",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_e91d3685269bbec8",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:59:49.099Z"
+    },
+    {
+      "id": "audit_iswbvdd",
+      "adminId": "usr_e91d3685269bbec8",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_f631261cb391dfba",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:59:48.950Z"
+    },
+    {
+      "id": "audit_86wa1oc",
+      "adminId": "usr_e91d3685269bbec8",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_5a5b0b9df42b1c84",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-3999)",
+      "createdAt": "2026-08-29T19:59:48.823Z"
+    },
+    {
+      "id": "audit_1p61uv3",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_f6d29dfaf93c6640",
+      "targetTitle": "Removed #APP-2026-8037 (Audit Student)",
+      "createdAt": "2026-08-29T19:53:39.360Z"
+    },
+    {
+      "id": "audit_ewosyfd",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_6e0935830e350b42",
+      "targetTitle": "Updated Student Name (audit_student_1788033217709@university.edu)",
+      "createdAt": "2026-08-29T19:53:39.234Z"
+    },
+    {
+      "id": "audit_d3025xs",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_6e0935830e350b42",
+      "targetTitle": "Updated Student Name (audit_student_1788033217709@university.edu)",
+      "createdAt": "2026-08-29T19:53:39.182Z"
+    },
+    {
+      "id": "audit_eit0kw7",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_6e0935830e350b42",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:53:39.059Z"
+    },
+    {
+      "id": "audit_sg53j7q",
+      "adminId": "usr_6e0935830e350b42",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_fa568eba0720fa51",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:53:38.968Z"
+    },
+    {
+      "id": "audit_4ersekw",
+      "adminId": "usr_6e0935830e350b42",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_f6d29dfaf93c6640",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-8037)",
+      "createdAt": "2026-08-29T19:53:38.859Z"
+    },
+    {
+      "id": "audit_f48mude",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_408e4ce0a8a7c297",
+      "targetTitle": "Removed #APP-2026-9170 (Audit Student)",
+      "createdAt": "2026-08-29T19:51:39.114Z"
+    },
+    {
+      "id": "audit_fbrwgz8",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_94c4b5cf2f2c2d8b",
+      "targetTitle": "Updated Student Name (audit_student_1788033097229@university.edu)",
+      "createdAt": "2026-08-29T19:51:38.989Z"
+    },
+    {
+      "id": "audit_l8u8d80",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_94c4b5cf2f2c2d8b",
+      "targetTitle": "Updated Student Name (audit_student_1788033097229@university.edu)",
+      "createdAt": "2026-08-29T19:51:38.911Z"
+    },
+    {
+      "id": "audit_cpbdzg4",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_94c4b5cf2f2c2d8b",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:51:38.807Z"
+    },
+    {
+      "id": "audit_zok4v1u",
+      "adminId": "usr_94c4b5cf2f2c2d8b",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_9ae56efc96f271f9",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:51:38.695Z"
+    },
+    {
+      "id": "audit_smo7vuc",
+      "adminId": "usr_94c4b5cf2f2c2d8b",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_408e4ce0a8a7c297",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-9170)",
+      "createdAt": "2026-08-29T19:51:38.572Z"
+    },
+    {
+      "id": "audit_n51c7sn",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_190519b9d182401c",
+      "targetTitle": "Removed #APP-2026-4320 (Audit Student)",
+      "createdAt": "2026-08-29T19:44:28.659Z"
+    },
+    {
+      "id": "audit_tutlv6m",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_86169d51f62ef9f4",
+      "targetTitle": "Updated Student Name (audit_student_1788032666674@university.edu)",
+      "createdAt": "2026-08-29T19:44:28.467Z"
+    },
+    {
+      "id": "audit_rx2naqg",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_86169d51f62ef9f4",
+      "targetTitle": "Updated Student Name (audit_student_1788032666674@university.edu)",
+      "createdAt": "2026-08-29T19:44:28.424Z"
+    },
+    {
+      "id": "audit_rmqsmyu",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_86169d51f62ef9f4",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:44:28.300Z"
+    },
+    {
+      "id": "audit_yt3hxd6",
+      "adminId": "usr_86169d51f62ef9f4",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_bc22111c7686b1ba",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:44:28.161Z"
+    },
+    {
+      "id": "audit_njg29ag",
+      "adminId": "usr_86169d51f62ef9f4",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_190519b9d182401c",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-4320)",
+      "createdAt": "2026-08-29T19:44:27.973Z"
+    },
+    {
+      "id": "audit_qvtgflm",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_a87e5ae5ed942c70",
+      "targetTitle": "Updated Student Name (audit_student_1788032389462@university.edu)",
+      "createdAt": "2026-08-29T19:39:51.460Z"
+    },
+    {
+      "id": "audit_ii5x39w",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_a87e5ae5ed942c70",
+      "targetTitle": "Updated Student Name (audit_student_1788032389462@university.edu)",
+      "createdAt": "2026-08-29T19:39:51.373Z"
+    },
+    {
+      "id": "audit_iwgl4wv",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_a87e5ae5ed942c70",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:39:51.199Z"
+    },
+    {
+      "id": "audit_sx66430",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_da81d5a6a71cb97d",
+      "targetTitle": "Removed #APP-2026-6071 (Audit Student)",
+      "createdAt": "2026-08-29T19:36:53.023Z"
+    },
+    {
+      "id": "audit_lfe4b2p",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_0534a787f389bd64",
+      "targetTitle": "Updated Student Name (audit_student_1788032210655@university.edu)",
+      "createdAt": "2026-08-29T19:36:52.779Z"
+    },
+    {
+      "id": "audit_bfud3pk",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_0534a787f389bd64",
+      "targetTitle": "Updated Student Name (audit_student_1788032210655@university.edu)",
+      "createdAt": "2026-08-29T19:36:52.668Z"
+    },
+    {
+      "id": "audit_hi2azmi",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_0534a787f389bd64",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:36:52.460Z"
+    },
+    {
+      "id": "audit_5k8iist",
+      "adminId": "usr_0534a787f389bd64",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_b8318322b4feefde",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:36:52.311Z"
+    },
+    {
+      "id": "audit_3oo1byp",
+      "adminId": "usr_0534a787f389bd64",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_da81d5a6a71cb97d",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-6071)",
+      "createdAt": "2026-08-29T19:36:52.165Z"
+    },
+    {
+      "id": "audit_4olb9iw",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_f224143ba6d57c8f",
+      "targetTitle": "Removed #APP-2026-5119 (Audit Student)",
+      "createdAt": "2026-08-29T19:29:56.157Z"
+    },
+    {
+      "id": "audit_i4n5kly",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_7d48253a3316a955",
+      "targetTitle": "Updated Student Name (audit_student_1788031793615@university.edu)",
+      "createdAt": "2026-08-29T19:29:55.964Z"
+    },
+    {
+      "id": "audit_iqlvffv",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_7d48253a3316a955",
+      "targetTitle": "Updated Student Name (audit_student_1788031793615@university.edu)",
+      "createdAt": "2026-08-29T19:29:55.876Z"
+    },
+    {
+      "id": "audit_wrjijv5",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_7d48253a3316a955",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:29:55.647Z"
+    },
+    {
+      "id": "audit_r0nsky1",
+      "adminId": "usr_7d48253a3316a955",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_e5775ddd331eb8c9",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:29:55.476Z"
+    },
+    {
+      "id": "audit_jt8z2r8",
+      "adminId": "usr_7d48253a3316a955",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_f224143ba6d57c8f",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-5119)",
+      "createdAt": "2026-08-29T19:29:55.349Z"
+    },
+    {
+      "id": "audit_xdmi7n4",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_e5f45f9390eb3f5d",
+      "targetTitle": "Removed #APP-2026-7029 (Audit Student)",
+      "createdAt": "2026-08-29T19:19:08.211Z"
+    },
+    {
+      "id": "audit_ag6h2qu",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_58bb3daf7f0fce46",
+      "targetTitle": "Updated Student Name (audit_student_1788031140919@university.edu)",
+      "createdAt": "2026-08-29T19:19:07.683Z"
+    },
+    {
+      "id": "audit_gr547v9",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_58bb3daf7f0fce46",
+      "targetTitle": "Updated Student Name (audit_student_1788031140919@university.edu)",
+      "createdAt": "2026-08-29T19:19:07.429Z"
+    },
+    {
+      "id": "audit_80wl387",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_58bb3daf7f0fce46",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:19:06.729Z"
+    },
+    {
+      "id": "audit_guz5ie9",
+      "adminId": "usr_58bb3daf7f0fce46",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_f5b4402da0cac9e7",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:19:05.381Z"
+    },
+    {
+      "id": "audit_pfm9i9f",
+      "adminId": "usr_58bb3daf7f0fce46",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_e5f45f9390eb3f5d",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-7029)",
+      "createdAt": "2026-08-29T19:19:04.367Z"
+    },
+    {
+      "id": "audit_vb32ebd",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_91f7eafa8e9704bb",
+      "targetTitle": "Removed #APP-2026-9715 (Audit Student)",
+      "createdAt": "2026-08-29T19:13:43.720Z"
+    },
+    {
+      "id": "audit_57fs0z2",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_f393203e6d10c77d",
+      "targetTitle": "Updated Student Name (audit_student_1788030821730@university.edu)",
+      "createdAt": "2026-08-29T19:13:43.530Z"
+    },
+    {
+      "id": "audit_hlfu8ic",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_f393203e6d10c77d",
+      "targetTitle": "Updated Student Name (audit_student_1788030821730@university.edu)",
+      "createdAt": "2026-08-29T19:13:43.456Z"
+    },
+    {
+      "id": "audit_fnpv2dz",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_f393203e6d10c77d",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:13:43.302Z"
+    },
+    {
+      "id": "audit_phy3oib",
+      "adminId": "usr_f393203e6d10c77d",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_324cd2e3a3c06730",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:13:43.193Z"
+    },
+    {
+      "id": "audit_ifk82y2",
+      "adminId": "usr_f393203e6d10c77d",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_91f7eafa8e9704bb",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-9715)",
+      "createdAt": "2026-08-29T19:13:43.055Z"
+    },
+    {
+      "id": "audit_oqf6dtw",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_ebb8eaa02504344a",
+      "targetTitle": "Removed #APP-2026-4700 (Audit Student)",
+      "createdAt": "2026-08-29T19:06:16.190Z"
+    },
+    {
+      "id": "audit_c5syzz5",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_b92835b418f54e62",
+      "targetTitle": "Updated Student Name (audit_student_1788030374358@university.edu)",
+      "createdAt": "2026-08-29T19:06:16.059Z"
+    },
+    {
+      "id": "audit_uzorho9",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_b92835b418f54e62",
+      "targetTitle": "Updated Student Name (audit_student_1788030374358@university.edu)",
+      "createdAt": "2026-08-29T19:06:16.013Z"
+    },
+    {
+      "id": "audit_pr1dk9s",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_b92835b418f54e62",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:06:15.895Z"
+    },
+    {
+      "id": "audit_z6l4jcn",
+      "adminId": "usr_b92835b418f54e62",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_813f587fb79fd030",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:06:15.784Z"
+    },
+    {
+      "id": "audit_68xprpd",
+      "adminId": "usr_b92835b418f54e62",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_ebb8eaa02504344a",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-4700)",
+      "createdAt": "2026-08-29T19:06:15.669Z"
+    },
+    {
+      "id": "audit_zxekyrb",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_ba9a98b7758b13e6",
+      "targetTitle": "Removed #APP-2026-4805 (Audit Student)",
+      "createdAt": "2026-08-29T19:01:04.860Z"
+    },
+    {
+      "id": "audit_l6woszb",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_b3b5c9319f616cde",
+      "targetTitle": "Updated Student Name (audit_student_1788030062474@university.edu)",
+      "createdAt": "2026-08-29T19:01:04.667Z"
+    },
+    {
+      "id": "audit_mw4z99p",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_b3b5c9319f616cde",
+      "targetTitle": "Updated Student Name (audit_student_1788030062474@university.edu)",
+      "createdAt": "2026-08-29T19:01:04.589Z"
+    },
+    {
+      "id": "audit_01wop2m",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_b3b5c9319f616cde",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T19:01:04.424Z"
+    },
+    {
+      "id": "audit_vhi2odi",
+      "adminId": "usr_b3b5c9319f616cde",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_3935e41fa57be6b8",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T19:01:04.289Z"
+    },
+    {
+      "id": "audit_sr65jx9",
+      "adminId": "usr_b3b5c9319f616cde",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_ba9a98b7758b13e6",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-4805)",
+      "createdAt": "2026-08-29T19:01:04.126Z"
+    },
+    {
+      "id": "audit_khmhd23",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_b07def59b6bfc182",
+      "targetTitle": "Removed #APP-2026-1798 (Audit Student)",
+      "createdAt": "2026-08-29T18:54:35.762Z"
+    },
+    {
+      "id": "audit_pebfpau",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_a6bf41f6c76bce32",
+      "targetTitle": "Updated Student Name (audit_student_1788029673995@university.edu)",
+      "createdAt": "2026-08-29T18:54:35.631Z"
+    },
+    {
+      "id": "audit_vuzzilm",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_a6bf41f6c76bce32",
+      "targetTitle": "Updated Student Name (audit_student_1788029673995@university.edu)",
+      "createdAt": "2026-08-29T18:54:35.573Z"
+    },
+    {
+      "id": "audit_9a33s1o",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_a6bf41f6c76bce32",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T18:54:35.424Z"
+    },
+    {
+      "id": "audit_d6m7l29",
+      "adminId": "usr_a6bf41f6c76bce32",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_c1b9e797bed03ebd",
+      "targetTitle": "₹14999 for Applied GenAI & Full-Stack System Architecture",
+      "createdAt": "2026-08-29T18:54:35.289Z"
+    },
+    {
+      "id": "audit_s6vjf1m",
+      "adminId": "usr_a6bf41f6c76bce32",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_b07def59b6bfc182",
+      "targetTitle": "Applied GenAI & Full-Stack System Architecture (APP-2026-1798)",
+      "createdAt": "2026-08-29T18:54:35.136Z"
+    },
+    {
+      "id": "audit_3aycj44",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "APPLICATION_DELETED",
+      "targetType": "APPLICATION",
+      "targetId": "app_eed1995b1d44af03",
+      "targetTitle": "Removed #APP-2026-8663 (Audit Student)",
+      "createdAt": "2026-08-29T18:36:54.260Z"
+    },
+    {
+      "id": "audit_rz2g0ts",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PASSWORD_RESET_BY_ADMIN",
+      "targetType": "USER",
+      "targetId": "usr_00d150a0bec7d23c",
+      "targetTitle": "Updated Student Name (audit_student_1788028613255@university.edu)",
+      "createdAt": "2026-08-29T18:36:54.173Z"
+    },
+    {
+      "id": "audit_km3phqf",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_PROFILE_UPDATED",
+      "targetType": "USER",
+      "targetId": "usr_00d150a0bec7d23c",
+      "targetTitle": "Updated Student Name (audit_student_1788028613255@university.edu)",
+      "createdAt": "2026-08-29T18:36:54.127Z"
+    },
+    {
+      "id": "audit_in68ewx",
+      "adminId": "usr_admin_001",
+      "adminName": "Dr. Evelyn Vance",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_00d150a0bec7d23c",
+      "targetTitle": "Audit Student -> Active:true, Role:USER",
+      "createdAt": "2026-08-29T18:36:54.040Z"
+    },
+    {
+      "id": "audit_kzgk14u",
+      "adminId": "usr_00d150a0bec7d23c",
+      "adminName": "Audit Student",
+      "action": "PAYMENT_VERIFIED",
+      "targetType": "PAYMENT",
+      "targetId": "pay_0c15e319a013eb26",
+      "targetTitle": "₹14999 for Applied GenAI",
+      "createdAt": "2026-08-29T18:36:53.958Z"
+    },
+    {
+      "id": "audit_k6nbvys",
+      "adminId": "usr_00d150a0bec7d23c",
+      "adminName": "Audit Student",
+      "action": "APPLICATION_SUBMITTED",
+      "targetType": "APPLICATION",
+      "targetId": "app_eed1995b1d44af03",
+      "targetTitle": "Applied GenAI (APP-2026-8663)",
+      "createdAt": "2026-08-29T18:36:53.878Z"
+    },
     {
       "id": "audit_i04bf9a",
       "adminId": "usr_admin_001",

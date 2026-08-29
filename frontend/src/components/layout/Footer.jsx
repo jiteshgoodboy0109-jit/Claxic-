@@ -1,147 +1,165 @@
 import React from 'react';
-import {
-  GraduationCap,
-  Shield,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
-  ArrowUpRight,
-} from 'lucide-react';
+import { Mail, MapPin, ArrowUpRight } from 'lucide-react';
 
 export const Footer = ({ onNavigate }) => {
   return (
-    <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 text-sm font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
-          {/* Brand Column */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-md bg-white text-slate-900 flex items-center justify-center font-bold text-lg">
-                C
-              </div>
-              <div>
-                <span className="font-display text-xl font-extrabold tracking-wider text-white block uppercase">
-                  CLAXIC
-                </span>
-                <span className="text-[10px] font-mono tracking-widest text-slate-400 uppercase block font-medium">
-                  Academic Admissions Portal
-                </span>
-              </div>
-            </div>
-
-            <p className="text-slate-400 leading-relaxed max-w-md font-normal text-xs">
-              Claxic delivers accredited engineering programs, distributed systems masterclasses, and executive cohorts designed for real-world production scale.
+    <footer className="bg-[#083E40] border-t border-[#0e5254] text-teal-100/75 text-sm font-sans relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 pb-8 sm:pb-10 border-b border-[#0e5254]">
+          
+          {/* Brand & Mission */}
+          <div className="space-y-3 sm:space-y-4">
+            <img
+              src="/logow.png"
+              alt="Claxic"
+              className="h-7 sm:h-8 w-auto object-contain"
+            />
+            <p className="text-xs text-teal-100/80 leading-relaxed max-w-sm">
+              Empowering engineers and tech professionals through rigorous hands-on cohorts, modern system architecture, and verifiable certifications.
             </p>
-
-            <div className="flex items-center gap-3 text-slate-300">
-              <a
-                href="https://claxic.edu"
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1 rounded-md bg-slate-800 border border-slate-700 hover:text-white hover:border-slate-600 transition-colors flex items-center gap-2 text-xs font-mono"
-                aria-label="Website"
-              >
-                <Globe className="w-3.5 h-3.5 text-slate-300" />
-                <span>Portal</span>
-              </a>
-              <a
-                href="mailto:admissions@claxic.edu"
-                className="px-3 py-1 rounded-md bg-slate-800 border border-slate-700 hover:text-white hover:border-slate-600 transition-colors flex items-center gap-2 text-xs font-mono"
-                aria-label="Email"
-              >
-                <Mail className="w-3.5 h-3.5 text-slate-300" />
-                <span>Email Support</span>
-              </a>
-            </div>
           </div>
 
-          {/* Column 2: Programs */}
+          {/* Programs */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white">
-              Academic Tracks
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-white">
+              Programs
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <button onClick={() => onNavigate('courses')} className="hover:text-white transition-colors">
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('courses')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
                   AI & Full-Stack Systems
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('courses')} className="hover:text-white transition-colors">
-                  Cloud DevOps & Kubernetes
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('courses')} className="hover:text-white transition-colors">
-                  Distributed Architecture
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('courses')} className="hover:text-white transition-colors">
-                  Cybersecurity & Red Teaming
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Platform */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white">
-              Platform & Policy
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <button onClick={() => onNavigate('home')} className="hover:text-white transition-colors">
-                  Admissions Criteria
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('home')} className="hover:text-white transition-colors">
-                  7-Day Refund Policy
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('home')} className="hover:text-white transition-colors">
-                  Verifiable Certification
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('courses')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Cloud DevOps & SRE
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('admin-login')}
-                  className="text-amber-400/80 hover:text-amber-300 font-mono text-[11px] transition-colors flex items-center gap-1 mt-2"
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('courses')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  <Shield className="w-3 h-3 text-amber-400" />
-                  <span>Admin Gateway</span>
+                  Distributed Architecture
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('courses')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Cybersecurity Engineering
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Column 4: Contact */}
+          {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white">
-              Headquarters
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-white">
+              Quick Links
             </h4>
-            <div className="space-y-2 text-xs text-slate-400">
-              <p className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                <span>Sector 4, Ring Road, Bengaluru, 560103</span>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('home')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Apply Form & Admissions
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('courses')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Browse Course Catalog
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('login')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Student Login & Portal
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('admin-login')}
+                  className="hover:text-white transition-colors cursor-pointer text-left opacity-70 hover:opacity-100"
+                >
+                  Admin Gateway
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-white">
+              Contact & Campus
+            </h4>
+            <div className="space-y-2.5 text-xs">
+              <p className="flex items-start gap-2 text-teal-100/80">
+                <MapPin className="w-3.5 h-3.5 text-teal-300 shrink-0 mt-0.5" />
+                <span>Sector 4, Outer Ring Road, Bengaluru, Karnataka, India</span>
               </p>
-              <p className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>admissions@claxic.edu</span>
+              <p className="flex items-center gap-2 text-teal-100/80">
+                <Mail className="w-3.5 h-3.5 text-teal-300 shrink-0" />
+                <a
+                  href="mailto:admissions@claxic.edu"
+                  className="hover:text-white transition-colors"
+                >
+                  admissions@claxic.edu
+                </a>
               </p>
             </div>
           </div>
+
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© 2026 Claxic Institute of Advanced Technology. All rights reserved.</p>
-          <div className="flex items-center gap-4 font-mono text-[11px]">
-            <span>CIN: U80903KA2026PTC192842</span>
-            <span>GSTIN: 29AAACC1206A1Z5</span>
+        {/* Clean Bottom Bar */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-teal-100/60">
+          <p>© {new Date().getFullYear()} Claxic. All rights reserved.</p>
+          <div className="flex items-center gap-4 sm:gap-6 text-[11px]">
+            <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('home')}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('home')}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Terms of Service
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('home')}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Refund Policy
+            </button>
           </div>
         </div>
       </div>
