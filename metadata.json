@@ -1,0 +1,7 @@
+{
+  "name": "Claxic",
+  "description": "Full-Stack Educational Course Registration and Management Platform",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
