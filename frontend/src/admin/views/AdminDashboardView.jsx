@@ -348,17 +348,45 @@ export const AdminDashboardView = ({
     return matches;
   });
 
-  // Custom Chart Tooltip
+  // Super Attractive Creative Chart Tooltip
   const CustomChartTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const isCourseChart = payload.some((p) => p.dataKey === 'enrolled' || p.dataKey === 'capacity');
+      const itemData = payload[0]?.payload;
+
       return (
-        <div className="bg-white/95 backdrop-blur-md p-3 rounded-xl border border-purple-100 shadow-[0_10px_25px_-5px_rgba(147,51,234,0.15)] text-xs">
-          <p className="font-bold text-slate-900">{label}</p>
-          {payload.map((item, idx) => (
-            <p key={idx} className="font-semibold" style={{ color: item.color || '#7c3aed' }}>
-              {item.name}: {typeof item.value === 'number' && item.name?.toLowerCase().includes('revenue') ? `₹${item.value.toLocaleString('en-IN')}` : item.value}
+        <div className="bg-slate-950/92 backdrop-blur-xl p-3.5 rounded-2xl border border-purple-500/30 shadow-[0_20px_45px_-10px_rgba(76,29,149,0.5),0_0_0_1px_rgba(255,255,255,0.08)] text-xs text-white min-w-[190px] animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10">
+            <p className="font-bold text-slate-100 tracking-tight text-[12px] truncate max-w-[150px]">
+              {itemData?.fullName || label}
             </p>
-          ))}
+            {isCourseChart && itemData?.fillRate !== undefined && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${itemData.fillRate >= 70
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                }`}>
+                {itemData.fillRate}% Full
+              </span>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            {payload.map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between gap-3 text-[11px]">
+                <span className="flex items-center gap-1.5 text-slate-300">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
+                    style={{ backgroundColor: item.color || item.fill || '#a855f7' }}
+                  />
+                  <span>{item.name}</span>
+                </span>
+                <span className="font-mono font-bold text-white">
+                  {typeof item.value === 'number' && (item.name?.toLowerCase().includes('revenue') || item.dataKey === 'revenue')
+                    ? `₹${item.value.toLocaleString('en-IN')}`
+                    : `${item.value} ${isCourseChart ? 'Seats' : ''}`}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
@@ -367,86 +395,68 @@ export const AdminDashboardView = ({
 
   return (
     <div className="min-h-screen bg-[#f8f9fc] text-slate-900 font-sans pb-16">
-      
-      {/* Top Header Bar */}
-      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+
+      {/* Single Clean Header Bar — Nav + Actions all in one row */}
+      <header className="bg-white sticky top-0 z-30 border-b border-slate-200/60" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            
-            {/* Brand Logo & Subtitle */}
-            <div className="flex items-center gap-3">
-              <img
-                src="/logob.png"
-                alt="Claxic"
-                className="h-7 sm:h-8 w-auto object-contain"
-              />
-              <span className="hidden sm:inline-block text-[11px] font-bold text-purple-900 bg-purple-100/80 border border-purple-200 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
-                Admin Console
-              </span>
-            </div>
+          <div className="flex items-center h-14 justify-between gap-4">
 
-            {/* Quick Actions & Live Indicator */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Live Database Sync</span>
-              </div>
+            {/* Inline Navigation Tabs */}
+            <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 min-w-0">
+              {[
+                { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+                { id: 'applications', label: `Applications`, icon: FileText },
+                { id: 'courses', label: `Courses`, icon: BookOpen },
+                { id: 'financials', label: `Financials`, icon: CreditCard },
+                { id: 'users', label: `Users`, icon: Users },
+                { id: 'audit', label: 'Audit', icon: ShieldCheck },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isActive
+                        ? 'bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white shadow-[0_4px_14px_rgba(147,51,234,0.32)] scale-[1.02]'
+                        : 'text-slate-600 hover:text-purple-700 hover:bg-purple-50/70'
+                      }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-purple-100' : 'text-slate-400'}`} />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
 
+            {/* Right Actions */}
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={fetchAdminData}
-                className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                title="Refresh Live Metrics"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Refresh"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               </button>
 
               <button
                 type="button"
                 onClick={() => onOpenCourseModal && onOpenCourseModal(null)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-semibold shadow-xs hover:shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-800 hover:to-indigo-700 text-white text-xs font-semibold shadow-[0_2px_10px_rgba(147,51,234,0.25)] hover:shadow-[0_4px_16px_rgba(147,51,234,0.38)] transition-all cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5 text-purple-300" />
+                <Plus className="w-3.5 h-3.5 text-purple-200" />
                 <span>New Course</span>
               </button>
             </div>
-          </div>
-
-          {/* Navigation Tabs Bar */}
-          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2 border-t border-slate-100 no-scrollbar">
-            {[
-              { id: 'overview', label: 'Executive Overview', icon: LayoutDashboard },
-              { id: 'applications', label: `Applications (${applications.length})`, icon: FileText },
-              { id: 'courses', label: `Course Programs (${courses.length})`, icon: BookOpen },
-              { id: 'financials', label: `Financials (${payments.length})`, icon: CreditCard },
-              { id: 'users', label: `User Directory (${users.length})`, icon: Users },
-              { id: 'audit', label: 'Security & Audit Logs', icon: ShieldCheck },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-purple-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
           </div>
         </div>
       </header>
 
       {/* Main Body */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        
+
         {/* Error Alert */}
         {error && (
           <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between font-medium">
@@ -465,10 +475,10 @@ export const AdminDashboardView = ({
         {/* ========================================================= */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
-            
+
             {/* Real KPI Tiles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              
+
               {/* Total Revenue */}
               <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
@@ -544,44 +554,61 @@ export const AdminDashboardView = ({
 
             {/* REAL LIVE GRAPHS SECTION */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
+
               {/* 1. Real Revenue Stream Area Chart */}
-              <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
-                <div className="flex items-center justify-between mb-4">
+              <div className="lg:col-span-8 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_10px_30px_-10px_rgba(76,29,149,0.06)] relative overflow-hidden group">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-indigo-500 to-teal-400 opacity-80" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                      Live Revenue Growth & Transactions
-                    </h3>
-                    <p className="text-xs text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-600 animate-ping" />
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                        Live Revenue Growth & Settlements
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
                       Real-time cumulative payment settlements directly from student transactions
                     </p>
                   </div>
-                  <span className="text-xs font-mono font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-lg">
-                    Real Settlement Data
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-purple-700 bg-purple-50 border border-purple-200/80 px-3 py-1 rounded-xl shadow-xs">
+                      ₹{realChartMetrics.totalRealRevenue.toLocaleString('en-IN')} Total
+                    </span>
+                  </div>
                 </div>
 
-                <div className="h-64 sm:h-72 w-full">
+                <div className="h-68 sm:h-76 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={realChartMetrics.revenueChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart data={realChartMetrics.revenueChartData} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
                       <defs>
-                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="#7c3aed" stopOpacity={0.0} />
+                        <linearGradient id="creativeColorRev" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#9333ea" stopOpacity={0.4} />
+                          <stop offset="50%" stopColor="#6366f1" stopOpacity={0.15} />
+                          <stop offset="100%" stopColor="#a855f7" stopOpacity={0.0} />
                         </linearGradient>
+                        <filter id="areaGlow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="6" stdDeviation="6" floodColor="#7c3aed" floodOpacity="0.35" />
+                        </filter>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(val) => `₹${val / 1000}k`} />
-                      <Tooltip content={<CustomChartTooltip />} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={{ stroke: '#f1f5f9' }} />
+                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val / 1000}k`} />
+                      <Tooltip content={<CustomChartTooltip />} cursor={{ stroke: '#a855f7', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
                       <Area
                         type="monotone"
                         dataKey="revenue"
-                        name="Gross Revenue"
+                        name="Settled Revenue"
                         stroke="#7c3aed"
-                        strokeWidth={2.5}
+                        strokeWidth={3}
                         fillOpacity={1}
-                        fill="url(#colorRev)"
+                        fill="url(#creativeColorRev)"
+                        activeDot={{
+                          r: 6,
+                          fill: '#ffffff',
+                          stroke: '#7c3aed',
+                          strokeWidth: 3,
+                          filter: 'drop-shadow(0 0 8px rgba(124, 58, 237, 0.8))',
+                        }}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -589,77 +616,176 @@ export const AdminDashboardView = ({
               </div>
 
               {/* 2. Real Application Status Donut */}
-              <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+              <div className="lg:col-span-4 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_10px_30px_-10px_rgba(76,29,149,0.06)] flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 opacity-80" />
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-1">
-                    Application Status Distribution
-                  </h3>
-                  <p className="text-xs text-slate-500 mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                      Application Pipeline
+                    </h3>
+                    <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+                      {applications.length} Total
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-2">
                     Live candidate pipeline breakdown
                   </p>
 
-                  <div className="h-48 sm:h-52 w-full relative">
+                  <div className="h-52 w-full relative flex items-center justify-center">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={realChartMetrics.statusChartData}
-                          innerRadius={50}
-                          outerRadius={75}
-                          paddingAngle={4}
+                          innerRadius={55}
+                          outerRadius={80}
+                          paddingAngle={5}
                           dataKey="value"
+                          stroke="none"
                         >
                           {realChartMetrics.statusChartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              className="transition-all duration-300 hover:opacity-80"
+                            />
                           ))}
                         </Pie>
                         <Tooltip content={<CustomChartTooltip />} />
                       </PieChart>
                     </ResponsiveContainer>
+
+                    {/* Donut Center Counter Badge */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-xl font-extrabold text-slate-900 tracking-tight font-mono">
+                        {applications.length}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Applicants
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-xs">
                   {realChartMetrics.statusChartData.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-slate-700">
+                    <div key={idx} className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700">
                       <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
                         style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }}
                       />
-                      <span className="truncate">{item.name}: <strong className="text-slate-900">{item.value}</strong></span>
+                      <span className="truncate text-[11px] font-medium">
+                        {item.name}: <strong className="text-slate-900">{item.value}</strong>
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* 3. Course Enrollment vs Capacity Bar Chart */}
-              <div className="lg:col-span-12 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
-                <div className="flex items-center justify-between mb-4">
+              {/* 3. Course Enrollment vs Capacity Bar Chart (Super Creative 3D Gradient Bars) */}
+              <div className="lg:col-span-12 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_10px_30px_-10px_rgba(76,29,149,0.06)] relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-500 opacity-80" />
+
+                {/* Header with Stats Badges */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
                       Course Program Seat Fill Rate vs Capacity
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 mt-0.5">
                       Live seat enrollment progression across active cohort tracks
                     </p>
                   </div>
+
+                  {/* Summary Metric Pills */}
+                  <div className="flex items-center flex-wrap gap-2 text-xs">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-50 border border-purple-200/80 text-purple-700 font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-purple-600" />
+                      <span>{courses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0)} Enrolled</span>
+                    </span>
+
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-slate-400" />
+                      <span>{courses.reduce((sum, c) => sum + (c.capacity || 40), 0)} Total Capacity</span>
+                    </span>
+
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
+                      <span>{Math.round((courses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0) / Math.max(1, courses.reduce((sum, c) => sum + (c.capacity || 40), 0))) * 100)}% Fill Rate</span>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="h-64 sm:h-72 w-full">
+                {/* Creative Gradient Bar Chart */}
+                <div className="h-72 sm:h-80 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={realChartMetrics.courseCapacityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} />
-                      <Tooltip content={<CustomChartTooltip />} />
-                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                      <Bar dataKey="enrolled" name="Enrolled Seats" fill="#7c3aed" radius={[6, 6, 0, 0]} />
-                      <Bar dataKey="capacity" name="Max Capacity" fill="#e2e8f0" radius={[6, 6, 0, 0]} />
+                    <BarChart
+                      data={realChartMetrics.courseCapacityData}
+                      margin={{ top: 15, right: 15, left: -20, bottom: 5 }}
+                      barGap={6}
+                    >
+                      <defs>
+                        {/* Vibrant Multi-stop Purple Gradient for Enrolled */}
+                        <linearGradient id="barGradientEnrolled" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#a855f7" />
+                          <stop offset="50%" stopColor="#7c3aed" />
+                          <stop offset="100%" stopColor="#4f46e5" />
+                        </linearGradient>
+
+                        {/* Translucent Frosted Glass Track for Max Capacity */}
+                        <linearGradient id="barGradientCapacity" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ede9fe" stopOpacity={0.8} />
+                          <stop offset="100%" stopColor="#e2e8f0" stopOpacity={0.6} />
+                        </linearGradient>
+                      </defs>
+
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis
+                        dataKey="name"
+                        stroke="#64748b"
+                        fontSize={11}
+                        fontWeight={500}
+                        tickLine={false}
+                        axisLine={{ stroke: '#f1f5f9' }}
+                      />
+                      <YAxis
+                        stroke="#94a3b8"
+                        fontSize={11}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+
+                      {/* Subtle soft purple highlight cursor instead of plain heavy grey */}
+                      <Tooltip
+                        content={<CustomChartTooltip />}
+                        cursor={{ fill: 'rgba(147, 51, 234, 0.05)', rx: 14 }}
+                      />
+
+                      <Legend
+                        wrapperStyle={{ fontSize: '11px', paddingTop: '16px' }}
+                        formatter={(value) => <span className="text-slate-700 font-semibold text-xs ml-1">{value}</span>}
+                      />
+
+                      <Bar
+                        dataKey="enrolled"
+                        name="Enrolled Seats"
+                        fill="url(#barGradientEnrolled)"
+                        radius={[10, 10, 0, 0]}
+                        maxBarSize={38}
+                      />
+
+                      <Bar
+                        dataKey="capacity"
+                        name="Max Capacity"
+                        fill="url(#barGradientCapacity)"
+                        radius={[10, 10, 0, 0]}
+                        maxBarSize={38}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
             </div>
+
 
             {/* Recent Submissions Quick Table */}
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
@@ -698,15 +824,14 @@ export const AdminDashboardView = ({
                         <td className="py-3.5 text-slate-700">{app.courseTitle}</td>
                         <td className="py-3.5">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                              app.status === 'CONFIRMED'
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${app.status === 'CONFIRMED'
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : app.status === 'SUBMITTED'
-                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                : app.status === 'UNDER_REVIEW'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                : 'bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : app.status === 'UNDER_REVIEW'
+                                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                    : 'bg-slate-100 text-slate-700 border-slate-200'
+                              }`}
                           >
                             {app.status}
                           </span>
@@ -742,10 +867,10 @@ export const AdminDashboardView = ({
         {/* ========================================================= */}
         {activeTab === 'applications' && (
           <div className="space-y-6">
-            
+
             {/* Search & Export Filters Header */}
             <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-              
+
               {/* Search Bar */}
               <div className="relative w-full sm:w-80">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -766,11 +891,10 @@ export const AdminDashboardView = ({
                       key={st}
                       type="button"
                       onClick={() => setStatusFilter(st)}
-                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                        statusFilter === st
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${statusFilter === st
                           ? 'bg-white text-slate-900 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       {st}
                     </button>
@@ -824,15 +948,14 @@ export const AdminDashboardView = ({
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                                app.status === 'CONFIRMED'
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${app.status === 'CONFIRMED'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                   : app.status === 'SUBMITTED'
-                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                  : app.status === 'UNDER_REVIEW'
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                  : 'bg-slate-100 text-slate-700 border-slate-200'
-                              }`}
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : app.status === 'UNDER_REVIEW'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                      : 'bg-slate-100 text-slate-700 border-slate-200'
+                                }`}
                             >
                               {app.status}
                             </span>
@@ -1037,11 +1160,10 @@ export const AdminDashboardView = ({
                         </td>
                         <td className="py-3.5 px-4">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                              p.status === 'SUCCESS'
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${p.status === 'SUCCESS'
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : 'bg-rose-50 text-rose-700 border-rose-200'
-                            }`}
+                              }`}
                           >
                             {p.status}
                           </span>
@@ -1122,11 +1244,10 @@ export const AdminDashboardView = ({
                           <button
                             type="button"
                             onClick={() => handleToggleUserRole(u)}
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer ${
-                              u.role === 'ADMIN'
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer ${u.role === 'ADMIN'
                                 ? 'bg-purple-50 text-purple-700 border-purple-200'
                                 : 'bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
+                              }`}
                             title="Click to toggle ADMIN/USER role"
                           >
                             {u.role}
@@ -1149,11 +1270,10 @@ export const AdminDashboardView = ({
                           <button
                             type="button"
                             onClick={() => handleToggleUserStatus(u)}
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border cursor-pointer ${
-                              u.isActive
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border cursor-pointer ${u.isActive
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : 'bg-rose-50 text-rose-700 border-rose-200'
-                            }`}
+                              }`}
                           >
                             {u.isActive ? 'Active' : 'Suspended'}
                           </button>
@@ -1256,7 +1376,7 @@ export const AdminDashboardView = ({
           maxWidth="max-w-2xl"
         >
           <div className="space-y-6 text-slate-900 text-xs">
-            
+
             {/* Candidate Summary */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
               <div>

@@ -4613,6 +4613,14 @@
     "stk_4c7b03e444eebca23af4daf9b1c1b41e0c9e55771dd27844629d9994166977be": {
       "userId": "usr_e91d3685269bbec8",
       "expiresAt": "2026-09-05T19:59:49.365Z"
+    },
+    "stk_44ffcb852567e568552ce19906c6586f1ebcdead5f7169cd3155f0e132707fd5": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T20:21:42.952Z"
+    },
+    "stk_ca97a226682e42122a40b6e55aadcdb8f4ff530f5076749c48987d79164ead0c": {
+      "userId": "usr_admin_001",
+      "expiresAt": "2026-09-05T20:31:16.794Z"
     }
   },
   "verificationTokens": [
