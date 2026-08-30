@@ -517,8 +517,13 @@ async function runAudit() {
   // 8. SQLITE 3 DATABASE & PLATFORM SECURITY AUDIT
   console.log('\n--- 8. SQLite 3 Database & Platform Security Audit ---');
   await it('SQLite 3 database claxic.db exists and contains valid schema tables', async () => {
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
     const { DatabaseSync } = await import('node:sqlite');
-    const dbTest = new DatabaseSync('claxic.db');
+    const dbPath = path.join(__dirname, '..', 'db', 'claxic.db');
+    const dbTest = new DatabaseSync(dbPath);
     const tables = dbTest.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map((r) => r.name);
     assert.ok(tables.includes('users'), 'Table users missing in SQLite');
     assert.ok(tables.includes('courses'), 'Table courses missing in SQLite');

@@ -7,17 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DB_FILE = fs.existsSync(path.join(__dirname, 'claxic.db'))
-  ? path.join(__dirname, 'claxic.db')
-  : (fs.existsSync(path.join(process.cwd(), 'claxic.db'))
-      ? path.join(process.cwd(), 'claxic.db')
-      : path.join(__dirname, 'claxic.db'));
-
-const DATA_FILE = fs.existsSync(path.join(__dirname, 'data.json'))
-  ? path.join(__dirname, 'data.json')
-  : (fs.existsSync(path.join(process.cwd(), 'data.json'))
-      ? path.join(process.cwd(), 'data.json')
-      : path.join(__dirname, 'data.json'));
+const DB_FILE = path.join(__dirname, 'claxic.db');
+const DATA_FILE = path.join(__dirname, 'data.json');
 
 // Password Hashing Utility (PBKDF2 with SHA-512 & Salt)
 export function hashPassword(password, salt) {
