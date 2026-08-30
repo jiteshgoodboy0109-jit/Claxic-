@@ -2,14 +2,28 @@
   "name": "claxic-workspace",
   "version": "1.0.0",
   "private": true,
-  "description": "Claxic - Master Production Systems & Advanced Engineering Education Platform",
+  "description": "Claxic - Educational Course Admissions & Learning Management Platform",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
+    "dev": "npm run dev:frontend",
+    "dev:all": "node -e \"const { spawn } = require('child_process'); spawn('npm', ['run', 'dev', '--prefix', 'backend'], { stdio: 'inherit', shell: true }); spawn('npm', ['run', 'dev', '--prefix', 'frontend'], { stdio: 'inherit', shell: true });\"",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
+    "start": "npm start --prefix backend",
     "build": "npm run build --prefix frontend",
-    "test": "npm test --prefix backend"
+    "test": "npm test --prefix backend",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "claxic",
+    "education",
+    "admissions",
+    "courses",
+    "fullstack"
+  ],
+  "author": "Claxic",
   "license": "ISC"
 }
