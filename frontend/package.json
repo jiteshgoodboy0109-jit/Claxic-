@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node -e \"try { if (process.platform === 'linux') { require('child_process').execSync('npm install @rollup/rollup-linux-x64-gnu --no-save', { stdio: 'inherit' }); } } catch (e) { console.warn('Rollup Linux check:', e.message); }\"",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -34,7 +33,8 @@
     "vite": "^6.2.3"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*",
-    "@rollup/rollup-win32-x64-msvc": "*"
+    "@rollup/rollup-linux-x64-gnu": "4.34.8",
+    "@rollup/rollup-linux-x64-musl": "4.34.8",
+    "@rollup/rollup-win32-x64-msvc": "4.34.8"
   }
 }
