@@ -31,9 +31,50 @@ import { AdminLoginView } from './admin/views/AdminLoginView.jsx';
 const MainApp = () => {
   const { user, isLoading: isAuthLoading, openAuthModal } = useAuth();
 
-  // Navigation State
-  const [currentView, setCurrentView] = useState('home');
-  const [dashboardTab, setDashboardTab] = useState('courses');
+  // Helper to parse route synchronously from current window.location
+  const parseRouteFromUrl = useCallback((coursesList = []) => {
+    const path = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+    const tab = searchParams.get('tab');
+
+    if (path === '/admin-login' || path === '/admin/login') {
+      return { view: 'admin-login', tab: null, course: null, title: 'Admin Console Gateway — Claxic' };
+    }
+    if (path === '/login') {
+      return { view: 'login', tab: null, course: null, title: 'Student Sign In — Claxic' };
+    }
+    if (path === '/register') {
+      return { view: 'register', tab: null, course: null, title: 'Create Student Account — Claxic' };
+    }
+    if (path.startsWith('/admin')) {
+      return { view: 'admin', tab: tab || 'overview', course: null, title: 'Executive Admin Console — Claxic' };
+    }
+    if (path.startsWith('/dashboard')) {
+      return { view: 'dashboard', tab: tab || 'courses', course: null, title: 'Student Learning Dashboard — Claxic' };
+    }
+    if (path.startsWith('/courses/')) {
+      const slug = path.replace('/courses/', '').trim();
+      const found = coursesList.find((c) => c.slug === slug || c.id === slug);
+      return {
+        view: 'course-detail',
+        slug,
+        course: found || null,
+        title: found?.title ? `${found.title} — Claxic` : 'Academic Course Detail — Claxic',
+      };
+    }
+    if (path === '/courses') {
+      return { view: 'courses', tab: null, course: null, title: 'Academic Course Catalog — Claxic' };
+    }
+    return { view: 'home', tab: null, course: null, title: 'Claxic — Academic Admissions & Learning Portal' };
+  }, []);
+
+  // Synchronously initialize view from URL on first mount
+  const [currentView, setCurrentView] = useState(() => {
+    const r = parseRouteFromUrl([]);
+    if (r.title) document.title = r.title;
+    return r.view;
+  });
+  const [dashboardTab, setDashboardTab] = useState(() => parseRouteFromUrl([]).tab || 'courses');
 
   // Courses state
   const [courses, setCourses] = useState([]);
@@ -66,41 +107,6 @@ const MainApp = () => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // URL parser helper
-  const parseRouteFromUrl = useCallback(
-    (coursesList = []) => {
-      const path = window.location.pathname;
-      const searchParams = new URLSearchParams(window.location.search);
-      const tab = searchParams.get('tab');
-
-      if (path === '/admin-login' || path === '/admin/login') {
-        return { view: 'admin-login', tab: null, course: null };
-      }
-      if (path === '/login') {
-        return { view: 'login', tab: null, course: null };
-      }
-      if (path === '/register') {
-        return { view: 'register', tab: null, course: null };
-      }
-      if (path.startsWith('/admin')) {
-        return { view: 'admin', tab: tab || 'overview', course: null };
-      }
-      if (path.startsWith('/dashboard')) {
-        return { view: 'dashboard', tab: tab || 'courses', course: null };
-      }
-      if (path.startsWith('/courses/')) {
-        const slug = path.replace('/courses/', '').trim();
-        const found = coursesList.find((c) => c.slug === slug || c.id === slug);
-        return { view: 'course-detail', slug, course: found || null };
-      }
-      if (path === '/courses') {
-        return { view: 'courses', tab: null, course: null };
-      }
-      return { view: 'home', tab: null, course: null };
-    },
-    []
-  );
-
   // Fetch Courses list & synchronize initial URL route
   const fetchCourses = async () => {
     try {
@@ -113,6 +119,7 @@ const MainApp = () => {
         // Resolve deep link if URL matches /courses/:slug
         const route = parseRouteFromUrl(coursesList);
         setCurrentView(route.view);
+        if (route.title) document.title = route.title;
         if (route.tab) setDashboardTab(route.tab);
         if (route.course) setSelectedCourse(route.course);
       }
@@ -130,12 +137,16 @@ const MainApp = () => {
     const handlePopState = () => {
       const route = parseRouteFromUrl(courses);
       setCurrentView(route.view);
-      if (route.tab && route.view === 'dashboard') {
+      if (route.title) document.title = route.title;
+      if (route.tab && (route.view === 'dashboard' || route.view === 'admin')) {
         setDashboardTab(route.tab);
       }
       if (route.view === 'course-detail') {
         const found = courses.find((c) => c.slug === route.slug || c.id === route.slug);
-        if (found) setSelectedCourse(found);
+        if (found) {
+          setSelectedCourse(found);
+          document.title = `${found.title} — Claxic`;
+        }
       }
     };
 
@@ -146,10 +157,14 @@ const MainApp = () => {
   // Central Navigation Router Handler with Real URL Synchronization
   const handleNavigate = (view, param) => {
     let targetPath = '/';
+    let pageTitle = 'Claxic — Academic Admissions & Learning Portal';
+
     if (view === 'home') {
       targetPath = param ? `/#${param}` : '/';
+      pageTitle = 'Claxic — Academic Admissions & Learning Portal';
     } else if (view === 'courses') {
       targetPath = '/courses';
+      pageTitle = 'Academic Course Catalog — Claxic';
       setSelectedCourse(null);
     } else if (view === 'course-detail') {
       const slug =
@@ -159,24 +174,39 @@ const MainApp = () => {
       targetPath = `/courses/${slug}`;
       if (typeof param === 'object' && param !== null) {
         setSelectedCourse(param);
+        pageTitle = `${param.title || 'Course'} — Claxic`;
+      } else {
+        const found = courses.find((c) => c.slug === slug || c.id === slug);
+        if (found) {
+          setSelectedCourse(found);
+          pageTitle = `${found.title} — Claxic`;
+        } else {
+          pageTitle = 'Course Specialization — Claxic';
+        }
       }
     } else if (view === 'dashboard') {
       targetPath = param ? `/dashboard?tab=${param}` : '/dashboard';
+      pageTitle = 'Student Learning Dashboard — Claxic';
       if (param) setDashboardTab(param);
     } else if (view === 'admin') {
       targetPath = param ? `/admin?tab=${param}` : '/admin';
+      pageTitle = 'Executive Admin Console — Claxic';
     } else if (view === 'admin-login') {
       targetPath = '/admin-login';
+      pageTitle = 'Admin Console Gateway — Claxic';
     } else if (view === 'login') {
       targetPath = '/login';
+      pageTitle = 'Student Sign In — Claxic';
     } else if (view === 'register') {
       targetPath = '/register';
+      pageTitle = 'Create Student Account — Claxic';
     }
 
     if (window.location.pathname + window.location.search !== targetPath) {
       window.history.pushState({ view, param }, '', targetPath);
     }
 
+    document.title = pageTitle;
     setCurrentView(view);
     if (view === 'dashboard' && param) {
       setDashboardTab(param);

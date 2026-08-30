@@ -489,6 +489,7 @@ export const UserLoginView = ({ initialMode = 'login', onNavigate }) => {
                         setMode('register');
                         setError(null);
                         setSuccessMsg(null);
+                        if (onNavigate) onNavigate('register');
                       }}
                       className="font-bold text-[#0B4F50] hover:underline cursor-pointer"
                     >
@@ -598,7 +599,12 @@ export const UserLoginView = ({ initialMode = 'login', onNavigate }) => {
                     Already have an account?{' '}
                     <button
                       type="button"
-                      onClick={() => setMode('login')}
+                      onClick={() => {
+                        setMode('login');
+                        setError(null);
+                        setSuccessMsg(null);
+                        if (onNavigate) onNavigate('login');
+                      }}
                       className="font-bold text-[#0B4F50] hover:underline cursor-pointer"
                     >
                       Sign In

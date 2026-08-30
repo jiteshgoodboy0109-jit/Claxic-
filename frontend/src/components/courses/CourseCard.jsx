@@ -30,7 +30,10 @@ export const CourseCard = ({
   };
 
   return (
-    <div className="group bg-white border border-[#d8ecec] hover:border-[#96d0d0] rounded-[24px] overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(8,62,64,0.06)] hover:shadow-[0_20px_35px_-8px_rgba(8,62,64,0.12)] hover:-translate-y-1">
+    <div
+      onClick={() => onSelect && onSelect(course)}
+      className="group bg-white border border-[#d8ecec] hover:border-[#96d0d0] rounded-[24px] overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(8,62,64,0.06)] hover:shadow-[0_20px_35px_-8px_rgba(8,62,64,0.12)] hover:-translate-y-1 cursor-pointer"
+    >
       <div>
         {/* Course Banner Image with Fallback Pattern */}
         <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
@@ -166,7 +169,10 @@ export const CourseCard = ({
           {showApplyButton && (
             <button
               disabled={course.status === 'FULL'}
-              onClick={() => onApply && onApply(course)}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onApply) onApply(course);
+              }}
               className="px-4 py-2 rounded-full text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] disabled:opacity-50 transition-all shadow-xs hover:shadow flex items-center gap-1 cursor-pointer"
             >
               <span>{course.status === 'FULL' ? 'Full' : 'Apply'}</span>

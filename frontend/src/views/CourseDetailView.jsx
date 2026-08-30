@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ArrowLeft,
   Calendar,
@@ -23,8 +23,6 @@ export const CourseDetailView = ({
   onApply,
   onSelectCourse,
 }) => {
-  const [activeTab, setActiveTab] = useState('curriculum');
-
   const related = (allCourses || [])
     .filter((c) => c.id !== course.id && (c.category === course.category || c.level === course.level))
     .slice(0, 3);
@@ -138,59 +136,34 @@ export const CourseDetailView = ({
         </div>
       </section>
 
-      {/* Curriculum & Instructors Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Navigation Tabs */}
-        <div className="flex border-b border-[#d8ecec] text-xs font-semibold uppercase tracking-wider overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('curriculum')}
-            className={`pb-4 px-6 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
-              activeTab === 'curriculum'
-                ? 'border-[#0B4F50] text-[#0B4F50]'
-                : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-            }`}
-          >
-            Syllabus & Modules
-          </button>
-          <button
-            onClick={() => setActiveTab('instructor')}
-            className={`pb-4 px-6 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
-              activeTab === 'instructor'
-                ? 'border-[#0B4F50] text-[#0B4F50]'
-                : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-            }`}
-          >
-            Lead Faculty Profile
-          </button>
-          <button
-            onClick={() => setActiveTab('faq')}
-            className={`pb-4 px-6 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
-              activeTab === 'faq'
-                ? 'border-[#0B4F50] text-[#0B4F50]'
-                : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-            }`}
-          >
-            Program FAQ
-          </button>
-        </div>
+      {/* Comprehensive Open Course Details (Curriculum, Faculty, FAQ) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        
+        {/* Section 1: Curriculum Breakdown */}
+        {course.modules && course.modules.length > 0 && (
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+                Full Syllabus & Structure
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Curriculum Breakdown
+              </h2>
+            </div>
 
-        {/* Tab 1: Curriculum Modules */}
-        {activeTab === 'curriculum' && (
-          <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-slate-900">Curriculum Breakdown</h2>
             <div className="space-y-4">
               {course.modules.map((mod, idx) => (
-                <div key={mod.id || idx} className="p-6 rounded-[24px] bg-white border border-[#d8ecec] shadow-2xs space-y-3">
+                <div key={mod.id || idx} className="p-6 sm:p-7 rounded-[24px] bg-white border border-[#d8ecec] shadow-2xs space-y-3 hover:border-[#b4dede] transition-all">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#0B4F50] font-bold">
+                    <span className="text-xs text-[#0B4F50] font-bold uppercase tracking-wide">
                       Module {idx + 1} • {mod.duration}
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">{mod.title}</h3>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 pt-2 font-medium">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">{mod.title}</h3>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-700 pt-2 font-medium">
                     {mod.topics && mod.topics.map((top, tIdx) => (
                       <li key={tIdx} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0B4F50] shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#0B4F50] shrink-0" />
                         <span>{top}</span>
                       </li>
                     ))}
@@ -201,39 +174,64 @@ export const CourseDetailView = ({
           </div>
         )}
 
-        {/* Tab 2: Instructor Profile */}
-        {activeTab === 'instructor' && course.instructor && (
-          <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-2xs space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              <img
-                src={course.instructor.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                alt={course.instructor.name}
-                className="w-20 h-20 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm"
-                onError={(e) => {
-                  e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(course.instructor.name);
-                }}
-              />
-              <div className="space-y-1">
-                <h3 className="text-xl font-bold text-slate-900">{course.instructor.name}</h3>
-                <p className="text-xs text-[#0B4F50] font-bold">{course.instructor.title}</p>
-                <p className="text-xs text-slate-500 font-medium">{course.instructor.company}</p>
-              </div>
+        {/* Section 2: Instructor Profile */}
+        {course.instructor && (
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+                Academic Faculty
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Lead Faculty Profile
+              </h2>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed font-normal border-t border-[#f2f7f7] pt-4">
-              {course.instructor.bio}
-            </p>
+
+            <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-2xs space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <img
+                  src={course.instructor.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                  alt={course.instructor.name}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm shrink-0"
+                  onError={(e) => {
+                    e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(course.instructor.name);
+                  }}
+                />
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-slate-900">{course.instructor.name}</h3>
+                  <p className="text-xs text-[#0B4F50] font-bold">{course.instructor.title}</p>
+                  <p className="text-xs text-slate-500 font-medium">{course.instructor.company}</p>
+                </div>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal border-t border-[#f2f7f7] pt-4">
+                {course.instructor.bio}
+              </p>
+            </div>
           </div>
         )}
 
-        {/* Tab 3: FAQ */}
-        {activeTab === 'faq' && (
-          <div className="space-y-4 max-w-3xl">
-            {course.faq && course.faq.map((f, idx) => (
-              <div key={idx} className="p-6 rounded-[24px] bg-white border border-[#d8ecec] shadow-2xs space-y-2">
-                <h4 className="text-sm font-bold text-slate-900">{f.question}</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-normal">{f.answer}</p>
-              </div>
-            ))}
+        {/* Section 3: FAQ */}
+        {course.faq && course.faq.length > 0 && (
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+                Admissions & Logistics
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Program FAQ
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {course.faq.map((f, idx) => (
+                <div key={idx} className="p-6 rounded-[24px] bg-white border border-[#d8ecec] shadow-2xs space-y-2">
+                  <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <HelpCircle className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                    <span>{f.question}</span>
+                  </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed font-normal">{f.answer}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

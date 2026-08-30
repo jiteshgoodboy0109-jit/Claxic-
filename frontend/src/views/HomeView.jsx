@@ -119,14 +119,6 @@ export const HomeView = ({
             <h1 className="text-2xl sm:text-4xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
               Master Production Systems & Advanced Engineering.
             </h1>
-
-            {/* Subhead */}
-            <p className="text-xs sm:text-sm text-teal-100/90 max-w-xl mx-auto font-normal leading-relaxed">
-              Intensive, live interactive cohorts led by distinguished principal architects from Google, Microsoft, and leading tech scaleups.
-            </p>
-
-
-
           </div>
         </div>
       </section>

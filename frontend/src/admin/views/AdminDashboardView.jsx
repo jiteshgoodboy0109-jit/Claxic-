@@ -402,7 +402,7 @@ export const AdminDashboardView = ({
           <div className="flex items-center h-14 justify-between gap-4">
 
             {/* Inline Navigation Tabs */}
-            <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 min-w-0">
+            <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar flex-1 min-w-0">
               {[
                 { id: 'overview', label: 'Overview', icon: LayoutDashboard },
                 { id: 'applications', label: `Applications`, icon: FileText },
@@ -418,12 +418,13 @@ export const AdminDashboardView = ({
                     key={tab.id}
                     type="button"
                     onClick={() => handleTabChange(tab.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isActive
-                        ? 'bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white shadow-[0_4px_14px_rgba(147,51,234,0.32)] scale-[1.02]'
-                        : 'text-slate-600 hover:text-purple-700 hover:bg-purple-50/70'
-                      }`}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-purple-100' : 'text-slate-400'}`} />
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-teal-400' : 'text-slate-400'}`} />
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -435,7 +436,7 @@ export const AdminDashboardView = ({
               <button
                 type="button"
                 onClick={fetchAdminData}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                 title="Refresh"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -444,9 +445,9 @@ export const AdminDashboardView = ({
               <button
                 type="button"
                 onClick={() => onOpenCourseModal && onOpenCourseModal(null)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-800 hover:to-indigo-700 text-white text-xs font-semibold shadow-[0_2px_10px_rgba(147,51,234,0.25)] hover:shadow-[0_4px_16px_rgba(147,51,234,0.38)] transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5 text-purple-200" />
+                <Plus className="w-3.5 h-3.5 text-teal-400" />
                 <span>New Course</span>
               </button>
             </div>

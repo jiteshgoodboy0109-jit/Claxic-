@@ -1,0 +1,15 @@
+{
+  "name": "claxic-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Claxic - Master Production Systems & Advanced Engineering Education Platform",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "test": "npm test --prefix backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -73,19 +73,19 @@ export const Footer = ({ onNavigate }) => {
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate('home')}
+                  onClick={() => onNavigate && onNavigate('courses')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Apply Form & Admissions
+                  Explore Courses
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate('courses')}
+                  onClick={() => onNavigate && onNavigate('home')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Browse Course Catalog
+                  Admissions Application
                 </button>
               </li>
               <li>
@@ -94,16 +94,7 @@ export const Footer = ({ onNavigate }) => {
                   onClick={() => onNavigate && onNavigate('login')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Student Login & Portal
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate && onNavigate('admin-login')}
-                  className="hover:text-white transition-colors cursor-pointer text-left opacity-70 hover:opacity-100"
-                >
-                  Admin Gateway
+                  Student Portal
                 </button>
               </li>
             </ul>
