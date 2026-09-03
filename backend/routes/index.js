@@ -4,6 +4,7 @@ import coursesRoutes from './courses.routes.js';
 import applicationsRoutes from './applications.routes.js';
 import paymentsRoutes from './payments.routes.js';
 import adminRoutes from './admin.routes.js';
+import staffRoutes from './staff.routes.js';
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.get('/', (req, res) => {
       applications: '/api/applications',
       payments: '/api/payments',
       admin: '/api/admin',
+      staff: '/api/staff',
     },
   });
 });
@@ -40,6 +42,7 @@ router.use('/courses', coursesRoutes);
 router.use('/applications', applicationsRoutes);
 router.use('/payments', paymentsRoutes);
 router.use('/admin', adminRoutes);
+router.use('/staff', staffRoutes);
 
 // Compatibility alias for user applications and payments
 router.use('/user/applications', (req, res, next) => {

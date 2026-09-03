@@ -46,66 +46,68 @@ export const EmailSandboxModal = ({ isOpen, onClose }) => {
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[500px] font-sans">
         {/* Email Sidebar */}
-        <div className="border border-slate-200 rounded-xl bg-slate-50 overflow-y-auto divide-y divide-slate-200">
-          <div className="p-3 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase text-slate-700">Outbox History</span>
+        <div className="border border-[#E8E3DC] rounded-xl bg-[#FFFFFF] overflow-y-auto divide-y divide-[#EEEAE4]">
+          <div className="p-3 bg-[#FFF7E6] border-b border-[#E8E3DC] flex items-center justify-between">
+            <span className="text-xs font-mono font-bold uppercase text-[#1F1F1F]">Outbox History</span>
             <button
               onClick={fetchEmails}
-              className="p-1 text-slate-500 hover:text-slate-900 transition-colors"
+              className="p-1 text-[#6B6258] hover:text-[#D97706] transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
           {emails.length === 0 ? (
-            <p className="p-4 text-xs text-slate-500 text-center">No email records sent yet.</p>
+            <p className="p-4 text-xs text-[#6B6258] text-center">No email records sent yet.</p>
           ) : (
             emails.map((em) => (
               <button
                 key={em.id}
                 onClick={() => setSelectedEmail(em)}
-                className={`w-full text-left p-3 transition-colors ${
-                  selectedEmail?.id === em.id ? 'bg-indigo-50 border-l-2 border-indigo-600' : 'hover:bg-slate-100'
+                className={`w-full text-left p-3 transition-colors cursor-pointer ${
+                  selectedEmail?.id === em.id ? 'bg-[#FFF7E6] border-l-3 border-[#F59E0B]' : 'hover:bg-[#FAFAF7]'
                 }`}
               >
-                <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+                <div className="flex items-center justify-between text-[11px] font-mono text-[#6B6258]">
                   <span className="truncate">{em.to}</span>
                   <span className="shrink-0">{new Date(em.sentAt).toLocaleTimeString()}</span>
                 </div>
-                <h5 className="text-xs font-semibold text-slate-900 truncate mt-1">{em.subject}</h5>
-                <Badge variant="info" size="sm" className="mt-1">
+                <h5 className="text-xs font-bold text-[#1F1F1F] truncate mt-1">{em.subject}</h5>
+                <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#FFF1D6] text-[#D97706] border border-[#FEDDAA]">
                   {em.templateType}
-                </Badge>
+                </span>
               </button>
             ))
           )}
         </div>
 
         {/* Email Preview Pane */}
-        <div className="md:col-span-2 border border-slate-200 rounded-xl bg-white p-4 flex flex-col overflow-hidden shadow-2xs">
+        <div className="md:col-span-2 border border-[#E8E3DC] rounded-xl bg-[#FFFFFF] p-4 flex flex-col overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
           {selectedEmail ? (
             <>
-              <div className="pb-4 border-b border-slate-200 space-y-1">
+              <div className="pb-4 border-b border-[#E8E3DC] space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-mono text-slate-500">To: <strong className="text-slate-900">{selectedEmail.to}</strong></span>
-                  <Badge variant="success">{selectedEmail.status}</Badge>
+                  <span className="font-mono text-[#6B6258]">To: <strong className="text-[#1F1F1F]">{selectedEmail.to}</strong></span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA]">
+                    {selectedEmail.status}
+                  </span>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 font-display">{selectedEmail.subject}</h3>
-                <p className="text-[11px] font-mono text-slate-500">
+                <h3 className="text-base font-bold text-[#1F1F1F] font-display">{selectedEmail.subject}</h3>
+                <p className="text-[11px] font-mono text-[#6B6258]">
                   Dispatched: {new Date(selectedEmail.sentAt).toLocaleString()}
                 </p>
               </div>
 
               <div className="flex-1 pt-4 overflow-y-auto">
                 <div
-                  className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-slate-800 text-xs leading-relaxed"
+                  className="bg-[#FAFAF7] p-4 rounded-xl border border-[#E8E3DC] text-[#1F1F1F] text-xs leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: selectedEmail.htmlBody }}
                 />
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-500">
-              <Mail className="w-8 h-8 mb-2 opacity-40 text-slate-400" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#6B6258]">
+              <Mail className="w-8 h-8 mb-2 opacity-40 text-[#82684D]" />
               <p className="text-xs font-mono">Select an email record from the history list to preview rendered HTML content.</p>
             </div>
           )}
@@ -114,3 +116,4 @@ export const EmailSandboxModal = ({ isOpen, onClose }) => {
     </Modal>
   );
 };
+

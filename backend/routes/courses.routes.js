@@ -57,6 +57,7 @@ router.get('/categories', (req, res) => {
 });
 
 // Get Single Course Detail by ID or Slug
+// Get Single Course Detail by ID or Slug
 router.get('/:id', (req, res) => {
   const { id } = req.params;
   const course = db.raw.courses.find((c) => c.id === id || c.slug === id);
@@ -66,6 +67,19 @@ router.get('/:id', (req, res) => {
   }
 
   res.json({ course });
+});
+
+// Get Course Classes / Episodes
+router.get('/:id/classes', (req, res) => {
+  const { id } = req.params;
+  const course = db.raw.courses.find((c) => c.id === id || c.slug === id);
+
+  if (!course) {
+    return res.status(404).json({ error: 'Course offering not found.' });
+  }
+
+  const publishedClasses = (course.classes || []).filter((cls) => cls.status === 'PUBLISHED');
+  res.json({ success: true, courseId: course.id, classes: publishedClasses });
 });
 
 export default router;

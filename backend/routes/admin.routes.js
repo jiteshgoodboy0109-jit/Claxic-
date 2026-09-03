@@ -436,7 +436,7 @@ router.put('/users/:id', async (req, res) => {
         if (name !== undefined) u.name = name.trim();
         if (email !== undefined) u.email = email.trim().toLowerCase();
         if (mobile !== undefined) u.mobile = mobile.trim();
-        if (role !== undefined && ['USER', 'ADMIN', 'INSTRUCTOR'].includes(role)) u.role = role;
+        if (role !== undefined && ['USER', 'ADMIN', 'STAFF', 'INSTRUCTOR'].includes(role)) u.role = role === 'INSTRUCTOR' ? 'STAFF' : role;
         if (isVerified !== undefined) u.isVerified = Boolean(isVerified);
         if (isActive !== undefined) u.isActive = Boolean(isActive);
         if (institution !== undefined) u.institution = institution.trim();
@@ -484,7 +484,7 @@ router.patch('/users/:id/status', async (req, res) => {
       const u = data.users.find((x) => x.id === id);
       if (u) {
         if (isActive !== undefined) u.isActive = Boolean(isActive);
-        if (role !== undefined && ['USER', 'ADMIN', 'INSTRUCTOR'].includes(role)) u.role = role;
+        if (role !== undefined && ['USER', 'ADMIN', 'STAFF', 'INSTRUCTOR'].includes(role)) u.role = role === 'INSTRUCTOR' ? 'STAFF' : role;
         if (isVerified !== undefined) u.isVerified = Boolean(isVerified);
         u.updatedAt = now;
         updatedUser = u;
@@ -556,6 +556,66 @@ router.post('/users/:id/reset-password', async (req, res) => {
     return res.json({ success: true, message: `Password reset successfully for ${user.name}. All active sessions have been terminated.` });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to reset password.' });
+  }
+});
+
+// Delete User Account (Admin Only)
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+
+    if (admin.id === id) {
+      return res.status(400).json({ error: 'You cannot delete your own active administrative account.' });
+    }
+
+    const user = db.raw.users.find((u) => u.id === id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const now = new Date().toISOString();
+    await db.transaction((data) => {
+      data.users = (data.users || []).filter((u) => u.id !== id);
+      data.applications = (data.applications || []).filter((a) => a.userId !== id);
+      
+      // Clean up sessions object safely
+      if (data.sessions && typeof data.sessions === 'object') {
+        for (const [tokenKey, sess] of Object.entries(data.sessions)) {
+          if (sess && sess.userId === id) {
+            delete data.sessions[tokenKey];
+          }
+        }
+      }
+
+      // Clean up tokens & notifications
+      if (data.verificationTokens) {
+        data.verificationTokens = data.verificationTokens.filter((vt) => vt.userId !== id);
+      }
+      if (data.passwordResetTokens) {
+        data.passwordResetTokens = data.passwordResetTokens.filter((pr) => pr.userId !== id);
+      }
+      if (data.notifications) {
+        data.notifications = data.notifications.filter((n) => n.userId !== id);
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'USER_DELETED',
+        targetType: 'USER',
+        targetId: user.id,
+        targetTitle: `${user.name} (${user.email})`,
+        createdAt: now,
+      });
+    });
+
+    return res.json({ success: true, message: `User ${user.name} removed successfully.` });
+  } catch (err) {
+    console.error('Error deleting user account:', err);
+    return res.status(500).json({ error: 'Failed to delete user account.' });
   }
 });
 

@@ -321,14 +321,14 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
         )}
 
         {/* Section Navigation Tabs */}
-        <div className="flex border-b border-slate-200 gap-2 pb-2 text-xs font-bold overflow-x-auto">
+        <div className="flex border-b border-[#E8E3DC] gap-2 pb-2 text-xs font-semibold overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveSection('basic')}
             className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
               activeSection === 'basic'
-                ? 'bg-[#0B4F50] text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#F59E0B] text-white shadow-xs font-bold'
+                : 'bg-[#FAFAF7] text-[#6B6258] hover:text-[#1F1F1F] hover:bg-[#FFF7E6]'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -339,8 +339,8 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
             onClick={() => setActiveSection('curriculum')}
             className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
               activeSection === 'curriculum'
-                ? 'bg-[#0B4F50] text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#F59E0B] text-white shadow-xs font-bold'
+                : 'bg-[#FAFAF7] text-[#6B6258] hover:text-[#1F1F1F] hover:bg-[#FFF7E6]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -351,8 +351,8 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
             onClick={() => setActiveSection('faculty')}
             className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
               activeSection === 'faculty'
-                ? 'bg-[#0B4F50] text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#F59E0B] text-white shadow-xs font-bold'
+                : 'bg-[#FAFAF7] text-[#6B6258] hover:text-[#1F1F1F] hover:bg-[#FFF7E6]'
             }`}
           >
             <User className="w-3.5 h-3.5" />
@@ -363,8 +363,8 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
             onClick={() => setActiveSection('faq')}
             className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
               activeSection === 'faq'
-                ? 'bg-[#0B4F50] text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#F59E0B] text-white shadow-xs font-bold'
+                : 'bg-[#FAFAF7] text-[#6B6258] hover:text-[#1F1F1F] hover:bg-[#FFF7E6]'
             }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -830,14 +830,14 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
         )}
 
         {/* Modal Action Buttons */}
-        <div className="pt-4 flex items-center justify-between border-t border-slate-200">
+        <div className="pt-4 flex items-center justify-between border-t border-[#E8E3DC]">
           <Button variant="ghost" onClick={onClose} type="button">
             Cancel
           </Button>
           <button
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2.5 rounded-full bg-[#0B4F50] hover:bg-[#073637] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
           >
             {isLoading ? 'Saving Program...' : courseToEdit ? 'Save Changes' : 'Publish Course'}
           </button>

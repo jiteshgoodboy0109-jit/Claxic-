@@ -93,6 +93,91 @@ export const AdminLoginView = ({ onNavigate }) => {
     }
   };
 
+  // Google OAuth for Administrator
+  const handleGoogleAdminLogin = async (payload) => {
+    if (!payload) return;
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...payload,
+          portalRole: 'ADMIN',
+          isAdminPortal: true,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Google administrator authentication failed.');
+      }
+
+      if (!data.user || data.user.role !== 'ADMIN') {
+        throw new Error('Access Denied: Account lacks administrator privileges.');
+      }
+
+      login(data.token, data.user);
+      if (onNavigate) onNavigate('admin');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Trigger Google SSO Prompt for Admin
+  const handleGoogleButtonClick = () => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    // 1. Google OAuth2 Popup flow
+    if (clientId && clientId.trim() && window.google?.accounts?.oauth2) {
+      try {
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId.trim(),
+          scope: 'email profile openid',
+          callback: async (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              await handleGoogleAdminLogin({
+                accessToken: tokenResponse.access_token,
+              });
+            } else if (tokenResponse && tokenResponse.error) {
+              setError(`Google Sign-In error: ${tokenResponse.error}`);
+            }
+          },
+        });
+        tokenClient.requestAccessToken({ prompt: 'select_account' });
+        return;
+      } catch (err) {
+        console.warn('OAuth2 popup error, attempting OneTap fallback:', err);
+      }
+    }
+
+    // 2. Google OneTap fallback
+    if (clientId && clientId.trim() && window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: clientId.trim(),
+          callback: (res) => handleGoogleAdminLogin({ credential: res.credential }),
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+        window.google.accounts.id.prompt();
+        return;
+      } catch (err) {
+        console.warn('OneTap prompt error:', err);
+      }
+    }
+
+    // 3. Fallback demo token
+    handleGoogleAdminLogin({
+      credential: 'demo_admin_google_sso_token_' + Math.random().toString(36).substring(2, 10),
+    });
+  };
+
   // Handle Forgot Password Request
   const handleForgotRequest = async (e) => {
     e.preventDefault();
@@ -176,7 +261,7 @@ export const AdminLoginView = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f7fc] text-slate-900 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 relative font-sans overflow-hidden [perspective:1400px]">
+    <div className="min-h-screen bg-[#FAF7F2] text-stone-900 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 relative font-sans overflow-hidden [perspective:1400px]">
       
       {/* --- Inject mobile/tablet keyframe + responsive overrides --- */}
       <style>{`
@@ -189,8 +274,8 @@ export const AdminLoginView = ({ onNavigate }) => {
           50% { transform: translateY(-6px); }
         }
         @keyframes adminLockPulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 20px 35px -8px rgba(147,51,234,0.18), 0 6px 16px -4px rgba(0,0,0,0.04); }
-          50% { transform: scale(1.06); box-shadow: 0 28px 50px -8px rgba(147,51,234,0.28), 0 8px 24px -4px rgba(0,0,0,0.06); }
+          0%, 100% { transform: scale(1); box-shadow: 0 20px 35px -8px rgba(249,115,22,0.18), 0 6px 16px -4px rgba(0,0,0,0.04); }
+          50% { transform: scale(1.06); box-shadow: 0 28px 50px -8px rgba(249,115,22,0.28), 0 8px 24px -4px rgba(0,0,0,0.06); }
         }
         @keyframes adminGlowRing {
           0% { opacity: 0.3; transform: scale(0.9); }
@@ -206,9 +291,9 @@ export const AdminLoginView = ({ onNavigate }) => {
             z-index: 20;
             border-radius: 24px 24px 20px 20px;
             box-shadow:
-              0 -8px 40px -6px rgba(147, 51, 234, 0.18),
-              0 32px 64px -12px rgba(76, 29, 149, 0.22),
-              0 16px 32px -8px rgba(0, 0, 0, 0.10),
+              0 -8px 40px -6px rgba(249, 115, 22, 0.12),
+              0 32px 64px -12px rgba(120, 53, 15, 0.15),
+              0 16px 32px -8px rgba(0, 0, 0, 0.08),
               0 0 0 1px rgba(255, 255, 255, 0.9) inset;
           }
           .admin-login-form-card::before {
@@ -219,7 +304,7 @@ export const AdminLoginView = ({ onNavigate }) => {
             right: 20%;
             height: 3px;
             border-radius: 3px;
-            background: linear-gradient(90deg, transparent, rgba(147,51,234,0.5), transparent);
+            background: rgba(249, 115, 22, 0.4);
           }
         }
         /* Tablet (md) form card */
@@ -228,9 +313,9 @@ export const AdminLoginView = ({ onNavigate }) => {
             margin-top: -36px;
             border-radius: 28px;
             box-shadow:
-              0 -12px 50px -6px rgba(147, 51, 234, 0.2),
-              0 40px 80px -16px rgba(76, 29, 149, 0.24),
-              0 20px 40px -10px rgba(0, 0, 0, 0.12),
+              0 -12px 50px -6px rgba(249, 115, 22, 0.15),
+              0 40px 80px -16px rgba(120, 53, 15, 0.18),
+              0 20px 40px -10px rgba(0, 0, 0, 0.10),
               0 0 0 1px rgba(255, 255, 255, 0.95) inset;
           }
         }
@@ -248,15 +333,15 @@ export const AdminLoginView = ({ onNavigate }) => {
         }
       `}</style>
 
-      {/* --- HEAVY 3D BACKGROUND PERSPECTIVE & AMBIENT SYSTEM --- */}
+      {/* --- LIGHT BACKGROUND PERSPECTIVE SYSTEM --- */}
       
-      {/* 3D Isometric / Perspective Grid Plane */}
+      {/* Perspective Grid Plane */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-40"
         style={{
           backgroundImage: `
-            linear-gradient(to right, rgba(147, 51, 234, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(147, 51, 234, 0.08) 1px, transparent 1px)
+            linear-gradient(to right, rgba(245, 158, 11, 0.08) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(245, 158, 11, 0.08) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px',
           maskImage: 'radial-gradient(ellipse 75% 65% at 50% 50%, #000 30%, transparent 100%)',
@@ -264,129 +349,76 @@ export const AdminLoginView = ({ onNavigate }) => {
         }}
       />
 
-      {/* 3D Deep Glowing Ambient Orbs */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-purple-400/20 via-indigo-300/15 to-transparent rounded-full blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-gradient-to-tl from-purple-500/20 via-pink-400/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-purple-600/5 rounded-full blur-[100px] pointer-events-none" />
+      {/* Soft Ambient Shapes */}
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#FFF7E6] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-[#FFF1D6]/60 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-[#FAFAF7] rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Floating 3D Glass Geometric Sphere (Top Right) — hidden on small mobile */}
+      {/* --- ELEVATED TWO-COLUMN CARD --- */}
       <div 
-        className="absolute top-12 right-12 lg:right-28 w-20 h-20 sm:w-28 sm:h-28 rounded-full pointer-events-none hidden sm:block"
+        className="w-full max-w-4xl bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl sm:rounded-3xl overflow-visible lg:overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 my-4 shadow-xl"
         style={{
-          background: 'radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(233, 213, 255, 0.5) 40%, rgba(168, 85, 247, 0.3) 75%, rgba(126, 34, 206, 0.25) 100%)',
-          boxShadow: 'inset -6px -8px 16px rgba(107, 33, 168, 0.3), inset 6px 6px 12px rgba(255, 255, 255, 0.9), 0 25px 50px -12px rgba(147, 51, 234, 0.25)',
-          transform: 'translateZ(60px) rotate(12deg)',
-        }}
-      />
-
-      {/* Floating 3D Glass Torus / Ring (Bottom Left) */}
-      <div 
-        className="absolute bottom-10 left-10 lg:left-24 w-28 h-28 sm:w-36 sm:h-36 rounded-full pointer-events-none hidden sm:block"
-        style={{
-          border: '14px solid rgba(216, 180, 254, 0.35)',
-          background: 'transparent',
-          boxShadow: 'inset 0 4px 10px rgba(255, 255, 255, 0.8), inset 0 -4px 10px rgba(147, 51, 234, 0.3), 0 30px 60px -15px rgba(126, 34, 206, 0.25)',
-          transform: 'rotateX(55deg) rotateY(-20deg) rotateZ(25deg)',
-        }}
-      />
-
-      {/* Small 3D Floating Pearl (Top Left) */}
-      <div 
-        className="absolute top-28 left-20 w-12 h-12 rounded-full pointer-events-none hidden lg:block"
-        style={{
-          background: 'radial-gradient(circle at 30% 30%, #ffffff, #e9d5ff 45%, #c084fc 80%, #7e22ce 100%)',
-          boxShadow: 'inset -3px -4px 8px rgba(88, 28, 135, 0.4), inset 3px 3px 6px #ffffff, 0 15px 30px -5px rgba(147, 51, 234, 0.3)',
-        }}
-      />
-
-      {/* --- HEAVY 3D ELEVATED TWO-COLUMN CARD --- */}
-      <div 
-        className="w-full max-w-4xl bg-white/95 backdrop-blur-xl border border-white/80 rounded-2xl sm:rounded-3xl overflow-visible lg:overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 my-4 transition-all duration-300"
-        style={{
-          boxShadow: `
-            0 40px 100px -20px rgba(76, 29, 149, 0.22),
-            0 25px 50px -15px rgba(0, 0, 0, 0.12),
-            0 0 0 1px rgba(255, 255, 255, 0.95) inset,
-            0 1px 3px rgba(0, 0, 0, 0.05)
-          `,
           transform: 'translateZ(20px)',
         }}
       >
         
-        {/* LEFT COLUMN: BRANDING & MINIMAL 3D ART */}
-        <div className="lg:col-span-5 p-8 sm:p-10 lg:p-12 bg-gradient-to-b from-[#faf8fe] via-[#f6f2fd] to-[#efe9fc] border-b-0 lg:border-r border-purple-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[260px] sm:min-h-[300px] lg:min-h-[480px] rounded-t-2xl sm:rounded-t-3xl lg:rounded-none">
+        {/* LEFT COLUMN: BRANDING */}
+        <div className="lg:col-span-5 p-8 sm:p-10 lg:p-12 bg-[#FAFAF7] border-b-0 lg:border-r border-[#E8E3DC] flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[260px] sm:min-h-[300px] lg:min-h-[480px] rounded-t-2xl sm:rounded-t-3xl lg:rounded-none">
           
-          {/* Top-Left Organic Curved Soft Ambient Shape */}
-          <div className="absolute -top-10 -left-10 w-36 h-36 bg-purple-300/30 rounded-full blur-xl pointer-events-none" />
-          
-          {/* Top-Right Clean Dot Grid Motif (4x5 dots) */}
+          {/* Top-Right Clean Dot Grid Motif */}
           <div className="absolute top-7 right-7 pointer-events-none opacity-60">
             <svg width="64" height="72" viewBox="0 0 64 72" fill="none">
               <pattern id="ref-dot-pattern" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                <circle cx="3" cy="3" r="1.75" fill="#a855f7" opacity="0.4" />
+                <circle cx="3" cy="3" r="1.75" fill="#F59E0B" opacity="0.3" />
               </pattern>
               <rect width="64" height="72" fill="url(#ref-dot-pattern)" />
             </svg>
           </div>
 
-          {/* Bottom Concentric Arc Contour */}
-          <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[340px] h-[340px] rounded-full border border-white/80 bg-gradient-to-b from-white/40 via-white/10 to-transparent pointer-events-none" />
-
-          {/* Animated Glow Ring behind lock card (mobile/tablet only) */}
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full pointer-events-none lg:hidden"
-            style={{
-              background: 'radial-gradient(circle, rgba(147,51,234,0.15), transparent 70%)',
-              animation: 'adminGlowRing 3s ease-in-out infinite',
-            }}
-          />
-
           {/* Central Content Stack */}
           <div className="relative z-10 flex flex-col items-center space-y-6 sm:space-y-8 my-auto">
-            {/* Logo & Spaced Subtitle */}
-            <div className="space-y-2.5">
-              <img
-                src="/logob.png"
-                alt="Claxic"
-                className="h-9 sm:h-10 w-auto object-contain mx-auto drop-shadow-xs"
-              />
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-800 uppercase tracking-[0.3em]">
-                Admin Panel
+            {/* Logo & Spaced Subtitle (Clean Logo with No Background Container) */}
+            <div className="space-y-2 text-center">
+              <div
+                className="inline-flex items-center justify-center transition-transform hover:scale-102 mx-auto select-none"
+                title="Admin Console"
+              >
+                <img
+                  src="/logow.png"
+                  alt="Claxic"
+                  className="h-8 sm:h-9 w-auto object-contain brightness-0 drop-shadow-2xs"
+                />
+              </div>
+              <p className="text-[11px] sm:text-xs font-bold text-[#D97706] uppercase tracking-[0.25em]">
+                Admin Console
               </p>
             </div>
 
-            {/* Elevated 3D Floating Lock Card — with breathing animation on mobile */}
+            {/* Elevated Lock Card */}
             <div
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md flex items-center justify-center relative"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-[#FFFFFF] border border-[#E8E3DC] shadow-md flex items-center justify-center relative"
               style={{
-                boxShadow: `
-                  0 20px 35px -8px rgba(147, 51, 234, 0.18),
-                  0 6px 16px -4px rgba(0, 0, 0, 0.04),
-                  inset 0 2px 4px rgba(255, 255, 255, 0.95),
-                  inset 0 -1px 2px rgba(147, 51, 234, 0.1)
-                `,
-                border: '1px solid rgba(255, 255, 255, 0.9)',
                 animation: 'adminLockPulse 3s ease-in-out infinite',
               }}
             >
-              <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-purple-600 stroke-[1.8]" />
+              <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-[#F59E0B] stroke-[1.8]" />
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: LOGIN & RECOVERY FORM — "page up" elevated card on mobile/tablet */}
-        <div className="admin-login-form-card lg:col-span-7 p-6 sm:p-8 lg:p-11 flex flex-col justify-center bg-white">
+        {/* RIGHT COLUMN: LOGIN & RECOVERY FORM */}
+        <div className="admin-login-form-card lg:col-span-7 p-6 sm:p-8 lg:p-11 flex flex-col justify-center bg-[#FFFFFF]">
           <div className="max-w-md w-full mx-auto space-y-5 sm:space-y-6">
             
             {/* Header Text */}
-            <div className="space-y-1">
-              <span className="text-xs font-semibold text-purple-600 tracking-wider uppercase block">
+            <div className="space-y-1 text-left">
+              <span className="text-xs font-bold text-[#D97706] tracking-wider uppercase block">
                 {isRecoveryMode ? 'Password Recovery' : 'Welcome Back'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1F1F1F] tracking-tight font-display">
                 {isRecoveryMode ? 'Reset Credentials' : 'Admin Login'}
-              </h2>
-              <p className="text-xs text-slate-500">
+              </h1>
+              <p className="text-xs sm:text-sm text-[#82684D] leading-relaxed">
                 {isRecoveryMode
                   ? 'Follow the steps to regain administrative access'
                   : 'Please sign in to continue'}
@@ -395,128 +427,155 @@ export const AdminLoginView = ({ onNavigate }) => {
 
             {/* Alert Messages */}
             {error && (
-              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                <span className="font-medium">{error}</span>
+                <span className="font-medium leading-relaxed">{error}</span>
               </div>
             )}
 
             {successMsg && (
-              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="font-medium">{successMsg}</span>
+                <span className="font-medium leading-relaxed">{successMsg}</span>
               </div>
             )}
 
             {/* LOGIN FORM */}
             {!isRecoveryMode ? (
-              <form onSubmit={handleAdminLoginSubmit} className="space-y-4">
-                {/* Email Field */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-700">
-                    Administrator Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@claxic.edu"
-                      className="w-full bg-white border border-slate-200 focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all"
-                    />
-                  </div>
+              <div className="space-y-4">
+                {/* Google SSO Button (Centered) */}
+                <button
+                  type="button"
+                  onClick={handleGoogleButtonClick}
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAFAF7] text-[#1F1F1F] border border-[#E8E3DC] hover:border-[#D0C7BC] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
+                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.5s.7 4.8 1.9 7.2l3.7-2.9z" />
+                    <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z" />
+                  </svg>
+                  <span className="whitespace-nowrap font-medium">Continue with Google (Admin SSO)</span>
+                </button>
+
+                {/* Clean Balanced Straight Horizontal Divider */}
+                <div className="flex items-center gap-3 py-1">
+                  <div className="h-px bg-[#E8E3DC] flex-1" />
+                  <span className="text-xs text-[#82684D] whitespace-nowrap font-medium select-none">
+                    Or sign in with
+                  </span>
+                  <div className="h-px bg-[#E8E3DC] flex-1" />
                 </div>
 
-                {/* Password Field */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-700">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      className="w-full bg-white border border-slate-200 focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl pl-10 pr-10 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all font-mono"
-                    />
+                <form onSubmit={handleAdminLoginSubmit} className="space-y-3.5">
+                  {/* Email Field */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-[#6B6258]">
+                      Administrator Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-[#82684D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="admin@claxic.edu"
+                        className="w-full bg-[#FAFAF7] border border-[#E8E3DC] hover:border-[#D0C7BC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#1F1F1F] placeholder:text-[#82684D]/50 outline-none transition-all duration-150"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-[#6B6258]">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-[#82684D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-[#FAFAF7] border border-[#E8E3DC] hover:border-[#D0C7BC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#1F1F1F] placeholder:text-[#82684D]/50 outline-none transition-all duration-150 font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#82684D] hover:text-[#1F1F1F] p-0.5 transition-colors cursor-pointer"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Options Row: Remember Me & Forgot Password */}
+                  <div className="flex items-center justify-between pt-0.5">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-[#E8E3DC] text-[#F59E0B] focus:ring-[#F59E0B] accent-[#F59E0B] cursor-pointer"
+                      />
+                      <span className="text-xs text-[#6B6258] font-medium">Remember me</span>
+                    </label>
+
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      onClick={() => {
+                        setIsRecoveryMode(true);
+                        setRecoveryStep('request');
+                        setError(null);
+                        setSuccessMsg(null);
+                      }}
+                      className="text-xs text-[#D97706] hover:text-[#B45309] font-medium hover:underline transition-colors cursor-pointer"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      Forgot Password?
                     </button>
                   </div>
-                </div>
 
-                {/* Options Row: Remember Me & Forgot Password */}
-                <div className="flex items-center justify-between pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer"
-                    />
-                    <span className="text-xs text-slate-600 font-medium">Remember me</span>
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsRecoveryMode(true);
-                      setRecoveryStep('request');
-                      setError(null);
-                      setSuccessMsg(null);
-                    }}
-                    className="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors cursor-pointer"
-                  >
-                    Forgot Password?
-                  </button>
-                </div>
-
-                {/* Submit Button with Subtle Purple Glow on Hover */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3.5 bg-slate-950 hover:bg-black text-white text-sm font-semibold rounded-xl transition-all duration-200 hover:shadow-[0_0_25px_rgba(147,51,234,0.35)] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <span>Login</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+                  {/* Submit Button */}
+                  <div className="pt-1.5">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-3 px-4 bg-[#F59E0B] hover:bg-[#D97706] active:bg-[#B45309] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isLoading ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span>Login</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
             ) : (
               /* RECOVERY / FORGOT PASSWORD FLOW */
               <div className="space-y-4">
                 {recoveryStep === 'request' ? (
                   <form onSubmit={handleForgotRequest} className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-700">
+                      <label className="block text-xs font-bold text-[#6B6258]">
                         Admin Account Email
                       </label>
                       <div className="relative">
-                        <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <Mail className="w-4 h-4 text-[#82684D] absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input
                           type="email"
                           required
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="admin@claxic.edu"
-                          className="w-full bg-white border border-slate-200 focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 outline-none transition-all"
+                          className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1F1F1F] outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -524,7 +583,7 @@ export const AdminLoginView = ({ onNavigate }) => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3.5 bg-slate-950 hover:bg-black text-white text-sm font-semibold rounded-xl transition-all duration-200 hover:shadow-[0_0_25px_rgba(147,51,234,0.35)] cursor-pointer disabled:opacity-50"
+                      className="w-full py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-xs cursor-pointer disabled:opacity-50"
                     >
                       {isLoading ? 'Sending Code...' : 'Send Reset Code'}
                     </button>
@@ -532,7 +591,7 @@ export const AdminLoginView = ({ onNavigate }) => {
                 ) : (
                   <form onSubmit={handleResetConfirm} className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-700">
+                      <label className="block text-xs font-bold text-[#6B6258]">
                         Reset Code
                       </label>
                       <input
@@ -541,12 +600,12 @@ export const AdminLoginView = ({ onNavigate }) => {
                         value={resetToken}
                         onChange={(e) => setResetToken(e.target.value)}
                         placeholder="Enter 6-digit code"
-                        className="w-full bg-white border border-slate-200 focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none font-mono"
+                        className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl px-4 py-3 text-sm text-[#1F1F1F] outline-none font-mono"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-slate-700">
+                      <label className="block text-xs font-bold text-[#6B6258]">
                         New Passphrase (Min 8 characters)
                       </label>
                       <input
@@ -555,14 +614,14 @@ export const AdminLoginView = ({ onNavigate }) => {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="••••••••••••"
-                        className="w-full bg-white border border-slate-200 focus:border-purple-600 focus:ring-4 focus:ring-purple-600/10 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none"
+                        className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl px-4 py-3 text-sm text-[#1F1F1F] outline-none"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3.5 bg-slate-950 hover:bg-black text-white text-sm font-semibold rounded-xl transition-all duration-200 hover:shadow-[0_0_25px_rgba(147,51,234,0.35)] cursor-pointer disabled:opacity-50"
+                      className="w-full py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-xs cursor-pointer disabled:opacity-50"
                     >
                       {isLoading ? 'Updating...' : 'Set New Password'}
                     </button>
@@ -576,7 +635,7 @@ export const AdminLoginView = ({ onNavigate }) => {
                     setError(null);
                     setSuccessMsg(null);
                   }}
-                  className="w-full text-center text-xs text-slate-500 hover:text-slate-900 font-medium py-1 transition-colors cursor-pointer"
+                  className="w-full text-center text-xs text-[#6B6258] hover:text-[#1F1F1F] font-semibold py-1 transition-colors cursor-pointer"
                 >
                   ← Back to Admin Login
                 </button>

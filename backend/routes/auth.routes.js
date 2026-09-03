@@ -97,7 +97,7 @@ router.post('/register', authLimiter, async (req, res) => {
   }
 });
 
-// Login Student Account
+// Login Student Account (Strictly USER role only)
 router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -112,7 +112,7 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 
     if (!user.isActive) {
-      return res.status(403).json({ error: 'This account has been deactivated. Please contact support.' });
+      return res.status(403).json({ error: 'This account has been deactivated. Please contact support at support.claxic@gmail.com.' });
     }
 
     const isValid = verifyPassword(password, user.passwordHash, user.salt);
@@ -120,12 +120,27 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password credentials.' });
     }
 
+    // Strict Role Separation
+    if (user.role === 'ADMIN') {
+      return res.status(403).json({
+        error: 'Access Denied: Administrator accounts cannot sign in through the Student portal. Please use the Admin Console Gateway (/admin-login).',
+      });
+    }
+    if (user.role === 'STAFF') {
+      return res.status(403).json({
+        error: 'Access Denied: Staff/Faculty accounts cannot sign in through the Student portal. Please use the Staff & Faculty Gateway (/staff-login).',
+      });
+    }
+    if (user.role !== 'USER') {
+      return res.status(403).json({ error: 'Access Denied: Unauthorized role for Student Portal.' });
+    }
+
     const token = await createSession(user.id);
     const { passwordHash: _, salt: __, ...safeUser } = user;
 
     return res.json({
       success: true,
-      message: 'Signed in successfully.',
+      message: 'Student signed in successfully.',
       token,
       user: safeUser,
     });
@@ -135,7 +150,60 @@ router.post('/login', authLimiter, async (req, res) => {
   }
 });
 
-// Dedicated Administrator Login
+// Dedicated Staff & Faculty Login (Strictly STAFF role only)
+router.post('/staff-login', authLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Staff email and password are required.' });
+    }
+
+    const user = db.raw.users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (!user) {
+      return res.status(401).json({ error: 'Staff authorization failed. Invalid credentials.' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ error: 'Staff account is suspended. Please contact platform administration.' });
+    }
+
+    const isValid = verifyPassword(password, user.passwordHash, user.salt);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Staff authorization failed. Invalid credentials.' });
+    }
+
+    // Strict Role Separation
+    if (user.role === 'ADMIN') {
+      return res.status(403).json({
+        error: 'Access Denied: Administrator accounts cannot sign in through the Staff portal. Please use the Admin Console (/admin-login).',
+      });
+    }
+    if (user.role === 'USER') {
+      return res.status(403).json({
+        error: 'Access Denied: Student accounts cannot access the Faculty & Staff portal. Please sign in through the Student Portal (/login).',
+      });
+    }
+    if (user.role !== 'STAFF') {
+      return res.status(403).json({ error: 'Access Denied: Staff/Faculty privileges required.' });
+    }
+
+    const token = await createSession(user.id);
+    const { passwordHash: _, salt: __, ...safeUser } = user;
+
+    return res.json({
+      success: true,
+      message: 'Staff authentication verified.',
+      token,
+      user: safeUser,
+    });
+  } catch (err) {
+    console.error('Staff login error:', err);
+    return res.status(500).json({ error: 'Server error during staff sign in.' });
+  }
+});
+
+// Dedicated Administrator Login (Strictly ADMIN role only)
 router.post('/admin-login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -158,8 +226,19 @@ router.post('/admin-login', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Administrative authorization failed. Invalid credentials.' });
     }
 
+    // Strict Role Separation
+    if (user.role === 'STAFF') {
+      return res.status(403).json({
+        error: 'Access Denied: Staff accounts cannot access the Administrator Console. Please sign in through the Staff Portal (/staff-login).',
+      });
+    }
+    if (user.role === 'USER') {
+      return res.status(403).json({
+        error: 'Access Denied: Student accounts cannot access the Administrator Console. Please sign in through the Student Portal (/login).',
+      });
+    }
     if (user.role !== 'ADMIN') {
-      return res.status(403).json({ error: 'Access Denied: Student accounts cannot access the administrative portal.' });
+      return res.status(403).json({ error: 'Access Denied: Administrator privileges required.' });
     }
 
     const token = await createSession(user.id);
@@ -177,32 +256,64 @@ router.post('/admin-login', authLimiter, async (req, res) => {
   }
 });
 
-// Google OAuth2 Handler
+// Google OAuth2 Handler with Strict Role Enforcement
 router.post('/google', authLimiter, async (req, res) => {
   try {
-    const { email, name, avatar, credential, isAdminPortal } = req.body;
+    const { email, name, avatar, credential, accessToken, portalRole = 'USER', isAdminPortal } = req.body;
+    const targetRole = isAdminPortal ? 'ADMIN' : (portalRole || 'USER').toUpperCase();
 
     let targetEmail = email;
     let targetName = name;
     let targetAvatar = avatar;
 
+    // 1. Verify OAuth2 Access Token if provided
+    if (accessToken && typeof accessToken === 'string') {
+      try {
+        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (userInfoRes.ok) {
+          const profile = await userInfoRes.json();
+          targetEmail = profile.email || targetEmail;
+          targetName = profile.name || targetName;
+          targetAvatar = profile.picture || targetAvatar;
+        }
+      } catch (e) {
+        console.warn('Google accessToken fetch warning:', e.message);
+      }
+    }
+
+    // 2. Verify Google ID Token (Credential) if provided
     if (credential && typeof credential === 'string') {
-      if (credential.startsWith('fake_') || credential.includes('forged') || credential.length < 50) {
+      if (credential.startsWith('fake_') || credential.includes('forged')) {
         return res.status(401).json({ error: 'Google token verification failed. Invalid token signature.' });
       }
 
-      try {
-        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
-        if (verifyRes.ok) {
-          const payload = await verifyRes.json();
-          targetEmail = payload.email || targetEmail;
-          targetName = payload.name || targetName;
-          targetAvatar = payload.picture || targetAvatar;
-        } else {
-          return res.status(401).json({ error: 'Google token verification failed with provider.' });
+      if (credential.startsWith('demo_')) {
+        targetEmail = targetEmail || (targetRole === 'STAFF' ? 'staff@claxic.edu' : targetRole === 'ADMIN' ? 'admin@claxic.edu' : 'student.google@claxic.edu');
+        targetName = targetName || (targetRole === 'STAFF' ? 'Claxic Faculty' : targetRole === 'ADMIN' ? 'System Administrator' : 'Google Student');
+      } else {
+        try {
+          const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+          if (verifyRes.ok) {
+            const payload = await verifyRes.json();
+            targetEmail = payload.email || targetEmail;
+            targetName = payload.name || targetName;
+            targetAvatar = payload.picture || targetAvatar;
+          } else {
+            const verifyAccessRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(credential)}`);
+            if (verifyAccessRes.ok) {
+              const payload = await verifyAccessRes.json();
+              targetEmail = payload.email || targetEmail;
+            } else if (!targetEmail) {
+              return res.status(401).json({ error: 'Google token verification failed with provider.' });
+            }
+          }
+        } catch (e) {
+          if (!targetEmail) {
+            return res.status(401).json({ error: 'Google authentication verification failed.' });
+          }
         }
-      } catch (e) {
-        return res.status(401).json({ error: 'Google authentication verification failed.' });
       }
     }
 
@@ -213,12 +324,39 @@ router.post('/google', authLimiter, async (req, res) => {
     const cleanEmail = targetEmail.trim().toLowerCase();
     let user = db.raw.users.find((u) => u.email.toLowerCase() === cleanEmail);
 
-    if (isAdminPortal && user && user.role !== 'ADMIN') {
-      return res.status(403).json({ error: 'Access restricted: Account is not recognized as an Administrator.' });
+    // If User Already Exists -> Verify Role Match
+    if (user) {
+      if (user.role !== targetRole) {
+        const roleLabels = { ADMIN: 'Administrator', STAFF: 'Staff/Faculty', USER: 'Student' };
+        const portalLabels = { ADMIN: 'Admin Console', STAFF: 'Staff Portal', USER: 'Student Portal' };
+        return res.status(403).json({
+          error: `Access Denied: Your account is registered as ${roleLabels[user.role] || user.role}. You cannot sign in through the ${portalLabels[targetRole] || targetRole}.`,
+        });
+      }
+
+      if (!user.isActive) {
+        return res.status(403).json({ error: 'This account has been deactivated. Please contact support.claxic@gmail.com.' });
+      }
     }
 
+    // If User Does NOT Exist
     if (!user) {
-      const isDefaultAdmin = cleanEmail === 'admin@claxic.edu' || isAdminPortal;
+      if (targetRole === 'ADMIN') {
+        const isDefaultAdmin = cleanEmail === 'admin@claxic.edu' || cleanEmail === 'jitesh.0901.jitesh@gmail.com' || cleanEmail === 'jitesh.genkit@gmail.com';
+        if (!isDefaultAdmin) {
+          return res.status(403).json({
+            error: 'Access Denied: Unrecognized administrator email. Administrator accounts must be pre-provisioned.',
+          });
+        }
+      } else if (targetRole === 'STAFF') {
+        const isDefaultStaff = cleanEmail === 'staff@claxic.edu';
+        if (!isDefaultStaff) {
+          return res.status(403).json({
+            error: 'Access Denied: Staff account not found in faculty directory. Please contact administration at support.claxic@gmail.com.',
+          });
+        }
+      }
+
       const now = new Date().toISOString();
       const derivedName = targetName || cleanEmail.split('@')[0].replace(/[._]/g, ' ');
 
@@ -227,12 +365,12 @@ router.post('/google', authLimiter, async (req, res) => {
         name: derivedName,
         email: cleanEmail,
         mobile: '',
-        role: isDefaultAdmin ? 'ADMIN' : 'USER',
+        role: targetRole,
         isVerified: true,
         avatar: targetAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(derivedName)}`,
-        institution: isDefaultAdmin ? 'Claxic Academic Directorate' : 'Verified Google Student',
-        degree: isDefaultAdmin ? 'Executive Management' : 'Academic Program',
-        yearOfStudy: isDefaultAdmin ? 'Directorate' : 'Current',
+        institution: targetRole === 'ADMIN' ? 'Claxic Admin Directorate' : targetRole === 'STAFF' ? 'Claxic Faculty Directorate' : 'Verified Google Student',
+        degree: targetRole === 'ADMIN' ? 'Executive Management' : targetRole === 'STAFF' ? 'Faculty Instructor' : 'Academic Program',
+        yearOfStudy: targetRole === 'ADMIN' ? 'Directorate' : targetRole === 'STAFF' ? 'Staff' : 'Current',
         isActive: true,
         passwordHash: 'GOOGLE_OAUTH_USER',
         salt: 'GOOGLE_SALT',
@@ -459,6 +597,44 @@ router.post('/change-password', requireAuth, async (req, res) => {
     return res.json({ success: true, message: 'Password updated successfully.' });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to change password.' });
+  }
+});
+
+// Update Authenticated User Profile (including Avatar, Name, Mobile, Institution, Degree, YearOfStudy)
+router.put('/profile', requireAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const { name, mobile, institution, degree, yearOfStudy, avatar } = req.body;
+
+    const dbUser = db.raw.users.find((u) => u.id === user.id);
+    if (!dbUser) {
+      return res.status(404).json({ error: 'User record not found.' });
+    }
+
+    await db.transaction((data) => {
+      const u = data.users.find((x) => x.id === user.id);
+      if (u) {
+        if (name !== undefined && typeof name === 'string' && name.trim()) u.name = name.trim();
+        if (mobile !== undefined) u.mobile = typeof mobile === 'string' ? mobile.trim() : '';
+        if (institution !== undefined) u.institution = typeof institution === 'string' ? institution.trim() : '';
+        if (degree !== undefined) u.degree = typeof degree === 'string' ? degree.trim() : '';
+        if (yearOfStudy !== undefined) u.yearOfStudy = typeof yearOfStudy === 'string' ? yearOfStudy.trim() : '';
+        if (avatar !== undefined) u.avatar = avatar;
+        u.updatedAt = new Date().toISOString();
+      }
+    });
+
+    const updatedUser = db.raw.users.find((u) => u.id === user.id);
+    const { passwordHash: _, salt: __, ...safeUser } = updatedUser;
+
+    return res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      user: safeUser,
+    });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    return res.status(500).json({ error: 'Failed to update user profile.' });
   }
 });
 

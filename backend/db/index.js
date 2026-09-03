@@ -24,6 +24,7 @@ export function verifyPassword(password, storedHash, salt) {
 
 // Initial Admin & Demo User Password Hashes
 const adminCreds = hashPassword('Admin@123456', 'claxic_salt_admin_2026');
+const staffCreds = hashPassword('Staff@123456', 'claxic_salt_staff_2026');
 const studentCreds = hashPassword('Student@123456', 'claxic_salt_student_2026');
 
 export const initialData = {
@@ -77,6 +78,23 @@ export const initialData = {
       passwordHash: adminCreds.hash,
       salt: adminCreds.salt,
       createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-08-30T10:00:00.000Z',
+    },
+    {
+      id: 'usr_staff_sarah',
+      name: 'Dr. Sarah Jenkins (Staff)',
+      email: 'staff@claxic.edu',
+      mobile: '+91 98765 43210',
+      role: 'STAFF',
+      isVerified: true,
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
+      institution: 'Claxic Faculty Directorate',
+      degree: 'Lead Curriculum & Admissions Reviewer',
+      yearOfStudy: 'Senior Staff Member',
+      isActive: true,
+      passwordHash: staffCreds.hash,
+      salt: staffCreds.salt,
+      createdAt: '2026-08-01T00:00:00.000Z',
       updatedAt: '2026-08-30T10:00:00.000Z',
     },
   ],
@@ -715,6 +733,31 @@ class SQLiteDatabase {
   migrateOrSeed() {
     const row = this.sqlite.prepare('SELECT count(*) as count FROM users').get();
     if (row && row.count > 0) {
+      // Ensure standard default accounts have proper roles in SQLite
+      try {
+        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'admin@claxic.edu'").run();
+        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jitesh.0901.jitesh@gmail.com'").run();
+        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jitesh.genkit@gmail.com'").run();
+
+        const checkStaff = this.sqlite.prepare("SELECT * FROM users WHERE email = 'staff@claxic.edu'").get();
+        if (!checkStaff) {
+          const staff = initialData.users.find((u) => u.email === 'staff@claxic.edu');
+          if (staff) {
+            const insertUser = this.sqlite.prepare(`
+              INSERT INTO users (id, name, email, mobile, role, isVerified, avatar, institution, degree, yearOfStudy, isActive, passwordHash, salt, createdAt, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `);
+            insertUser.run(
+              staff.id, staff.name, staff.email, staff.mobile || '', staff.role, staff.isVerified ? 1 : 0, staff.avatar || '',
+              staff.institution || '', staff.degree || '', staff.yearOfStudy || '', 1, staff.passwordHash, staff.salt, staff.createdAt, staff.updatedAt
+            );
+          }
+        } else {
+          this.sqlite.prepare("UPDATE users SET role = 'STAFF', isActive = 1 WHERE email = 'staff@claxic.edu'").run();
+        }
+      } catch (e) {
+        console.warn('Role migration note:', e.message);
+      }
       return; // Database is already populated
     }
 

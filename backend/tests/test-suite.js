@@ -168,8 +168,58 @@ async function runAudit() {
     assert.ok(resendRes.body.verificationTokenPreview);
   });
 
-  await it('POST /api/auth/login logs in seeded admin account', async () => {
+  await it('POST /api/auth/login logs in student account and rejects admin account with 403', async () => {
+    // 1. Student login succeeds
     const res = await request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: testStudentEmail,
+        password: 'Password@123',
+      }),
+    });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.body.user.role, 'USER');
+    assert.ok(res.body.token);
+    studentToken = res.body.token;
+
+    // 2. Admin attempting student login gets 403
+    const adminOnStudentLogin = await request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: 'admin@claxic.edu',
+        password: 'Admin@123456',
+      }),
+    });
+    assert.strictEqual(adminOnStudentLogin.status, 403);
+  });
+
+  await it('POST /api/auth/staff-login logs in staff account and rejects student account with 403', async () => {
+    // 1. Staff login succeeds
+    const res = await request('/api/auth/staff-login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: 'staff@claxic.edu',
+        password: 'Staff@123456',
+      }),
+    });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.body.user.role, 'STAFF');
+    assert.ok(res.body.token);
+
+    // 2. Student attempting staff login gets 403
+    const studentOnStaffLogin = await request('/api/auth/staff-login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: testStudentEmail,
+        password: 'Password@123',
+      }),
+    });
+    assert.strictEqual(studentOnStaffLogin.status, 403);
+  });
+
+  await it('POST /api/auth/admin-login logs in admin account and rejects student with 403', async () => {
+    // 1. Admin login succeeds
+    const res = await request('/api/auth/admin-login', {
       method: 'POST',
       body: JSON.stringify({
         email: 'admin@claxic.edu',
@@ -180,13 +230,23 @@ async function runAudit() {
     assert.strictEqual(res.body.user.role, 'ADMIN');
     assert.ok(res.body.token);
     adminToken = res.body.token;
+
+    // 2. Student attempting admin login gets 403
+    const studentOnAdminLogin = await request('/api/auth/admin-login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: testStudentEmail,
+        password: 'Password@123',
+      }),
+    });
+    assert.strictEqual(studentOnAdminLogin.status, 403);
   });
 
   await it('POST /api/auth/login rejects wrong password with 401', async () => {
     const res = await request('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
-        email: 'admin@claxic.edu',
+        email: testStudentEmail,
         password: 'WrongPassword!',
       }),
     });
@@ -263,6 +323,24 @@ async function runAudit() {
     });
     assert.strictEqual(res.status, 200);
     assert.ok(res.body.token);
+  });
+
+  await it('PUT /api/auth/profile updates profile and avatar photo', async () => {
+    const res = await request('/api/auth/profile', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${studentToken}` },
+      body: JSON.stringify({
+        name: 'Updated Student Name',
+        institution: 'Indian Institute of Technology',
+        degree: 'B.Tech AI & Data Science',
+        yearOfStudy: '4th Year',
+        avatar: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBD',
+      }),
+    });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.body.user.name, 'Updated Student Name');
+    assert.strictEqual(res.body.user.institution, 'Indian Institute of Technology');
+    assert.strictEqual(res.body.user.avatar, 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBD');
   });
 
   // 3. COURSE CATALOG
@@ -512,6 +590,38 @@ async function runAudit() {
     });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.success, true);
+  });
+
+  await it('DELETE /api/admin/users/:id permanently deletes user account and revokes active sessions', async () => {
+    // 1. Create a disposable user to delete
+    const regRes = await request('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Disposable Student',
+        email: `disposable_${Date.now()}@university.edu`,
+        password: 'Password@123',
+      }),
+    });
+    assert.strictEqual(regRes.status, 201);
+    const userIdToDelete = regRes.body.user.id;
+
+    // 2. Admin deletes this user
+    const delRes = await request(`/api/admin/users/${userIdToDelete}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    assert.strictEqual(delRes.status, 200);
+    assert.strictEqual(delRes.body.success, true);
+
+    // 3. User can no longer login
+    const loginAttempt = await request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: `disposable_${Date.now()}@university.edu`,
+        password: 'Password@123',
+      }),
+    });
+    assert.strictEqual(loginAttempt.status, 401);
   });
 
   // 8. SQLITE 3 DATABASE & PLATFORM SECURITY AUDIT

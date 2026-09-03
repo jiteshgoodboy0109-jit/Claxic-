@@ -20,11 +20,20 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 
+// Public & General Views
 import { HomeView } from './views/HomeView.jsx';
 import { CoursesView } from './views/CoursesView.jsx';
 import { CourseDetailView } from './views/CourseDetailView.jsx';
-import { StudentDashboardView } from './views/StudentDashboardView.jsx';
-import { UserLoginView } from './views/UserLoginView.jsx';
+
+// Role-Based Views: Student
+import { StudentDashboardView } from './student/views/StudentDashboardView.jsx';
+import { StudentLoginView as UserLoginView } from './student/views/StudentLoginView.jsx';
+
+// Role-Based Views: Staff & Faculty
+import { StaffLoginView } from './staff/views/StaffLoginView.jsx';
+import { StaffDashboardView } from './staff/views/StaffDashboardView.jsx';
+
+// Role-Based Views: Administration
 import { AdminDashboardView } from './admin/views/AdminDashboardView.jsx';
 import { AdminLoginView } from './admin/views/AdminLoginView.jsx';
 
@@ -40,6 +49,9 @@ const MainApp = () => {
     if (path === '/admin-login' || path === '/admin/login') {
       return { view: 'admin-login', tab: null, course: null, title: 'Admin Console Gateway — Claxic' };
     }
+    if (path === '/staff-login' || path === '/staff/login') {
+      return { view: 'staff-login', tab: null, course: null, title: 'Faculty & Staff Sign In — Claxic' };
+    }
     if (path === '/login') {
       return { view: 'login', tab: null, course: null, title: 'Student Sign In — Claxic' };
     }
@@ -48,6 +60,9 @@ const MainApp = () => {
     }
     if (path.startsWith('/admin')) {
       return { view: 'admin', tab: tab || 'overview', course: null, title: 'Executive Admin Console — Claxic' };
+    }
+    if (path.startsWith('/staff')) {
+      return { view: 'staff', tab: tab || 'overview', course: null, title: 'Staff & Faculty Workspace — Claxic' };
     }
     if (path.startsWith('/dashboard')) {
       return { view: 'dashboard', tab: tab || 'courses', course: null, title: 'Student Learning Dashboard — Claxic' };
@@ -138,7 +153,7 @@ const MainApp = () => {
       const route = parseRouteFromUrl(courses);
       setCurrentView(route.view);
       if (route.title) document.title = route.title;
-      if (route.tab && (route.view === 'dashboard' || route.view === 'admin')) {
+      if (route.tab && (route.view === 'dashboard' || route.view === 'admin' || route.view === 'staff')) {
         setDashboardTab(route.tab);
       }
       if (route.view === 'course-detail') {
@@ -154,8 +169,32 @@ const MainApp = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [courses, parseRouteFromUrl]);
 
+  // Dedicated Portal Guard: If authenticated as STAFF or ADMIN, never redirect to default application/home page
+  useEffect(() => {
+    if (user && user.role === 'ADMIN') {
+      if (currentView === 'home' || currentView === 'courses' || currentView === 'course-detail' || currentView === 'login' || currentView === 'register') {
+        handleNavigate('admin');
+      }
+    } else if (user && user.role === 'STAFF') {
+      if (currentView === 'home' || currentView === 'courses' || currentView === 'course-detail' || currentView === 'login' || currentView === 'register') {
+        handleNavigate('staff');
+      }
+    }
+  }, [user, currentView]);
+
   // Central Navigation Router Handler with Real URL Synchronization
   const handleNavigate = (view, param) => {
+    // Prevent Staff & Admin users from inadvertently landing on the public application/home page
+    if (user && user.role === 'ADMIN') {
+      if (view === 'home' || view === 'courses' || view === 'course-detail' || view === 'login' || view === 'register') {
+        view = 'admin';
+      }
+    } else if (user && user.role === 'STAFF') {
+      if (view === 'home' || view === 'courses' || view === 'course-detail' || view === 'login' || view === 'register') {
+        view = 'staff';
+      }
+    }
+
     let targetPath = '/';
     let pageTitle = 'Claxic — Academic Admissions & Learning Portal';
 
@@ -191,9 +230,15 @@ const MainApp = () => {
     } else if (view === 'admin') {
       targetPath = param ? `/admin?tab=${param}` : '/admin';
       pageTitle = 'Executive Admin Console — Claxic';
+    } else if (view === 'staff') {
+      targetPath = param ? `/staff?tab=${param}` : '/staff';
+      pageTitle = 'Staff & Faculty Workspace — Claxic';
     } else if (view === 'admin-login') {
       targetPath = '/admin-login';
       pageTitle = 'Admin Console Gateway — Claxic';
+    } else if (view === 'staff-login') {
+      targetPath = '/staff-login';
+      pageTitle = 'Faculty & Staff Sign In — Claxic';
     } else if (view === 'login') {
       targetPath = '/login';
       pageTitle = 'Student Sign In — Claxic';
@@ -269,13 +314,22 @@ const MainApp = () => {
   const isAuthView =
     currentView === 'login' ||
     currentView === 'register' ||
+    currentView === 'staff-login' ||
     currentView === 'admin-login' ||
-    (currentView === 'admin' && (!user || user.role !== 'ADMIN'));
+    (currentView === 'admin' && (!user || user.role !== 'ADMIN')) ||
+    (currentView === 'staff' && (!user || user.role !== 'STAFF'));
+
+  const isPortalDashboard =
+    (currentView === 'admin' && user && user.role === 'ADMIN') ||
+    (currentView === 'staff' && user && user.role === 'STAFF');
+
+  const showGlobalNav = !isAuthView && !isPortalDashboard;
+  const showGlobalFooter = !isAuthView && !isPortalDashboard;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white font-sans antialiased">
-      {/* Top Navbar (Strictly hidden on Student Login / Register and Admin Login views) */}
-      {!isAuthView && <Navbar currentView={currentView} onNavigate={handleNavigate} />}
+      {/* Top Navbar (Hidden on Login / Register / Staff Login / Admin Login / Dedicated Portals) */}
+      {showGlobalNav && <Navbar currentView={currentView} onNavigate={handleNavigate} />}
 
       {/* Main Content Router */}
       <main className="flex-1">
@@ -318,7 +372,7 @@ const MainApp = () => {
           )
         )}
 
-        {/* DEDICATED USER / STUDENT AUTHENTICATION PAGE */}
+        {/* DEDICATED STUDENT AUTHENTICATION PAGE */}
         {(currentView === 'login' || currentView === 'register') && (
           <UserLoginView
             initialMode={currentView === 'register' ? 'register' : 'login'}
@@ -326,15 +380,27 @@ const MainApp = () => {
           />
         )}
 
+        {/* DEDICATED FACULTY & STAFF LOGIN PAGE */}
+        {currentView === 'staff-login' && (
+          <StaffLoginView onNavigate={handleNavigate} />
+        )}
+
         {/* DEDICATED ADMIN EXECUTIVE LOGIN PAGE */}
         {currentView === 'admin-login' && (
           <AdminLoginView onNavigate={handleNavigate} />
         )}
 
-        {/* PROTECTED ROUTE: STUDENT DASHBOARD (User Data Only) */}
+        {/* PROTECTED ROUTE: DASHBOARD (Auto-Routes to Admin / Staff / Student based on Role) */}
         {currentView === 'dashboard' && (
           !user ? (
             <UserLoginView initialMode="login" onNavigate={handleNavigate} />
+          ) : user.role === 'ADMIN' ? (
+            <AdminDashboardView
+              onNavigate={handleNavigate}
+              onSelectCourse={handleSelectCourse}
+            />
+          ) : user.role === 'STAFF' ? (
+            <StaffDashboardView onNavigate={handleNavigate} />
           ) : (
             <StudentDashboardView
               initialTab={dashboardTab}
@@ -342,6 +408,46 @@ const MainApp = () => {
               onViewReceipt={handleViewReceipt}
               onSelectCourse={handleSelectCourse}
             />
+          )
+        )}
+
+        {/* PROTECTED ROUTE: FACULTY & STAFF PANEL (Strict Staff Isolation) */}
+        {currentView === 'staff' && (
+          !user ? (
+            <StaffLoginView onNavigate={handleNavigate} />
+          ) : user.role !== 'STAFF' ? (
+            <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-6">
+              <div className="w-16 h-16 rounded-2xl bg-rose-950/60 border border-rose-800/80 text-rose-400 flex items-center justify-center mx-auto shadow-lg">
+                <ShieldAlert className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <span className="px-3 py-1 rounded-full bg-rose-950 text-rose-400 border border-rose-800 text-[11px] font-mono uppercase font-bold tracking-wider">
+                  403 Access Denied
+                </span>
+                <h2 className="text-2xl font-bold text-white tracking-tight font-display mt-2">
+                  Faculty Authorization Required
+                </h2>
+                <p className="text-slate-400 text-sm">
+                  Your account (<span className="text-slate-200 font-mono font-semibold">{user.email}</span>) is authenticated with <span className="text-amber-400 font-semibold">{user.role}</span> permissions. Access to instructor rosters, candidate interview rubrics, and academic evaluations requires Staff/Faculty authorization.
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                {user.role === 'ADMIN' ? (
+                  <Button variant="primary" size="lg" onClick={() => handleNavigate('admin')}>
+                    Go to Admin Console
+                  </Button>
+                ) : (
+                  <Button variant="primary" size="lg" onClick={() => handleNavigate('dashboard')}>
+                    Go to Student Portal
+                  </Button>
+                )}
+                <Button variant="outline" size="lg" onClick={() => handleNavigate('staff-login')}>
+                  Staff Sign In
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <StaffDashboardView onNavigate={handleNavigate} />
           )
         )}
 
@@ -362,18 +468,24 @@ const MainApp = () => {
                   Administrative Privilege Required
                 </h2>
                 <p className="text-slate-400 text-sm">
-                  Your account (<span className="text-slate-200 font-mono font-semibold">{user.email}</span>) is authenticated with standard <span className="text-emerald-400 font-semibold">STUDENT (USER)</span> permissions. Access to administrator records, system metrics, applicant registries, and financial logs is strictly prohibited.
+                  Your account (<span className="text-slate-200 font-mono font-semibold">{user.email}</span>) is authenticated with <span className="text-sky-400 font-semibold">{user.role}</span> permissions. Access to administrator records, system metrics, applicant registries, and financial logs is strictly prohibited.
                 </p>
               </div>
               <div className="flex items-center justify-center gap-3">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={() => handleNavigate('dashboard')}
-                  leftIcon={<LayoutDashboard className="w-4 h-4" />}
-                >
-                  Go to Student Portal
-                </Button>
+                {user.role === 'STAFF' ? (
+                  <Button variant="primary" size="lg" onClick={() => handleNavigate('staff')}>
+                    Go to Faculty Portal
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => handleNavigate('dashboard')}
+                    leftIcon={<LayoutDashboard className="w-4 h-4" />}
+                  >
+                    Go to Student Portal
+                  </Button>
+                )}
                 <Button variant="outline" size="lg" onClick={() => handleNavigate('admin-login')}>
                   Switch to Admin Sign In
                 </Button>
@@ -384,13 +496,14 @@ const MainApp = () => {
               onOpenCourseModal={handleOpenCourseModal}
               onOpenEmailSandbox={() => setIsEmailSandboxOpen(true)}
               onViewReceipt={handleViewReceipt}
+              onNavigate={handleNavigate}
             />
           )
         )}
       </main>
 
-      {/* Global Footer (Hidden on Login/Register/Admin-Login views) */}
-      {!isAuthView && <Footer onNavigate={handleNavigate} />}
+      {/* Global Footer (Hidden on Login/Register/Admin-Login/Admin Dashboard views) */}
+      {showGlobalFooter && <Footer onNavigate={handleNavigate} />}
 
       {/* Modals Container */}
       <AuthModal />

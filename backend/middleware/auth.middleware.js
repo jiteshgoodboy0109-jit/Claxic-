@@ -65,6 +65,46 @@ export function requireAdmin(req, res, next) {
   next();
 }
 
+export function requireStaff(req, res, next) {
+  const token = extractToken(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Staff authorization token required.' });
+  }
+
+  const user = getUserByToken(token);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid or expired staff session token.' });
+  }
+
+  if (user.role !== 'STAFF' && user.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Access forbidden. Staff/Faculty privileges required.' });
+  }
+
+  req.user = user;
+  req.token = token;
+  next();
+}
+
+export function requireStudent(req, res, next) {
+  const token = extractToken(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Student authentication token required.' });
+  }
+
+  const user = getUserByToken(token);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid or expired session token.' });
+  }
+
+  if (user.role !== 'USER') {
+    return res.status(403).json({ error: 'Access forbidden. Student account privileges required.' });
+  }
+
+  req.user = user;
+  req.token = token;
+  next();
+}
+
 export function optionalAuth(req, res, next) {
   const token = extractToken(req);
   if (token) {
