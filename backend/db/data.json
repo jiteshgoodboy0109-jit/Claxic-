@@ -8,7 +8,7 @@
       "role": "ADMIN",
       "isVerified": true,
       "avatar": "https://lh3.googleusercontent.com/a/ACg8ocIDzF_GisSo6ZtQuETKBKYaafoQh4lXkfnyKC90O0mAXMeCcjWV=s96-c",
-      "institution": "Claxic Admin Directorate",
+      "institution": "Claxic Advanced Research Institute",
       "degree": "Platform Administrator",
       "yearOfStudy": "Executive Lead",
       "isActive": true,
@@ -32,7 +32,7 @@
       "passwordHash": "a7a08807775ad909fc38d3ed361ec0b45cde4af0d16d0bd6ea393f69ec3b4dd30d8379296e0c974558059326ac7695e2c4a157b0ef8ac356f7ac35d9e3bd7a40",
       "salt": "claxic_salt_admin_2026",
       "createdAt": "2026-08-30T06:12:06.328Z",
-      "updatedAt": "2026-09-05T05:41:13.687Z"
+      "updatedAt": "2026-09-05T06:38:52.470Z"
     },
     {
       "id": "usr_admin_system",
@@ -56,7 +56,7 @@
       "name": "Jitesh p",
       "email": "jiteshgoodboy.0109@gmail.com",
       "mobile": "",
-      "role": "ADMIN",
+      "role": "STAFF",
       "isVerified": true,
       "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJkXTayXJbmTNq_400BkciDXuL6LtscexYAPybov5JnpIShJxs=s96-c",
       "institution": "Verified Google Student",
@@ -66,7 +66,7 @@
       "passwordHash": "GOOGLE_OAUTH_USER",
       "salt": "GOOGLE_SALT",
       "createdAt": "2026-08-30T06:21:46.206Z",
-      "updatedAt": "2026-09-03T19:38:29.696Z"
+      "updatedAt": "2026-09-05T06:47:35.950Z"
     },
     {
       "id": "usr_055ed132fa71fbff",
@@ -138,13 +138,13 @@
     },
     {
       "id": "usr_staff_sarah",
-      "name": "Dr. Sarah Jenkins (Staff)",
+      "name": "Dr. Sarah Jenkins",
       "email": "staff@claxic.edu",
       "mobile": "+91 98765 43210",
       "role": "STAFF",
       "isVerified": true,
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
-      "institution": "Claxic Faculty Directorate",
+      "institution": "Indian Institute of Science (IISc), Bangalore",
       "degree": "Lead Curriculum & Admissions Reviewer",
       "yearOfStudy": "Senior Staff Member",
       "isActive": true,
@@ -172,7 +172,7 @@
       "price": 1999,
       "originalPrice": 3999,
       "capacity": 100,
-      "enrolledCount": 0,
+      "enrolledCount": 1,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 5,
@@ -2455,7 +2455,9 @@
         "startDate": "2026-09-01"
       },
       "createdAt": "2026-09-01T09:00:00.000Z",
-      "updatedAt": "2026-09-04T17:24:30.990Z"
+      "updatedAt": "2026-09-04T17:24:30.990Z",
+      "reviewNotes": "",
+      "adminNotes": ""
     },
     {
       "id": "app_61348c40785ed5e3",
@@ -2467,7 +2469,7 @@
       "courseId": "crs_3cdf2c3d786d8e6a",
       "courseTitle": "Full stack",
       "coursePrice": 0,
-      "status": "PAYMENT_PENDING",
+      "status": "APPROVED",
       "formData": {
         "fullName": "Jitesh",
         "email": "jitesh.genkit@gmail.com",
@@ -2487,7 +2489,9 @@
         "scholarshipRequested": false
       },
       "createdAt": "2026-09-05T05:54:42.565Z",
-      "updatedAt": "2026-09-05T05:54:42.734Z"
+      "updatedAt": "2026-09-05T06:02:16.478Z",
+      "reviewNotes": "",
+      "adminNotes": ""
     }
   ],
   "payments": [],
@@ -3196,9 +3200,25 @@
       "userId": "usr_admin_jitesh_genkit",
       "expiresAt": "2026-09-12T05:42:27.939Z"
     },
-    "stk_46e16c42a4ca6b37798258a22933ea65dfa661d005407dc259f46128071b6872": {
+    "stk_211e4bcff6da25ac9f316bcc0c13ebb80261acea30e6dbdce7ab6415795ff2a0": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-09-12T06:38:43.406Z"
+    },
+    "stk_37c711d3d0459b12fee82764e2e0691f7d473cb12a4f1de8c7dd60d5fac10398": {
       "userId": "usr_admin_jitesh_genkit",
-      "expiresAt": "2026-09-12T05:54:24.560Z"
+      "expiresAt": "2026-09-12T06:39:05.457Z"
+    },
+    "stk_6dbef65c8f64aed53827e3b03136caaea097dc5526e21e4f65d0356cfea89688": {
+      "userId": "usr_admin_jitesh_genkit",
+      "expiresAt": "2026-09-12T06:46:33.307Z"
+    },
+    "stk_7316bc3a9b930a0c578c664206d6fb466dd6e69a7da199e53f46df9d0c771171": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-09-12T06:47:26.409Z"
+    },
+    "stk_297136f1919f9c3d625cd747d62f804533bf753405f33b15dad87c865fa76f22": {
+      "userId": "usr_admin_jitesh_genkit",
+      "expiresAt": "2026-09-12T06:49:25.731Z"
     }
   },
   "verificationTokens": [
@@ -3227,6 +3247,16 @@
     }
   ],
   "notifications": [
+    {
+      "id": "notif_aewa861",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "Application Status Updated: APPROVED",
+      "message": "Your application #APP-2026-3412 status changed to APPROVED.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-09-05T06:02:16.478Z"
+    },
     {
       "id": "notif_hj4b0t3",
       "userId": "usr_admin_jitesh_genkit",
@@ -3309,6 +3339,46 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit_i5o7v41",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_014913f218045675",
+      "targetTitle": "Jitesh p -> Active:undefined, Role:STAFF",
+      "createdAt": "2026-09-05T06:47:35.950Z"
+    },
+    {
+      "id": "audit_l39knws",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_admin_jitesh_genkit",
+      "targetTitle": "Jitesh -> Active:undefined, Role:USER",
+      "createdAt": "2026-09-05T06:38:52.470Z"
+    },
+    {
+      "id": "audit_j1sda0z",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "USER_STATUS_TOGGLED",
+      "targetType": "USER",
+      "targetId": "usr_admin_jitesh_genkit",
+      "targetTitle": "Jitesh -> Active:undefined, Role:USER",
+      "createdAt": "2026-09-05T06:03:16.224Z"
+    },
+    {
+      "id": "audit_zevteig",
+      "adminId": "usr_admin_jitesh_genkit",
+      "adminName": "Jitesh",
+      "action": "APPLICATION_STATUS_UPDATED",
+      "targetType": "APPLICATION",
+      "targetId": "app_61348c40785ed5e3",
+      "targetTitle": "#APP-2026-3412 -> APPROVED",
+      "createdAt": "2026-09-05T06:02:16.478Z"
+    },
     {
       "id": "audit_avhscl9",
       "adminId": "usr_admin_jitesh_genkit",

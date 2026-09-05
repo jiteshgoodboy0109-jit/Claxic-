@@ -16,7 +16,7 @@ import {
 import { Modal } from '../ui/Modal.jsx';
 import { Button } from '../ui/Button.jsx';
 import { Badge } from '../ui/Badge.jsx';
-import { jsPDF } from 'jspdf';
+import { exportTaxReceiptPDF } from '../../utils/adminPdfGenerator.js';
 
 export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
   const [receiptData, setReceiptData] = useState(null);
@@ -50,27 +50,9 @@ export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!receiptData) return;
-
-    const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text('CLAXIC INSTITUTE OF ADVANCED TECHNOLOGY', 14, 20);
-    doc.setFontSize(12);
-    doc.text('OFFICIAL TAX INVOICE & ENROLLMENT RECEIPT', 14, 28);
-    doc.text(`Receipt #: ${receiptData.receiptNumber}`, 14, 38);
-    doc.text(`Date: ${new Date(receiptData.date).toLocaleDateString()}`, 14, 46);
-    doc.text(`Customer Name: ${receiptData.customer.name}`, 14, 56);
-    doc.text(`Customer Email: ${receiptData.customer.email}`, 14, 64);
-    doc.text(`Course Enrolled: ${receiptData.course.title}`, 14, 76);
-    doc.text(`Batch Start Date: ${receiptData.course.startDate}`, 14, 84);
-    doc.text(`Subtotal: INR ${receiptData.taxBreakup.subtotal.toLocaleString('en-IN')}`, 14, 96);
-    doc.text(`CGST (9%): INR ${receiptData.taxBreakup.cgst.toLocaleString('en-IN')}`, 14, 104);
-    doc.text(`SGST (9%): INR ${receiptData.taxBreakup.sgst.toLocaleString('en-IN')}`, 14, 112);
-    doc.text(`Total Amount Paid: INR ${receiptData.amount.toLocaleString('en-IN')}`, 14, 124);
-    doc.text('Status: PAID & VERIFIED', 14, 134);
-
-    doc.save(`Claxic-Receipt-${receiptData.receiptNumber}.pdf`);
+    await exportTaxReceiptPDF(receiptData);
   };
 
   const handleCopyReceiptNumber = () => {

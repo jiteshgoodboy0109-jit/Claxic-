@@ -124,6 +124,7 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update user profile.');
 
+      window.dispatchEvent(new CustomEvent('claxic_user_updated'));
       if (onSaved) onSaved();
       onClose();
     } catch (err) {

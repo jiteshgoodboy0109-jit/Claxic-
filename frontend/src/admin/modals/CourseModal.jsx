@@ -296,6 +296,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
       if (!res.ok) throw new Error(data.error || 'Failed to save course.');
 
       onClose();
+      window.dispatchEvent(new CustomEvent('claxic_course_updated'));
       if (onSaved) onSaved();
     } catch (err) {
       setError(err.message);

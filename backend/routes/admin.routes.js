@@ -291,8 +291,12 @@ router.put('/courses/:id', async (req, res) => {
       data.courses[courseIndex] = {
         ...data.courses[courseIndex],
         ...updates,
-        price: updates.price ? Number(updates.price) : data.courses[courseIndex].price,
-        capacity: updates.capacity ? Number(updates.capacity) : data.courses[courseIndex].capacity,
+        price: updates.price !== undefined && updates.price !== '' ? Number(updates.price) : data.courses[courseIndex].price,
+        originalPrice: updates.originalPrice !== undefined && updates.originalPrice !== '' ? Number(updates.originalPrice) : data.courses[courseIndex].originalPrice,
+        capacity: updates.capacity !== undefined && updates.capacity !== '' ? Number(updates.capacity) : data.courses[courseIndex].capacity,
+        featured: updates.featured !== undefined ? Boolean(updates.featured) : data.courses[courseIndex].featured,
+        status: updates.status !== undefined ? updates.status : data.courses[courseIndex].status,
+        updatedAt: new Date().toISOString(),
       };
       updatedCourse = data.courses[courseIndex];
 

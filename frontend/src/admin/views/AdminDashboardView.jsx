@@ -59,6 +59,15 @@ import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { UserEditModal } from '../modals/UserEditModal.jsx';
+import {
+  exportApplicationsPDF,
+  exportApplicationDossierPDF,
+  exportUsersPDF,
+  exportCoursesPDF,
+  exportFinancialsPDF,
+  exportExecutiveOverviewPDF,
+  exportAuditLogsPDF,
+} from '../../utils/adminPdfGenerator.js';
 
 const CHART_COLORS = ['#ea580c', '#f97316', '#fb923c', '#d97706', '#f59e0b', '#b45309'];
 
@@ -194,6 +203,17 @@ export const AdminDashboardView = ({
 
   useEffect(() => {
     fetchAdminData();
+
+    const handleDataUpdated = () => {
+      fetchAdminData();
+    };
+
+    window.addEventListener('claxic_course_updated', handleDataUpdated);
+    window.addEventListener('claxic_user_updated', handleDataUpdated);
+    return () => {
+      window.removeEventListener('claxic_course_updated', handleDataUpdated);
+      window.removeEventListener('claxic_user_updated', handleDataUpdated);
+    };
   }, []);
 
   // Compute 100% Real Live Chart Data from Database Entities
@@ -413,7 +433,10 @@ export const AdminDashboardView = ({
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) fetchAdminData();
+      if (res.ok) {
+        fetchAdminData();
+        window.dispatchEvent(new CustomEvent('claxic_course_updated'));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -1015,6 +1038,28 @@ export const AdminDashboardView = ({
         {activeTab === 'overview' && (
           <div className="space-y-8">
 
+            {/* Overview Header & PDF Action */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+              <div>
+                <h2 className="text-base font-bold text-[#1F1F1F] tracking-tight">
+                  Executive Performance Dashboard
+                </h2>
+                <p className="text-xs text-[#6B6258] mt-0.5">
+                  Real-time admissions telemetry, gross revenue settlements, cohort capacity, and course yields
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => exportExecutiveOverviewPDF({ overviewData, courses, applications, users, payments })}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                title="Download complete executive overview report in official PDF format"
+              >
+                <FileText className="w-3.5 h-3.5 text-amber-400" />
+                <span>Download Executive PDF</span>
+              </button>
+            </div>
+
             {/* Real KPI Tiles */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
 
@@ -1409,14 +1454,26 @@ export const AdminDashboardView = ({
                   ))}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleExportCSV}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FFF7E6] hover:bg-[#FFF1D6] text-[#D97706] border border-[#FEDDAA] text-xs font-semibold transition-colors cursor-pointer shrink-0"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export CSV</span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => exportApplicationsPDF(filteredApplications, statusFilter)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    title="Download complete applications registry in official PDF format with Claxic logo"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Download PDF Report</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportCSV}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FFF7E6] hover:bg-[#FFF1D6] text-[#D97706] border border-[#FEDDAA] text-xs font-semibold transition-colors cursor-pointer"
+                    title="Export raw CSV data"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>CSV</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1518,14 +1575,25 @@ export const AdminDashboardView = ({
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => onOpenCourseModal && onOpenCourseModal(null)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5 text-white" />
-                <span>Add New Course</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => exportCoursesPDF(courses)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  title="Download accredited course catalog in official PDF format with Claxic logo"
+                >
+                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Download Catalog (PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpenCourseModal && onOpenCourseModal(null)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-white" />
+                  <span>Add New Course</span>
+                </button>
+              </div>
             </div>
 
             {/* Course Grid */}
@@ -1631,8 +1699,19 @@ export const AdminDashboardView = ({
                 </p>
               </div>
 
-              <div className="font-mono text-xs font-bold text-[#D97706] bg-[#FFF7E6] border border-[#FEDDAA] px-3.5 py-1.5 rounded-xl">
-                Settled Total: ₹{realChartMetrics.totalRealRevenue.toLocaleString('en-IN')}
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => exportFinancialsPDF(payments)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  title="Download complete financial audit and tax settlements report in official PDF format with Claxic logo"
+                >
+                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Download Audit (PDF)</span>
+                </button>
+                <div className="font-mono text-xs font-bold text-[#D97706] bg-[#FFF7E6] border border-[#FEDDAA] px-3.5 py-1.5 rounded-xl">
+                  Settled Total: ₹{realChartMetrics.totalRealRevenue.toLocaleString('en-IN')}
+                </div>
               </div>
             </div>
 
@@ -1724,8 +1803,19 @@ export const AdminDashboardView = ({
                 />
               </div>
 
-              <div className="text-xs text-[#6B6258] font-medium">
-                Showing <strong className="text-[#1F1F1F]">{filteredUsers.length}</strong> registered accounts
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <div className="text-xs text-[#6B6258] font-medium">
+                  Showing <strong className="text-[#1F1F1F]">{filteredUsers.length}</strong> registered accounts
+                </div>
+                <button
+                  type="button"
+                  onClick={() => exportUsersPDF(filteredUsers)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  title="Download user directory report in official PDF format with Claxic logo"
+                >
+                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Download Users (PDF)</span>
+                </button>
               </div>
             </div>
 
@@ -1975,14 +2065,25 @@ export const AdminDashboardView = ({
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={onOpenEmailSandbox}
-                className="px-4 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-2 shrink-0 self-start sm:self-auto"
-              >
-                <Mail className="w-4 h-4 text-white" />
-                <span>Email Sandbox Dispatch Logs</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => exportAuditLogsPDF(auditLogs)}
+                  className="px-3.5 py-2.5 rounded-xl border border-[#E8E3DC] bg-white hover:bg-[#FAF7F2] text-[#1F1F1F] hover:text-[#0B4F50] text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+                  title="Download full immutable audit trail PDF"
+                >
+                  <FileText className="w-4 h-4 text-[#0B4F50]" />
+                  <span>Download Audit Trail (PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onOpenEmailSandbox}
+                  className="px-4 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+                >
+                  <Mail className="w-4 h-4 text-white" />
+                  <span>Email Sandbox Dispatch Logs</span>
+                </button>
+              </div>
             </div>
 
             <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
@@ -2145,8 +2246,17 @@ export const AdminDashboardView = ({
             )}
 
             {/* Action Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-[#E8E3DC]">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#E8E3DC]">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => exportApplicationDossierPDF(selectedAppDetail)}
+                  className="px-3.5 py-1.5 rounded-xl border border-[#0B4F50]/30 bg-[#0B4F50]/10 hover:bg-[#0B4F50]/20 text-[#0B4F50] font-semibold text-xs shadow-xs cursor-pointer transition-all flex items-center gap-1.5"
+                  title="Download candidate official dossier with full submitted data as PDF"
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#0B4F50]" />
+                  <span>Download Dossier (PDF)</span>
+                </button>
                 <button
                   type="button"
                   disabled={isUpdatingAppStatus}

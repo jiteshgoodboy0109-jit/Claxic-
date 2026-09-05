@@ -950,6 +950,8 @@ class SQLiteDatabase {
         coursePrice REAL NOT NULL,
         status TEXT NOT NULL DEFAULT 'SUBMITTED',
         formData TEXT,
+        reviewNotes TEXT DEFAULT '',
+        adminNotes TEXT DEFAULT '',
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL
       );
@@ -1080,19 +1082,31 @@ class SQLiteDatabase {
     try { this.sqlite.exec('ALTER TABLE password_reset_tokens ADD COLUMN userId TEXT;'); } catch(e) {}
     try { this.sqlite.exec('ALTER TABLE password_reset_tokens ADD COLUMN used INTEGER NOT NULL DEFAULT 0;'); } catch(e) {}
     try { this.sqlite.exec("ALTER TABLE courses ADD COLUMN classes TEXT DEFAULT '[]';"); } catch(e) {}
+    try { this.sqlite.exec("ALTER TABLE applications ADD COLUMN reviewNotes TEXT DEFAULT '';"); } catch(e) {}
+    try { this.sqlite.exec("ALTER TABLE applications ADD COLUMN adminNotes TEXT DEFAULT '';"); } catch(e) {}
   }
 
   migrateOrSeed() {
     const row = this.sqlite.prepare('SELECT count(*) as count FROM users').get();
     if (row && row.count > 0) {
-      // Ensure standard default accounts have proper roles in SQLite
+      // Ensure essential default accounts exist ONLY IF not already present (NEVER overwrite admin edits/roles)
       try {
-        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'admin@claxic.edu'").run();
-        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jitesh.0901.jitesh@gmail.com'").run();
-        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jitesh.genkit@gmail.com'").run();
-        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jiteshgoodboy.0109@gmail.com'").run();
+        const checkAdmin = this.sqlite.prepare("SELECT id FROM users WHERE email = 'admin@claxic.edu'").get();
+        if (!checkAdmin) {
+          const defaultAdmin = initialData.users.find((u) => u.email === 'admin@claxic.edu');
+          if (defaultAdmin) {
+            this.sqlite.prepare(`
+              INSERT INTO users (id, name, email, mobile, role, isVerified, avatar, institution, degree, yearOfStudy, isActive, passwordHash, salt, createdAt, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              defaultAdmin.id, defaultAdmin.name, defaultAdmin.email, defaultAdmin.mobile || '', defaultAdmin.role,
+              1, defaultAdmin.avatar || '', defaultAdmin.institution || '', defaultAdmin.degree || '', defaultAdmin.yearOfStudy || '',
+              1, defaultAdmin.passwordHash, defaultAdmin.salt, defaultAdmin.createdAt, defaultAdmin.updatedAt
+            );
+          }
+        }
 
-        const checkStaff = this.sqlite.prepare("SELECT * FROM users WHERE email = 'staff@claxic.edu'").get();
+        const checkStaff = this.sqlite.prepare("SELECT id FROM users WHERE email = 'staff@claxic.edu'").get();
         if (!checkStaff) {
           const staff = initialData.users.find((u) => u.email === 'staff@claxic.edu');
           if (staff) {
@@ -1105,8 +1119,6 @@ class SQLiteDatabase {
               staff.institution || '', staff.degree || '', staff.yearOfStudy || '', 1, staff.passwordHash, staff.salt, staff.createdAt, staff.updatedAt
             );
           }
-        } else {
-          this.sqlite.prepare("UPDATE users SET role = 'STAFF', isActive = 1 WHERE email = 'staff@claxic.edu'").run();
         }
 
         // Ensure courses have rich classes with videos, topics, summaries, and tests populated
@@ -1257,8 +1269,8 @@ class SQLiteDatabase {
       // Clear & Seed Applications
       this.sqlite.exec('DELETE FROM applications;');
       const insertApp = this.sqlite.prepare(`
-        INSERT INTO applications (id, applicationNumber, userId, userEmail, userName, userMobile, courseId, courseTitle, coursePrice, status, formData, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO applications (id, applicationNumber, userId, userEmail, userName, userMobile, courseId, courseTitle, coursePrice, status, formData, reviewNotes, adminNotes, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const a of data.applications || []) {
         insertApp.run(
@@ -1273,6 +1285,8 @@ class SQLiteDatabase {
           a.coursePrice || 0,
           a.status || 'SUBMITTED',
           JSON.stringify(a.formData || {}),
+          a.reviewNotes || a.adminNotes || '',
+          a.adminNotes || a.reviewNotes || '',
           a.createdAt || new Date().toISOString(),
           a.updatedAt || new Date().toISOString()
         );
@@ -1340,6 +1354,13 @@ class SQLiteDatabase {
       const insertAudit = this.sqlite.prepare('INSERT INTO audit_logs (id, adminId, adminName, action, targetType, targetId, targetTitle, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
       for (const al of data.auditLogs || []) {
         insertAudit.run(al.id, al.adminId, al.adminName, al.action, al.targetType || '', al.targetId || '', al.targetTitle || '', al.createdAt || new Date().toISOString());
+      }
+
+      // Clear & Seed Email Records
+      this.sqlite.exec('DELETE FROM email_records;');
+      const insertEmail = this.sqlite.prepare('INSERT INTO email_records (id, toEmail, subject, previewText, timestamp) VALUES (?, ?, ?, ?, ?)');
+      for (const em of data.emailRecords || []) {
+        insertEmail.run(em.id, em.toEmail, em.subject, em.previewText || '', em.timestamp || new Date().toISOString());
       }
 
       // Clear & Seed Project Submissions
@@ -1423,6 +1444,8 @@ class SQLiteDatabase {
     // Query applications
     const applications = this.sqlite.prepare('SELECT * FROM applications').all().map((a) => ({
       ...a,
+      reviewNotes: a.reviewNotes || a.adminNotes || '',
+      adminNotes: a.adminNotes || a.reviewNotes || '',
       formData: typeof a.formData === 'string' ? JSON.parse(a.formData || '{}') : a.formData || {},
     }));
 

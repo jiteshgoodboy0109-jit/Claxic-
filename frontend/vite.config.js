@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   optimizeDeps: {
+    include: ['jspdf', 'jspdf-autotable', 'react', 'react-dom', 'lucide-react', 'recharts'],
     exclude: ['core-js'],
   },
   resolve: {

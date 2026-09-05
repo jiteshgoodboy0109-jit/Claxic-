@@ -479,6 +479,7 @@ const MainApp = () => {
   const handleCourseSaved = () => {
     addToast('success', 'Course Saved', 'The course program has been updated successfully.');
     fetchCourses();
+    window.dispatchEvent(new CustomEvent('claxic_course_updated'));
   };
 
   const isAuthView =
