@@ -14,7 +14,18 @@ export function extractToken(req) {
 export function getUserByToken(token) {
   if (!token) return null;
   const cleanToken = token.replace('Bearer ', '').trim();
-  const session = db.raw.sessions ? db.raw.sessions[cleanToken] : null;
+  let session = db.raw.sessions ? db.raw.sessions[cleanToken] : null;
+
+  if (!session && db.sqlite) {
+    try {
+      const row = db.sqlite.prepare('SELECT * FROM sessions WHERE token = ?').get(cleanToken);
+      if (row) {
+        session = { userId: row.userId, expiresAt: row.expiresAt };
+        if (!db.raw.sessions) db.raw.sessions = {};
+        db.raw.sessions[cleanToken] = session;
+      }
+    } catch (e) {}
+  }
 
   if (!session) return null;
 

@@ -5,6 +5,7 @@ import applicationsRoutes from './applications.routes.js';
 import paymentsRoutes from './payments.routes.js';
 import adminRoutes from './admin.routes.js';
 import staffRoutes from './staff.routes.js';
+import learningRoutes from './learning.routes.js';
 
 const router = express.Router();
 
@@ -32,6 +33,7 @@ router.get('/', (req, res) => {
       payments: '/api/payments',
       admin: '/api/admin',
       staff: '/api/staff',
+      learning: '/api/learning',
     },
   });
 });
@@ -43,8 +45,9 @@ router.use('/applications', applicationsRoutes);
 router.use('/payments', paymentsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/staff', staffRoutes);
+router.use('/learning', learningRoutes);
 
-// Compatibility alias for user applications and payments
+// Compatibility alias for user applications, payments, courses, and projects
 router.use('/user/applications', (req, res, next) => {
   req.url = '/user';
   applicationsRoutes(req, res, next);
@@ -53,6 +56,16 @@ router.use('/user/applications', (req, res, next) => {
 router.use('/user/payments', (req, res, next) => {
   req.url = '/user';
   paymentsRoutes(req, res, next);
+});
+
+router.use('/user/courses', (req, res, next) => {
+  req.url = '/my-courses';
+  learningRoutes(req, res, next);
+});
+
+router.use('/user/projects', (req, res, next) => {
+  req.url = '/projects';
+  learningRoutes(req, res, next);
 });
 
 export default router;

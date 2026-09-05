@@ -76,9 +76,9 @@ export const Navbar = ({ currentView = 'home', onNavigate }) => {
               {user && user.role === 'USER' && (
                 <button
                   type="button"
-                  onClick={() => handleNav('dashboard')}
+                  onClick={() => handleNav('student')}
                   className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
-                    currentView === 'dashboard'
+                    currentView === 'student' || currentView === 'dashboard'
                       ? 'text-white bg-teal-800 border border-teal-600 shadow-2xs'
                       : 'text-teal-100 hover:text-white hover:bg-teal-800/50 border border-transparent'
                   }`}
@@ -217,7 +217,7 @@ export const Navbar = ({ currentView = 'home', onNavigate }) => {
                         )}
                         {user.role === 'USER' && (
                           <button
-                            onClick={() => handleNav('dashboard')}
+                            onClick={() => handleNav('student')}
                             className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-teal-50 hover:text-[#0B4F50] rounded-xl flex items-center gap-2 transition-colors font-medium cursor-pointer"
                           >
                             <LayoutDashboard className="w-3.5 h-3.5 text-[#0B4F50]" />
@@ -316,9 +316,9 @@ export const Navbar = ({ currentView = 'home', onNavigate }) => {
               {/* 1. Student Dashboard (FIRST for logged in students) */}
               {user && user.role === 'USER' && (
                 <button
-                  onClick={() => handleNav('dashboard')}
+                  onClick={() => handleNav('student')}
                   className={`text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2.5 cursor-pointer ${
-                    currentView === 'dashboard'
+                    currentView === 'student' || currentView === 'dashboard'
                       ? 'text-[#0B4F50] bg-[#eef7f7] border border-[#cbe4e4]'
                       : 'text-slate-700 hover:bg-slate-100'
                   }`}

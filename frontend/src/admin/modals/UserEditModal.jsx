@@ -21,6 +21,22 @@ import {
 export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) => {
   const targetUser = userToEdit || user;
 
+  // Clean to exactly 10 digits
+  const extract10DigitMobile = (val) => {
+    if (!val) return '';
+    let digits = String(val).replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      return digits.slice(2);
+    }
+    if (digits.length === 11 && digits.startsWith('0')) {
+      return digits.slice(1);
+    }
+    if (digits.length > 10) {
+      return digits.slice(-10);
+    }
+    return digits;
+  };
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
@@ -41,11 +57,24 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
+  const handleMobileChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) {
+      digits = digits.slice(-10);
+    }
+    setMobile(digits);
+  };
+
   useEffect(() => {
     if (targetUser) {
       setName(targetUser.name || '');
       setEmail(targetUser.email || '');
-      setMobile(targetUser.mobile || '');
+      setMobile(extract10DigitMobile(targetUser.mobile));
       setInstitution(targetUser.institution || '');
       setDegree(targetUser.degree || '');
       setYearOfStudy(targetUser.yearOfStudy || '');
@@ -63,6 +92,10 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!targetUser) return;
+    if (mobile && mobile.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     setSuccessMsg(null);
@@ -78,7 +111,7 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
-          mobile: mobile.trim(),
+          mobile: mobile ? `+91 ${mobile.trim()}` : '',
           institution: institution.trim(),
           degree: degree.trim(),
           yearOfStudy: yearOfStudy.trim(),
@@ -246,17 +279,27 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B6258] mb-1">
-                  Mobile Number
+                <label className="block text-xs font-semibold text-[#6B6258] mb-1 flex items-center justify-between">
+                  <span>Mobile Number</span>
+                  {mobile && (
+                    <span className={`text-[10px] font-mono font-bold ${mobile.length === 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {mobile.length === 10 ? '✓ 10 Digits' : `${mobile.length}/10`}
+                    </span>
+                  )}
                 </label>
-                <div className="relative">
-                  <Phone className="w-4 h-4 text-[#82684D] absolute left-3 top-2.5" />
+                <div className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus-within:bg-white focus-within:border-[#F59E0B] focus-within:ring-2 focus-within:ring-[#F59E0B]/20 rounded-xl flex items-center overflow-hidden transition-all">
+                  <div className="flex items-center gap-1 pl-3 pr-2.5 py-2 border-r border-[#E8E3DC] select-none shrink-0 bg-[#F5F2EB]/60 text-slate-800 font-mono font-bold text-xs">
+                    <span className="text-xs">🇮🇳</span>
+                    <span>+91</span>
+                  </div>
                   <input
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="+91 9876543210"
-                    className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1F1F1F] outline-none transition-all font-mono"
+                    onChange={handleMobileChange}
+                    placeholder="Enter 10-digit mobile"
+                    className="w-full bg-transparent px-3 py-2 text-xs text-[#1F1F1F] outline-none font-mono placeholder:font-sans placeholder:text-slate-400"
                   />
                 </div>
               </div>

@@ -356,20 +356,28 @@ export const AdminLoginView = ({ onNavigate }) => {
 
       {/* --- ELEVATED TWO-COLUMN CARD --- */}
       <div 
-        className="w-full max-w-4xl bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl sm:rounded-3xl overflow-visible lg:overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 my-4 shadow-xl"
+        className="w-full max-w-4xl bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl sm:rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 my-4 shadow-xl"
         style={{
           transform: 'translateZ(20px)',
         }}
       >
         
-        {/* LEFT COLUMN: BRANDING */}
-        <div className="lg:col-span-5 p-8 sm:p-10 lg:p-12 bg-[#FAFAF7] border-b-0 lg:border-r border-[#E8E3DC] flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[260px] sm:min-h-[300px] lg:min-h-[480px] rounded-t-2xl sm:rounded-t-3xl lg:rounded-none">
-          
+        {/* LEFT COLUMN: BRANDING (Executive Dark Panel with Original White Logo) */}
+        <div 
+          className="lg:col-span-5 p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-[#27272A] flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[260px] sm:min-h-[300px] lg:min-h-[480px] rounded-t-2xl sm:rounded-t-3xl lg:rounded-none"
+          style={{
+            background: 'linear-gradient(145deg, #18181B 0%, #1c1917 50%, #0C0A09 100%)',
+          }}
+        >
+          {/* Subtle Ambient Amber Glow */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#F59E0B]/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#D97706]/10 rounded-full blur-2xl pointer-events-none" />
+
           {/* Top-Right Clean Dot Grid Motif */}
-          <div className="absolute top-7 right-7 pointer-events-none opacity-60">
+          <div className="absolute top-7 right-7 pointer-events-none opacity-50">
             <svg width="64" height="72" viewBox="0 0 64 72" fill="none">
               <pattern id="ref-dot-pattern" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                <circle cx="3" cy="3" r="1.75" fill="#F59E0B" opacity="0.3" />
+                <circle cx="3" cy="3" r="1.75" fill="#F59E0B" opacity="0.6" />
               </pattern>
               <rect width="64" height="72" fill="url(#ref-dot-pattern)" />
             </svg>
@@ -377,31 +385,36 @@ export const AdminLoginView = ({ onNavigate }) => {
 
           {/* Central Content Stack */}
           <div className="relative z-10 flex flex-col items-center space-y-6 sm:space-y-8 my-auto">
-            {/* Logo & Spaced Subtitle (Clean Logo with No Background Container) */}
-            <div className="space-y-2 text-center">
+            {/* Logo & Spaced Subtitle with White Logo */}
+            <div className="space-y-2.5 text-center">
               <div
-                className="inline-flex items-center justify-center transition-transform hover:scale-102 mx-auto select-none"
-                title="Admin Console"
+                className="inline-flex items-center justify-center transition-transform hover:scale-105 mx-auto select-none"
+                title="Claxic Admin Console"
               >
                 <img
                   src="/logow.png"
                   alt="Claxic"
-                  className="h-8 sm:h-9 w-auto object-contain brightness-0 drop-shadow-2xs"
+                  className="h-10 sm:h-11 w-auto object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
                 />
               </div>
-              <p className="text-[11px] sm:text-xs font-bold text-[#D97706] uppercase tracking-[0.25em]">
-                Admin Console
-              </p>
+              <div className="flex flex-col items-center gap-1">
+                <p className="text-[11px] sm:text-xs font-bold text-[#F59E0B] uppercase tracking-[0.25em] font-mono">
+                  Admin Console
+                </p>
+                <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">
+                  Direct Access Control
+                </span>
+              </div>
             </div>
 
-            {/* Elevated Lock Card */}
+            {/* Elevated Lock Card on Dark Glass */}
             <div
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-[#FFFFFF] border border-[#E8E3DC] shadow-md flex items-center justify-center relative"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white/[0.08] backdrop-blur-md border border-white/15 shadow-xl flex items-center justify-center relative"
               style={{
                 animation: 'adminLockPulse 3s ease-in-out infinite',
               }}
             >
-              <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-[#F59E0B] stroke-[1.8]" />
+              <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-[#F59E0B] stroke-[1.8] drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
             </div>
           </div>
         </div>
@@ -443,31 +456,6 @@ export const AdminLoginView = ({ onNavigate }) => {
             {/* LOGIN FORM */}
             {!isRecoveryMode ? (
               <div className="space-y-4">
-                {/* Google SSO Button (Centered) */}
-                <button
-                  type="button"
-                  onClick={handleGoogleButtonClick}
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAFAF7] text-[#1F1F1F] border border-[#E8E3DC] hover:border-[#D0C7BC] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
-                >
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
-                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
-                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.5s.7 4.8 1.9 7.2l3.7-2.9z" />
-                    <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z" />
-                  </svg>
-                  <span className="whitespace-nowrap font-medium">Continue with Google (Admin SSO)</span>
-                </button>
-
-                {/* Clean Balanced Straight Horizontal Divider */}
-                <div className="flex items-center gap-3 py-1">
-                  <div className="h-px bg-[#E8E3DC] flex-1" />
-                  <span className="text-xs text-[#82684D] whitespace-nowrap font-medium select-none">
-                    Or sign in with
-                  </span>
-                  <div className="h-px bg-[#E8E3DC] flex-1" />
-                </div>
-
                 <form onSubmit={handleAdminLoginSubmit} className="space-y-3.5">
                   {/* Email Field */}
                   <div className="space-y-1.5">
@@ -557,6 +545,31 @@ export const AdminLoginView = ({ onNavigate }) => {
                     </button>
                   </div>
                 </form>
+
+                {/* Clean Balanced Straight Horizontal Divider */}
+                <div className="flex items-center gap-3 py-1">
+                  <div className="h-px bg-[#E8E3DC] flex-1" />
+                  <span className="text-xs text-[#82684D] whitespace-nowrap font-medium select-none">
+                    Or continue with
+                  </span>
+                  <div className="h-px bg-[#E8E3DC] flex-1" />
+                </div>
+
+                {/* Google SSO Button (Positioned After Form) */}
+                <button
+                  type="button"
+                  onClick={handleGoogleButtonClick}
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAFAF7] text-[#1F1F1F] border border-[#E8E3DC] hover:border-[#D0C7BC] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
+                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.5s.7 4.8 1.9 7.2l3.7-2.9z" />
+                    <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z" />
+                  </svg>
+                  <span className="whitespace-nowrap font-medium">Continue with Google</span>
+                </button>
               </div>
             ) : (
               /* RECOVERY / FORGOT PASSWORD FLOW */

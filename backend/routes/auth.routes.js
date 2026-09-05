@@ -342,7 +342,11 @@ router.post('/google', authLimiter, async (req, res) => {
     // If User Does NOT Exist
     if (!user) {
       if (targetRole === 'ADMIN') {
-        const isDefaultAdmin = cleanEmail === 'admin@claxic.edu' || cleanEmail === 'jitesh.0901.jitesh@gmail.com' || cleanEmail === 'jitesh.genkit@gmail.com';
+        const isDefaultAdmin =
+          cleanEmail === 'admin@claxic.edu' ||
+          cleanEmail === 'jitesh.0901.jitesh@gmail.com' ||
+          cleanEmail === 'jitesh.genkit@gmail.com' ||
+          cleanEmail === 'jiteshgoodboy.0109@gmail.com';
         if (!isDefaultAdmin) {
           return res.status(403).json({
             error: 'Access Denied: Unrecognized administrator email. Administrator accounts must be pre-provisioned.',

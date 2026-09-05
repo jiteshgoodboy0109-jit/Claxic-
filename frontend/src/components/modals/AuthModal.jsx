@@ -111,21 +111,39 @@ export const AuthModal = () => {
     }
   };
 
-  const handleRegister = async (e) => {
+  const handleMobileChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) {
+      digits = digits.slice(-10);
+    }
+    setMobile(digits);
+  };
+
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-
     if (password.length < 8) {
       setError('Password must be at least 8 characters long.');
       return;
     }
+    if (mobile && mobile.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
 
     setIsLoading(true);
+
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -133,7 +151,7 @@ export const AuthModal = () => {
         body: JSON.stringify({
           name: fullName.trim(),
           email: email.trim(),
-          mobile: mobile.trim(),
+          mobile: mobile ? `+91 ${mobile.trim()}` : '',
           password,
           institution: institution.trim(),
           degree: degree.trim(),
@@ -815,17 +833,30 @@ export const AuthModal = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold">
-                      Mobile
+                    <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold flex items-center justify-between">
+                      <span>Mobile</span>
+                      {mobile && (
+                        <span className={`text-[10px] font-mono font-bold ${mobile.length === 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                          {mobile.length === 10 ? '✓ 10 Digits' : `${mobile.length}/10`}
+                        </span>
+                      )}
                     </label>
-                    <input
-                      type="tel"
-                      required
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-900"
-                    />
+                    <div className="w-full bg-slate-50 border border-slate-300 rounded-lg flex items-center overflow-hidden focus-within:border-slate-900 focus-within:bg-white transition-all">
+                      <div className="flex items-center gap-1 pl-2.5 pr-2 py-2 border-r border-slate-300 select-none shrink-0 bg-slate-100 text-slate-800 font-mono font-bold text-xs">
+                        <span className="text-xs">🇮🇳</span>
+                        <span>+91</span>
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        inputMode="numeric"
+                        maxLength={10}
+                        value={mobile}
+                        onChange={handleMobileChange}
+                        placeholder="10-digit mobile"
+                        className="w-full bg-transparent px-3 py-2 text-sm text-slate-900 focus:outline-none font-mono placeholder:font-sans placeholder:text-slate-400"
+                      />
+                    </div>
                   </div>
                 </div>
 

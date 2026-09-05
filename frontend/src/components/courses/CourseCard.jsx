@@ -101,16 +101,24 @@ export const CourseCard = ({
           {course.instructor && (
             <div className="flex items-center gap-2.5 pt-0.5 pb-1">
               <img
-                src={course.instructor.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                alt={course.instructor.name}
+                src={
+                  (typeof course.instructor === 'object' && course.instructor?.avatar) ||
+                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'
+                }
+                alt={typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor}
                 className="w-6 h-6 rounded-full object-cover border border-[#d8ecec]"
                 onError={(e) => {
-                  e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(course.instructor.name);
+                  const name = typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor;
+                  e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(name);
                 }}
               />
               <div className="text-[11px] text-slate-600 truncate">
-                <span className="font-semibold text-slate-900">{course.instructor.name}</span>
-                <span className="text-slate-400"> • {course.instructor.company}</span>
+                <span className="font-semibold text-slate-900">
+                  {typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor}
+                </span>
+                {typeof course.instructor === 'object' && course.instructor?.company && (
+                  <span className="text-slate-400"> • {course.instructor.company}</span>
+                )}
               </div>
             </div>
           )}

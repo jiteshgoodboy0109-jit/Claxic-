@@ -17,23 +17,53 @@ export const HomeView = ({
   courses,
   onNavigate,
 }) => {
-  const { user, openAuthModal } = useAuth();
+  const { user } = useAuth();
 
   // Direct Application Form State embedded on Home Page
   const [selectedCourseId, setSelectedCourseId] = useState(
     courses.length > 0 ? courses[0].id : ''
   );
+  // Clean to exactly 10 digits
+  const extract10DigitMobile = (val) => {
+    if (!val) return '';
+    let digits = String(val).replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      return digits.slice(2);
+    }
+    if (digits.length === 11 && digits.startsWith('0')) {
+      return digits.slice(1);
+    }
+    if (digits.length > 10) {
+      return digits.slice(-10);
+    }
+    return digits;
+  };
+
   const [fullName, setFullName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [mobile, setMobile] = useState(user?.mobile || '');
+  const [mobile, setMobile] = useState(extract10DigitMobile(user?.mobile));
   const [institution, setInstitution] = useState(user?.institution || '');
   const [degree, setDegree] = useState(user?.degree || '');
   const [batch, setBatch] = useState('Weekend Evening');
   const [sop, setSop] = useState('');
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [submitError, setSubmitError] = useState(null);
+
+  const handleMobileChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) {
+      digits = digits.slice(-10);
+    }
+    setMobile(digits);
+  };
 
   const selectedCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
 
@@ -42,8 +72,22 @@ export const HomeView = ({
     setSubmitError(null);
     setSubmitSuccess(null);
 
+    if (mobile && mobile.length !== 10) {
+      setSubmitError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
     if (!user) {
-      openAuthModal('login');
+      if (selectedCourse) {
+        try {
+          sessionStorage.setItem('claxic_pending_apply_course', JSON.stringify(selectedCourse));
+        } catch (err) {
+          console.error('Failed to save pending course:', err);
+        }
+      }
+      if (onNavigate) {
+        onNavigate('login');
+      }
       return;
     }
 
@@ -64,13 +108,14 @@ export const HomeView = ({
         body: JSON.stringify({
           courseId: selectedCourse.id,
           formData: {
-            fullName,
-            email,
-            mobile,
-            institution,
-            degree,
+            fullName: fullName.trim(),
+            email: email.trim(),
+            mobile: mobile ? `+91 ${mobile.trim()}` : '',
+            institution: institution.trim(),
+            degree: degree.trim(),
             batch,
-            sop,
+            sop: sop.trim(),
+            startDate: startDate || new Date().toISOString().split('T')[0],
           },
         }),
       });
@@ -132,7 +177,7 @@ export const HomeView = ({
                 Direct Candidate Admissions
               </span>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
-                Cohort Registration Form
+                Student Registration Form
               </h2>
             </div>
             {selectedCourse && (
@@ -218,17 +263,30 @@ export const HomeView = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  WhatsApp Mobile Number *
+                <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>WhatsApp Mobile Number *</span>
+                  {mobile && (
+                    <span className={`text-[10px] font-mono font-bold ${mobile.length === 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {mobile.length === 10 ? '✓ 10 Digits' : `${mobile.length}/10`}
+                    </span>
+                  )}
                 </label>
-                <input
-                  type="tel"
-                  required
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  placeholder="+91 98765 43210"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
-                />
+                <div className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus-within:bg-white border border-[#d8ecec] focus-within:border-[#0B4F50] focus-within:ring-2 focus-within:ring-[#0B4F50]/15 rounded-full flex items-center transition-all overflow-hidden">
+                  <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 sm:py-3 border-r border-[#d8ecec] select-none shrink-0 bg-[#e5f0f0]/60 text-slate-800 font-mono font-bold text-xs sm:text-sm">
+                    <span className="text-sm leading-none">🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={mobile}
+                    onChange={handleMobileChange}
+                    placeholder="Enter 10-digit mobile"
+                    className="w-full bg-transparent px-3.5 py-2.5 sm:py-3 text-sm text-slate-900 outline-none font-mono placeholder:font-sans placeholder:text-slate-400"
+                  />
+                </div>
               </div>
 
               <div>
@@ -276,6 +334,19 @@ export const HomeView = ({
               </div>
 
               <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Preferred Course Start Date
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2 sm:py-2.5 text-sm text-slate-900 outline-none font-mono font-semibold transition-all"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Primary Learning Objective
                 </label>

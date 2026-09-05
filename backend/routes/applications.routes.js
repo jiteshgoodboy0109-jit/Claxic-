@@ -98,12 +98,13 @@ router.post('/', requireAuth, async (req, res) => {
 
     const mergedFormData = {
       ...(formData || {}),
+      startDate: req.body.startDate || formData?.startDate || '',
       fullName: user.name,
       email: user.email,
-      mobile: formData?.mobile || user.mobile,
-      institution: formData?.institution || user.institution,
-      degree: formData?.degree || user.degree,
-      yearOfStudy: formData?.yearOfStudy || user.yearOfStudy,
+      mobile: formData?.mobile || req.body.mobile || user.mobile,
+      institution: formData?.institution || req.body.institution || user.institution,
+      degree: formData?.degree || req.body.degree || user.degree,
+      yearOfStudy: formData?.yearOfStudy || req.body.yearOfStudy || user.yearOfStudy,
       essay: essay || formData?.essay || '',
       trackPreference: trackPreference || formData?.trackPreference || 'Standard',
       resumeUrl: resumeUrl || formData?.resumeUrl || '',

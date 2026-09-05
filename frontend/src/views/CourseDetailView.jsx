@@ -23,8 +23,20 @@ export const CourseDetailView = ({
   onApply,
   onSelectCourse,
 }) => {
+  if (!course) {
+    return (
+      <div className="min-h-screen bg-[#f6fafa] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
+          <div className="w-10 h-10 rounded-full border-2 border-[#0B4F50] border-t-transparent animate-spin mx-auto" />
+          <h3 className="text-base font-bold text-slate-900">Loading Course Program...</h3>
+          <p className="text-xs text-slate-500">Retrieving curriculum, syllabus, and enrollment details.</p>
+        </div>
+      </div>
+    );
+  }
+
   const related = (allCourses || [])
-    .filter((c) => c.id !== course.id && (c.category === course.category || c.level === course.level))
+    .filter((c) => c.id !== course?.id && (c.category === course?.category || c.level === course?.level))
     .slice(0, 3);
 
   return (
@@ -189,22 +201,44 @@ export const CourseDetailView = ({
             <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-2xs space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <img
-                  src={course.instructor.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                  alt={course.instructor.name}
+                  src={
+                    (typeof course.instructor === 'object' && course.instructor?.avatar) ||
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
+                  }
+                  alt={
+                    typeof course.instructor === 'object'
+                      ? course.instructor?.name || 'Faculty Member'
+                      : course.instructor
+                  }
                   className="w-20 h-20 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm shrink-0"
                   onError={(e) => {
-                    e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(course.instructor.name);
+                    const name = typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor;
+                    e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(name);
                   }}
                 />
                 <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-slate-900">{course.instructor.name}</h3>
-                  <p className="text-xs text-[#0B4F50] font-bold">{course.instructor.title}</p>
-                  <p className="text-xs text-slate-500 font-medium">{course.instructor.company}</p>
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {typeof course.instructor === 'object'
+                      ? course.instructor?.name || 'Faculty Member'
+                      : course.instructor}
+                  </h3>
+                  <p className="text-xs text-[#0B4F50] font-bold">
+                    {typeof course.instructor === 'object'
+                      ? course.instructor?.title || 'Lead Faculty Instructor'
+                      : 'Lead Faculty Instructor'}
+                  </p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {typeof course.instructor === 'object'
+                      ? course.instructor?.company || 'Claxic Directorate'
+                      : 'Claxic Directorate'}
+                  </p>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal border-t border-[#f2f7f7] pt-4">
-                {course.instructor.bio}
-              </p>
+              {typeof course.instructor === 'object' && course.instructor?.bio && (
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal border-t border-[#f2f7f7] pt-4">
+                  {course.instructor.bio}
+                </p>
+              )}
             </div>
           </div>
         )}

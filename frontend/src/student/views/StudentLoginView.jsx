@@ -13,11 +13,27 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
-export const StudentLoginView = ({ onNavigate }) => {
+export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
   const { login } = useAuth();
 
   // Mode: 'login' | 'register' | 'verify' | 'forgot'
-  const [mode, setMode] = useState('login');
+  const [mode, setMode] = useState(initialMode || 'login');
+  const [pendingCourse, setPendingCourse] = useState(null);
+
+  useEffect(() => {
+    if (initialMode) setMode(initialMode);
+  }, [initialMode]);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('claxic_pending_apply_course');
+      if (raw) {
+        setPendingCourse(JSON.parse(raw));
+      }
+    } catch (e) {
+      console.error('Failed to read pending course from session:', e);
+    }
+  }, []);
 
   // Form Fields
   const [email, setEmail] = useState('');
@@ -100,7 +116,8 @@ export const StudentLoginView = ({ onNavigate }) => {
       }
 
       login(data.token, data.user);
-      if (onNavigate) onNavigate('dashboard');
+      const pendingRaw = sessionStorage.getItem('claxic_pending_apply_course');
+      if (!pendingRaw && onNavigate) onNavigate('student');
     } catch (err) {
       setError(err.message || 'Unable to sign in.');
     } finally {
@@ -108,7 +125,20 @@ export const StudentLoginView = ({ onNavigate }) => {
     }
   };
 
-  // Student Registration Submission
+  const handleMobileChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) {
+      digits = digits.slice(-10);
+    }
+    setMobile(digits);
+  };
+
+  // Student Account Registration Submission
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -127,6 +157,10 @@ export const StudentLoginView = ({ onNavigate }) => {
       setError('Password must be at least 8 characters long.');
       return;
     }
+    if (mobile && mobile.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -138,7 +172,7 @@ export const StudentLoginView = ({ onNavigate }) => {
           name: name.trim(),
           email: cleanEmail,
           password,
-          mobile: mobile.trim(),
+          mobile: mobile ? `+91 ${mobile.trim()}` : '',
           institution: institution.trim(),
           degree,
           yearOfStudy,
@@ -186,7 +220,8 @@ export const StudentLoginView = ({ onNavigate }) => {
       if (!res.ok) throw new Error(data.error || 'Verification failed. Please check the code.');
 
       login(data.token, data.user);
-      if (onNavigate) onNavigate('dashboard');
+      const pendingRaw = sessionStorage.getItem('claxic_pending_apply_course');
+      if (!pendingRaw && onNavigate) onNavigate('student');
     } catch (err) {
       setError(err.message || 'Verification failed.');
     } finally {
@@ -316,7 +351,8 @@ export const StudentLoginView = ({ onNavigate }) => {
       }
 
       login(data.token, data.user);
-      if (onNavigate) onNavigate('dashboard');
+      const pendingRaw = sessionStorage.getItem('claxic_pending_apply_course');
+      if (!pendingRaw && onNavigate) onNavigate('student');
     } catch (err) {
       setError(err.message || 'Google authentication failed.');
     } finally {
@@ -385,6 +421,17 @@ export const StudentLoginView = ({ onNavigate }) => {
           
           <div className="max-w-[360px] w-full mx-auto space-y-5">
             
+
+            {/* Pending Course Registration Notice */}
+            {pendingCourse && (
+              <div className="p-3 rounded-xl bg-[#eef7f7] border border-[#cbe4e4] text-[#0B4F50] text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
+                <span className="w-2 h-2 rounded-full bg-[#0B4F50] animate-pulse shrink-0" />
+                <span className="leading-snug">
+                  Sign in to continue your registration for <strong className="text-[#073637]">{pendingCourse.title}</strong>
+                </span>
+              </div>
+            )}
+
             {/* Title & Subtitle */}
             <div className="space-y-1 text-left">
               <h1 className="text-2xl sm:text-[28px] font-bold text-[#111827] tracking-tight font-display">
@@ -547,14 +594,19 @@ export const StudentLoginView = ({ onNavigate }) => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="relative flex items-center group">
-                    <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                  <div className="relative flex items-center bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus-within:bg-white focus-within:border-[#0B4F50] rounded-xl overflow-hidden transition-all">
+                    <div className="flex items-center gap-1 pl-2.5 pr-2 py-2 border-r border-slate-200 select-none shrink-0 bg-slate-100/70 text-slate-800 font-mono font-bold text-xs">
+                      <span className="text-xs">🇮🇳</span>
+                      <span>+91</span>
+                    </div>
                     <input
                       type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      placeholder="Mobile Number"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] text-slate-900 text-xs rounded-xl pl-9 pr-3 py-2 outline-none transition-all"
+                      onChange={handleMobileChange}
+                      placeholder="10-digit mobile"
+                      className="w-full bg-transparent px-2.5 py-2 text-slate-900 text-xs font-mono outline-none placeholder:font-sans placeholder:text-slate-400"
                     />
                   </div>
 
@@ -780,7 +832,7 @@ export const StudentLoginView = ({ onNavigate }) => {
           <div className="relative z-10 w-full max-w-[270px] flex flex-col items-center text-center space-y-3.5 my-auto py-3">
             <div className="w-full aspect-square rounded-[22px] overflow-hidden shadow-2xl border-2 border-white/20 relative group transform transition-transform hover:scale-[1.02]">
               <img
-                src="/assets/student-learning-3d.jpg"
+                src="/student-learning-3d.jpg"
                 alt="Student reading books 3D illustration"
                 className="w-full h-full object-cover"
                 loading="eager"

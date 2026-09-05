@@ -92,10 +92,12 @@ export const AdminDashboardView = ({
 
   const [selectedAppDetail, setSelectedAppDetail] = useState(null);
   const [adminNotesInput, setAdminNotesInput] = useState('');
+  const [isUpdatingAppStatus, setIsUpdatingAppStatus] = useState(false);
+  const [statusToast, setStatusToast] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [overviewChartTab, setOverviewChartTab] = useState('yearly');
-  const [selectedYearFilter, setSelectedYearFilter] = useState('ALL');
+  const [selectedYearFilter, setSelectedYearFilter] = useState('CURRENT');
 
   const { user, logout } = useAuth();
 
@@ -135,15 +137,19 @@ export const AdminDashboardView = ({
   const allNavItems = navSections.flatMap((s) => s.items);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const tab = searchParams.get('tab');
-    if (tab) setActiveTab(tab);
-    else if (initialTab) setActiveTab(initialTab);
+    if (initialTab && initialTab !== activeTab) {
+      setActiveTab(initialTab);
+    }
   }, [initialTab]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    window.history.replaceState(null, '', `/admin?tab=${tab}`);
+    const semanticTab = tab === 'financials' ? 'payments' : tab;
+    if (onNavigate) {
+      onNavigate(`admin/${semanticTab}`);
+    } else {
+      window.history.pushState(null, '', `/admin/${semanticTab}`);
+    }
   };
 
   const fetchAdminData = async () => {
@@ -161,6 +167,17 @@ export const AdminDashboardView = ({
         fetch('/api/admin/audit-logs', { headers }),
         fetch('/api/admin/payments', { headers }),
       ]);
+
+      if (ovRes.status === 401 || crsRes.status === 401 || appRes.status === 401 || usrRes.status === 401) {
+        if (logout) logout();
+        if (onNavigate) onNavigate('admin-login');
+        return;
+      }
+
+      if (ovRes.status === 403 || usrRes.status === 403) {
+        setError('Access forbidden: Administrator privileges required.');
+        return;
+      }
 
       if (ovRes.ok) setOverviewData(await ovRes.json());
       if (crsRes.ok) setCourses((await crsRes.json()).courses || []);
@@ -246,65 +263,80 @@ export const AdminDashboardView = ({
       enrolled,
     }));
 
-    // 5. Dynamic Year-by-Year Student Applications & Admissions Growth
-    const nowYear = new Date().getFullYear();
-    const pastYear = nowYear - 1;
-    const upcomingYear = nowYear + 1;
+    // 5. Dynamic 12-Month Cohort Growth Analysis (Past Year vs YTD Current Year)
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const pastYear = currentYear - 1;
+    const currentMonthIdx = now.getMonth(); // 0 = Jan, 8 = Sep
 
-    const currentLiveApplied = Math.max(applications.length, 2180);
-    const currentLiveAdmitted = Math.max(
-      applications.filter((a) => a.status === 'CONFIRMED' || a.status === 'APPROVED').length,
-      1760
-    );
-    const currentLiveEnrolled = Math.max(
-      courses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0),
-      1650
-    );
-
-    const yearlyApplicationsData = [
-      { year: `${nowYear - 3}`, applied: 420, admitted: 320, enrolled: 295, growth: '+68%', key: 'PAST_3' },
-      { year: `${nowYear - 2}`, applied: 860, admitted: 670, enrolled: 630, growth: '+105%', key: 'PAST_2' },
-      { year: `${pastYear} (Past Year)`, applied: 1450, admitted: 1180, enrolled: 1120, growth: '+69%', key: 'PAST' },
-      {
-        year: `${nowYear} (Current Year - Live)`,
-        applied: currentLiveApplied,
-        admitted: currentLiveAdmitted,
-        enrolled: currentLiveEnrolled,
-        growth: '+50% YoY',
-        key: 'CURRENT',
-      },
-      {
-        year: `${upcomingYear} (Upcoming Year - Projected)`,
-        applied: Math.round(currentLiveApplied * 1.45),
-        admitted: Math.round(currentLiveAdmitted * 1.42),
-        enrolled: Math.round(currentLiveEnrolled * 1.40),
-        growth: '+45% Projected',
-        key: 'UPCOMING',
-      },
+    const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthFull = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
 
-    const totalAppliedCount = yearlyApplicationsData.reduce((sum, y) => sum + y.applied, 0);
-    const totalAdmittedCount = yearlyApplicationsData.reduce((sum, y) => sum + y.admitted, 0);
-    const totalEnrolledCount = yearlyApplicationsData.reduce((sum, y) => sum + y.enrolled, 0);
+    // Compute monthly candle metrics directly from real applications in state
+    const computeMonthlyCandles = (targetYear, maxMonth) => {
+      return Array.from({ length: maxMonth + 1 }, (_, m) => {
+        const monthApps = applications.filter((a) => {
+          if (!a.createdAt) return false;
+          const d = new Date(a.createdAt);
+          return d.getFullYear() === targetYear && d.getMonth() === m;
+        });
+
+        const applied = monthApps.length;
+        const admitted = monthApps.filter(
+          (a) => a.status === 'CONFIRMED' || a.status === 'APPROVED'
+        ).length;
+        const enrolled = monthApps.filter((a) => a.status === 'CONFIRMED').length;
+
+        return {
+          month: monthShort[m],
+          fullMonth: monthFull[m],
+          year: targetYear,
+          applied,
+          admitted,
+          enrolled,
+          acceptanceRate: applied > 0 ? Math.round((admitted / applied) * 100) : 0,
+          enrollmentRate: admitted > 0 ? Math.round((enrolled / admitted) * 100) : 0,
+        };
+      });
+    };
+
+    // Past Year: complete 12 months (January through December)
+    const pastYearMonthlyData = overviewData?.monthlyCohortGrowth?.pastYearData?.length === 12
+      ? overviewData.monthlyCohortGrowth.pastYearData
+      : computeMonthlyCandles(pastYear, 11);
+
+    // Current Year: strictly up to current month (no future months!)
+    const currentYearMonthlyData = overviewData?.monthlyCohortGrowth?.currentYearData?.length === (currentMonthIdx + 1)
+      ? overviewData.monthlyCohortGrowth.currentYearData
+      : computeMonthlyCandles(currentYear, currentMonthIdx);
 
     return {
       revenueChartData,
       statusChartData: statusChartData.length > 0 ? statusChartData : [{ name: 'SUBMITTED', value: 1 }],
       courseCapacityData,
       trackChartData,
-      yearlyApplicationsData,
-      totalAppliedCount,
-      totalAdmittedCount,
-      totalEnrolledCount,
+      currentYear,
+      pastYear,
+      currentMonthIdx,
+      monthShort,
+      monthFull,
+      pastYearMonthlyData,
+      currentYearMonthlyData,
       totalRealRevenue: successPayments.reduce((sum, p) => sum + (p.amount || 0), 0),
       totalSuccessfulTxns: successPayments.length,
     };
-  }, [payments, applications, courses]);
+  }, [payments, applications, courses, overviewData]);
 
   // Update Application Status
   const handleUpdateAppStatus = async (appId, newStatus, customNotes) => {
+    setIsUpdatingAppStatus(true);
+    setStatusToast(null);
     try {
       const token = localStorage.getItem('claxic_token');
+      const notesToSend = customNotes !== undefined ? customNotes : adminNotesInput;
       const res = await fetch(`/api/admin/applications/${appId}/status`, {
         method: 'PATCH',
         headers: {
@@ -313,22 +345,44 @@ export const AdminDashboardView = ({
         },
         body: JSON.stringify({
           status: newStatus,
-          adminNotes: customNotes !== undefined ? customNotes : adminNotesInput,
+          adminNotes: notesToSend,
+          reviewNotes: notesToSend,
         }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
-        fetchAdminData();
+        // Immediately reflect in UI applications list
+        setApplications((prev) =>
+          prev.map((a) =>
+            a.id === appId
+              ? { ...a, status: newStatus, adminNotes: notesToSend, reviewNotes: notesToSend }
+              : a
+          )
+        );
         if (selectedAppDetail && selectedAppDetail.id === appId) {
           setSelectedAppDetail((prev) => ({
             ...prev,
             status: newStatus,
-            adminNotes: customNotes !== undefined ? customNotes : adminNotesInput,
+            adminNotes: notesToSend,
+            reviewNotes: notesToSend,
           }));
         }
+        setStatusToast({
+          type: 'success',
+          message: `Application marked as ${newStatus} successfully!`,
+        });
+        setTimeout(() => setStatusToast(null), 3500);
+        fetchAdminData();
+      } else {
+        alert(data.error || 'Failed to update application status.');
       }
     } catch (e) {
       console.error('Failed to update status:', e);
+      alert('Network error while updating application status.');
+    } finally {
+      setIsUpdatingAppStatus(false);
     }
   };
 
@@ -377,7 +431,12 @@ export const AdminDashboardView = ({
         },
         body: JSON.stringify({ isActive: !user.isActive }),
       });
-      if (res.ok) fetchAdminData();
+      if (res.ok) {
+        fetchAdminData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to toggle user status.');
+      }
     } catch (e) {
       console.error('Failed to toggle user status:', e);
     }
@@ -396,7 +455,12 @@ export const AdminDashboardView = ({
         },
         body: JSON.stringify({ role: newRole }),
       });
-      if (res.ok) fetchAdminData();
+      if (res.ok) {
+        fetchAdminData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to set user role.');
+      }
     } catch (e) {
       console.error('Failed to set user role:', e);
     }
@@ -415,7 +479,12 @@ export const AdminDashboardView = ({
         },
         body: JSON.stringify({ isVerified: !targetUser.isVerified }),
       });
-      if (res.ok) fetchAdminData();
+      if (res.ok) {
+        fetchAdminData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to toggle verification.');
+      }
     } catch (e) {
       console.error('Failed to toggle verification:', e);
     }
@@ -507,35 +576,58 @@ export const AdminDashboardView = ({
     return matches;
   });
 
-  // Dynamic Year Filtered Data for Recharts
-  const displayedYearlyData = useMemo(() => {
+  // Dynamic Year Filtered Monthly Data for Recharts
+  const displayedMonthlyData = useMemo(() => {
     if (selectedYearFilter === 'PAST') {
-      return realChartMetrics.yearlyApplicationsData.filter((d) => d.key === 'PAST');
+      return realChartMetrics.pastYearMonthlyData || [];
     }
-    if (selectedYearFilter === 'CURRENT') {
-      return realChartMetrics.yearlyApplicationsData.filter((d) => d.key === 'CURRENT');
-    }
-    if (selectedYearFilter === 'UPCOMING') {
-      return realChartMetrics.yearlyApplicationsData.filter((d) => d.key === 'UPCOMING');
-    }
-    return realChartMetrics.yearlyApplicationsData;
-  }, [realChartMetrics.yearlyApplicationsData, selectedYearFilter]);
+    return realChartMetrics.currentYearMonthlyData || [];
+  }, [realChartMetrics.pastYearMonthlyData, realChartMetrics.currentYearMonthlyData, selectedYearFilter]);
+
+  // Selected Year Summary Statistics
+  const selectedYearSummary = useMemo(() => {
+    const isPast = selectedYearFilter === 'PAST';
+    const data = isPast ? (realChartMetrics.pastYearMonthlyData || []) : (realChartMetrics.currentYearMonthlyData || []);
+    const year = isPast ? realChartMetrics.pastYear : realChartMetrics.currentYear;
+    const totalApplied = data.reduce((sum, d) => sum + (d.applied || 0), 0);
+    const totalAdmitted = data.reduce((sum, d) => sum + (d.admitted || 0), 0);
+    const totalEnrolled = data.reduce((sum, d) => sum + (d.enrolled || 0), 0);
+    const label = isPast
+      ? '12 Months (Complete Year)'
+      : `Jan – ${realChartMetrics.monthShort[realChartMetrics.currentMonthIdx]} (YTD Live)`;
+
+    return {
+      year,
+      isPast,
+      totalApplied,
+      totalAdmitted,
+      totalEnrolled,
+      label,
+    };
+  }, [realChartMetrics, selectedYearFilter]);
 
   // Custom Clean Tooltip for Recharts
   const CustomChartTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const itemData = payload[0]?.payload;
-      const isYearlyChart = payload.some((p) => p.dataKey === 'applied' || p.dataKey === 'admitted');
-      const title = isYearlyChart
-        ? `Academic Year ${label}`
+      const isMonthlyChart = Boolean(itemData?.fullMonth);
+      const title = isMonthlyChart
+        ? `${itemData.fullMonth} ${itemData.year}`
         : (itemData?.fullName || label);
 
       return (
-        <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-xl p-3.5 shadow-lg text-xs space-y-1.5 z-50 min-w-[190px]">
-          <p className="font-bold text-[#1F1F1F] border-b border-[#EEEAE4] pb-1 font-mono">
-            {title}
-          </p>
-          <div className="space-y-1">
+        <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-xl p-3.5 shadow-lg text-xs space-y-2 z-50 min-w-[210px]">
+          <div className="border-b border-[#EEEAE4] pb-1.5 flex items-center justify-between">
+            <span className="font-bold text-[#1F1F1F] font-display text-xs">
+              {title}
+            </span>
+            {isMonthlyChart && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#FAFAF7] text-[#82684D] border border-[#E8E3DC]">
+                Monthly Cohort
+              </span>
+            )}
+          </div>
+          <div className="space-y-1.5">
             {payload.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between gap-3 text-[11px]">
                 <span className="flex items-center gap-1.5 text-[#6B6258]">
@@ -543,16 +635,30 @@ export const AdminDashboardView = ({
                     className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
                     style={{ backgroundColor: item.color || item.fill || '#F59E0B' }}
                   />
-                  <span>{item.name}</span>
+                  <span className="font-medium">{item.name}</span>
                 </span>
                 <span className="font-mono font-bold text-[#1F1F1F]">
                   {typeof item.value === 'number'
-                    ? `${item.value.toLocaleString('en-IN')} ${isYearlyChart ? 'Students' : 'Seats'}`
+                    ? item.value.toLocaleString('en-IN')
                     : item.value}
                 </span>
               </div>
             ))}
-            {!isYearlyChart && itemData?.fillRate !== undefined && (
+
+            {isMonthlyChart && itemData?.acceptanceRate !== undefined && (
+              <div className="pt-1.5 border-t border-[#EEEAE4] flex items-center justify-between text-[10px] text-[#6B6258]">
+                <span>Acceptance Rate:</span>
+                <span className="font-mono font-bold text-[#D97706]">{itemData.acceptanceRate}%</span>
+              </div>
+            )}
+            {isMonthlyChart && itemData?.enrollmentRate !== undefined && (
+              <div className="flex items-center justify-between text-[10px] text-[#6B6258]">
+                <span>Enrollment Conversion:</span>
+                <span className="font-mono font-bold text-[#059669]">{itemData.enrollmentRate}%</span>
+              </div>
+            )}
+
+            {!isMonthlyChart && itemData?.fillRate !== undefined && (
               <div className="pt-1.5 border-t border-[#EEEAE4] flex items-center justify-between text-[10px] text-[#D97706] font-semibold">
                 <span>Occupancy Rate</span>
                 <span>{itemData.fillRate}% Filled</span>
@@ -976,21 +1082,27 @@ export const AdminDashboardView = ({
               <div className="lg:col-span-12 bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-6 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative overflow-hidden">
 
                 {/* Header with Switcher Tabs */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div>
-                    <h3 className="text-base font-bold text-[#1F1F1F] tracking-tight">
-                      {overviewChartTab === 'yearly'
-                        ? 'Year-by-Year Student Applications & Admissions Growth'
-                        : 'Program Seat Capacity & Applications Breakdown'}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-[#1F1F1F] tracking-tight">
+                        {overviewChartTab === 'yearly'
+                          ? (selectedYearFilter === 'PAST'
+                              ? `Past Year (${realChartMetrics.pastYear}) Monthly Applications & Admissions`
+                              : `Current Year (${realChartMetrics.currentYear}) Monthly Applications & Admissions`)
+                          : 'Program Seat Capacity & Applications Breakdown'}
+                      </h3>
+                    </div>
                     <p className="text-xs text-[#6B6258] mt-0.5">
                       {overviewChartTab === 'yearly'
-                        ? 'Historical cohort progression showing student application volume, admissions confirmed, and enrolled students'
+                        ? (selectedYearFilter === 'PAST'
+                            ? `Complete 12-month historical cohort performance (January – December ${realChartMetrics.pastYear})`
+                            : `Year-to-date monthly cohort performance up to current month (January – ${realChartMetrics.monthFull[realChartMetrics.currentMonthIdx]} ${realChartMetrics.currentYear})`)
                         : 'Course-by-course breakdown comparing total seat capacity, candidate applications, and enrolled students'}
                     </p>
                   </div>
 
-                  {/* Header Actions: Dynamic Year Dropdown & Two-Tab Switcher */}
+                  {/* Header Actions: Clean Past/Current Year Dropdown & Two-Tab Switcher */}
                   <div className="flex flex-wrap items-center gap-3 shrink-0">
                     {overviewChartTab === 'yearly' && (
                       <div className="flex items-center gap-2">
@@ -998,12 +1110,10 @@ export const AdminDashboardView = ({
                         <select
                           value={selectedYearFilter}
                           onChange={(e) => setSelectedYearFilter(e.target.value)}
-                          className="bg-[#FAFAF7] border border-[#E8E3DC] hover:border-[#FEDDAA] focus:border-[#F59E0B] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#1F1F1F] outline-none transition-colors cursor-pointer font-mono"
+                          className="bg-[#FAFAF7] border border-[#E8E3DC] hover:border-[#FEDDAA] focus:border-[#F59E0B] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#1F1F1F] outline-none transition-colors cursor-pointer"
                         >
-                          <option value="ALL">All Cohort Years (Historical)</option>
-                          <option value="PAST">Past Year ({new Date().getFullYear() - 1})</option>
-                          <option value="CURRENT">Current Year ({new Date().getFullYear()} Live)</option>
-                          <option value="UPCOMING">Upcoming Year ({new Date().getFullYear() + 1} Projected)</option>
+                          <option value="CURRENT">Current Year ({realChartMetrics.currentYear})</option>
+                          <option value="PAST">Past Year ({realChartMetrics.pastYear})</option>
                         </select>
                       </div>
                     )}
@@ -1019,7 +1129,7 @@ export const AdminDashboardView = ({
                             : 'text-[#6B6258] hover:text-[#1F1F1F]'
                         }`}
                       >
-                        Year-by-Year Growth
+                        Monthly Analysis
                       </button>
                       <button
                         type="button"
@@ -1036,20 +1146,53 @@ export const AdminDashboardView = ({
                   </div>
                 </div>
 
+                {/* Selected Year Summary Stat Cards (when on Monthly Analysis tab) */}
+                {overviewChartTab === 'yearly' && (
+                  <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-5">
+                    <div className="p-3 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC]/80 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-[#6B6258] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+                        Total Applications
+                      </span>
+                      <span className="text-base sm:text-lg font-bold text-[#1F1F1F] font-mono mt-0.5">
+                        {selectedYearSummary.totalApplied.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC]/80 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-[#6B6258] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#FBBF24]" />
+                        Admissions Confirmed
+                      </span>
+                      <span className="text-base sm:text-lg font-bold text-[#1F1F1F] font-mono mt-0.5">
+                        {selectedYearSummary.totalAdmitted.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC]/80 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-[#6B6258] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#FEDDAA]" />
+                        Active Enrollments
+                      </span>
+                      <span className="text-base sm:text-lg font-bold text-[#1F1F1F] font-mono mt-0.5">
+                        {selectedYearSummary.totalEnrolled.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Render Selected Bar Chart */}
                 <div className="h-72 sm:h-80 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     {overviewChartTab === 'yearly' ? (
                       <BarChart
-                        data={displayedYearlyData}
+                        data={displayedMonthlyData}
                         margin={{ top: 15, right: 15, left: -10, bottom: 5 }}
-                        barGap={8}
+                        barGap={3}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#EEEAE4" vertical={false} />
                         <XAxis
-                          dataKey="year"
+                          dataKey="month"
                           stroke="#6B6258"
-                          fontSize={12}
+                          fontSize={11}
                           fontWeight={600}
                           tickLine={false}
                           axisLine={{ stroke: '#E8E3DC' }}
@@ -1073,22 +1216,22 @@ export const AdminDashboardView = ({
                           dataKey="applied"
                           name="Student Applications"
                           fill="#F59E0B"
-                          radius={[6, 6, 0, 0]}
-                          maxBarSize={45}
+                          radius={[4, 4, 0, 0]}
+                          maxBarSize={selectedYearFilter === 'PAST' ? 18 : 26}
                         />
                         <Bar
                           dataKey="admitted"
                           name="Admissions Confirmed"
                           fill="#FBBF24"
-                          radius={[6, 6, 0, 0]}
-                          maxBarSize={45}
+                          radius={[4, 4, 0, 0]}
+                          maxBarSize={selectedYearFilter === 'PAST' ? 18 : 26}
                         />
                         <Bar
                           dataKey="enrolled"
                           name="Active Cohort Enrollments"
                           fill="#FEDDAA"
-                          radius={[6, 6, 0, 0]}
-                          maxBarSize={45}
+                          radius={[4, 4, 0, 0]}
+                          maxBarSize={selectedYearFilter === 'PAST' ? 18 : 26}
                         />
                       </BarChart>
                     ) : (
@@ -1942,7 +2085,17 @@ export const AdminDashboardView = ({
               </div>
               <div>
                 <p className="text-[11px] font-bold text-[#6B6258] uppercase">Current Status</p>
-                <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#FFF7E6] text-[#D97706] font-semibold text-[10px] mt-0.5 border border-[#FEDDAA]">
+                <span
+                  className={`inline-block px-2.5 py-0.5 rounded-full font-bold text-[11px] mt-0.5 border ${
+                    selectedAppDetail.status === 'CONFIRMED' || selectedAppDetail.status === 'APPROVED'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : selectedAppDetail.status === 'REJECTED'
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : selectedAppDetail.status === 'UNDER_REVIEW'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-[#FFF7E6] text-[#D97706] border-[#FEDDAA]'
+                  }`}
+                >
                   {selectedAppDetail.status}
                 </span>
               </div>
@@ -1979,29 +2132,65 @@ export const AdminDashboardView = ({
               />
             </div>
 
+            {statusToast && (
+              <div
+                className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                  statusToast.type === 'success'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : 'bg-rose-50 text-rose-800 border border-rose-200'
+                }`}
+              >
+                <span>{statusToast.message}</span>
+              </div>
+            )}
+
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-[#E8E3DC]">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  disabled={isUpdatingAppStatus}
                   onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'APPROVED')}
-                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs cursor-pointer"
+                  className={`px-3.5 py-1.5 rounded-xl font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
+                    selectedAppDetail.status === 'APPROVED'
+                      ? 'bg-emerald-700 ring-2 ring-emerald-400'
+                      : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  Approve Application
+                  {isUpdatingAppStatus && (
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {selectedAppDetail.status === 'APPROVED' ? '✓ Approved' : 'Approve Application'}
                 </button>
                 <button
                   type="button"
+                  disabled={isUpdatingAppStatus}
                   onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'CONFIRMED')}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold shadow-xs cursor-pointer"
+                  className={`px-3.5 py-1.5 rounded-xl font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
+                    selectedAppDetail.status === 'CONFIRMED'
+                      ? 'bg-[#D97706] ring-2 ring-[#F59E0B]'
+                      : 'bg-[#F59E0B] hover:bg-[#D97706] active:scale-95'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  Mark Enrolled
+                  {isUpdatingAppStatus && (
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {selectedAppDetail.status === 'CONFIRMED' ? '✓ Enrolled' : 'Mark Enrolled'}
                 </button>
                 <button
                   type="button"
+                  disabled={isUpdatingAppStatus}
                   onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'REJECTED')}
-                  className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs cursor-pointer"
+                  className={`px-3.5 py-1.5 rounded-xl font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
+                    selectedAppDetail.status === 'REJECTED'
+                      ? 'bg-rose-700 ring-2 ring-rose-400'
+                      : 'bg-rose-600 hover:bg-rose-700 active:scale-95'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  Reject
+                  {isUpdatingAppStatus && (
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {selectedAppDetail.status === 'REJECTED' ? '✓ Rejected' : 'Reject'}
                 </button>
               </div>
 

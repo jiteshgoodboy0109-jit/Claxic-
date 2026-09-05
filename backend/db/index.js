@@ -27,6 +27,220 @@ const adminCreds = hashPassword('Admin@123456', 'claxic_salt_admin_2026');
 const staffCreds = hashPassword('Staff@123456', 'claxic_salt_staff_2026');
 const studentCreds = hashPassword('Student@123456', 'claxic_salt_student_2026');
 
+// Helper to generate rich curriculum classes with videos, topics, summaries, and tests
+export const getDefaultClassesForCourse = (courseId, courseTitle = 'Engineering Masterclass') => [
+  {
+    id: `cls_${courseId}_1`,
+    classNumber: 1,
+    dayNumber: 1,
+    title: 'Day 1: Architectural Foundations, Prerequisites & Environment Setup',
+    duration: '1 hr 30 mins',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    topics: ['Dev environment setup', 'Node.js & TypeScript tooling', 'Docker Compose configurations', 'Project structure best practices'],
+    summary: 'In this opening session, we laid out the end-to-end architectural blueprints. We installed dependencies, walked through the repository structure, configured our environment variables, and initialized containerized databases with Docker Compose.',
+    learningMaterials: [
+      { title: 'Lecture Notes & Slides (PDF)', url: 'https://github.com/claxic-academy/lecture-notes-day-1' },
+      { title: 'Starter Template Repository (GitHub)', url: 'https://github.com/claxic-academy/starter-template' },
+      { title: 'Docker Compose Cheat Sheet', url: 'https://docs.docker.com/compose/' },
+    ],
+    status: 'PUBLISHED',
+    uploadedAt: '2026-08-25T10:00:00.000Z',
+    uploadedBy: 'Dr. Sarah Jenkins (Staff)',
+    test: {
+      id: `test_${courseId}_1`,
+      title: 'Day 1 Assessment: Environment & Architecture Foundations',
+      passingScore: 70,
+      questions: [
+        {
+          id: 'q1',
+          question: 'What is the primary purpose of containerizing local services with Docker Compose?',
+          options: [
+            'Guaranteeing consistent execution environments across team members',
+            'Compiling TypeScript code into binary executables',
+            'Encrypting HTTP cookies in the browser',
+            'Replacing standard git version control workflows'
+          ],
+          correctIndex: 0,
+          explanation: 'Docker Compose provides deterministic environments for databases, caches, and services, eliminating the "works on my machine" problem.'
+        },
+        {
+          id: 'q2',
+          question: 'Which HTTP status code signifies that a newly created resource was successfully stored?',
+          options: ['200 OK', '201 Created', '204 No Content', '304 Not Modified'],
+          correctIndex: 1,
+          explanation: 'HTTP 201 Created indicates the request succeeded and resulted in one or more new resources.'
+        },
+        {
+          id: 'q3',
+          question: 'Why should environment credentials and API secrets NEVER be hardcoded into source control?',
+          options: [
+            'They slow down web browser page rendering times',
+            'They cause immediate syntax errors during TypeScript compilation',
+            'They expose production databases and sensitive keys to unauthorized public access',
+            'Git does not allow commits that contain strings longer than 16 characters'
+          ],
+          correctIndex: 2,
+          explanation: 'Secrets stored in git can be harvested by malicious actors. Use .env files and secret managers instead.'
+        }
+      ]
+    }
+  },
+  {
+    id: `cls_${courseId}_2`,
+    classNumber: 2,
+    dayNumber: 2,
+    title: 'Day 2: Relational Schema Modeling, Indexes & ACID Transactions',
+    duration: '1 hr 45 mins',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    topics: ['PostgreSQL & SQLite schema design', 'Foreign key constraints & cascade behaviors', 'B-Tree indexing strategies', 'ACID transaction isolation levels'],
+    summary: 'Today we dove deep into production relational database engineering. We constructed normalized tables, designed composite indexes to eliminate table scans, and wrote multi-step database transactions with atomic rollback guarantees.',
+    learningMaterials: [
+      { title: 'Schema Modeling Guidelines (PDF)', url: 'https://github.com/claxic-academy/schema-design-guide' },
+      { title: 'Database Indexing Benchmarks', url: 'https://github.com/claxic-academy/indexing-benchmarks' },
+    ],
+    status: 'PUBLISHED',
+    uploadedAt: '2026-08-28T10:00:00.000Z',
+    uploadedBy: 'Dr. Sarah Jenkins (Staff)',
+    test: {
+      id: `test_${courseId}_2`,
+      title: 'Day 2 Assessment: Relational Data Integrity & Transactions',
+      passingScore: 70,
+      questions: [
+        {
+          id: 'q1',
+          question: 'What does the "A" in ACID database properties stand for?',
+          options: ['Asynchronous', 'Atomicity', 'Authentication', 'Availability'],
+          correctIndex: 1,
+          explanation: 'Atomicity ensures that all statements within a transaction are executed successfully or completely rolled back.'
+        },
+        {
+          id: 'q2',
+          question: 'When should an index ideally be placed on a database column?',
+          options: [
+            'When the column is frequently queried with WHERE, JOIN, or ORDER BY filters',
+            'On every single column in every table regardless of access patterns',
+            'Only on columns with text longer than 5,000 characters',
+            'Only when the database has fewer than 10 total records'
+          ],
+          correctIndex: 0,
+          explanation: 'Indexes optimize lookups for filtering and joining columns while avoiding unnecessary write overhead on infrequently queried fields.'
+        }
+      ]
+    }
+  },
+  {
+    id: `cls_${courseId}_3`,
+    classNumber: 3,
+    dayNumber: 3,
+    title: 'Day 3: High-Performance APIs, Authentication & Security Middleware',
+    duration: '1 hr 30 mins',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    topics: ['PBKDF2 & Bcrypt password hashing', 'JWT stateless tokens & session stores', 'Rate limiting with token bucket algorithms', 'CORS, CSP and Helmet security headers'],
+    summary: 'In this session, we built production-grade authentication and route security. We implemented cryptographic salting and hashing, configured token rotation to prevent session hijacking, and applied rate-limiting middleware to guard against DDoS attacks.',
+    learningMaterials: [
+      { title: 'OWASP Top 10 API Security Checklist', url: 'https://owasp.org/www-project-api-security/' },
+      { title: 'Security Middleware Code Samples', url: 'https://github.com/claxic-academy/auth-security-samples' },
+    ],
+    status: 'PUBLISHED',
+    uploadedAt: '2026-09-01T10:00:00.000Z',
+    uploadedBy: 'Dr. Sarah Jenkins (Staff)',
+    test: {
+      id: `test_${courseId}_3`,
+      title: 'Day 3 Assessment: Cryptography & Route Protection',
+      passingScore: 70,
+      questions: [
+        {
+          id: 'q1',
+          question: 'Why is a unique cryptographic salt required for each user password hash?',
+          options: [
+            'It prevents precomputed Rainbow Table attacks and duplicate hash lookups',
+            'It decreases the length of the hashed string stored in the database',
+            'It allows the server to recover the original plaintext password if forgotten',
+            'It forces the browser to cache user login credentials'
+          ],
+          correctIndex: 0,
+          explanation: 'Salts prevent rainbow table attacks by ensuring identical passwords yield distinct cryptographic hashes.'
+        },
+        {
+          id: 'q2',
+          question: 'Which header prevents clickjacking attacks by forbidding iframe embedding on untrusted domains?',
+          options: ['X-Frame-Options: DENY', 'Content-Type: text/html', 'Access-Control-Allow-Origin: *', 'Cache-Control: no-cache'],
+          correctIndex: 0,
+          explanation: 'X-Frame-Options or CSP frame-ancestors prevents malicious websites from rendering your application within invisible iframes.'
+        }
+      ]
+    }
+  },
+  {
+    id: `cls_${courseId}_4`,
+    classNumber: 4,
+    dayNumber: 4,
+    title: 'Day 4: Real-Time Protocols, WebSockets & Event-Driven Architecture',
+    duration: '2 hrs 00 mins',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    topics: ['WebSocket handshake & persistent duplex connections', 'Pub/Sub broadcasting mechanisms', 'Heartbeats, connection drop recovery & exponential backoff', 'Message queuing'],
+    summary: 'We tackled real-time communication patterns. We transitioned from short-polling to persistent bidirectional WebSockets, integrated pub/sub channels, and added reconnection logic with jitter and backoff.',
+    learningMaterials: [
+      { title: 'WebSocket Protocol Reference & RFC', url: 'https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API' },
+      { title: 'Pub/Sub Architecture Diagrams', url: 'https://github.com/claxic-academy/realtime-pubsub-guide' },
+    ],
+    status: 'PUBLISHED',
+    uploadedAt: '2026-09-02T10:00:00.000Z',
+    uploadedBy: 'Dr. Sarah Jenkins (Staff)',
+    test: {
+      id: `test_${courseId}_4`,
+      title: 'Day 4 Assessment: Real-Time Event Communication',
+      passingScore: 70,
+      questions: [
+        {
+          id: 'q1',
+          question: 'What protocol does a client use to initiate a WebSocket connection over HTTP?',
+          options: ['HTTP Upgrade Header (101 Switching Protocols)', 'POST multipart/form-data', 'GraphQL Mutation', 'DNS TXT Record'],
+          correctIndex: 0,
+          explanation: 'The client sends an HTTP Upgrade request, and the server responds with 101 Switching Protocols to establish the full-duplex TCP stream.'
+        }
+      ]
+    }
+  },
+  {
+    id: `cls_${courseId}_5`,
+    classNumber: 5,
+    dayNumber: 5,
+    title: 'Day 5: Capstone Model Synthesis, Deployment & Final Project Guidelines',
+    duration: '1 hr 45 mins',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    topics: ['Full-stack system integration', 'Cloud deployment best practices', 'GitHub repository structure for final project', 'Documentation, architecture diagramming, and rubric evaluation'],
+    summary: 'Our capstone session brought every component together into a cohesive production system. We introduced the Final Course Project rubric, explained the GitHub submission requirements, demonstrated live container deployment, and outlined the criteria staff will use during peer and faculty reviews.',
+    learningMaterials: [
+      { title: 'Final Capstone Project Specification & Rubric (PDF)', url: 'https://github.com/claxic-academy/final-project-spec' },
+      { title: 'Sample Submission Repository (GitHub)', url: 'https://github.com/claxic-academy/sample-capstone-submission' },
+      { title: 'Production Deployment Runbook', url: 'https://github.com/claxic-academy/deployment-runbook' }
+    ],
+    status: 'PUBLISHED',
+    uploadedAt: '2026-09-03T10:00:00.000Z',
+    uploadedBy: 'Dr. Sarah Jenkins (Staff)',
+    test: {
+      id: `test_${courseId}_5`,
+      title: 'Day 5 Assessment: Production Readiness & Deployment',
+      passingScore: 70,
+      questions: [
+        {
+          id: 'q1',
+          question: 'What must be included in your final course project submission on GitHub?',
+          options: [
+            'Clean source code, comprehensive README documentation, architecture overview, and instructions to run locally',
+            'Only a raw zip file without git version history',
+            'Hardcoded API keys and credentials in the public repository',
+            'Only a screenshot without any executable code'
+          ],
+          correctIndex: 0,
+          explanation: 'A professional submission requires clean git history, documentation, architecture diagrams, and runnable code.'
+        }
+      ]
+    }
+  }
+];
+
 export const initialData = {
   users: [
     {
@@ -529,8 +743,107 @@ export const initialData = {
       updatedAt: '2026-08-26T18:00:00.000Z'
     }
   ],
-  applications: [],
-  payments: [],
+  applications: [
+    {
+      id: 'app_sample_jitesh_001',
+      applicationNumber: 'APP-2026-8201',
+      userId: 'usr_055ed132fa71fbff',
+      userEmail: 'jiteshgoodboy.008@gmail.com',
+      userName: 'Jitesh P',
+      userMobile: '+91 82209 45226',
+      courseId: 'crs_ai_fullstack_2026',
+      courseTitle: 'Applied GenAI & Full-Stack System Architecture',
+      coursePrice: 14999,
+      status: 'CONFIRMED',
+      formData: {
+        fullName: 'Jitesh P',
+        email: 'jiteshgoodboy.008@gmail.com',
+        mobile: '+91 82209 45226',
+        institution: 'Indian Institute of Technology',
+        degree: 'B.Tech AI & Data Science',
+        yearOfStudy: 'Final Year',
+        experienceLevel: 'Intermediate',
+        startDate: '2026-09-01',
+      },
+      createdAt: '2026-09-01T09:00:00.000Z',
+      updatedAt: '2026-09-01T09:00:00.000Z',
+    }
+  ],
+  payments: [
+    {
+      id: 'pay_sample_jitesh_001',
+      receiptNumber: 'REC-2026-9041',
+      orderId: 'order_sim_9041',
+      paymentId: 'pay_sim_9041',
+      userId: 'usr_055ed132fa71fbff',
+      userName: 'Jitesh P',
+      userEmail: 'jiteshgoodboy.008@gmail.com',
+      courseId: 'crs_ai_fullstack_2026',
+      courseTitle: 'Applied GenAI & Full-Stack System Architecture',
+      applicationId: 'app_sample_jitesh_001',
+      amount: 14999,
+      currency: 'INR',
+      status: 'SUCCESS',
+      paymentMethod: 'Razorpay Online Gateway (UPI/Card)',
+      createdAt: '2026-09-01T09:15:00.000Z',
+      updatedAt: '2026-09-01T09:15:00.000Z',
+    }
+  ],
+  projectSubmissions: [
+    {
+      id: 'proj_sample_001',
+      userId: 'usr_055ed132fa71fbff',
+      userName: 'Jitesh P',
+      userEmail: 'jiteshgoodboy.008@gmail.com',
+      courseId: 'crs_ai_fullstack_2026',
+      courseTitle: 'Applied GenAI & Full-Stack System Architecture',
+      projectTitle: 'Enterprise Agentic RAG Pipeline with Real-Time Vector Search',
+      description: 'End-to-end full-stack agentic reasoning system built with Node.js, React 19, Gemini 2.5 Flash, SQLite vector caching, and Docker Compose. Supports dynamic tool-calling, document ingestion, and automated citation synthesis.',
+      githubUrl: 'https://github.com/jiteshgoodboy/claxic-genai-rag-capstone',
+      documentationUrl: 'https://github.com/jiteshgoodboy/claxic-genai-rag-capstone/blob/main/README.md',
+      liveDemoUrl: 'https://claxic-rag-demo.vercel.app',
+      otherFiles: 'Docker compose file, architecture diagram, benchmark latency results',
+      status: 'PENDING_REVIEW',
+      staffFeedback: '',
+      reviewedBy: '',
+      reviewedAt: '',
+      submittedAt: '2026-09-03T14:30:00.000Z',
+      updatedAt: '2026-09-03T14:30:00.000Z',
+    }
+  ],
+  studentProgress: [
+    {
+      id: 'prog_sample_001',
+      userId: 'usr_055ed132fa71fbff',
+      courseId: 'crs_ai_fullstack_2026',
+      startDate: '2026-09-01',
+      completedClasses: ['cls_crs_ai_fullstack_2026_1', 'cls_crs_ai_fullstack_2026_2'],
+      testResults: [
+        {
+          classId: 'cls_crs_ai_fullstack_2026_1',
+          score: 100,
+          passed: true,
+          totalQuestions: 3,
+          correctAnswers: 3,
+          submittedAt: '2026-09-01T15:20:00.000Z'
+        },
+        {
+          classId: 'cls_crs_ai_fullstack_2026_2',
+          score: 100,
+          passed: true,
+          totalQuestions: 2,
+          correctAnswers: 2,
+          submittedAt: '2026-09-02T16:00:00.000Z'
+        }
+      ],
+      attendance: [
+        { classId: 'cls_crs_ai_fullstack_2026_1', date: '2026-09-01', attended: true },
+        { classId: 'cls_crs_ai_fullstack_2026_2', date: '2026-09-02', attended: true },
+      ],
+      progressPercent: 40,
+      updatedAt: '2026-09-02T16:00:00.000Z',
+    }
+  ],
   notifications: [],
   auditLogs: [
     {
@@ -721,6 +1034,44 @@ class SQLiteDatabase {
         previewText TEXT,
         timestamp TEXT NOT NULL
       );
+
+      -- Final Project Submissions Table
+      CREATE TABLE IF NOT EXISTS project_submissions (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        userName TEXT NOT NULL,
+        userEmail TEXT NOT NULL,
+        courseId TEXT NOT NULL,
+        courseTitle TEXT NOT NULL,
+        projectTitle TEXT NOT NULL,
+        description TEXT,
+        githubUrl TEXT NOT NULL,
+        documentationUrl TEXT,
+        liveDemoUrl TEXT,
+        otherFiles TEXT,
+        status TEXT NOT NULL DEFAULT 'PENDING_REVIEW',
+        staffFeedback TEXT,
+        reviewedBy TEXT,
+        reviewedAt TEXT,
+        submittedAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_projects_user ON project_submissions(userId);
+      CREATE INDEX IF NOT EXISTS idx_projects_course ON project_submissions(courseId);
+
+      -- Student Course Progress Table
+      CREATE TABLE IF NOT EXISTS student_progress (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        courseId TEXT NOT NULL,
+        startDate TEXT NOT NULL,
+        completedClasses TEXT DEFAULT '[]',
+        testResults TEXT DEFAULT '[]',
+        attendance TEXT DEFAULT '[]',
+        progressPercent INTEGER DEFAULT 0,
+        updatedAt TEXT NOT NULL
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_progress_user_course ON student_progress(userId, courseId);
     `);
 
     // Ensure columns exist if table was previously created with older schema
@@ -728,6 +1079,7 @@ class SQLiteDatabase {
     try { this.sqlite.exec('ALTER TABLE verification_tokens ADD COLUMN used INTEGER NOT NULL DEFAULT 0;'); } catch(e) {}
     try { this.sqlite.exec('ALTER TABLE password_reset_tokens ADD COLUMN userId TEXT;'); } catch(e) {}
     try { this.sqlite.exec('ALTER TABLE password_reset_tokens ADD COLUMN used INTEGER NOT NULL DEFAULT 0;'); } catch(e) {}
+    try { this.sqlite.exec("ALTER TABLE courses ADD COLUMN classes TEXT DEFAULT '[]';"); } catch(e) {}
   }
 
   migrateOrSeed() {
@@ -738,6 +1090,7 @@ class SQLiteDatabase {
         this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'admin@claxic.edu'").run();
         this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jitesh.0901.jitesh@gmail.com'").run();
         this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jitesh.genkit@gmail.com'").run();
+        this.sqlite.prepare("UPDATE users SET role = 'ADMIN', isActive = 1 WHERE email = 'jiteshgoodboy.0109@gmail.com'").run();
 
         const checkStaff = this.sqlite.prepare("SELECT * FROM users WHERE email = 'staff@claxic.edu'").get();
         if (!checkStaff) {
@@ -755,8 +1108,64 @@ class SQLiteDatabase {
         } else {
           this.sqlite.prepare("UPDATE users SET role = 'STAFF', isActive = 1 WHERE email = 'staff@claxic.edu'").run();
         }
+
+        // Ensure courses have rich classes with videos, topics, summaries, and tests populated
+        const existingCourses = this.sqlite.prepare('SELECT id, title, classes FROM courses').all();
+        for (const c of existingCourses) {
+          const parsedClasses = typeof c.classes === 'string' ? JSON.parse(c.classes || '[]') : c.classes || [];
+          if (!parsedClasses || parsedClasses.length === 0) {
+            const defaultClasses = getDefaultClassesForCourse(c.id, c.title);
+            this.sqlite.prepare('UPDATE courses SET classes = ? WHERE id = ?').run(JSON.stringify(defaultClasses), c.id);
+          }
+        }
+
+        // Seed sample application if applications table is empty
+        const appCount = this.sqlite.prepare('SELECT count(*) as count FROM applications').get();
+        if (appCount && appCount.count === 0) {
+          for (const a of initialData.applications || []) {
+            this.sqlite.prepare(`
+              INSERT INTO applications (id, applicationNumber, userId, userEmail, userName, userMobile, courseId, courseTitle, coursePrice, status, formData, createdAt, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              a.id, a.applicationNumber, a.userId, a.userEmail, a.userName, a.userMobile || '',
+              a.courseId, a.courseTitle, a.coursePrice || 0, a.status || 'CONFIRMED',
+              JSON.stringify(a.formData || {}), a.createdAt, a.updatedAt
+            );
+          }
+        }
+
+        // Seed sample project submissions if table is empty
+        const projCount = this.sqlite.prepare('SELECT count(*) as count FROM project_submissions').get();
+        if (projCount && projCount.count === 0) {
+          for (const p of initialData.projectSubmissions || []) {
+            this.sqlite.prepare(`
+              INSERT INTO project_submissions (id, userId, userName, userEmail, courseId, courseTitle, projectTitle, description, githubUrl, documentationUrl, liveDemoUrl, otherFiles, status, staffFeedback, reviewedBy, reviewedAt, submittedAt, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              p.id, p.userId, p.userName, p.userEmail, p.courseId, p.courseTitle, p.projectTitle,
+              p.description || '', p.githubUrl || '', p.documentationUrl || '', p.liveDemoUrl || '',
+              p.otherFiles || '', p.status || 'PENDING_REVIEW', p.staffFeedback || '', p.reviewedBy || '',
+              p.reviewedAt || '', p.submittedAt, p.updatedAt
+            );
+          }
+        }
+
+        // Seed sample student progress if table is empty
+        const progCount = this.sqlite.prepare('SELECT count(*) as count FROM student_progress').get();
+        if (progCount && progCount.count === 0) {
+          for (const sp of initialData.studentProgress || []) {
+            this.sqlite.prepare(`
+              INSERT INTO student_progress (id, userId, courseId, startDate, completedClasses, testResults, attendance, progressPercent, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              sp.id, sp.userId, sp.courseId, sp.startDate || '',
+              JSON.stringify(sp.completedClasses || []), JSON.stringify(sp.testResults || []),
+              JSON.stringify(sp.attendance || []), sp.progressPercent || 0, sp.updatedAt
+            );
+          }
+        }
       } catch (e) {
-        console.warn('Role migration note:', e.message);
+        console.warn('Role and schema migration note:', e.message);
       }
       return; // Database is already populated
     }
@@ -807,8 +1216,8 @@ class SQLiteDatabase {
       // Clear & Seed Courses
       this.sqlite.exec('DELETE FROM courses;');
       const insertCourse = this.sqlite.prepare(`
-        INSERT INTO courses (id, slug, title, shortDescription, fullDescription, bannerImage, category, level, mode, duration, startDate, endDate, registrationDeadline, price, originalPrice, capacity, enrolledCount, status, featured, rating, reviewsCount, tags, instructor, modules, learningOutcomes, requirements, faq, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO courses (id, slug, title, shortDescription, fullDescription, bannerImage, category, level, mode, duration, startDate, endDate, registrationDeadline, price, originalPrice, capacity, enrolledCount, status, featured, rating, reviewsCount, tags, instructor, modules, learningOutcomes, requirements, faq, classes, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const c of data.courses || []) {
         insertCourse.run(
@@ -839,6 +1248,7 @@ class SQLiteDatabase {
           JSON.stringify(c.learningOutcomes || []),
           JSON.stringify(c.requirements || []),
           JSON.stringify(c.faq || []),
+          JSON.stringify(c.classes || getDefaultClassesForCourse(c.id, c.title)),
           c.createdAt || new Date().toISOString(),
           c.updatedAt || new Date().toISOString()
         );
@@ -932,6 +1342,55 @@ class SQLiteDatabase {
         insertAudit.run(al.id, al.adminId, al.adminName, al.action, al.targetType || '', al.targetId || '', al.targetTitle || '', al.createdAt || new Date().toISOString());
       }
 
+      // Clear & Seed Project Submissions
+      this.sqlite.exec('DELETE FROM project_submissions;');
+      const insertProject = this.sqlite.prepare(`
+        INSERT INTO project_submissions (id, userId, userName, userEmail, courseId, courseTitle, projectTitle, description, githubUrl, documentationUrl, liveDemoUrl, otherFiles, status, staffFeedback, reviewedBy, reviewedAt, submittedAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const p of data.projectSubmissions || []) {
+        insertProject.run(
+          p.id,
+          p.userId,
+          p.userName,
+          p.userEmail,
+          p.courseId,
+          p.courseTitle,
+          p.projectTitle,
+          p.description || '',
+          p.githubUrl || '',
+          p.documentationUrl || '',
+          p.liveDemoUrl || '',
+          p.otherFiles || '',
+          p.status || 'PENDING_REVIEW',
+          p.staffFeedback || '',
+          p.reviewedBy || '',
+          p.reviewedAt || '',
+          p.submittedAt || new Date().toISOString(),
+          p.updatedAt || new Date().toISOString()
+        );
+      }
+
+      // Clear & Seed Student Progress
+      this.sqlite.exec('DELETE FROM student_progress;');
+      const insertProgress = this.sqlite.prepare(`
+        INSERT INTO student_progress (id, userId, courseId, startDate, completedClasses, testResults, attendance, progressPercent, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const sp of data.studentProgress || []) {
+        insertProgress.run(
+          sp.id,
+          sp.userId,
+          sp.courseId,
+          sp.startDate || '',
+          JSON.stringify(sp.completedClasses || []),
+          JSON.stringify(sp.testResults || []),
+          JSON.stringify(sp.attendance || []),
+          sp.progressPercent || 0,
+          sp.updatedAt || new Date().toISOString()
+        );
+      }
+
       this.sqlite.exec('COMMIT;');
     } catch (err) {
       this.sqlite.exec('ROLLBACK;');
@@ -958,6 +1417,7 @@ class SQLiteDatabase {
       learningOutcomes: typeof c.learningOutcomes === 'string' ? JSON.parse(c.learningOutcomes || '[]') : c.learningOutcomes || [],
       requirements: typeof c.requirements === 'string' ? JSON.parse(c.requirements || '[]') : c.requirements || [],
       faq: typeof c.faq === 'string' ? JSON.parse(c.faq || '[]') : c.faq || [],
+      classes: typeof c.classes === 'string' ? JSON.parse(c.classes || '[]') : c.classes || getDefaultClassesForCourse(c.id, c.title),
     }));
 
     // Query applications
@@ -992,6 +1452,27 @@ class SQLiteDatabase {
     const auditLogs = this.sqlite.prepare('SELECT * FROM audit_logs').all();
     const emailRecords = this.sqlite.prepare('SELECT * FROM email_records').all();
 
+    // Query project submissions
+    let projectSubmissions = [];
+    try {
+      projectSubmissions = this.sqlite.prepare('SELECT * FROM project_submissions').all();
+    } catch(e) {
+      projectSubmissions = [];
+    }
+
+    // Query student progress
+    let studentProgress = [];
+    try {
+      studentProgress = this.sqlite.prepare('SELECT * FROM student_progress').all().map((sp) => ({
+        ...sp,
+        completedClasses: typeof sp.completedClasses === 'string' ? JSON.parse(sp.completedClasses || '[]') : sp.completedClasses || [],
+        testResults: typeof sp.testResults === 'string' ? JSON.parse(sp.testResults || '[]') : sp.testResults || [],
+        attendance: typeof sp.attendance === 'string' ? JSON.parse(sp.attendance || '[]') : sp.attendance || [],
+      }));
+    } catch(e) {
+      studentProgress = [];
+    }
+
     return {
       users,
       courses,
@@ -1003,6 +1484,8 @@ class SQLiteDatabase {
       notifications,
       auditLogs,
       emailRecords,
+      projectSubmissions,
+      studentProgress,
     };
   }
 

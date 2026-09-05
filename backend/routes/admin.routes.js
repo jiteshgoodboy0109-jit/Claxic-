@@ -1,51 +1,119 @@
 import express from 'express';
 import crypto from 'crypto';
 import { db, hashPassword } from '../db/index.js';
-import { requireAdmin } from '../middleware/index.js';
+import { extractToken, getUserByToken, requireAdmin } from '../middleware/index.js';
 import { destroyAllUserSessions } from '../services/auth.service.js';
 
 const router = express.Router();
 
-// Apply requireAdmin middleware across all admin routes
-router.use(requireAdmin);
+// Role-based authorization: Allow both STAFF and ADMIN for courses, require ADMIN for all else
+router.use((req, res, next) => {
+  const isCourseRoute = req.path.startsWith('/courses');
+  const token = extractToken(req);
+  if (!token) {
+    return res.status(401).json({ error: 'Authorization token required.' });
+  }
+  const user = getUserByToken(token);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid or expired session token.' });
+  }
+
+  if (isCourseRoute) {
+    if (user.role !== 'ADMIN' && user.role !== 'STAFF') {
+      return res.status(403).json({ error: 'Access forbidden. Faculty or Administrator privileges required.' });
+    }
+  } else {
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Access forbidden. Administrator privileges required.' });
+    }
+  }
+
+  req.user = user;
+  req.token = token;
+  next();
+});
 
 // Admin Executive Overview & Metrics
 router.get('/overview', (req, res) => {
-  const totalRevenue = db.raw.payments
-    .filter((p) => p.status === 'SUCCESS')
-    .reduce((sum, p) => sum + (p.amount || 0), 0);
+  try {
+    const payments = db.raw.payments || [];
+    const users = db.raw.users || [];
+    const applications = db.raw.applications || [];
+    const courses = db.raw.courses || [];
+    const auditLogs = db.raw.auditLogs || [];
 
-  const totalUsers = db.raw.users.length;
-  const verifiedUsers = db.raw.users.filter((u) => u.isVerified).length;
-  const totalApplications = db.raw.applications.length;
-  const confirmedApplications = db.raw.applications.filter((a) => a.status === 'CONFIRMED').length;
-  const pendingApplications = db.raw.applications.filter(
-    (a) => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW' || a.status === 'PAYMENT_PENDING'
-  ).length;
-  const totalCourses = db.raw.courses.length;
-  const activeCourses = db.raw.courses.filter((c) => c.status === 'PUBLISHED').length;
+    const totalRevenue = payments
+      .filter((p) => p && p.status === 'SUCCESS')
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
 
-  // Category distribution
-  const categoryCounts = {};
-  for (const c of db.raw.courses) {
-    const cat = c.category || 'General';
-    categoryCounts[cat] = (categoryCounts[cat] || 0) + (c.enrolledCount || 1);
-  }
-  const categoryDistribution = Object.entries(categoryCounts).map(([category, count]) => ({ category, count }));
+    const totalUsers = users.length;
+    const verifiedUsers = users.filter((u) => u && u.isVerified).length;
+    const totalApplications = applications.length;
+    const confirmedApplications = applications.filter((a) => a && a.status === 'CONFIRMED').length;
+    const pendingApplications = applications.filter(
+      (a) => a && (a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW' || a.status === 'PAYMENT_PENDING')
+    ).length;
+    const totalCourses = courses.length;
+    const activeCourses = courses.filter((c) => c && c.status === 'PUBLISHED').length;
 
-  // Registrations over time
-  const regByDate = {};
-  for (const a of db.raw.applications) {
-    const d = a.createdAt ? a.createdAt.substring(0, 10) : '2026-08-20';
-    regByDate[d] = (regByDate[d] || 0) + (a.paidAmount || a.amount || 24999);
-  }
-  const registrationsOverTime = Object.entries(regByDate)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, revenue]) => ({ date, revenue }));
+    // Category distribution
+    const categoryCounts = {};
+    for (const c of courses) {
+      if (!c) continue;
+      const cat = c.category || 'General';
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + (c.enrolledCount || 1);
+    }
+    const categoryDistribution = Object.entries(categoryCounts).map(([category, count]) => ({ category, count }));
 
-  if (registrationsOverTime.length === 0) {
-    registrationsOverTime.push({ date: '2026-08-01', revenue: 0 }, { date: '2026-08-29', revenue: totalRevenue });
-  }
+    // Registrations over time
+    const regByDate = {};
+    for (const a of applications) {
+      if (!a) continue;
+      const d = a.createdAt ? String(a.createdAt).substring(0, 10) : '2026-08-20';
+      regByDate[d] = (regByDate[d] || 0) + (a.paidAmount || a.amount || 24999);
+    }
+    const registrationsOverTime = Object.entries(regByDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, revenue]) => ({ date, revenue }));
+
+  // Dynamic 12-Month Cohort Growth Analysis (Past Year vs YTD Current Year)
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const pastYear = currentYear - 1;
+  const currentMonthIdx = now.getMonth();
+
+  const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const getMonthlyBreakdown = (targetYear, maxMonth) => {
+    return Array.from({ length: maxMonth + 1 }, (_, m) => {
+      const monthApps = db.raw.applications.filter((a) => {
+        if (!a.createdAt) return false;
+        const d = new Date(a.createdAt);
+        return d.getFullYear() === targetYear && d.getMonth() === m;
+      });
+      const applied = monthApps.length;
+      const admitted = monthApps.filter((a) => a.status === 'CONFIRMED' || a.status === 'APPROVED').length;
+      const enrolled = monthApps.filter((a) => a.status === 'CONFIRMED').length;
+
+      return {
+        month: monthShort[m],
+        monthFull: monthFull[m],
+        year: targetYear,
+        applied,
+        admitted,
+        enrolled,
+      };
+    });
+  };
+
+  const monthlyCohortGrowth = {
+    currentYear,
+    pastYear,
+    currentMonthIdx,
+    pastYearData: getMonthlyBreakdown(pastYear, 11), // Full 12 months for past year
+    currentYearData: getMonthlyBreakdown(currentYear, currentMonthIdx), // Only up to current month for current year (NO future months)
+  };
 
   return res.json({
     totalRevenue,
@@ -58,6 +126,7 @@ router.get('/overview', (req, res) => {
     activeCourses,
     categoryDistribution,
     registrationsOverTime,
+    monthlyCohortGrowth,
     metrics: {
       totalRevenue,
       totalUsers,
@@ -68,52 +137,70 @@ router.get('/overview', (req, res) => {
       totalCourses,
       activeCourses,
     },
-    recentApplications: db.raw.applications.slice(0, 8),
-    recentPayments: db.raw.payments.slice(0, 8),
-    recentAuditLogs: db.raw.auditLogs.slice(0, 10),
+    recentApplications: (db.raw.applications || []).slice(0, 8),
+    recentPayments: (db.raw.payments || []).slice(0, 8),
+    recentAuditLogs: (db.raw.auditLogs || []).slice(0, 10),
   });
+} catch (err) {
+    console.error('Admin overview error:', err);
+    return res.status(500).json({ error: 'Failed to load executive overview.' });
+  }
 });
 
 // Admin Analytics Data for Charts
 router.get('/analytics', (req, res) => {
-  // Compute monthly revenue trend
-  const revenueByMonth = {};
-  for (const p of db.raw.payments) {
-    if (p.status === 'SUCCESS') {
-      const month = p.createdAt.substring(0, 7); // '2026-08'
-      revenueByMonth[month] = (revenueByMonth[month] || 0) + p.amount;
+  try {
+    const payments = db.raw.payments || [];
+    const applications = db.raw.applications || [];
+    const courses = db.raw.courses || [];
+
+    // Compute monthly revenue trend
+    const revenueByMonth = {};
+    for (const p of payments) {
+      if (p && p.status === 'SUCCESS') {
+        const month = p.createdAt ? String(p.createdAt).substring(0, 7) : '2026-08';
+        revenueByMonth[month] = (revenueByMonth[month] || 0) + (p.amount || 0);
+      }
     }
+
+    const revenueTrend = Object.entries(revenueByMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, revenue]) => ({ month, revenue }));
+
+    // Application status breakdown
+    const statusCounts = {};
+    for (const a of applications) {
+      if (!a) continue;
+      statusCounts[a.status] = (statusCounts[a.status] || 0) + 1;
+    }
+    const applicationBreakdown = Object.entries(statusCounts).map(([status, count]) => ({ status, count }));
+
+    // Course enrollment distribution
+    const courseEnrollments = courses.map((c) => ({
+      title: c.title,
+      enrolled: c.enrolledCount || 0,
+      capacity: c.capacity || 40,
+      fillRate: Math.round(((c.enrolledCount || 0) / (c.capacity || 40)) * 100),
+    }));
+
+    return res.json({
+      revenueTrend,
+      applicationBreakdown,
+      courseEnrollments,
+    });
+  } catch (err) {
+    console.error('Admin analytics error:', err);
+    return res.status(500).json({ error: 'Failed to load analytics data.' });
   }
-
-  const revenueTrend = Object.entries(revenueByMonth)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, revenue]) => ({ month, revenue }));
-
-  // Application status breakdown
-  const statusCounts = {};
-  for (const a of db.raw.applications) {
-    statusCounts[a.status] = (statusCounts[a.status] || 0) + 1;
-  }
-  const applicationBreakdown = Object.entries(statusCounts).map(([status, count]) => ({ status, count }));
-
-  // Course enrollment distribution
-  const courseEnrollments = db.raw.courses.map((c) => ({
-    title: c.title,
-    enrolled: c.enrolledCount,
-    capacity: c.capacity,
-    fillRate: Math.round((c.enrolledCount / c.capacity) * 100),
-  }));
-
-  return res.json({
-    revenueTrend,
-    applicationBreakdown,
-    courseEnrollments,
-  });
 });
 
 // Get All Courses (Admin View)
 router.get('/courses', (req, res) => {
-  res.json({ courses: db.raw.courses });
+  try {
+    res.json({ courses: db.raw.courses || [] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load courses.' });
+  }
 });
 
 // Create New Course
@@ -262,29 +349,35 @@ router.delete('/courses/:id', async (req, res) => {
 
 // Get All Applications
 router.get('/applications', (req, res) => {
-  const { status, courseId, search } = req.query;
-  let apps = [...db.raw.applications];
+  try {
+    const { status, courseId, search } = req.query;
+    let apps = [...(db.raw.applications || [])];
 
-  if (status && status !== 'ALL') {
-    apps = apps.filter((a) => a.status === status);
+    if (status && status !== 'ALL') {
+      apps = apps.filter((a) => a && a.status === status);
+    }
+
+    if (courseId && courseId !== 'ALL') {
+      apps = apps.filter((a) => a && a.courseId === courseId);
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      apps = apps.filter(
+        (a) =>
+          a &&
+          ((a.userName || '').toLowerCase().includes(q) ||
+            (a.userEmail || '').toLowerCase().includes(q) ||
+            (a.applicationNumber || '').toLowerCase().includes(q) ||
+            (a.courseTitle || '').toLowerCase().includes(q))
+      );
+    }
+
+    res.json({ applications: apps });
+  } catch (err) {
+    console.error('Admin applications error:', err);
+    res.status(500).json({ error: 'Failed to load applications.' });
   }
-
-  if (courseId && courseId !== 'ALL') {
-    apps = apps.filter((a) => a.courseId === courseId);
-  }
-
-  if (search) {
-    const q = search.toLowerCase();
-    apps = apps.filter(
-      (a) =>
-        a.userName.toLowerCase().includes(q) ||
-        a.userEmail.toLowerCase().includes(q) ||
-        a.applicationNumber.toLowerCase().includes(q) ||
-        a.courseTitle.toLowerCase().includes(q)
-    );
-  }
-
-  res.json({ applications: apps });
 });
 
 // Update Application Status (Approve / Reject / Review)
@@ -292,9 +385,18 @@ router.patch('/applications/:id/status', async (req, res) => {
   try {
     const admin = req.user;
     const { id } = req.params;
-    const { status, reviewNotes } = req.body;
+    const { status, reviewNotes, adminNotes } = req.body;
 
-    const validStatuses = ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'PAYMENT_PENDING', 'CONFIRMED', 'REJECTED', 'CANCELLED'];
+    const validStatuses = [
+      'DRAFT',
+      'SUBMITTED',
+      'UNDER_REVIEW',
+      'PAYMENT_PENDING',
+      'APPROVED',
+      'CONFIRMED',
+      'REJECTED',
+      'CANCELLED',
+    ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid application status provided.' });
     }
@@ -304,13 +406,39 @@ router.patch('/applications/:id/status', async (req, res) => {
       return res.status(404).json({ error: 'Application record not found.' });
     }
 
+    const notes = (adminNotes !== undefined ? adminNotes : reviewNotes) || '';
     const now = new Date().toISOString();
+    let updatedApp = null;
+
     await db.transaction((data) => {
       const app = data.applications.find((a) => a.id === id);
       if (app) {
+        const prevStatus = app.status;
         app.status = status;
-        if (reviewNotes) app.reviewNotes = reviewNotes;
+        if (notes) {
+          app.reviewNotes = notes;
+          app.adminNotes = notes;
+        }
         app.updatedAt = now;
+        updatedApp = { ...app };
+
+        // Adjust course enrolledCount
+        const course = data.courses.find((c) => c.id === app.courseId);
+        if (course) {
+          const wasEnrolled = prevStatus === 'CONFIRMED' || prevStatus === 'APPROVED';
+          const isNowEnrolled = status === 'CONFIRMED' || status === 'APPROVED';
+          if (!wasEnrolled && isNowEnrolled) {
+            course.enrolledCount = (course.enrolledCount || 0) + 1;
+            if (course.enrolledCount >= course.capacity) {
+              course.status = 'FULL';
+            }
+          } else if (wasEnrolled && !isNowEnrolled) {
+            course.enrolledCount = Math.max(0, (course.enrolledCount || 1) - 1);
+            if (course.status === 'FULL') {
+              course.status = 'PUBLISHED';
+            }
+          }
+        }
       }
 
       // Add user notification
@@ -320,7 +448,7 @@ router.patch('/applications/:id/status', async (req, res) => {
         userId: application.userId,
         title: `Application Status Updated: ${status}`,
         message: `Your application #${application.applicationNumber} status changed to ${status}.`,
-        type: status === 'CONFIRMED' ? 'success' : status === 'REJECTED' ? 'error' : 'info',
+        type: status === 'CONFIRMED' || status === 'APPROVED' ? 'success' : status === 'REJECTED' ? 'error' : 'info',
         link: '/dashboard',
         isRead: false,
         createdAt: now,
@@ -340,7 +468,11 @@ router.patch('/applications/:id/status', async (req, res) => {
       });
     });
 
-    return res.json({ success: true, message: `Application status updated to ${status}.`, application });
+    return res.json({
+      success: true,
+      message: `Application status updated to ${status}.`,
+      application: updatedApp || application,
+    });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to update application status.' });
   }
@@ -621,7 +753,11 @@ router.delete('/users/:id', async (req, res) => {
 
 // Get All Payments
 router.get('/payments', (req, res) => {
-  res.json({ payments: db.raw.payments });
+  try {
+    res.json({ payments: db.raw.payments || [] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load payments.' });
+  }
 });
 
 // Process Refund
@@ -631,7 +767,7 @@ router.post('/payments/:id/refund', async (req, res) => {
     const { id } = req.params;
     const { reason } = req.body;
 
-    const payment = db.raw.payments.find((p) => p.id === id);
+    const payment = (db.raw.payments || []).find((p) => p && p.id === id);
     if (!payment) {
       return res.status(404).json({ error: 'Payment record not found.' });
     }
@@ -687,7 +823,11 @@ router.post('/payments/:id/refund', async (req, res) => {
 
 // Audit Logs
 router.get('/audit-logs', (req, res) => {
-  res.json({ auditLogs: db.raw.auditLogs.slice(0, 100) });
+  try {
+    res.json({ auditLogs: (db.raw.auditLogs || []).slice(0, 100) });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load audit logs.' });
+  }
 });
 
 // Email Dispatch Records

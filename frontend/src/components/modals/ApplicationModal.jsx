@@ -21,6 +21,22 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
   const { user } = useAuth();
   const [step, setStep] = useState('form');
 
+  // Clean to exactly 10 digits
+  const extract10DigitMobile = (val) => {
+    if (!val) return '';
+    let digits = String(val).replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      return digits.slice(2);
+    }
+    if (digits.length === 11 && digits.startsWith('0')) {
+      return digits.slice(1);
+    }
+    if (digits.length > 10) {
+      return digits.slice(-10);
+    }
+    return digits;
+  };
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
@@ -29,6 +45,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
   const [yearOfStudy, setYearOfStudy] = useState('Final Year');
   const [experienceLevel, setExperienceLevel] = useState('Intermediate');
   const [statementOfIntent, setStatementOfIntent] = useState('');
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
 
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(true);
@@ -41,11 +58,24 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
   const [submittedApp, setSubmittedApp] = useState(null);
   const [paymentOrder, setPaymentOrder] = useState(null);
 
+  const handleMobileChange = (e) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+    if (digits.length > 10) {
+      digits = digits.slice(-10);
+    }
+    setMobile(digits);
+  };
+
   useEffect(() => {
     if (user) {
       setFullName(user.name || '');
       setEmail(user.email || '');
-      setMobile(user.mobile || '');
+      setMobile(extract10DigitMobile(user.mobile));
       setInstitution(user.institution || '');
       setDegree(user.degree || '');
       if (user.yearOfStudy) setYearOfStudy(user.yearOfStudy);
@@ -64,12 +94,13 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
               const fd = data.draft.formData;
               if (fd.fullName) setFullName(fd.fullName);
               if (fd.email) setEmail(fd.email);
-              if (fd.mobile) setMobile(fd.mobile);
+              if (fd.mobile) setMobile(extract10DigitMobile(fd.mobile));
               if (fd.institution) setInstitution(fd.institution);
               if (fd.degree) setDegree(fd.degree);
               if (fd.yearOfStudy) setYearOfStudy(fd.yearOfStudy);
               if (fd.experienceLevel) setExperienceLevel(fd.experienceLevel);
               if (fd.statementOfIntent) setStatementOfIntent(fd.statementOfIntent);
+              if (fd.startDate) setStartDate(fd.startDate);
               setDraftSavedMessage('Restored previous saved draft.');
               setTimeout(() => setDraftSavedMessage(null), 3000);
             }
@@ -83,6 +114,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
   }, [user, isOpen, course]);
 
   const handleSaveDraft = async () => {
+    if (!course) return;
     setIsSavingDraft(true);
     setError(null);
     setDraftSavedMessage(null);
@@ -99,12 +131,13 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
           formData: {
             fullName: fullName.trim(),
             email: email.trim(),
-            mobile: mobile.trim(),
+            mobile: mobile ? `+91 ${mobile.trim()}` : '',
             institution: institution.trim(),
             degree: degree.trim(),
             yearOfStudy,
             experienceLevel,
             statementOfIntent: statementOfIntent.trim(),
+            startDate: startDate || new Date().toISOString().split('T')[0],
             agreedToTerms,
             agreedToPrivacy,
             agreedToRefundPolicy,
@@ -128,6 +161,11 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
     e.preventDefault();
     setError(null);
 
+    if (mobile && mobile.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
     if (!agreedToTerms || !agreedToPrivacy || !agreedToRefundPolicy) {
       setError('You must accept all terms and policy conditions to proceed.');
       return;
@@ -148,12 +186,13 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
           formData: {
             fullName: fullName.trim(),
             email: email.trim(),
-            mobile: mobile.trim(),
+            mobile: mobile ? `+91 ${mobile.trim()}` : '',
             institution: institution.trim(),
             degree: degree.trim(),
             yearOfStudy,
             experienceLevel,
             statementOfIntent: statementOfIntent.trim(),
+            startDate: startDate || new Date().toISOString().split('T')[0],
             agreedToTerms,
             agreedToPrivacy,
             agreedToRefundPolicy,
@@ -348,17 +387,30 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold">
-                  Mobile Number (WhatsApp Enabled) *
+                <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold flex items-center justify-between">
+                  <span>Mobile Number (WhatsApp Enabled) *</span>
+                  {mobile && (
+                    <span className={`text-[10px] font-mono font-bold ${mobile.length === 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {mobile.length === 10 ? '✓ 10 Digits' : `${mobile.length}/10`}
+                    </span>
+                  )}
                 </label>
-                <input
-                  type="tel"
-                  required
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  placeholder="+91 98765 43210"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
-                />
+                <div className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus-within:bg-white border border-[#d8ecec] focus-within:border-[#0B4F50] focus-within:ring-2 focus-within:ring-[#0B4F50]/15 rounded-full flex items-center transition-all overflow-hidden">
+                  <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 border-r border-[#d8ecec] select-none shrink-0 bg-[#e5f0f0]/60 text-slate-800 font-mono font-bold text-xs sm:text-sm">
+                    <span className="text-sm leading-none">🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={mobile}
+                    onChange={handleMobileChange}
+                    placeholder="Enter 10-digit mobile number"
+                    className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 outline-none font-mono placeholder:font-sans placeholder:text-slate-400"
+                  />
+                </div>
               </div>
 
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B4F50] border-b border-[#d8ecec] pb-2 pt-2">
@@ -426,6 +478,28 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     <option value="Advanced">Advanced (Systems & DevOps)</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Automated Schedule & Start Date Selection */}
+              <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#0B4F50] font-bold">
+                    Preferred Course Start Date *
+                  </label>
+                  <span className="text-[10px] font-mono font-bold text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded-md">
+                    Automated Daily Schedule
+                  </span>
+                </div>
+                <input
+                  type="date"
+                  required
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none font-mono font-semibold"
+                />
+                <p className="text-[11px] text-teal-800/80 leading-relaxed">
+                  Your day-by-day learning schedule will automatically generate starting from this date. Daily class videos, topics, summaries, and quizzes will follow this schedule automatically.
+                </p>
               </div>
 
               <div>

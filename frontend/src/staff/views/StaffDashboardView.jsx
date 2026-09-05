@@ -38,16 +38,32 @@ import {
   Tv,
   CheckSquare,
   FileCode,
+  User,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
-export const StaffDashboardView = ({ onNavigate }) => {
+export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const { user, logout } = useAuth();
 
   // Sidebar & Layout State
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'classes' | 'courses' | 'evaluations' | 'grading' | 'announcements'
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    if (initialTab && initialTab !== activeTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    if (onNavigate) {
+      onNavigate(`staff/${tabId}`);
+    } else {
+      window.history.pushState(null, '', `/staff/${tabId}`);
+    }
+  };
 
   // Data Metrics & Lists
   const [metrics, setMetrics] = useState({
@@ -75,9 +91,34 @@ export const StaffDashboardView = ({ onNavigate }) => {
     videoUrl: '',
     duration: '1 hr 15 mins',
     resourcesUrl: '',
+    topics: '',
+    summary: '',
+    materialTitle: '',
+    materialUrl: '',
+    quizQuestion: '',
+    quizOption0: '',
+    quizOption1: '',
+    quizOption2: '',
+    quizOption3: '',
+    quizCorrect: 0,
+    quizExplanation: '',
     status: 'PUBLISHED',
   });
   const [isSavingClass, setIsSavingClass] = useState(false);
+
+  // Student Progress & Attendance Tracking State
+  const [studentProgressList, setStudentProgressList] = useState([]);
+  const [isLoadingProgress, setIsLoadingProgress] = useState(false);
+  const [isMarkingAttendance, setIsMarkingAttendance] = useState(false);
+
+  // Final Project Reviews State
+  const [projectSubmissions, setProjectSubmissions] = useState([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [selectedProjectForReview, setSelectedProjectForReview] = useState(null);
+  const [reviewStatus, setReviewStatus] = useState('APPROVED');
+  const [reviewFeedback, setReviewFeedback] = useState('');
+  const [isSavingReview, setIsSavingReview] = useState(false);
+  const [projectFilterStatus, setProjectFilterStatus] = useState('ALL');
 
   // Evaluation modal state
   const [selectedApp, setSelectedApp] = useState(null);
@@ -91,12 +132,41 @@ export const StaffDashboardView = ({ onNavigate }) => {
   const [annContent, setAnnContent] = useState('');
   const [annPriority, setAnnPriority] = useState('NORMAL');
   const [isPostingAnn, setIsPostingAnn] = useState(false);
-  const [toastMsg, setToastMsg] = useState(null);
+  // Course Management (Create & Settings Editor) State
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [courseToEdit, setCourseToEdit] = useState(null);
+  const [courseForm, setCourseForm] = useState({
+    title: '',
+    category: 'Engineering',
+    duration: '10 Days',
+    dailyReleaseTime: '09:00',
+    shortDescription: '',
+    price: 0,
+    capacity: 40,
+    instructor: '',
+  });
+  const [isSavingCourse, setIsSavingCourse] = useState(false);
 
-  // Search filters
+  // Course-Specific Applications (Students who applied for selected course) State
+  const [isCourseAppsModalOpen, setIsCourseAppsModalOpen] = useState(false);
+  const [courseAppsList, setCourseAppsList] = useState([]);
+  const [isLoadingCourseApps, setIsLoadingCourseApps] = useState(false);
+  const [toastMsg, setToastMsg] = useState(null);
   const [appSearch, setAppSearch] = useState('');
-  const [studentSearch, setStudentSearch] = useState('');
   const [appFilterStatus, setAppFilterStatus] = useState('ALL');
+  const [studentSearch, setStudentSearch] = useState('');
+
+  const formatReleaseTime = (timeStr) => {
+    if (!timeStr) return '9:00 AM';
+    const parts = String(timeStr).split(':');
+    let hour = parseInt(parts[0], 10);
+    const minute = parts[1] ? parts[1].padStart(2, '0') : '00';
+    if (isNaN(hour)) return '9:00 AM';
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${hour}:${minute} ${ampm}`;
+  };
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -138,8 +208,30 @@ export const StaffDashboardView = ({ onNavigate }) => {
         fetch('/api/staff/announcements', { headers }),
       ]);
 
+      if (
+        overRes?.status === 401 ||
+        courseRes?.status === 401 ||
+        appRes?.status === 401 ||
+        studRes?.status === 401 ||
+        annRes?.status === 401
+      ) {
+        logout();
+        if (onNavigate) onNavigate('staff-login');
+        return;
+      }
+      if (
+        overRes?.status === 403 ||
+        courseRes?.status === 403 ||
+        appRes?.status === 403 ||
+        studRes?.status === 403 ||
+        annRes?.status === 403
+      ) {
+        if (onNavigate) onNavigate('student');
+        return;
+      }
+
       let loadedCourses = [];
-      if (courseRes.ok) {
+      if (courseRes?.ok) {
         const data = await courseRes.json();
         loadedCourses = data.courses || [];
         setCourses(loadedCourses);
@@ -149,19 +241,19 @@ export const StaffDashboardView = ({ onNavigate }) => {
           fetchClassesForCourse(firstCourseId);
         }
       }
-      if (overRes.ok) {
+      if (overRes?.ok) {
         const data = await overRes.json();
         setMetrics(data.metrics || {});
       }
-      if (appRes.ok) {
+      if (appRes?.ok) {
         const data = await appRes.json();
         setApplications(data.applications || []);
       }
-      if (studRes.ok) {
+      if (studRes?.ok) {
         const data = await studRes.json();
         setStudents(data.students || []);
       }
-      if (annRes.ok) {
+      if (annRes?.ok) {
         const data = await annRes.json();
         setAnnouncements(data.announcements || []);
       }
@@ -172,27 +264,187 @@ export const StaffDashboardView = ({ onNavigate }) => {
     }
   };
 
+  // Fetch Student Progress for Course
+  const fetchStudentProgress = async (courseId) => {
+    setIsLoadingProgress(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const targetId = courseId || selectedCourseId || 'ALL';
+      const res = await fetch(`/api/staff/courses/${targetId}/students/progress`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStudentProgressList(data.students || []);
+      }
+    } catch (err) {
+      console.error('Fetch student progress error:', err);
+    } finally {
+      setIsLoadingProgress(false);
+    }
+  };
+
+  // Fetch Project Submissions
+  const fetchProjects = async () => {
+    setIsLoadingProjects(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch('/api/staff/projects', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProjectSubmissions(data.projects || []);
+      }
+    } catch (err) {
+      console.error('Fetch projects error:', err);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  };
+
   useEffect(() => {
     fetchStaffData();
+    fetchProjects();
   }, []);
 
-  // When selectedCourseId changes, load classes
+  // When selectedCourseId changes, reload classes and progress
   useEffect(() => {
     if (selectedCourseId) {
       fetchClassesForCourse(selectedCourseId);
+      fetchStudentProgress(selectedCourseId);
     }
   }, [selectedCourseId]);
+
+  // When active tab changes to progress or projects, refresh data
+  useEffect(() => {
+    if (activeTab === 'progress' && selectedCourseId) {
+      fetchStudentProgress(selectedCourseId);
+    } else if (activeTab === 'projects') {
+      fetchProjects();
+    }
+  }, [activeTab]);
+
+  // Fetch Students Applied for Selected Course
+  const fetchCourseApplications = async (courseId) => {
+    if (!courseId) return;
+    setIsLoadingCourseApps(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/staff/courses/${courseId}/applications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCourseAppsList(data.applications || []);
+      }
+    } catch (err) {
+      console.error('Fetch course applications error:', err);
+    } finally {
+      setIsLoadingCourseApps(false);
+    }
+  };
+
+  // Open Modal for Create Course
+  const handleOpenNewCourseModal = () => {
+    setCourseToEdit(null);
+    setCourseForm({
+      title: '',
+      category: 'Engineering',
+      duration: '10 Days',
+      dailyReleaseTime: '09:00',
+      shortDescription: '',
+      price: 0,
+      capacity: 40,
+      instructor: user?.name || 'Claxic Faculty',
+    });
+    setIsCourseModalOpen(true);
+  };
+
+  // Open Modal for Edit Course Settings
+  const handleOpenEditCourseModal = (course) => {
+    if (!course) return;
+    setCourseToEdit(course);
+    setCourseForm({
+      title: course.title || '',
+      category: course.category || 'Engineering',
+      duration: course.duration || '10 Days',
+      dailyReleaseTime: course.dailyReleaseTime || '09:00',
+      shortDescription: course.shortDescription || course.description || '',
+      price: course.price || 0,
+      capacity: course.capacity || 40,
+      instructor: typeof course.instructor === 'object' ? course.instructor?.name : (course.instructor || user?.name || ''),
+    });
+    setIsCourseModalOpen(true);
+  };
+
+  // Save / Update Course
+  const handleSaveCourse = async (e) => {
+    e.preventDefault();
+    if (!courseForm.title.trim()) {
+      alert('Course title is required.');
+      return;
+    }
+    setIsSavingCourse(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const isEditing = !!courseToEdit;
+      const url = isEditing ? `/api/staff/courses/${courseToEdit.id}` : `/api/staff/courses`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(courseForm),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        showToast(isEditing ? 'Course settings updated!' : 'New course created successfully!');
+        setIsCourseModalOpen(false);
+        await fetchStaffData();
+        if (!isEditing && data.course?.id) {
+          setSelectedCourseId(data.course.id);
+          fetchClassesForCourse(data.course.id);
+        }
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to save course.');
+      }
+    } catch (err) {
+      console.error('Save course error:', err);
+      alert('Failed to save course.');
+    } finally {
+      setIsSavingCourse(false);
+    }
+  };
 
   // Open Modal for New Class
   const handleOpenNewClassModal = () => {
     setClassToEdit(null);
+    const nextDayNum = classesList.length + 1;
     setClassForm({
-      classNumber: classesList.length + 1,
-      title: `Class ${classesList.length + 1}: `,
+      classNumber: nextDayNum,
+      dayNumber: nextDayNum,
+      title: `Day ${nextDayNum}: `,
       description: '',
       videoUrl: '',
-      duration: '1 hr 15 mins',
+      duration: '1 hr 30 mins',
       resourcesUrl: '',
+      topics: '',
+      summary: '',
+      materialTitle: '',
+      materialUrl: '',
+      quizQuestion: '',
+      quizOption0: '',
+      quizOption1: '',
+      quizOption2: '',
+      quizOption3: '',
+      quizCorrect: 0,
+      quizExplanation: '',
       status: 'PUBLISHED',
     });
     setIsClassModalOpen(true);
@@ -201,19 +453,32 @@ export const StaffDashboardView = ({ onNavigate }) => {
   // Open Modal for Edit Class
   const handleOpenEditClassModal = (cls) => {
     setClassToEdit(cls);
+    const firstQuestion = cls.test?.questions?.[0] || null;
     setClassForm({
       classNumber: cls.classNumber || 1,
+      dayNumber: cls.dayNumber || cls.classNumber || 1,
       title: cls.title || '',
       description: cls.description || '',
       videoUrl: cls.videoUrl || '',
-      duration: cls.duration || '1 hr 15 mins',
+      duration: cls.duration || '1 hr 30 mins',
       resourcesUrl: cls.resourcesUrl || '',
+      topics: Array.isArray(cls.topics) ? cls.topics.join(', ') : (cls.topics || ''),
+      summary: cls.summary || '',
+      materialTitle: cls.learningMaterials?.[0]?.title || '',
+      materialUrl: cls.learningMaterials?.[0]?.url || cls.resourcesUrl || '',
+      quizQuestion: firstQuestion?.question || '',
+      quizOption0: firstQuestion?.options?.[0] || '',
+      quizOption1: firstQuestion?.options?.[1] || '',
+      quizOption2: firstQuestion?.options?.[2] || '',
+      quizOption3: firstQuestion?.options?.[3] || '',
+      quizCorrect: firstQuestion?.correctIndex ?? 0,
+      quizExplanation: firstQuestion?.explanation || '',
       status: cls.status || 'PUBLISHED',
     });
     setIsClassModalOpen(true);
   };
 
-  // Save / Update Class Episode
+  // Save / Update Class Episode with Topics, Summary, Materials, and Test
   const handleSaveClass = async (e) => {
     e.preventDefault();
     if (!selectedCourseId || !classForm.title.trim()) {
@@ -230,17 +495,56 @@ export const StaffDashboardView = ({ onNavigate }) => {
         : `/api/staff/courses/${selectedCourseId}/classes`;
       const method = isEditing ? 'PUT' : 'POST';
 
+      const payload = {
+        classNumber: parseInt(classForm.classNumber, 10),
+        dayNumber: parseInt(classForm.dayNumber || classForm.classNumber, 10),
+        title: classForm.title.trim(),
+        description: classForm.description.trim(),
+        videoUrl: classForm.videoUrl.trim(),
+        duration: classForm.duration.trim(),
+        resourcesUrl: (classForm.resourcesUrl || classForm.materialUrl || '').trim(),
+        topics: classForm.topics
+          ? classForm.topics.split(',').map((t) => t.trim()).filter(Boolean)
+          : [],
+        summary: classForm.summary.trim(),
+        learningMaterials: classForm.materialTitle
+          ? [{ title: classForm.materialTitle.trim(), url: (classForm.materialUrl || classForm.resourcesUrl || '').trim() }]
+          : (classToEdit?.learningMaterials || []),
+        test: classForm.quizQuestion.trim()
+          ? {
+              id: classToEdit?.test?.id || `test_${Date.now()}`,
+              title: `${classForm.title.trim()} Assessment`,
+              passingScore: 70,
+              questions: [
+                {
+                  id: 'q_1',
+                  question: classForm.quizQuestion.trim(),
+                  options: [
+                    classForm.quizOption0.trim(),
+                    classForm.quizOption1.trim(),
+                    classForm.quizOption2.trim(),
+                    classForm.quizOption3.trim(),
+                  ].filter(Boolean),
+                  correctIndex: parseInt(classForm.quizCorrect, 10) || 0,
+                  explanation: classForm.quizExplanation.trim() || 'Correct architectural principle.',
+                },
+              ],
+            }
+          : (classToEdit?.test || null),
+        status: classForm.status,
+      };
+
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(classForm),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        showToast(isEditing ? 'Class episode updated successfully.' : 'New class episode published!');
+        showToast(isEditing ? 'Class updated with topics & summary!' : 'New class published to course!');
         setIsClassModalOpen(false);
         fetchClassesForCourse(selectedCourseId);
       } else {
@@ -252,6 +556,69 @@ export const StaffDashboardView = ({ onNavigate }) => {
       alert('Failed to save class episode.');
     } finally {
       setIsSavingClass(false);
+    }
+  };
+
+  // Toggle Class Attendance for a Student
+  const handleToggleAttendance = async (userId, classId, currentAttended) => {
+    try {
+      setIsMarkingAttendance(true);
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/staff/courses/${selectedCourseId || 'ALL'}/attendance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId,
+          classId,
+          attended: !currentAttended,
+        }),
+      });
+      if (res.ok) {
+        showToast(!currentAttended ? 'Class attendance marked present.' : 'Attendance record updated.');
+        fetchStudentProgress(selectedCourseId);
+      }
+    } catch (err) {
+      console.error('Attendance toggle error:', err);
+    } finally {
+      setIsMarkingAttendance(false);
+    }
+  };
+
+  // Save Final Project Review Feedback & Decision
+  const handleSaveProjectReview = async (e) => {
+    e.preventDefault();
+    if (!selectedProjectForReview) return;
+    setIsSavingReview(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/staff/projects/${selectedProjectForReview.id}/review`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: reviewStatus,
+          feedback: reviewFeedback.trim(),
+        }),
+      });
+      if (res.ok) {
+        showToast(`Project review saved: ${reviewStatus}`);
+        setSelectedProjectForReview(null);
+        fetchProjects();
+        if (selectedCourseId) fetchStudentProgress(selectedCourseId);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to save review.');
+      }
+    } catch (err) {
+      console.error('Project review error:', err);
+      alert('Failed to save project review.');
+    } finally {
+      setIsSavingReview(false);
     }
   };
 
@@ -373,12 +740,14 @@ export const StaffDashboardView = ({ onNavigate }) => {
     );
   });
 
+  const pendingProjectsCount = projectSubmissions.filter((p) => p.status === 'PENDING_REVIEW').length;
+
   const navigationItems = [
     { id: 'overview', label: 'Faculty Overview', icon: BarChart2 },
-    { id: 'classes', label: 'Course Classes & Episodes', icon: Film, count: classesList.length },
-    { id: 'courses', label: 'Assigned Programs', icon: BookOpen, count: courses.length },
-    { id: 'evaluations', label: 'Candidate Reviews', icon: Layers, count: metrics.pendingEvaluationsCount },
-    { id: 'grading', label: 'Student Cohort & Grades', icon: Users, count: students.length },
+    { id: 'classes', label: 'Course Classes & Content', icon: Film, count: classesList.length },
+    { id: 'progress', label: 'Student Progress & Attendance', icon: UserCheck, count: studentProgressList.length },
+    { id: 'projects', label: 'Final Project Reviews', icon: Award, count: pendingProjectsCount },
+    { id: 'profile', label: 'Staff Profile', icon: User },
     { id: 'announcements', label: 'Cohort Notices', icon: Bell, count: announcements.length },
   ];
 
@@ -426,7 +795,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
             {!isSidebarCollapsed && (
               <div
                 className="flex items-center gap-2.5 cursor-pointer select-none transition-transform hover:scale-102 min-w-0"
-                onClick={() => setActiveTab('overview')}
+                onClick={() => handleTabChange('overview')}
                 title="Staff Portal Overview"
               >
                 <img
@@ -483,7 +852,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                     key={item.id}
                     type="button"
                     onClick={() => {
-                      setActiveTab(item.id);
+                      handleTabChange(item.id);
                       if (window.innerWidth < 1024) setIsMobileSidebarOpen(false);
                     }}
                     title={isSidebarCollapsed ? `${item.label} (${item.count !== undefined ? item.count : ''})` : undefined}
@@ -598,6 +967,9 @@ export const StaffDashboardView = ({ onNavigate }) => {
               <h1 className="text-sm sm:text-base lg:text-lg font-bold text-[#0F1E2E] font-display truncate">
                 {activeTab === 'overview' && 'Faculty Executive Overview'}
                 {activeTab === 'classes' && 'Course Classes & Episodes Curriculum'}
+                {activeTab === 'progress' && 'Student Progress & Attendance Tracking'}
+                {activeTab === 'projects' && 'Final Project Reviews'}
+                {activeTab === 'profile' && 'Staff Faculty Profile & Credentials'}
                 {activeTab === 'courses' && 'Assigned Academic Programs'}
                 {activeTab === 'evaluations' && 'Candidate Application Reviews'}
                 {activeTab === 'grading' && 'Student Cohorts & Gradebook'}
@@ -615,29 +987,51 @@ export const StaffDashboardView = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={handleOpenNewClassModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">Upload Class</span>
               </button>
             )}
 
-            <a
-              href="https://meet.google.com"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
-            >
-              <Video className="w-3.5 h-3.5 text-[#38BDF8]" />
-              <span className="hidden sm:inline">Live Class Room</span>
-              <span className="sm:hidden text-[11px]">Live</span>
-            </a>
+            {activeTab === 'announcements' && (
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.getElementById('announcement-title-input');
+                  if (input) input.focus();
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">New Notice</span>
+              </button>
+            )}
 
-            <div className="h-6 w-px bg-slate-200 hidden md:block" />
-
-            <span className="text-xs text-slate-600 font-medium hidden lg:inline truncate max-w-[180px]">
-              {user?.email}
-            </span>
+            {/* Clean Faculty Staff Identity Pill */}
+            <div className="flex items-center gap-2 sm:gap-2.5 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3 py-1 rounded-2xl bg-[#F4F8F8] border border-[#CBD5E1] shadow-2xs">
+              <div className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0F1E2E] text-white text-xs font-bold shrink-0 shadow-xs">
+                {(user?.name || user?.email || 'F').charAt(0).toUpperCase()}
+                <span
+                  className="absolute -bottom-0.5 -right-0.5 w-2 sm:w-2.5 h-2 sm:h-2.5 bg-emerald-500 border-2 border-white rounded-full"
+                  title="Faculty Member Active"
+                />
+              </div>
+              <div className="hidden sm:flex flex-col text-left leading-tight min-w-0">
+                <span className="text-xs font-bold text-[#0F1E2E] truncate max-w-[130px] md:max-w-[180px]">
+                  {user?.name || 'Faculty Staff'}
+                </span>
+                <span
+                  className="text-[10px] font-medium text-slate-500 truncate max-w-[130px] md:max-w-[180px]"
+                  title={user?.email}
+                >
+                  {user?.email}
+                </span>
+              </div>
+              <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#0284C7]/10 text-[#0284C7] uppercase tracking-wider shrink-0 border border-[#0284C7]/20">
+                Staff
+              </span>
+            </div>
           </div>
         </header>
 
@@ -744,7 +1138,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
 
                     <button
                       type="button"
-                      onClick={() => setActiveTab('classes')}
+                      onClick={() => handleTabChange('classes')}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold border border-white/10 cursor-pointer transition-all"
                     >
                       <Film className="w-3.5 h-3.5 text-[#38BDF8]" />
@@ -764,7 +1158,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setActiveTab('evaluations')}
+                      onClick={() => handleTabChange('evaluations')}
                       className="text-xs font-bold text-[#0284C7] hover:underline"
                     >
                       View All
@@ -788,7 +1182,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                             setSelectedApp(app);
                             setEvalNotes(app.staffNotes || '');
                             setEvalScore(app.interviewScore || 8);
-                            setActiveTab('evaluations');
+                            handleTabChange('evaluations');
                           }}
                           className="px-3 py-1.5 rounded-lg bg-[#0F1E2E] text-white text-[11px] font-semibold hover:bg-slate-800 transition-colors cursor-pointer"
                         >
@@ -810,7 +1204,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                     </h4>
                     <button
                       type="button"
-                      onClick={() => setActiveTab('announcements')}
+                      onClick={() => handleTabChange('announcements')}
                       className="text-xs font-bold text-[#0284C7] hover:underline"
                     >
                       + New Notice
@@ -888,22 +1282,63 @@ export const StaffDashboardView = ({ onNavigate }) => {
 
               {/* Course Info Banner */}
               {currentSelectedCourse && (
-                <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-sky-900">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sky-200/80 text-sky-800 flex items-center justify-center shrink-0">
-                      <Tv className="w-5 h-5" />
+                <div className="p-5 rounded-2xl bg-sky-50/80 border border-sky-200/80 flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs text-sky-950 shadow-2xs">
+                  <div className="flex items-start sm:items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-2xl bg-sky-200/80 text-sky-800 flex items-center justify-center shrink-0 shadow-2xs">
+                      <Tv className="w-6 h-6" />
                     </div>
-                    <div>
-                      <span className="font-bold text-sm block text-[#0F1E2E]">{currentSelectedCourse.title}</span>
-                      <span className="text-slate-600 text-[11px]">
-                        Category: {currentSelectedCourse.category} • {currentSelectedCourse.duration} • Level: {currentSelectedCourse.level}
-                      </span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-base text-[#0F1E2E]">{currentSelectedCourse.title}</span>
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#0F1E2E] text-white text-[10px] font-mono font-bold">
+                          {currentSelectedCourse.category}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2.5 flex-wrap text-slate-600 text-[11px]">
+                        <span>Duration: <strong className="text-slate-800">{currentSelectedCourse.duration || '10 Days'}</strong></span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Daily Release: {formatReleaseTime(currentSelectedCourse.dailyReleaseTime || '09:00')}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="text-slate-500 font-mono">
+                          (Unlocks day-by-day based on each student's start date)
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 font-mono font-bold text-xs shrink-0">
-                    <span className="px-2.5 py-1 bg-white border border-sky-200 rounded-lg text-[#0284C7]">
-                      {classesList.length} Classes Uploaded
-                    </span>
+
+                  <div className="flex items-center gap-2 flex-wrap shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        fetchCourseApplications(currentSelectedCourse.id);
+                        setIsCourseAppsModalOpen(true);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-100 text-sky-900 border border-sky-300 font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <Users className="w-3.5 h-3.5 text-[#0284C7]" />
+                      <span>Applied Students</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditCourseModal(currentSelectedCourse)}
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <Sliders className="w-3.5 h-3.5 text-slate-600" />
+                      <span>Course Settings</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleOpenNewCourseModal}
+                      className="px-3 py-1.5 rounded-xl bg-[#0284C7] hover:bg-sky-700 text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ New Course</span>
+                    </button>
                   </div>
                 </div>
               )}
@@ -932,7 +1367,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {classesList
-                    .sort((a, b) => (a.classNumber || 0) - (b.classNumber || 0))
+                    .sort((a, b) => (a.dayNumber || a.classNumber || 0) - (b.dayNumber || b.classNumber || 0))
                     .map((cls, idx) => (
                       <div
                         key={cls.id || idx}
@@ -942,7 +1377,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                           {/* Card Top: Class # Badge & Status */}
                           <div className="flex items-center justify-between">
                             <span className="px-3 py-1 rounded-full bg-[#0F1E2E] text-white text-[10px] font-mono font-bold tracking-wider">
-                              CLASS {cls.classNumber || idx + 1}
+                              DAY {cls.dayNumber || cls.classNumber || idx + 1} • CLASS {cls.classNumber || idx + 1}
                             </span>
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
@@ -961,9 +1396,43 @@ export const StaffDashboardView = ({ onNavigate }) => {
                           </h4>
 
                           {/* Class Description */}
-                          <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                             {cls.description || 'Lecture video and supplementary material for this class module.'}
                           </p>
+
+                          {/* Class-wise Topics */}
+                          {cls.topics && cls.topics.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {cls.topics.map((t, tidx) => (
+                                <span key={tidx} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono font-medium">
+                                  #{t}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Post-Class Summary: What was taught */}
+                          {cls.summary && (
+                            <div className="p-2.5 rounded-xl bg-teal-50/70 border border-teal-100/90 text-[11px] text-teal-950 leading-relaxed">
+                              <span className="font-bold text-[#0B4F50] block text-[10px] uppercase font-mono tracking-wider mb-0.5">
+                                What Was Taught (Post-Class Summary)
+                              </span>
+                              <p className="line-clamp-3">{cls.summary}</p>
+                            </div>
+                          )}
+
+                          {/* Class Quiz / Test Indicator */}
+                          {cls.test && (
+                            <div className="flex items-center justify-between text-[11px] p-2 rounded-lg bg-sky-50 border border-sky-100 text-sky-900 font-medium">
+                              <span className="flex items-center gap-1.5">
+                                <CheckSquare className="w-3.5 h-3.5 text-[#0284C7]" />
+                                <span className="font-bold truncate max-w-[180px]">{cls.test.title || 'Class Assessment'}</span>
+                              </span>
+                              <span className="font-mono text-[10px] font-bold text-[#0284C7] shrink-0">
+                                Pass: {cls.test.passingScore || 70}%
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Metadata & Actions */}
@@ -987,19 +1456,35 @@ export const StaffDashboardView = ({ onNavigate }) => {
                             )}
                           </div>
 
-                          {cls.resourcesUrl && (
-                            <a
-                              href={cls.resourcesUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="w-full py-1.5 px-3 rounded-lg bg-[#F8FAFC] hover:bg-slate-100 border border-slate-200 flex items-center justify-between text-[11px] text-slate-700 font-medium transition-colors"
-                            >
-                              <span className="flex items-center gap-1.5">
-                                <FileCode className="w-3.5 h-3.5 text-[#0284C7]" />
-                                <span className="truncate">Class Resources / Slides</span>
-                              </span>
-                              <ExternalLink className="w-3 h-3 text-slate-400" />
-                            </a>
+                          {(cls.resourcesUrl || (cls.learningMaterials && cls.learningMaterials.length > 0)) && (
+                            <div className="space-y-1">
+                              {cls.resourcesUrl && (
+                                <a
+                                  href={cls.resourcesUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-full py-1.5 px-3 rounded-lg bg-[#F8FAFC] hover:bg-slate-100 border border-slate-200 flex items-center justify-between text-[11px] text-slate-700 font-medium transition-colors"
+                                >
+                                  <span className="flex items-center gap-1.5 truncate">
+                                    <FileCode className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
+                                    <span className="truncate">Class Resources / Slides</span>
+                                  </span>
+                                  <ExternalLink className="w-3 h-3 text-slate-400 shrink-0" />
+                                </a>
+                              )}
+                              {cls.learningMaterials && cls.learningMaterials.map((mat, midx) => (
+                                <a
+                                  key={midx}
+                                  href={mat.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-full py-1 px-3 rounded-lg bg-teal-50/50 hover:bg-teal-50 border border-teal-100 flex items-center justify-between text-[10px] text-teal-900 font-semibold transition-colors"
+                                >
+                                  <span className="truncate">📎 {mat.title || 'Learning Material'}</span>
+                                  <ExternalLink className="w-3 h-3 text-teal-500 shrink-0" />
+                                </a>
+                              ))}
+                            </div>
                           )}
 
                           {/* Action Buttons: Edit / Delete */}
@@ -1011,7 +1496,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                               title="Edit Class Episode"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
-                              <span className="text-[11px]">Edit</span>
+                              <span className="text-[11px]">Edit / Summary</span>
                             </button>
 
                             <button
@@ -1030,14 +1515,14 @@ export const StaffDashboardView = ({ onNavigate }) => {
                 </div>
               )}
 
-              {/* Class Upload / Edit Modal */}
+              {/* Enhanced Class Upload / Edit Modal */}
               {isClassModalOpen && (
                 <div className="fixed inset-0 bg-[#0F1E2E]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-                  <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-6 sm:p-7 max-w-lg w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-6 sm:p-7 max-w-2xl w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                       <div>
                         <h4 className="text-base font-bold text-[#0F1E2E] font-display">
-                          {classToEdit ? 'Edit Class Episode' : 'Upload New Class Episode'}
+                          {classToEdit ? 'Edit Class & Update Post-Class Summary' : 'Upload New Class Episode & Content'}
                         </h4>
                         <p className="text-xs text-[#0284C7] font-medium truncate max-w-sm">
                           {currentSelectedCourse?.title}
@@ -1053,9 +1538,10 @@ export const StaffDashboardView = ({ onNavigate }) => {
                     </div>
 
                     <form onSubmit={handleSaveClass} className="space-y-4 text-xs">
-                      <div className="grid grid-cols-2 gap-3">
+                      {/* Section 1: Basic info */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                          <label className="block font-bold text-slate-700 mb-1">Class / Episode #</label>
+                          <label className="block font-bold text-slate-700 mb-1">Class / Day #</label>
                           <input
                             type="number"
                             min="1"
@@ -1066,11 +1552,36 @@ export const StaffDashboardView = ({ onNavigate }) => {
                           />
                         </div>
 
-                        <div>
-                          <label className="block font-bold text-slate-700 mb-1">Duration</label>
+                        <div className="sm:col-span-2">
+                          <label className="block font-bold text-slate-700 mb-1">Class Title *</label>
                           <input
                             type="text"
-                            placeholder="e.g. 1 hr 15 mins"
+                            required
+                            placeholder="e.g. Class 1: Architecture Overview & Setup"
+                            value={classForm.title}
+                            onChange={(e) => setClassForm({ ...classForm, title: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:bg-white focus:border-[#0F1E2E] outline-none font-semibold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block font-bold text-slate-700 mb-1">Video Stream / Lecture URL</label>
+                          <input
+                            type="url"
+                            placeholder="https://www.youtube.com/... or Vimeo / MP4"
+                            value={classForm.videoUrl}
+                            onChange={(e) => setClassForm({ ...classForm, videoUrl: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono focus:bg-white focus:border-[#0F1E2E] outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-bold text-slate-700 mb-1">Class Duration</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 1 hr 30 mins"
                             value={classForm.duration}
                             onChange={(e) => setClassForm({ ...classForm, duration: e.target.value })}
                             className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:bg-white focus:border-[#0F1E2E] outline-none"
@@ -1078,77 +1589,593 @@ export const StaffDashboardView = ({ onNavigate }) => {
                         </div>
                       </div>
 
+                      {/* Section 2: Class-wise Topics */}
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Class Title</label>
+                        <label className="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+                          <span>Class Topics Taught (Comma-separated)</span>
+                          <span className="text-[10px] text-slate-400 font-mono">e.g. Raft Consensus, Leader Election, Log Replication</span>
+                        </label>
                         <input
                           type="text"
-                          required
-                          placeholder="e.g. Class 1: Course Overview & Developer Setup"
-                          value={classForm.title}
-                          onChange={(e) => setClassForm({ ...classForm, title: e.target.value })}
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:bg-white focus:border-[#0F1E2E] outline-none font-semibold"
+                          placeholder="Topic 1, Topic 2, Topic 3"
+                          value={classForm.topics}
+                          onChange={(e) => setClassForm({ ...classForm, topics: e.target.value })}
+                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:bg-white focus:border-[#0F1E2E] outline-none"
                         />
                       </div>
 
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Video Stream / Lecture URL</label>
-                        <input
-                          type="url"
-                          placeholder="https://www.youtube.com/... or Vimeo / Google Drive / MP4"
-                          value={classForm.videoUrl}
-                          onChange={(e) => setClassForm({ ...classForm, videoUrl: e.target.value })}
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono focus:bg-white focus:border-[#0F1E2E] outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Lecture Slides / Code Resources Link</label>
-                        <input
-                          type="url"
-                          placeholder="https://github.com/... or Google Drive / PDF slides link"
-                          value={classForm.resourcesUrl}
-                          onChange={(e) => setClassForm({ ...classForm, resourcesUrl: e.target.value })}
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono focus:bg-white focus:border-[#0F1E2E] outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Class Agenda / Description</label>
+                      {/* Section 3: Post-Class Summary (What was taught) */}
+                      <div className="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-200/80 space-y-1.5">
+                        <label className="block font-bold text-[#0B4F50] flex items-center justify-between">
+                          <span>Post-Class Summary: What Was Taught *</span>
+                          <span className="text-[10px] font-mono text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded">
+                            Updated After Class
+                          </span>
+                        </label>
                         <textarea
                           rows={3}
-                          placeholder="Key concepts covered, practical exercises, and homework instructions..."
-                          value={classForm.description}
-                          onChange={(e) => setClassForm({ ...classForm, description: e.target.value })}
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:bg-white focus:border-[#0F1E2E] outline-none"
+                          placeholder="Record key topics covered, architecture patterns demonstrated, student questions answered, and core takeaways..."
+                          value={classForm.summary}
+                          onChange={(e) => setClassForm({ ...classForm, summary: e.target.value })}
+                          className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:border-[#0B4F50] outline-none leading-relaxed"
                         />
                       </div>
 
+                      {/* Section 4: Learning Materials */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block font-bold text-slate-700 mb-1">Learning Material Title</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Lecture Slides & Code Repo"
+                            value={classForm.materialTitle}
+                            onChange={(e) => setClassForm({ ...classForm, materialTitle: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:bg-white focus:border-[#0F1E2E] outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold text-slate-700 mb-1">Learning Material Download / GitHub URL</label>
+                          <input
+                            type="url"
+                            placeholder="https://github.com/... or Google Drive PDF"
+                            value={classForm.materialUrl}
+                            onChange={(e) => setClassForm({ ...classForm, materialUrl: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono focus:bg-white focus:border-[#0F1E2E] outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Section 5: Class Test / Quiz Builder */}
+                      <div className="p-3.5 rounded-2xl bg-sky-50/70 border border-sky-200/80 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="block font-bold text-sky-950 flex items-center gap-1.5">
+                            <CheckSquare className="w-4 h-4 text-[#0284C7]" />
+                            <span>Conduct Test / Quiz for this Class</span>
+                          </label>
+                          <span className="text-[10px] font-mono font-bold text-[#0284C7] bg-sky-100 px-2 py-0.5 rounded">
+                            Auto-Graded
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-700 font-semibold mb-1">Question</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Which Raft RPC is used to maintain leader heartbeat and append entries?"
+                            value={classForm.quizQuestion}
+                            onChange={(e) => setClassForm({ ...classForm, quizQuestion: e.target.value })}
+                            className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:border-[#0284C7] outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          <div>
+                            <label className="block text-slate-600 font-medium mb-0.5">Option A</label>
+                            <input
+                              type="text"
+                              placeholder="Option A text"
+                              value={classForm.quizOption0}
+                              onChange={(e) => setClassForm({ ...classForm, quizOption0: e.target.value })}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[#0F1E2E] outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-600 font-medium mb-0.5">Option B</label>
+                            <input
+                              type="text"
+                              placeholder="Option B text"
+                              value={classForm.quizOption1}
+                              onChange={(e) => setClassForm({ ...classForm, quizOption1: e.target.value })}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[#0F1E2E] outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-600 font-medium mb-0.5">Option C</label>
+                            <input
+                              type="text"
+                              placeholder="Option C text"
+                              value={classForm.quizOption2}
+                              onChange={(e) => setClassForm({ ...classForm, quizOption2: e.target.value })}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[#0F1E2E] outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-600 font-medium mb-0.5">Option D</label>
+                            <input
+                              type="text"
+                              placeholder="Option D text"
+                              value={classForm.quizOption3}
+                              onChange={(e) => setClassForm({ ...classForm, quizOption3: e.target.value })}
+                              className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[#0F1E2E] outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                          <div>
+                            <label className="block text-slate-700 font-semibold mb-1">Correct Option</label>
+                            <select
+                              value={classForm.quizCorrect}
+                              onChange={(e) => setClassForm({ ...classForm, quizCorrect: parseInt(e.target.value, 10) })}
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-[#0F1E2E] font-semibold outline-none"
+                            >
+                              <option value={0}>Option A is Correct</option>
+                              <option value={1}>Option B is Correct</option>
+                              <option value={2}>Option C is Correct</option>
+                              <option value={3}>Option D is Correct</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-slate-700 font-semibold mb-1">Explanation / Hint</label>
+                            <input
+                              type="text"
+                              placeholder="Why this answer is correct..."
+                              value={classForm.quizExplanation}
+                              onChange={(e) => setClassForm({ ...classForm, quizExplanation: e.target.value })}
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-[#0F1E2E] outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center gap-2">
+                          <label className="font-bold text-slate-700">Status:</label>
+                          <select
+                            value={classForm.status}
+                            onChange={(e) => setClassForm({ ...classForm, status: e.target.value })}
+                            className="px-3 py-1.5 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono focus:bg-white outline-none"
+                          >
+                            <option value="PUBLISHED">PUBLISHED (Students can watch & learn)</option>
+                            <option value="DRAFT">DRAFT (Hidden)</option>
+                          </select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsClassModalOpen(false)}
+                            className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isSavingClass}
+                            className="px-5 py-2 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white font-bold cursor-pointer disabled:opacity-50"
+                          >
+                            {isSavingClass ? 'Saving...' : classToEdit ? 'Save Changes' : 'Publish Class'}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* TAB 2.5: STUDENT PROGRESS & ATTENDANCE TRACKER                      */}
+          {/* =================================================================== */}
+          {activeTab === 'progress' && (
+            <div className="space-y-6">
+              {/* Header & Course Selector Bar */}
+              <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#0284C7] uppercase font-mono">
+                    <UserCheck className="w-4 h-4" />
+                    <span>Student Performance & Attendance Registry</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-[#0F1E2E]">Cohort Progress & Attendance Tracking</h3>
+                  <p className="text-xs text-slate-500">
+                    Monitor individual student learning velocity, mark class attendance, inspect test results, and track completion progress.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600 shrink-0">Course:</label>
+                  <select
+                    value={selectedCourseId || ''}
+                    onChange={(e) => setSelectedCourseId(e.target.value)}
+                    className="bg-[#F8FAFC] border border-[#CBD5E1] text-xs font-bold text-[#0F1E2E] py-2 px-3 rounded-xl outline-none focus:border-[#0F1E2E] transition-all cursor-pointer"
+                  >
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Student Progress Table */}
+              <div className="bg-white border border-[#CBD5E1] rounded-[22px] overflow-hidden shadow-xs">
+                {isLoadingProgress ? (
+                  <div className="p-12 text-center text-xs text-slate-500 font-medium">
+                    Loading student cohort progress records...
+                  </div>
+                ) : studentProgressList.length === 0 ? (
+                  <div className="p-12 text-center space-y-2">
+                    <UserCheck className="w-10 h-10 text-slate-300 mx-auto" />
+                    <h4 className="text-sm font-bold text-[#0F1E2E]">No enrolled students found for this program</h4>
+                    <p className="text-xs text-slate-500">
+                      Students will appear here automatically when they apply or confirm admission.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto [scrollbar-width:thin]">
+                    <table className="w-full text-left text-xs min-w-[760px]">
+                      <thead className="bg-[#F8FAFC] text-slate-700 uppercase text-[10px] font-mono border-b border-[#CBD5E1]">
+                        <tr>
+                          <th className="py-3.5 px-4 font-bold">Enrolled Student</th>
+                          <th className="py-3.5 px-4 font-bold">Start Date</th>
+                          <th className="py-3.5 px-4 font-bold">Course Progress</th>
+                          <th className="py-3.5 px-4 font-bold">Class Attendance</th>
+                          <th className="py-3.5 px-4 font-bold">Quizzes / Tests</th>
+                          <th className="py-3.5 px-4 font-bold">Final Project</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-slate-700">
+                        {studentProgressList.map((st) => (
+                          <tr key={st.userId} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="py-3.5 px-4 font-semibold text-[#0F1E2E]">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-[#0F1E2E] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                  {(st.userName || 'S')[0].toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-slate-900">{st.userName}</div>
+                                  <div className="text-[11px] text-slate-500 font-mono font-normal">{st.userEmail}</div>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="py-3.5 px-4 font-mono text-slate-700 text-[11px]">
+                              {st.startDate}
+                            </td>
+
+                            <td className="py-3.5 px-4 min-w-[140px]">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="font-bold text-[#0F1E2E] font-mono">{st.progressPercent}%</span>
+                                  <span className="text-slate-500">{st.completedClassesCount} / {st.totalClasses} classes</span>
+                                </div>
+                                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                                  <div
+                                    className="h-full bg-[#0284C7] rounded-full transition-all duration-300"
+                                    style={{ width: `${Math.min(100, st.progressPercent)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="py-3.5 px-4">
+                              <div className="space-y-1.5">
+                                <div className="font-bold text-[#0F1E2E] text-[11px]">
+                                  {st.attendanceCount} Classes Attended
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  {classesList.slice(0, 5).map((cls, cIdx) => {
+                                    const isAtt = (st.attendanceRecords || []).some(
+                                      (att) => att.classId === cls.id && att.attended
+                                    );
+                                    return (
+                                      <button
+                                        key={cls.id || cIdx}
+                                        type="button"
+                                        disabled={isMarkingAttendance}
+                                        onClick={() => handleToggleAttendance(st.userId, cls.id, isAtt)}
+                                        title={`Click to toggle Class ${cls.classNumber || cIdx + 1} Attendance (${isAtt ? 'Attended' : 'Absent'})`}
+                                        className={`w-6 h-6 rounded-md text-[10px] font-mono font-bold flex items-center justify-center transition-all cursor-pointer ${
+                                          isAtt
+                                            ? 'bg-emerald-600 text-white shadow-xs'
+                                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200'
+                                        }`}
+                                      >
+                                        C{cls.classNumber || cIdx + 1}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="py-3.5 px-4">
+                              {st.testResults && st.testResults.length > 0 ? (
+                                <div className="space-y-0.5">
+                                  <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 text-[10px] font-mono font-bold">
+                                    Avg: {Math.round(st.testResults.reduce((sum, tr) => sum + (tr.score || 0), 0) / st.testResults.length)}%
+                                  </span>
+                                  <div className="text-[10px] text-slate-500">
+                                    {st.testResults.filter(t => t.passed).length} / {st.testResults.length} passed
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-[11px] text-slate-400 italic">No tests taken</span>
+                              )}
+                            </td>
+
+                            <td className="py-3.5 px-4">
+                              {st.finalProject ? (
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                                  st.finalProject.status === 'APPROVED'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : st.finalProject.status === 'CHANGES_REQUESTED'
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                                }`}>
+                                  {st.finalProject.status}
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-slate-400 font-mono">Not Submitted</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* TAB 2.6: FINAL PROJECT REVIEWS & GITHUB VERIFICATION HUB           */}
+          {/* =================================================================== */}
+          {activeTab === 'projects' && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#0284C7] uppercase font-mono">
+                    <Award className="w-4 h-4" />
+                    <span>Capstone & Final Model Certification</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-[#0F1E2E]">Student Final Project Reviews</h3>
+                  <p className="text-xs text-slate-500">
+                    Verify students' submitted GitHub repositories, review codebase architecture and documentation, and certify graduation.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-slate-600 shrink-0">Filter Status:</label>
+                  <select
+                    value={projectFilterStatus}
+                    onChange={(e) => setProjectFilterStatus(e.target.value)}
+                    className="bg-[#F8FAFC] border border-[#CBD5E1] text-xs font-bold text-[#0F1E2E] py-2 px-3 rounded-xl outline-none focus:border-[#0F1E2E] transition-all cursor-pointer"
+                  >
+                    <option value="ALL">All Submissions ({projectSubmissions.length})</option>
+                    <option value="PENDING_REVIEW">Pending Review</option>
+                    <option value="APPROVED">Approved & Certified</option>
+                    <option value="CHANGES_REQUESTED">Changes Requested</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Projects Grid */}
+              {isLoadingProjects ? (
+                <div className="p-12 text-center text-xs text-slate-500 font-medium">
+                  Loading capstone project submissions...
+                </div>
+              ) : projectSubmissions.length === 0 ? (
+                <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-12 text-center space-y-3">
+                  <FileCode className="w-10 h-10 text-slate-300 mx-auto" />
+                  <h4 className="text-sm font-bold text-[#0F1E2E]">No project submissions yet</h4>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    When students complete their curriculum and submit their final project GitHub repository, they will appear here for faculty verification.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {projectSubmissions
+                    .filter((p) => projectFilterStatus === 'ALL' || p.status === projectFilterStatus)
+                    .map((proj) => (
+                      <div
+                        key={proj.id}
+                        className="bg-white border border-[#CBD5E1] rounded-[22px] p-6 space-y-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 font-bold">
+                                {proj.courseTitle}
+                              </span>
+                              <h4 className="text-base font-bold text-[#0F1E2E] mt-1.5">{proj.projectTitle}</h4>
+                              <span className="text-xs text-slate-500">
+                                By <strong className="text-slate-800">{proj.userName}</strong> ({proj.userEmail})
+                              </span>
+                            </div>
+
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${
+                              proj.status === 'APPROVED'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : proj.status === 'CHANGES_REQUESTED'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                            }`}>
+                              {proj.status.replace('_', ' ')}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                            {proj.description || 'Final course model and production architecture submission.'}
+                          </p>
+
+                          {/* GitHub Link & Documentation */}
+                          <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-slate-600">GitHub Repository:</span>
+                              <a
+                                href={proj.githubUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white font-mono text-[11px] font-bold transition-colors cursor-pointer"
+                              >
+                                <FileCode className="w-3.5 h-3.5 text-[#38BDF8]" />
+                                <span>Open GitHub Repo</span>
+                                <ExternalLink className="w-3 h-3 text-slate-400" />
+                              </a>
+                            </div>
+
+                            {proj.documentationUrl && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-500">Documentation / Demo:</span>
+                                <a
+                                  href={proj.documentationUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-[#0284C7] hover:underline font-semibold flex items-center gap-1"
+                                >
+                                  <span>View Docs</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </div>
+                            )}
+
+                            {/* Existing Feedback if any */}
+                            {proj.staffFeedback && (
+                              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 mt-2">
+                                <span className="font-bold text-[#0F1E2E] block text-[10px] uppercase font-mono">
+                                  Faculty Review Feedback
+                                </span>
+                                <p className="text-slate-700 leading-relaxed">{proj.staffFeedback}</p>
+                                {proj.reviewedBy && (
+                                  <span className="text-[10px] text-slate-400 block pt-0.5">
+                                    Reviewed by {proj.reviewedBy} • {new Date(proj.reviewedAt || proj.updatedAt).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Review Action Button */}
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            Submitted: {new Date(proj.submittedAt).toLocaleDateString()}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProjectForReview(proj);
+                              setReviewStatus(proj.status === 'PENDING_REVIEW' ? 'APPROVED' : proj.status);
+                              setReviewFeedback(proj.staffFeedback || '');
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5 text-[#38BDF8]" />
+                            <span>Verify & Review</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              {/* Project Review Modal */}
+              {selectedProjectForReview && (
+                <div className="fixed inset-0 bg-[#0F1E2E]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+                  <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-6 sm:p-7 max-w-lg w-full space-y-4 shadow-2xl">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Publish Status</label>
-                        <select
-                          value={classForm.status}
-                          onChange={(e) => setClassForm({ ...classForm, status: e.target.value })}
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono focus:bg-white focus:border-[#0F1E2E] outline-none"
+                        <h4 className="text-base font-bold text-[#0F1E2E] font-display">
+                          Verify Project: {selectedProjectForReview.projectTitle}
+                        </h4>
+                        <p className="text-xs text-[#0284C7] font-medium">
+                          Student: {selectedProjectForReview.userName} ({selectedProjectForReview.courseTitle})
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProjectForReview(null)}
+                        className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer rounded-lg hover:bg-slate-100"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-700">GitHub Repository Link:</span>
+                        <a
+                          href={selectedProjectForReview.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-[#0284C7] hover:underline font-bold flex items-center gap-1"
                         >
-                          <option value="PUBLISHED">PUBLISHED (Students can watch immediately)</option>
-                          <option value="DRAFT">DRAFT (Hidden from students)</option>
+                          <span>Open Repository</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed font-mono text-[11px] break-all">
+                        {selectedProjectForReview.githubUrl}
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSaveProjectReview} className="space-y-4 text-xs">
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1">Verification Decision *</label>
+                        <select
+                          value={reviewStatus}
+                          onChange={(e) => setReviewStatus(e.target.value)}
+                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono font-bold focus:bg-white focus:border-[#0F1E2E] outline-none"
+                        >
+                          <option value="APPROVED">APPROVE & CERTIFY (Student Passes Course)</option>
+                          <option value="CHANGES_REQUESTED">REQUEST CHANGES (Code or Docs Need Revisions)</option>
+                          <option value="REJECTED">REJECT (Does Not Meet Course Standards)</option>
                         </select>
+                      </div>
+
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1">
+                          Faculty Review Feedback & Evaluation Notes *
+                        </label>
+                        <textarea
+                          rows={4}
+                          required
+                          value={reviewFeedback}
+                          onChange={(e) => setReviewFeedback(e.target.value)}
+                          placeholder="Provide detailed feedback on the codebase structure, model performance, documentation quality, and any required changes..."
+                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:bg-white focus:border-[#0F1E2E] outline-none leading-relaxed"
+                        />
                       </div>
 
                       <div className="pt-2 flex items-center justify-end gap-2">
                         <button
                           type="button"
-                          onClick={() => setIsClassModalOpen(false)}
+                          onClick={() => setSelectedProjectForReview(null)}
                           className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold cursor-pointer"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
-                          disabled={isSavingClass}
-                          className="px-4 py-2.5 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white font-bold cursor-pointer disabled:opacity-50"
+                          disabled={isSavingReview}
+                          className="px-5 py-2.5 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white font-bold cursor-pointer disabled:opacity-50"
                         >
-                          {isSavingClass ? 'Saving...' : classToEdit ? 'Save Changes' : 'Publish Class Episode'}
+                          {isSavingReview ? 'Saving Review...' : 'Submit Verification'}
                         </button>
                       </div>
                     </form>
@@ -1163,9 +2190,19 @@ export const StaffDashboardView = ({ onNavigate }) => {
           {/* =================================================================== */}
           {activeTab === 'courses' && (
             <div className="space-y-5">
-              <div>
-                <h3 className="text-lg font-bold text-[#0F1E2E]">Assigned Academic Programs & Syllabi</h3>
-                <p className="text-xs text-slate-500">Explore cohort schedules, curriculum structure, and student capacities.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-[#0F1E2E]">Assigned Academic Programs & Syllabi</h3>
+                  <p className="text-xs text-slate-500">Configure course durations, daily release times, and manage modular curriculums.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenNewCourseModal}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white text-xs font-bold shadow-xs cursor-pointer shrink-0"
+                >
+                  <Plus className="w-4 h-4 text-[#38BDF8]" />
+                  <span>+ Create New Course</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1173,9 +2210,15 @@ export const StaffDashboardView = ({ onNavigate }) => {
                   <div key={c.id} className="bg-white border border-[#CBD5E1] rounded-[22px] p-6 space-y-4 shadow-xs hover:shadow-sm transition-all">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#0284C7] bg-sky-50 px-2.5 py-0.5 rounded-md border border-sky-200 font-bold">
-                          {c.category} • {c.level}
-                        </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-[#0284C7] bg-sky-50 px-2.5 py-0.5 rounded-md border border-sky-200 font-bold">
+                            {c.category} • {c.level || 'Professional'}
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-emerald-600" />
+                            <span>{formatReleaseTime(c.dailyReleaseTime || '09:00')} Daily</span>
+                          </span>
+                        </div>
                         <h4 className="text-base font-bold text-[#0F1E2E] mt-2">{c.title}</h4>
                         <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">{c.shortDescription}</p>
                       </div>
@@ -1196,17 +2239,43 @@ export const StaffDashboardView = ({ onNavigate }) => {
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedCourseId(c.id);
-                        setActiveTab('classes');
-                      }}
-                      className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-[#0F1E2E] hover:text-white text-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <Film className="w-3.5 h-3.5" />
-                      <span>Manage Classes & Episodes</span>
-                    </button>
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCourseId(c.id);
+                          fetchClassesForCourse(c.id);
+                          setActiveTab('classes');
+                        }}
+                        className="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-[#0F1E2E] hover:text-white text-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <Film className="w-3.5 h-3.5" />
+                        <span>Manage Classes</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCourseId(c.id);
+                          fetchCourseApplications(c.id);
+                          setIsCourseAppsModalOpen(true);
+                        }}
+                        className="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#0284C7] border border-sky-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                        title="View Applied Students"
+                      >
+                        <Users className="w-3.5 h-3.5" />
+                        <span>Students</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditCourseModal(c)}
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center justify-center"
+                        title="Course Settings"
+                      >
+                        <Sliders className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1455,6 +2524,7 @@ export const StaffDashboardView = ({ onNavigate }) => {
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Notice Title</label>
                     <input
+                      id="announcement-title-input"
                       type="text"
                       required
                       value={annTitle}
@@ -1514,6 +2584,382 @@ export const StaffDashboardView = ({ onNavigate }) => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* TAB: STAFF PROFILE & CREDENTIALS                                   */}
+          {/* =================================================================== */}
+          {activeTab === 'profile' && (
+            <div className="max-w-4xl space-y-6">
+              {/* Profile Overview Card */}
+              <div className="bg-white border border-[#CBD5E1] rounded-[22px] p-6 sm:p-8 shadow-xs relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 pb-6 border-b border-slate-100">
+                  <div className="w-20 h-20 rounded-2xl bg-[#0F1E2E] text-white text-2xl font-bold flex items-center justify-center border-2 border-[#38BDF8]/40 shadow-md shrink-0">
+                    {(user?.name || user?.email || 'F')[0].toUpperCase()}
+                  </div>
+
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <h2 className="text-xl font-bold text-[#0F1E2E] tracking-tight">
+                        {user?.name || 'Faculty Member'}
+                      </h2>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        Verified Staff Member
+                      </span>
+                    </div>
+
+                    <p className="text-sm font-semibold text-[#0284C7]">
+                      {user?.degree || 'Lead Course Faculty & Systems Instructor'}
+                    </p>
+
+                    <p className="text-xs text-slate-500 font-mono">
+                      Official ID: {user?.id ? user.id.slice(0, 16) : 'STF-FACULTY-CORE'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Profile Key Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">
+                  <div className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/80 space-y-1">
+                    <span className="text-[11px] font-mono uppercase font-bold text-slate-400 block">
+                      Staff Email Address
+                    </span>
+                    <span className="text-xs font-semibold text-[#0F1E2E] flex items-center gap-2">
+                      <Mail className="w-3.5 h-3.5 text-[#0284C7]" />
+                      {user?.email || 'staff@claxic.edu'}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/80 space-y-1">
+                    <span className="text-[11px] font-mono uppercase font-bold text-slate-400 block">
+                      Assigned Department / Institute
+                    </span>
+                    <span className="text-xs font-semibold text-[#0F1E2E] flex items-center gap-2">
+                      <GraduationCap className="w-3.5 h-3.5 text-[#0284C7]" />
+                      {user?.institution || 'Advanced Computing & Engineering Faculty'}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/80 space-y-1">
+                    <span className="text-[11px] font-mono uppercase font-bold text-slate-400 block">
+                      Faculty Mentorship & Office Hours
+                    </span>
+                    <span className="text-xs font-semibold text-[#0F1E2E] flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-[#0284C7]" />
+                      Mon - Thu, 4:00 PM - 6:00 PM IST (Virtual Room)
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/80 space-y-1">
+                    <span className="text-[11px] font-mono uppercase font-bold text-slate-400 block">
+                      Role Authentication & Access
+                    </span>
+                    <span className="text-xs font-semibold text-[#0F1E2E] flex items-center gap-2">
+                      <Award className="w-3.5 h-3.5 text-[#0284C7]" />
+                      STAFF Role (Authenticated via Staff Portal)
+                    </span>
+                  </div>
+                </div>
+
+                {/* Assigned Courses Section */}
+                <div className="pt-6">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+                    <BookOpen className="w-4 h-4 text-[#0284C7]" />
+                    <span>Assigned Courses & Curriculum</span>
+                  </h4>
+                  <div className="space-y-2">
+                    {courses.length > 0 ? (
+                      courses.map((course) => (
+                        <div
+                          key={course.id}
+                          className="p-3.5 rounded-xl bg-[#F8FAFC] border border-slate-200 flex items-center justify-between gap-3 text-xs"
+                        >
+                          <div>
+                            <span className="font-bold text-[#0F1E2E] block">{course.title}</span>
+                            <span className="text-[11px] text-slate-500 font-mono">
+                              {course.category} • {course.durationWeeks} Weeks • {course.level || 'Intermediate'}
+                            </span>
+                          </div>
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#0284C7]/10 text-[#0284C7] font-mono">
+                            {course.enrolledCount || 0} Enrolled
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                        Lead Faculty for all enrolled cohort courses.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Privacy & Student Integration Notice */}
+                <div className="mt-6 p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-3 text-xs text-amber-900 leading-relaxed">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-amber-950 mb-0.5">Faculty Profile Visibility Note</p>
+                    <p className="text-amber-800">
+                      Your staff profile is integrated directly into the enrolled student's Course Learning Hub so students can see their assigned faculty lead and access scheduled office hours. To protect academic privacy, staff profiles are never published as a public or general directory.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* MODAL: CREATE / EDIT COURSE & SETTINGS                              */}
+          {/* =================================================================== */}
+          {isCourseModalOpen && (
+            <div className="fixed inset-0 bg-[#0F1E2E]/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+              <div className="bg-white border border-[#CBD5E1] rounded-[28px] p-6 max-w-xl w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0284C7]">
+                      Academic Curriculum Architecture
+                    </span>
+                    <h4 className="text-base font-bold text-[#0F1E2E]">
+                      {courseToEdit ? 'Edit Course Settings' : 'Create New Course Program'}
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCourseModalOpen(false)}
+                    className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer rounded-lg hover:bg-slate-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveCourse} className="space-y-4 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Course Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Distributed Cloud Architecture & Kubernetes"
+                      value={courseForm.title}
+                      onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] focus:bg-white focus:border-[#0F1E2E] outline-none font-semibold"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Category</label>
+                      <select
+                        value={courseForm.category}
+                        onChange={(e) => setCourseForm({ ...courseForm, category: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-semibold outline-none"
+                      >
+                        <option value="Engineering">Engineering</option>
+                        <option value="AI & Full Stack">AI & Full Stack</option>
+                        <option value="Cloud & DevOps">Cloud & DevOps</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Cybersecurity">Cybersecurity</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Course Duration *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 10 Days, 12 Weeks, 30 Days"
+                        value={courseForm.duration}
+                        onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-semibold outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Daily Lecture Release Time configuration */}
+                  <div className="p-3.5 rounded-2xl bg-teal-50/80 border border-teal-200/80 space-y-1.5">
+                    <label className="block font-bold text-[#0B4F50] flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-[#0B4F50]" />
+                        <span>Daily Lecture Release Time *</span>
+                      </span>
+                      <span className="text-[10px] font-mono text-teal-700 bg-teal-100/70 px-2 py-0.5 rounded font-bold">
+                        Individual Day-by-Day Release
+                      </span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="time"
+                        required
+                        value={courseForm.dailyReleaseTime}
+                        onChange={(e) => setCourseForm({ ...courseForm, dailyReleaseTime: e.target.value })}
+                        className="px-3 py-2 bg-white border border-teal-300 rounded-xl text-[#0F1E2E] font-mono font-bold text-sm outline-none focus:border-[#0B4F50]"
+                      />
+                      <span className="text-[11px] text-teal-900 leading-snug">
+                        Every day's video and test automatically unlocks at this scheduled time based on each student's individual start date.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Program Overview / Summary</label>
+                    <textarea
+                      rows={3}
+                      placeholder="Describe what students will learn, project outcomes, and curriculum milestones..."
+                      value={courseForm.shortDescription}
+                      onChange={(e) => setCourseForm({ ...courseForm, shortDescription: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:bg-white focus:border-[#0F1E2E] outline-none leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Seat Capacity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={courseForm.capacity}
+                        onChange={(e) => setCourseForm({ ...courseForm, capacity: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Tuition Fee (₹)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={courseForm.price}
+                        onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Lead Instructor</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Dr. Sarah Jenkins"
+                        value={courseForm.instructor}
+                        onChange={(e) => setCourseForm({ ...courseForm, instructor: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setIsCourseModalOpen(false)}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingCourse}
+                      className="px-5 py-2.5 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white font-bold cursor-pointer disabled:opacity-50"
+                    >
+                      {isSavingCourse ? 'Saving Course...' : courseToEdit ? 'Update Course Settings' : 'Create Course'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* MODAL: VIEW STUDENTS APPLIED FOR SELECTED COURSE                     */}
+          {/* =================================================================== */}
+          {isCourseAppsModalOpen && (
+            <div className="fixed inset-0 bg-[#0F1E2E]/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+              <div className="bg-white border border-[#CBD5E1] rounded-[28px] p-6 max-w-2xl w-full space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0284C7]">
+                      Cohort Admission Registry
+                    </span>
+                    <h4 className="text-base font-bold text-[#0F1E2E]">
+                      Students Applied for {currentSelectedCourse?.title || 'Selected Course'}
+                    </h4>
+                    <p className="text-xs text-slate-500">
+                      {courseAppsList.length} applicant{courseAppsList.length === 1 ? '' : 's'} registered for this program schedule.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCourseAppsModalOpen(false)}
+                    className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer rounded-lg hover:bg-slate-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {isLoadingCourseApps ? (
+                  <div className="p-12 text-center text-xs text-slate-500 font-medium">
+                    Loading applied students list...
+                  </div>
+                ) : courseAppsList.length === 0 ? (
+                  <div className="p-12 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                    <Users className="w-10 h-10 text-slate-300 mx-auto" />
+                    <h5 className="text-sm font-bold text-slate-800">No applicants yet</h5>
+                    <p className="text-xs text-slate-500">
+                      No students have applied for this specific program yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {courseAppsList.map((app) => (
+                      <div
+                        key={app.id}
+                        className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-white hover:shadow-xs transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#0F1E2E] text-white flex items-center justify-center font-bold text-sm shrink-0">
+                            {(app.studentName || app.userName || 'S')[0].toUpperCase()}
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="font-bold text-slate-900 block text-sm">
+                              {app.studentName || app.userName}
+                            </span>
+                            <span className="text-slate-500 font-mono text-[11px] block">
+                              {app.studentEmail || app.userEmail} {app.studentPhone ? `• ${app.studentPhone}` : ''}
+                            </span>
+                            <div className="flex items-center gap-2 pt-0.5">
+                              <span className="text-[10px] font-mono text-slate-500">
+                                App #: <strong className="text-slate-700">{app.applicationNumber || app.id.slice(0, 10)}</strong>
+                              </span>
+                              <span>•</span>
+                              <span className="text-[10px] font-mono text-[#0B4F50] font-semibold">
+                                Start Date: {app.formData?.startDate || app.createdAt?.split('T')[0] || 'Day 1'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                          <span
+                            className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+                              app.status === 'CONFIRMED' || app.status === 'APPROVED'
+                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                : 'bg-amber-50 text-amber-800 border border-amber-200'
+                            }`}
+                          >
+                            {app.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsCourseAppsModalOpen(false)}
+                    className="px-5 py-2.5 rounded-xl bg-[#0F1E2E] text-white font-bold text-xs cursor-pointer hover:bg-slate-800 transition-all"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           )}
