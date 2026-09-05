@@ -25,17 +25,48 @@ import {
   CheckSquare,
   Sparkles,
   ChevronRight,
+  ChevronDown,
+  Menu,
   X,
+  LogOut,
+  Compass,
+  LayoutDashboard,
   Film,
   Code2,
   Mail,
   Check,
   PlayCircle,
   GraduationCap,
+  Search,
+  Filter,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { ApplicationModal } from '../../components/modals/ApplicationModal.jsx';
+
+// Clean 3-bar morphing Hamburger-to-Close icon
+const HamburgerIcon = ({ isOpen }) => {
+  return (
+    <div className="w-5 h-4 relative flex flex-col justify-between items-center pointer-events-none">
+      <span
+        className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center ${
+          isOpen ? 'rotate-45 translate-y-[7px]' : ''
+        }`}
+      />
+      <span
+        className={`w-5 h-0.5 bg-current rounded-full transition-all duration-200 ease-in-out ${
+          isOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
+        }`}
+      />
+      <span
+        className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center ${
+          isOpen ? '-rotate-45 -translate-y-[7px]' : ''
+        }`}
+      />
+    </div>
+  );
+};
 
 export const StudentDashboardView = ({
   initialTab = 'courses',
@@ -47,9 +78,67 @@ export const StudentDashboardView = ({
   const { user, updateUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState(initialTab);
 
+  // Collapsible Side Navigation State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      const saved = localStorage.getItem('claxic_student_sidebar_collapsed');
+      if (saved !== null) return saved === 'true';
+      return false;
+    } catch {
+      return false;
+    }
+  });
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+
+  // Persist sidebar collapsed preference
+  useEffect(() => {
+    try {
+      localStorage.setItem('claxic_student_sidebar_collapsed', isSidebarCollapsed ? 'true' : 'false');
+    } catch {}
+  }, [isSidebarCollapsed]);
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileSidebarOpen]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = () => setIsUserDropdownOpen(false);
+    if (isUserDropdownOpen) {
+      window.addEventListener('click', handleClickOutside);
+      return () => window.removeEventListener('click', handleClickOutside);
+    }
+  }, [isUserDropdownOpen]);
+
+  const handleToggleSidebar = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobileSidebarOpen((prev) => !prev);
+    } else {
+      setIsSidebarCollapsed((prev) => !prev);
+    }
+  };
+
   const [applications, setApplications] = useState([]);
   const [payments, setPayments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Course Catalog State (In-Portal Catalog)
+  const [availableCourses, setAvailableCourses] = useState([]);
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [catalogCategory, setCatalogCategory] = useState('ALL');
+  const [catalogLevel, setCatalogLevel] = useState('ALL');
+  const [selectedCatalogCourse, setSelectedCatalogCourse] = useState(null);
+  const [isCatalogAppModalOpen, setIsCatalogAppModalOpen] = useState(false);
 
   // Learning Hub & Classroom State
   const [enrolledCourses, setEnrolledCourses] = useState([]);
@@ -174,10 +263,11 @@ export const StudentDashboardView = ({
     try {
       const token = localStorage.getItem('claxic_token');
       const headers = { Authorization: `Bearer ${token}` };
-      const [appRes, payRes, learnRes] = await Promise.all([
+      const [appRes, payRes, learnRes, coursesRes] = await Promise.all([
         fetch('/api/user/applications', { headers }),
         fetch('/api/user/payments', { headers }),
         fetch('/api/learning/my-courses', { headers }),
+        fetch('/api/courses'),
       ]);
 
       if (appRes.status === 401 || payRes.status === 401 || learnRes.status === 401) {
@@ -201,6 +291,10 @@ export const StudentDashboardView = ({
         if (loadedCourses.length > 0 && !selectedLearningCourseId) {
           setSelectedLearningCourseId(loadedCourses[0].courseId);
         }
+      }
+      if (coursesRes && coursesRes.ok) {
+        const cData = await coursesRes.json();
+        setAvailableCourses(cData.courses || []);
       }
     } catch (e) {
       console.error('Error loading dashboard data:', e);
@@ -478,7 +572,8 @@ export const StudentDashboardView = ({
       onNavigate('student', tab);
     } else {
       let target = '/student/learning';
-      if (tab === 'applications') target = '/student/applications';
+      if (tab === 'catalog') target = '/student/catalog';
+      else if (tab === 'applications') target = '/student/applications';
       else if (tab === 'billing' || tab === 'payments') target = '/student/payments';
       else if (tab === 'profile') target = '/student/profile';
       window.history.replaceState(null, '', target);
@@ -487,106 +582,558 @@ export const StudentDashboardView = ({
 
   const confirmedApps = applications.filter((a) => a.status === 'CONFIRMED');
 
+  // Available courses filtered for students (excluding archived, draft, closed)
+  const studentAvailableCourses = availableCourses.filter((c) => {
+    if (!c) return false;
+    const s = String(c.status || 'OPEN').toUpperCase();
+    return s !== 'ARCHIVED' && s !== 'DRAFT' && s !== 'INACTIVE';
+  });
+
+  // Extract instructor details cleanly
+  const getInstructorInfo = (c) => {
+    if (!c?.instructor) {
+      return { name: 'Claxic Faculty', role: 'Lead Instructor', initial: 'F' };
+    }
+    if (typeof c.instructor === 'string') {
+      const name = c.instructor.trim();
+      return { name, role: 'Faculty Instructor', initial: (name[0] || 'F').toUpperCase() };
+    }
+    const name = c.instructor.name || 'Claxic Faculty';
+    const role = c.instructor.role || c.instructor.title || 'Lead Instructor';
+    return { name, role, initial: (name[0] || 'F').toUpperCase(), avatar: c.instructor.avatar };
+  };
+
+  // Determine enrollment & application status for a given course
+  const getCourseStatus = (c) => {
+    const isEnrolled =
+      enrolledCourses.some(
+        (e) => e.courseId === c.id || e.id === c.id || (e.slug && e.slug === c.slug)
+      ) ||
+      applications.some(
+        (a) =>
+          (a.courseId === c.id || a.course?.id === c.id || a.courseSlug === c.slug) &&
+          a.status === 'CONFIRMED'
+      );
+
+    if (isEnrolled) return { type: 'ENROLLED', label: 'Enrolled & Active' };
+
+    const app = applications.find(
+      (a) => a.courseId === c.id || a.course?.id === c.id || a.courseSlug === c.slug
+    );
+
+    if (app) {
+      const isApproved = app.status === 'APPROVED';
+      const isPaymentPending = app.status === 'PAYMENT_PENDING';
+      const label = isApproved ? 'Approved • Complete Enrollment' : isPaymentPending ? 'Tuition Pending' : 'Applied • In Review';
+      return { type: 'APPLIED', label, statusDetail: app.status };
+    }
+
+    return { type: 'OPEN', label: 'Open for Enrollment' };
+  };
+
+  const catalogCategories = [
+    'ALL',
+    ...Array.from(new Set(studentAvailableCourses.map((c) => c.category).filter(Boolean))),
+  ];
+
+  const filteredCatalogCourses = studentAvailableCourses.filter((c) => {
+    if (catalogCategory !== 'ALL' && c.category?.toLowerCase() !== catalogCategory.toLowerCase()) {
+      return false;
+    }
+    if (catalogLevel !== 'ALL' && c.level?.toLowerCase() !== catalogLevel.toLowerCase()) {
+      return false;
+    }
+    if (catalogSearch.trim()) {
+      const q = catalogSearch.toLowerCase();
+      const titleMatch = c.title?.toLowerCase().includes(q);
+      const descMatch = (c.shortDescription || c.description)?.toLowerCase().includes(q);
+      const instructorMatch =
+        typeof c.instructor === 'string'
+          ? c.instructor.toLowerCase().includes(q)
+          : c.instructor?.name?.toLowerCase().includes(q);
+      const tagMatch = Array.isArray(c.tags) && c.tags.some((t) => String(t).toLowerCase().includes(q));
+      if (!titleMatch && !descMatch && !instructorMatch && !tagMatch) return false;
+    }
+    return true;
+  });
+
+  const navigationItems = [
+    {
+      id: 'courses',
+      label: 'Enrolled Cohorts',
+      icon: BookOpen,
+      count: confirmedApps.length,
+      action: () => handleTabChange('courses'),
+    },
+    {
+      id: 'catalog',
+      label: 'Course Catalog',
+      icon: Compass,
+      count: studentAvailableCourses.length,
+      action: () => handleTabChange('catalog'),
+    },
+    {
+      id: 'applications',
+      label: 'My Applications',
+      icon: FileText,
+      count: applications.length,
+      action: () => handleTabChange('applications'),
+    },
+    {
+      id: 'billing',
+      label: 'Invoices & Payments',
+      icon: CreditCard,
+      count: payments.length,
+      action: () => handleTabChange('billing'),
+    },
+    {
+      id: 'profile',
+      label: 'Student Profile',
+      icon: UserIcon,
+      action: () => handleTabChange('profile'),
+    },
+  ];
+
+  // Helper for animated hamburger icon state:
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 font-sans text-slate-900 bg-[#f6fafa] min-h-screen">
-      {/* Student Identity Header */}
-      <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
-          {/* Header Avatar with Direct Edit Tooltip */}
-          <div
-            onClick={() => handleTabChange('profile')}
-            className="relative group cursor-pointer shrink-0"
-            title="Click to edit profile & photo"
+    <div className="min-h-screen bg-[#f6fafa] font-sans flex flex-col lg:flex-row text-slate-900 selection:bg-teal-100 selection:text-teal-900 antialiased">
+      {/* ========================================================= */}
+      {/* 1. MOBILE ONLY TOP BAR (< lg) - Clean trigger for drawer   */}
+      {/* ========================================================= */}
+      <div className="lg:hidden bg-[#0B4F50] border-b border-[#083E40] px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsMobileSidebarOpen(true)}
+            className="p-1.5 rounded-lg text-teal-200 hover:text-white hover:bg-teal-800/60 cursor-pointer transition-colors"
+            aria-label="Open Sidebar"
           >
-            <img
-              src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-              alt={user?.name}
-              onError={(e) => {
-                e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
-              }}
-              className="w-16 h-16 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm transition-transform duration-150 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-[#0B4F50]/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-              <Camera className="w-5 h-5" />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{user?.name}</h1>
-              {user?.isVerified && (
-                <Badge variant="success" size="sm">Verified Account</Badge>
-              )}
-            </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">{user?.email}</p>
-            <p className="text-xs text-slate-600 mt-1 font-normal">
-              {user?.institution || 'Institution Unspecified'} • {user?.degree || 'Student Member'}
-            </p>
-          </div>
+            <HamburgerIcon isOpen={isMobileSidebarOpen} />
+          </button>
+          <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain" />
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-700/60">
+            Student Portal
+          </span>
         </div>
 
-        <div className="flex items-center gap-3 text-xs font-medium">
-          <div className="px-5 py-3 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] text-center">
-            <span className="text-xl font-bold text-[#0B4F50] block">{confirmedApps.length}</span>
-            <span className="text-[11px] text-slate-500 font-semibold">Enrolled Cohorts</span>
-          </div>
-          <div className="px-5 py-3 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] text-center">
-            <span className="text-xl font-bold text-[#0B4F50] block">{payments.length}</span>
-            <span className="text-[11px] text-slate-500 font-semibold">Tax Invoices</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="flex border-b border-[#d8ecec] text-xs font-semibold uppercase tracking-wider overflow-x-auto">
         <button
-          onClick={() => handleTabChange('courses')}
-          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-            activeTab === 'courses'
-              ? 'border-[#0B4F50] text-[#0B4F50]'
-              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>Enrolled Cohorts ({confirmedApps.length})</span>
-        </button>
-
-        <button
-          onClick={() => handleTabChange('applications')}
-          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-            activeTab === 'applications'
-              ? 'border-[#0B4F50] text-[#0B4F50]'
-              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>My Applications ({applications.length})</span>
-        </button>
-
-        <button
-          onClick={() => handleTabChange('billing')}
-          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-            activeTab === 'billing'
-              ? 'border-[#0B4F50] text-[#0B4F50]'
-              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-          }`}
-        >
-          <CreditCard className="w-4 h-4" />
-          <span>Invoices & Payments ({payments.length})</span>
-        </button>
-
-        <button
+          type="button"
           onClick={() => handleTabChange('profile')}
-          className={`pb-4 px-6 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-            activeTab === 'profile'
-              ? 'border-[#0B4F50] text-[#0B4F50]'
-              : 'border-transparent text-slate-500 hover:text-[#0B4F50]'
-          }`}
+          className="flex items-center gap-2 cursor-pointer"
         >
-          <UserIcon className="w-4 h-4" />
-          <span>Student Profile</span>
+          <img
+            src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+            alt={user?.name}
+            onError={(e) => {
+              e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+            }}
+            className="w-7 h-7 rounded-full object-cover border border-teal-400/50"
+          />
         </button>
       </div>
+
+      {/* ========================================================= */}
+      {/* 2. MOBILE DRAWER OVERLAY (< lg)                            */}
+      {/* ========================================================= */}
+      {isMobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+
+          <aside className="fixed inset-y-0 left-0 w-72 bg-[#093E40] border-r border-[#073335] text-teal-100 flex flex-col z-50 shadow-2xl p-5 justify-between animate-in slide-in-from-left duration-200">
+            <div className="space-y-6 overflow-y-auto no-scrollbar flex-1">
+              {/* Mobile Drawer Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-[#073335]">
+                <div className="flex items-center gap-2.5">
+                  <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain" />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-700/60">
+                    Student Portal
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-1.5 rounded-lg text-teal-300 hover:text-white hover:bg-teal-800/60 cursor-pointer transition-colors"
+                  aria-label="Close Sidebar"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Mobile Navigation Section */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400/80 mb-2 px-2">
+                  Learning Hub
+                </p>
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        item.action();
+                        setIsMobileSidebarOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-teal-800 text-white font-bold border-l-4 border-teal-400 pl-3 shadow-xs'
+                          : 'text-teal-100 hover:text-white hover:bg-teal-800/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-teal-300' : 'text-teal-200/80'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.count !== undefined && item.count > 0 && (
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-900 text-teal-200 border border-teal-700/60">
+                          {item.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mobile Drawer Footer */}
+            <div className="pt-4 border-t border-[#073335] space-y-3">
+              <div
+                onClick={() => {
+                  handleTabChange('profile');
+                  setIsMobileSidebarOpen(false);
+                }}
+                className="p-2.5 rounded-2xl bg-teal-900/40 border border-teal-800/50 flex items-center gap-3 cursor-pointer hover:bg-teal-900/70 transition-colors"
+              >
+                <img
+                  src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                  alt={user?.name}
+                  onError={(e) => {
+                    e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+                  }}
+                  className="w-8 h-8 rounded-full object-cover border border-teal-400/40 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-white truncate">{user?.name}</p>
+                  <p className="text-[10px] font-mono text-teal-300 truncate">{user?.email}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setIsMobileSidebarOpen(false);
+                  if (onNavigate) onNavigate('home');
+                  else window.location.href = '/';
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-rose-950/40 hover:bg-rose-950/60 border border-rose-900/40 text-rose-300 text-xs font-medium transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 3. DESKTOP ONLY COLLAPSIBLE SIDEBAR (>= lg)               */}
+      {/*    STICKY FULL HEIGHT (top-0 h-screen min-h-screen)       */}
+      {/* ========================================================= */}
+      <aside
+        className={`hidden lg:flex lg:flex-col bg-[#093E40] border-r border-[#073335] text-teal-100 min-h-screen sticky top-0 h-screen shrink-0 z-30 justify-between select-none transition-[width,padding] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+          isSidebarCollapsed ? 'w-20 p-3' : 'w-72 p-5'
+        }`}
+      >
+        <div className="flex-1 overflow-y-auto space-y-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {/* Top of Sidebar: Logo & Animated Hamburger Button */}
+          <div
+            className={`flex items-center pb-4 border-b border-[#073335] transition-all duration-300 ${
+              isSidebarCollapsed ? 'justify-center' : 'justify-between'
+            }`}
+          >
+            {!isSidebarCollapsed ? (
+              <>
+                <div
+                  className="flex items-center gap-2.5 cursor-pointer select-none min-w-0"
+                  onClick={() => handleTabChange('courses')}
+                >
+                  <img
+                    src="/logow.png"
+                    alt="Claxic"
+                    className="h-7 w-auto object-contain shrink-0"
+                  />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-700/60 truncate">
+                    Student Portal
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarCollapsed(true)}
+                  className="p-1.5 rounded-xl text-teal-200 hover:text-white hover:bg-teal-800/60 focus:outline-none transition-colors cursor-pointer shrink-0"
+                  title="Collapse Sidebar"
+                  aria-label="Collapse Sidebar"
+                >
+                  <HamburgerIcon isOpen={true} />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="p-2 rounded-xl text-teal-200 hover:text-white hover:bg-teal-800/60 focus:outline-none transition-colors cursor-pointer flex items-center justify-center w-full"
+                title="Expand Sidebar"
+                aria-label="Expand Sidebar"
+              >
+                <HamburgerIcon isOpen={false} />
+              </button>
+            )}
+          </div>
+
+          {/* Navigation Section */}
+          <div className="space-y-1.5">
+            {!isSidebarCollapsed && (
+              <p className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400/80 mb-2">
+                Learning Hub
+              </p>
+            )}
+
+            <nav className="space-y-1.5">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={item.action}
+                    title={isSidebarCollapsed ? `${item.label}${item.count !== undefined && item.count > 0 ? ` (${item.count})` : ''}` : undefined}
+                    className={`w-full flex items-center transition-all duration-200 cursor-pointer group relative ${
+                      isSidebarCollapsed
+                        ? `w-12 h-12 mx-auto justify-center rounded-2xl ${
+                            isActive
+                              ? 'bg-teal-700 text-white shadow-sm border border-teal-500/50'
+                              : 'text-teal-200/80 hover:text-white hover:bg-teal-800/60'
+                          }`
+                        : `justify-between px-3.5 py-3 rounded-2xl text-xs font-semibold ${
+                            isActive
+                              ? 'bg-teal-800 text-white font-bold border-l-4 border-teal-400 pl-3 shadow-xs'
+                              : 'text-teal-100 hover:text-white hover:bg-teal-800/50'
+                          }`
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon
+                        className={`transition-transform duration-200 group-hover:scale-110 shrink-0 ${
+                          isSidebarCollapsed ? 'w-5 h-5' : 'w-4 h-4'
+                        } ${isActive ? 'text-teal-300' : 'text-teal-200/80'}`}
+                      />
+                      {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
+                    </div>
+
+                    {/* Count badge when expanded */}
+                    {!isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-900 text-teal-200 border border-teal-700/60 shrink-0">
+                        {item.count}
+                      </span>
+                    )}
+
+                    {/* Notification dot when collapsed */}
+                    {isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
+                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-teal-300 ring-2 ring-[#093E40]" />
+                    )}
+
+                    {/* Floating tooltip when collapsed */}
+                    {isSidebarCollapsed && (
+                      <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 border border-slate-800 flex items-center gap-1.5">
+                        <span>{item.label}</span>
+                        {item.count !== undefined && item.count > 0 && (
+                          <span className="text-[10px] font-mono bg-teal-900 text-teal-300 px-1.5 py-0.5 rounded-full border border-teal-700">
+                            {item.count}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* Sidebar Footer: Student Profile Card & Sign Out */}
+        <div className="pt-4 border-t border-[#073335] space-y-2">
+          {!isSidebarCollapsed ? (
+            <>
+              <div
+                onClick={() => handleTabChange('profile')}
+                className="p-3 rounded-2xl bg-teal-900/40 border border-teal-800/50 flex items-center gap-3 cursor-pointer hover:bg-teal-900/70 transition-colors group"
+                title="View Student Profile"
+              >
+                <img
+                  src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                  alt={user?.name}
+                  onError={(e) => {
+                    e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+                  }}
+                  className="w-9 h-9 rounded-full object-cover border border-teal-400/40 shrink-0 group-hover:scale-105 transition-transform"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-white truncate">{user?.name}</p>
+                  <p className="text-[10px] font-mono text-teal-300 truncate">STUDENT</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  if (onNavigate) onNavigate('home');
+                  else window.location.href = '/';
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-300 hover:text-white hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </>
+          ) : (
+            <div className="space-y-2 flex flex-col items-center">
+              <button
+                type="button"
+                onClick={() => handleTabChange('profile')}
+                className="w-10 h-10 rounded-full overflow-hidden border border-teal-400/40 hover:scale-105 transition-transform cursor-pointer"
+                title={`${user?.name} (Click for profile)`}
+              >
+                <img
+                  src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                  alt={user?.name}
+                  onError={(e) => {
+                    e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+                  }}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  if (onNavigate) onNavigate('home');
+                  else window.location.href = '/';
+                }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-300 hover:text-white hover:bg-rose-950/40 transition-colors cursor-pointer group relative"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+                <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-[11px] font-semibold rounded-md shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                  Sign Out
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* ========================================================= */}
+      {/* 4. MAIN CONTENT AREA (Full Height, No Top Nav on Desktop) */}
+      {/* ========================================================= */}
+      <main className="flex-1 min-w-0 bg-[#f6fafa] p-4 sm:p-6 lg:p-8 overflow-y-auto h-screen min-h-screen">
+        <div className="max-w-7xl mx-auto space-y-8">
+            {/* Student Identity Header */}
+            <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                {/* Header Avatar with Direct Edit Tooltip */}
+                <div
+                  onClick={() => handleTabChange('profile')}
+                  className="relative group cursor-pointer shrink-0"
+                  title="Click to edit profile & photo"
+                >
+                  <img
+                    src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                    alt={user?.name}
+                    onError={(e) => {
+                      e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+                    }}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm transition-transform duration-150 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-[#0B4F50]/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <Camera className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{user?.name}</h1>
+                    {user?.isVerified && (
+                      <Badge variant="success" size="sm">Verified Account</Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">{user?.email}</p>
+                  <p className="text-xs text-slate-600 mt-1 font-normal">
+                    {user?.institution || 'Institution Unspecified'} • {user?.degree || 'Student Member'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs font-medium flex-wrap">
+                <div
+                  onClick={() => handleTabChange('courses')}
+                  className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
+                    activeTab === 'courses'
+                      ? 'bg-[#0B4F50] text-white border-[#0B4F50] shadow-xs'
+                      : 'bg-[#f2f7f7] border-[#d8ecec] hover:bg-[#e6f1f1]'
+                  }`}
+                  title="View Enrolled Cohorts"
+                >
+                  <span className={`text-xl font-bold block ${activeTab === 'courses' ? 'text-teal-200' : 'text-[#0B4F50]'}`}>
+                    {confirmedApps.length}
+                  </span>
+                  <span className={`text-[11px] font-semibold ${activeTab === 'courses' ? 'text-teal-100' : 'text-slate-500'}`}>
+                    Enrolled Cohorts
+                  </span>
+                </div>
+
+                <div
+                  onClick={() => handleTabChange('catalog')}
+                  className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
+                    activeTab === 'catalog'
+                      ? 'bg-[#0B4F50] text-white border-[#0B4F50] shadow-xs'
+                      : 'bg-[#f2f7f7] border-[#d8ecec] hover:bg-[#e6f1f1]'
+                  }`}
+                  title="Explore Course Catalog"
+                >
+                  <span className={`text-xl font-bold block ${activeTab === 'catalog' ? 'text-teal-200' : 'text-[#0B4F50]'}`}>
+                    {studentAvailableCourses.length}
+                  </span>
+                  <span className={`text-[11px] font-semibold ${activeTab === 'catalog' ? 'text-teal-100' : 'text-slate-500'}`}>
+                    Available Programs
+                  </span>
+                </div>
+
+                <div
+                  onClick={() => handleTabChange('billing')}
+                  className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
+                    activeTab === 'billing'
+                      ? 'bg-[#0B4F50] text-white border-[#0B4F50] shadow-xs'
+                      : 'bg-[#f2f7f7] border-[#d8ecec] hover:bg-[#e6f1f1]'
+                  }`}
+                  title="View Invoices"
+                >
+                  <span className={`text-xl font-bold block ${activeTab === 'billing' ? 'text-teal-200' : 'text-[#0B4F50]'}`}>
+                    {payments.length}
+                  </span>
+                  <span className={`text-[11px] font-semibold ${activeTab === 'billing' ? 'text-teal-100' : 'text-slate-500'}`}>
+                    Tax Invoices
+                  </span>
+                </div>
+              </div>
+            </div>
 
       {/* Tab 1: Enrolled Courses & Automated Learning Hub */}
       {activeTab === 'courses' && (
@@ -599,10 +1146,11 @@ export const StudentDashboardView = ({
                 Explore our accredited engineering masterclasses and bootcamps to get started.
               </p>
               <button
-                onClick={onBrowseCourses}
+                type="button"
+                onClick={() => handleTabChange('catalog')}
                 className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] transition-all cursor-pointer"
               >
-                Browse Masterclasses
+                Explore Course Catalog
               </button>
             </div>
           ) : (
@@ -1567,6 +2115,276 @@ export const StudentDashboardView = ({
         </div>
       )}
 
+      {/* Tab: Course Catalog (Integrated In-Portal Catalog) */}
+      {activeTab === 'catalog' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Catalog Top Filter & Search Bar */}
+          <div className="p-6 rounded-[28px] bg-white border border-[#d8ecec] shadow-xs space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold font-mono text-[#0B4F50] uppercase tracking-wider">
+                  <Compass className="w-4 h-4" />
+                  <span>Academic Offerings & Curriculum</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-display tracking-tight mt-1">
+                  Course Catalog
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Explore accredited programs, bootcamps, and specialized cohort masterclasses.
+                </p>
+              </div>
+
+              {/* Search Box */}
+              <div className="relative w-full md:w-72">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={catalogSearch}
+                  onChange={(e) => setCatalogSearch(e.target.value)}
+                  placeholder="Search courses, skills, faculty..."
+                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-900 outline-none transition-all placeholder-slate-400"
+                />
+                {catalogSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setCatalogSearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Category & Level Pills Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              {/* Category Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                {catalogCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCatalogCategory(cat)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      catalogCategory === cat
+                        ? 'bg-[#0B4F50] text-white shadow-xs'
+                        : 'bg-[#f2f7f7] hover:bg-[#e4efef] text-slate-700'
+                    }`}
+                  >
+                    {cat === 'ALL' ? 'All Categories' : cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Level Filter Dropdown */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-medium text-slate-500 font-mono hidden sm:inline">Level:</span>
+                <select
+                  value={catalogLevel}
+                  onChange={(e) => setCatalogLevel(e.target.value)}
+                  className="bg-[#f2f7f7] hover:bg-[#e4efef] border border-[#d8ecec] text-xs font-semibold text-slate-700 rounded-full px-3 py-1.5 outline-none focus:border-[#0B4F50] cursor-pointer"
+                >
+                  <option value="ALL">All Levels</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Courses Grid */}
+          {filteredCatalogCourses.length === 0 ? (
+            <div className="text-center py-16 px-4 bg-white rounded-[28px] border border-[#d8ecec] space-y-3">
+              <Compass className="w-12 h-12 text-slate-300 mx-auto" />
+              <h3 className="text-base font-bold text-slate-800">No courses match your criteria</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try adjusting your search terms or selecting a different category filter.
+              </p>
+              {(catalogSearch || catalogCategory !== 'ALL' || catalogLevel !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCatalogSearch('');
+                    setCatalogCategory('ALL');
+                    setCatalogLevel('ALL');
+                  }}
+                  className="px-4 py-2 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-colors cursor-pointer"
+                >
+                  Reset Filters
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredCatalogCourses.map((course) => {
+                const status = getCourseStatus(course);
+                const instructor = getInstructorInfo(course);
+
+                return (
+                  <div
+                    key={course.id}
+                    className="bg-white rounded-[26px] border border-[#d8ecec] hover:border-teal-300 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+                  >
+                    {/* Top Banner Image with Badges */}
+                    <div className="relative h-44 bg-slate-100 overflow-hidden shrink-0">
+                      <img
+                        src={course.bannerImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'}
+                        alt={course.title}
+                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" />
+
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-white/95 text-[#0B4F50] px-2.5 py-1 rounded-lg shadow-xs border border-slate-200/60">
+                          {course.category || 'Engineering'}
+                        </span>
+                        {course.level && (
+                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900/85 text-teal-200 px-2.5 py-1 rounded-lg">
+                            {course.level}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Status Tag on Top Right */}
+                      <div className="absolute top-3 right-3">
+                        {status.type === 'ENROLLED' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-xs">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Enrolled
+                          </span>
+                        )}
+                        {status.type === 'APPLIED' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-amber-500 text-white shadow-xs">
+                            <Clock className="w-3 h-3" />
+                            Applied
+                          </span>
+                        )}
+                        {status.type === 'OPEN' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#0B4F50]/90 text-teal-100 shadow-xs backdrop-blur-xs border border-teal-400/30">
+                            <Sparkles className="w-3 h-3 text-teal-300" />
+                            Open
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Bottom Image Overlay: Mode & Tuition */}
+                      <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs">
+                        <span className="text-[10px] font-mono font-bold bg-slate-950/70 backdrop-blur-xs px-2 py-0.5 rounded text-teal-200">
+                          {course.mode || 'Cohort Masterclass'}
+                        </span>
+                        <span className="text-xs font-mono font-bold bg-slate-950/80 backdrop-blur-xs px-2.5 py-0.5 rounded text-white">
+                          {course.price ? `₹${Number(course.price).toLocaleString('en-IN')}` : 'Full Scholarship'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Body Content */}
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-base text-slate-900 font-display line-clamp-1 group-hover:text-[#0B4F50] transition-colors">
+                          {course.title}
+                        </h3>
+                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                          {course.shortDescription || course.description || 'Comprehensive academic cohort program designed for professional career mastery.'}
+                        </p>
+                      </div>
+
+                      {/* Meta Details Row */}
+                      <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{course.duration || '12 Weeks'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{course.level || 'All Levels'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{course.classes?.length || 10} Episodes</span>
+                        </div>
+                      </div>
+
+                      {/* Instructor Information */}
+                      <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                        {instructor.avatar ? (
+                          <img
+                            src={instructor.avatar}
+                            alt={instructor.name}
+                            className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-[#0B4F50] text-teal-200 text-xs font-bold flex items-center justify-center shrink-0">
+                            {instructor.initial}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-bold text-slate-800 truncate">
+                            {instructor.name}
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-mono truncate">
+                            {instructor.role}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Button depending on status */}
+                      <div className="pt-2">
+                        {status.type === 'ENROLLED' ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedLearningCourseId(course.id);
+                              handleTabChange('courses');
+                            }}
+                            className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
+                          >
+                            <PlayCircle className="w-4 h-4" />
+                            <span>Go to Classroom</span>
+                          </button>
+                        ) : status.type === 'APPLIED' ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleTabChange('applications')}
+                              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>View Application</span>
+                            </button>
+                            <span className="text-[10px] font-mono text-amber-700 font-bold px-2 py-1 bg-amber-50 rounded border border-amber-200 shrink-0">
+                              {status.statusDetail || 'Applied'}
+                            </span>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCatalogCourse(course);
+                              setIsCatalogAppModalOpen(true);
+                            }}
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#0B4F50] hover:bg-[#073637] active:bg-[#052627] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-teal-300" />
+                            <span>Apply Now</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tab 2: Applications */}
       {activeTab === 'applications' && (
         <div className="space-y-6">
@@ -1863,6 +2681,26 @@ export const StudentDashboardView = ({
           </div>
 
         </div>
+      )}
+          </div>
+        </main>
+
+      {/* In-Portal Application Modal (Apply without leaving the Student Portal) */}
+      {selectedCatalogCourse && (
+        <ApplicationModal
+          isOpen={isCatalogAppModalOpen}
+          onClose={() => {
+            setIsCatalogAppModalOpen(false);
+            setSelectedCatalogCourse(null);
+          }}
+          course={selectedCatalogCourse}
+          onSuccess={() => {
+            setIsCatalogAppModalOpen(false);
+            setSelectedCatalogCourse(null);
+            showToast('Application submitted successfully!');
+            fetchData();
+          }}
+        />
       )}
     </div>
   );

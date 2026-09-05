@@ -101,57 +101,6 @@
       "salt": "GOOGLE_SALT",
       "createdAt": "2026-09-03T20:08:47.702Z",
       "updatedAt": "2026-09-03T20:08:47.702Z"
-    },
-    {
-      "id": "usr_1a19e706bec4567e",
-      "name": "Jitesh",
-      "email": "jiteshgoodboy@gmail.com",
-      "mobile": "+91 8220945226",
-      "role": "USER",
-      "isVerified": true,
-      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Jitesh",
-      "institution": "KAhe",
-      "degree": "B.Tech / B.E.",
-      "yearOfStudy": "3rd Year",
-      "isActive": true,
-      "passwordHash": "96b853906c925576639d6147dd19593dc5aff8a333f26f31ba83656740b572fb9195596b080e0f6515d636984a166879f8d2603f3023046b2805fb0101785cd3",
-      "salt": "c511f6d6be63ee376402fe2e09a07900",
-      "createdAt": "2026-09-04T17:13:38.551Z",
-      "updatedAt": "2026-09-04T17:55:23.980Z"
-    },
-    {
-      "id": "usr_0819036d14eedb53",
-      "name": "Google Student",
-      "email": "student.google@claxic.edu",
-      "mobile": "",
-      "role": "USER",
-      "isVerified": true,
-      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Google%20Student",
-      "institution": "Verified Google Student",
-      "degree": "Academic Program",
-      "yearOfStudy": "Current",
-      "isActive": true,
-      "passwordHash": "GOOGLE_OAUTH_USER",
-      "salt": "GOOGLE_SALT",
-      "createdAt": "2026-09-04T17:39:34.627Z",
-      "updatedAt": "2026-09-04T17:39:34.627Z"
-    },
-    {
-      "id": "usr_staff_sarah",
-      "name": "Dr. Sarah Jenkins",
-      "email": "staff@claxic.edu",
-      "mobile": "+91 98765 43210",
-      "role": "STAFF",
-      "isVerified": true,
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
-      "institution": "Indian Institute of Science (IISc), Bangalore",
-      "degree": "Lead Curriculum & Admissions Reviewer",
-      "yearOfStudy": "Senior Staff Member",
-      "isActive": true,
-      "passwordHash": "20355d00aef74155e47542f54553144e326b1402a5b0c12a3eba4e8c7796b5dc2ec6fef9300742cdc8bb68e602a44270b01390a512ab81fe453fa1e219541ef7",
-      "salt": "claxic_salt_staff_2026",
-      "createdAt": "2026-08-01T00:00:00.000Z",
-      "updatedAt": "2026-08-30T10:00:00.000Z"
     }
   ],
   "courses": [
@@ -3096,10 +3045,6 @@
       "userId": "usr_014913f218045675",
       "expiresAt": "2026-09-11T16:59:19.153Z"
     },
-    "stk_f5ad8a6046962373fc25330928de2dac5fb149dff97f22677ba8604b02f9bd2f": {
-      "userId": "usr_1a19e706bec4567e",
-      "expiresAt": "2026-09-11T17:13:38.603Z"
-    },
     "stk_6f65c5cd276321c08be68e58c5a74cd03f04d01bc7ffc9f5bd0608a83d41ac09": {
       "userId": "usr_014913f218045675",
       "expiresAt": "2026-09-11T17:20:28.948Z"
@@ -3115,10 +3060,6 @@
     "stk_a10568b7789c09f2d95fa8d32ded9f989b1f811c2d0b837248f62d4d392fccbe": {
       "userId": "usr_admin_jitesh_genkit",
       "expiresAt": "2026-09-11T17:37:27.149Z"
-    },
-    "stk_962fd43cb4f5ed04331391bdbdbf76d7aaffcdb125ca7d887f28d8242bc66323": {
-      "userId": "usr_0819036d14eedb53",
-      "expiresAt": "2026-09-11T17:39:34.660Z"
     },
     "stk_5c819922bf1b828c0ab4c9fa9db20aa0613f599b18a7210f62ec625474ccc3be": {
       "userId": "usr_admin_system",
@@ -3160,33 +3101,17 @@
       "userId": "usr_admin_jitesh",
       "expiresAt": "2026-09-11T18:02:39.875Z"
     },
-    "stk_39ef0cadbd91aa34e0f3c74bf331673f5db252a854a7a6b9e4744d0adacb04a2": {
-      "userId": "usr_staff_sarah",
-      "expiresAt": "2026-09-11T18:02:39.973Z"
-    },
     "stk_02e666fc7dbec267cfc93acf5a3bb40d1d307a7bbcb8ae652170bd87e36d7f5b": {
       "userId": "usr_admin_system",
       "expiresAt": "2026-09-11T18:03:46.481Z"
-    },
-    "stk_ae98d001037ba16994ea5f95fb4e403533a2bd4f4b0a2944941fd866330b2c4e": {
-      "userId": "usr_staff_sarah",
-      "expiresAt": "2026-09-11T18:03:46.583Z"
     },
     "stk_5da93bf344fb799d0d19b63b79df0a2c5afb101c3f9e28b09f466c5cd8b2236b": {
       "userId": "usr_admin_system",
       "expiresAt": "2026-09-11T18:04:14.997Z"
     },
-    "stk_97c15155b0dbb9a2ac16517ed595352ad15e98c350e4d7be3c2070eaa8e6f55c": {
-      "userId": "usr_staff_sarah",
-      "expiresAt": "2026-09-11T18:04:25.182Z"
-    },
     "stk_4cdefdaf4775a65926b1fb0610720b876c520ee2fab6df3ee19a7bfbfc346ff6": {
       "userId": "usr_admin_system",
       "expiresAt": "2026-09-11T18:05:38.003Z"
-    },
-    "stk_06efedb16b2e33de42c7add2c2e5a8bb1c9e037991873b9a371ca0428d00df68": {
-      "userId": "usr_staff_sarah",
-      "expiresAt": "2026-09-11T18:05:38.141Z"
     },
     "stk_d813759eacd02b1b41f861e941440e8cef9db064d76c131fb67c0efc0d49575a": {
       "userId": "usr_admin_jitesh",
@@ -3219,17 +3144,33 @@
     "stk_297136f1919f9c3d625cd747d62f804533bf753405f33b15dad87c865fa76f22": {
       "userId": "usr_admin_jitesh_genkit",
       "expiresAt": "2026-09-12T06:49:25.731Z"
+    },
+    "stk_17f75dd0e3b7d22024c4b879c9585cafb603994c30d00be9130851e2ac9233a4": {
+      "userId": "usr_admin_jitesh_genkit",
+      "expiresAt": "2026-09-12T07:35:03.385Z"
+    },
+    "stk_50c9a1a296e512a7b01fd7947e23aa9db158207b8b23ac509801ba0dd9f62f9a": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-09-12T07:38:23.864Z"
+    },
+    "stk_66936df868c065dde314d230043d000805e95c35b85f970dc3a39cb9ea769939": {
+      "userId": "usr_admin_jitesh_genkit",
+      "expiresAt": "2026-09-12T07:41:11.743Z"
+    },
+    "stk_4b36b6c406453901d1b97afc8c48e802f1ba02d7e4015911476e1f6748de1b09": {
+      "userId": "usr_admin_jitesh_genkit",
+      "expiresAt": "2026-09-12T07:44:14.328Z"
+    },
+    "stk_5e5af365933f2a7b8b828dba0c80a502eb31585dfc70dd847e5fcff10dc9eb39": {
+      "userId": "usr_014913f218045675",
+      "expiresAt": "2026-09-12T07:45:19.809Z"
+    },
+    "stk_01b2fc198a728813b81e5bf0ad0e641ee0de120a7f37706ac673350e3932cbab": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-09-12T07:47:44.886Z"
     }
   },
-  "verificationTokens": [
-    {
-      "token": "293120",
-      "email": "jiteshgoodboy@gmail.com",
-      "expiresAt": "2026-09-05T17:13:38.552Z",
-      "userId": "usr_1a19e706bec4567e",
-      "used": false
-    }
-  ],
+  "verificationTokens": [],
   "passwordResetTokens": [
     {
       "token": "311573",
@@ -3339,6 +3280,36 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit_il8c55x",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "USER_DELETED",
+      "targetType": "USER",
+      "targetId": "usr_staff_sarah",
+      "targetTitle": "Dr. Sarah Jenkins (staff@claxic.edu)",
+      "createdAt": "2026-09-05T07:49:39.323Z"
+    },
+    {
+      "id": "audit_4tsx2kj",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "USER_DELETED",
+      "targetType": "USER",
+      "targetId": "usr_0819036d14eedb53",
+      "targetTitle": "Google Student (student.google@claxic.edu)",
+      "createdAt": "2026-09-05T07:49:32.421Z"
+    },
+    {
+      "id": "audit_6e53cf3",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "USER_DELETED",
+      "targetType": "USER",
+      "targetId": "usr_1a19e706bec4567e",
+      "targetTitle": "Jitesh (jiteshgoodboy@gmail.com)",
+      "createdAt": "2026-09-05T07:49:25.493Z"
+    },
     {
       "id": "audit_i5o7v41",
       "adminId": "usr_admin_jitesh",

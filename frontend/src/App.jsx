@@ -99,7 +99,8 @@ const MainApp = () => {
     if (path.startsWith('/student') || path.startsWith('/dashboard')) {
       const seg = path.replace(/^\/(student|dashboard)/, '').replace(/^\//, '').split('/')[0] || legacyTab;
       let tab = 'courses';
-      if (seg === 'applications') tab = 'applications';
+      if (seg === 'catalog' || seg === 'courses-catalog') tab = 'catalog';
+      else if (seg === 'applications') tab = 'applications';
       else if (seg === 'payments' || seg === 'billing') tab = 'billing';
       else if (seg === 'profile') tab = 'profile';
       else tab = 'courses';
@@ -492,7 +493,8 @@ const MainApp = () => {
 
   const isPortalDashboard =
     (currentView === 'admin' && user && user.role === 'ADMIN') ||
-    (currentView === 'staff' && user && user.role === 'STAFF');
+    (currentView === 'staff' && user && user.role === 'STAFF') ||
+    ((currentView === 'student' || currentView === 'dashboard') && user && user.role === 'USER');
 
   const showGlobalNav = !isAuthView && !isPortalDashboard;
   const showGlobalFooter = !isAuthView && !isPortalDashboard;
@@ -633,7 +635,7 @@ const MainApp = () => {
             <StudentDashboardView
               initialTab={studentTab}
               onNavigate={handleNavigate}
-              onBrowseCourses={() => handleNavigate('courses')}
+              onBrowseCourses={() => handleNavigate('student', 'catalog')}
               onViewReceipt={handleViewReceipt}
               onSelectCourse={handleSelectCourse}
             />

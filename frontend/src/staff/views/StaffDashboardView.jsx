@@ -42,26 +42,75 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
+// Elegant 3-bar hamburger icon that smoothly morphs into a close 'X'
+const HamburgerIcon = ({ isOpen, className = 'w-5 h-5' }) => (
+  <div className={`relative flex flex-col justify-center items-center gap-[5px] ${className}`}>
+    <span
+      className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center ${
+        isOpen ? 'rotate-45 translate-y-[7px]' : ''
+      }`}
+    />
+    <span
+      className={`w-5 h-0.5 bg-current rounded-full transition-all duration-200 ease-in-out ${
+        isOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
+      }`}
+    />
+    <span
+      className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center ${
+        isOpen ? '-rotate-45 -translate-y-[7px]' : ''
+      }`}
+    />
+  </div>
+);
+
 export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const { user, logout } = useAuth();
 
-  // Sidebar & Layout State
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Sidebar & Layout State (with local persistence)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      const saved = localStorage.getItem('claxic_staff_sidebar_collapsed');
+      if (saved !== null) return saved === 'true';
+      return false;
+    } catch {
+      return false;
+    }
+  });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(initialTab === 'projects' ? 'overview' : initialTab);
+
+  // Sync sidebar collapsed preference with localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('claxic_staff_sidebar_collapsed', isSidebarCollapsed ? 'true' : 'false');
+    } catch {}
+  }, [isSidebarCollapsed]);
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileSidebarOpen]);
 
   useEffect(() => {
     if (initialTab && initialTab !== activeTab) {
-      setActiveTab(initialTab);
+      setActiveTab(initialTab === 'projects' ? 'overview' : initialTab);
     }
   }, [initialTab]);
 
   const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
+    const target = tabId === 'projects' ? 'overview' : tabId;
+    setActiveTab(target);
     if (onNavigate) {
-      onNavigate(`staff/${tabId}`);
+      onNavigate(`staff/${target}`);
     } else {
-      window.history.pushState(null, '', `/staff/${tabId}`);
+      window.history.pushState(null, '', `/staff/${target}`);
     }
   };
 
@@ -111,14 +160,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
   const [isMarkingAttendance, setIsMarkingAttendance] = useState(false);
 
-  // Final Project Reviews State
-  const [projectSubmissions, setProjectSubmissions] = useState([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [selectedProjectForReview, setSelectedProjectForReview] = useState(null);
-  const [reviewStatus, setReviewStatus] = useState('APPROVED');
-  const [reviewFeedback, setReviewFeedback] = useState('');
-  const [isSavingReview, setIsSavingReview] = useState(false);
-  const [projectFilterStatus, setProjectFilterStatus] = useState('ALL');
+
 
   // Evaluation modal state
   const [selectedApp, setSelectedApp] = useState(null);
@@ -284,28 +326,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
     }
   };
 
-  // Fetch Project Submissions
-  const fetchProjects = async () => {
-    setIsLoadingProjects(true);
-    try {
-      const token = localStorage.getItem('claxic_token');
-      const res = await fetch('/api/staff/projects', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setProjectSubmissions(data.projects || []);
-      }
-    } catch (err) {
-      console.error('Fetch projects error:', err);
-    } finally {
-      setIsLoadingProjects(false);
-    }
-  };
-
   useEffect(() => {
     fetchStaffData();
-    fetchProjects();
   }, []);
 
   // When selectedCourseId changes, reload classes and progress
@@ -316,12 +338,10 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
     }
   }, [selectedCourseId]);
 
-  // When active tab changes to progress or projects, refresh data
+  // When active tab changes to progress, refresh data
   useEffect(() => {
     if (activeTab === 'progress' && selectedCourseId) {
       fetchStudentProgress(selectedCourseId);
-    } else if (activeTab === 'projects') {
-      fetchProjects();
     }
   }, [activeTab]);
 
@@ -587,40 +607,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
     }
   };
 
-  // Save Final Project Review Feedback & Decision
-  const handleSaveProjectReview = async (e) => {
-    e.preventDefault();
-    if (!selectedProjectForReview) return;
-    setIsSavingReview(true);
-    try {
-      const token = localStorage.getItem('claxic_token');
-      const res = await fetch(`/api/staff/projects/${selectedProjectForReview.id}/review`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          status: reviewStatus,
-          feedback: reviewFeedback.trim(),
-        }),
-      });
-      if (res.ok) {
-        showToast(`Project review saved: ${reviewStatus}`);
-        setSelectedProjectForReview(null);
-        fetchProjects();
-        if (selectedCourseId) fetchStudentProgress(selectedCourseId);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to save review.');
-      }
-    } catch (err) {
-      console.error('Project review error:', err);
-      alert('Failed to save project review.');
-    } finally {
-      setIsSavingReview(false);
-    }
-  };
+
 
   // Delete Class Episode
   const handleDeleteClass = async (classId) => {
@@ -740,13 +727,10 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
     );
   });
 
-  const pendingProjectsCount = projectSubmissions.filter((p) => p.status === 'PENDING_REVIEW').length;
-
   const navigationItems = [
     { id: 'overview', label: 'Faculty Overview', icon: BarChart2 },
     { id: 'classes', label: 'Course Classes & Content', icon: Film, count: classesList.length },
     { id: 'progress', label: 'Student Progress & Attendance', icon: UserCheck, count: studentProgressList.length },
-    { id: 'projects', label: 'Final Project Reviews', icon: Award, count: pendingProjectsCount },
     { id: 'profile', label: 'Staff Profile', icon: User },
     { id: 'announcements', label: 'Cohort Notices', icon: Bell, count: announcements.length },
   ];
@@ -773,43 +757,43 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       )}
 
       {/* ========================================================= */}
-      {/* SIDE PANEL / SIDEBAR (Responsive & Collapsible to Icon Mode) */}
+      {/* SIDE PANEL / SIDEBAR (Responsive & Collapsible with Morphing Nav) */}
       {/* ========================================================= */}
       <aside
         className={`fixed lg:sticky top-0 left-0 z-50 h-screen bg-[#0F1E2E] border-r border-slate-800 flex flex-col justify-between select-none transition-[width,padding,transform] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
           // Mobile state: slide in / out
           isMobileSidebarOpen ? 'translate-x-0 shadow-2xl w-72 p-5' : '-translate-x-full lg:translate-x-0'
         } ${
-          // Desktop state: expanded w-72 or collapsed icon rail w-[78px]
-          isSidebarCollapsed ? 'lg:w-[78px] lg:p-3' : 'lg:w-72 lg:p-5'
+          // Desktop state: expanded w-72 or collapsed icon rail w-20
+          isSidebarCollapsed ? 'lg:w-20 lg:p-3' : 'lg:w-72 lg:p-5'
         }`}
       >
         <div className="space-y-6">
-          {/* Sidebar Top: Logo & Hamburger Menu Toggle */}
+          {/* Sidebar Top: Logo & Morphing Hamburger Menu Toggle */}
           <div
             className={`flex items-center pb-3 border-b border-slate-800/80 transition-all duration-300 ${
               isSidebarCollapsed ? 'justify-center pt-1' : 'justify-between pt-1'
             }`}
           >
-            {/* When Expanded: Show Full Logo + Portal Badge */}
-            {!isSidebarCollapsed && (
-              <div
-                className="flex items-center gap-2.5 cursor-pointer select-none transition-transform hover:scale-102 min-w-0"
-                onClick={() => handleTabChange('overview')}
-                title="Staff Portal Overview"
-              >
-                <img
-                  src="/logow.png"
-                  alt="Claxic"
-                  className="h-7 sm:h-8 w-auto object-contain drop-shadow-xs shrink-0"
-                />
-                <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#38BDF8] border-l border-slate-700 pl-2 truncate">
-                  Staff Portal
-                </span>
-              </div>
-            )}
+            {/* Logo + Portal Badge (smooth opacity & width transition) */}
+            <div
+              className={`flex items-center gap-2.5 cursor-pointer select-none transition-all duration-300 min-w-0 overflow-hidden ${
+                isSidebarCollapsed ? 'w-0 opacity-0 pointer-events-none' : 'w-auto opacity-100'
+              }`}
+              onClick={() => handleTabChange('overview')}
+              title="Staff Portal Overview"
+            >
+              <img
+                src="/logow.png"
+                alt="Claxic"
+                className="h-7 sm:h-8 w-auto object-contain drop-shadow-xs shrink-0"
+              />
+              <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#38BDF8] border-l border-slate-700 pl-2 truncate whitespace-nowrap">
+                Staff Portal
+              </span>
+            </div>
 
-            {/* Hamburger Button (Collapse on Desktop / Close on Mobile) */}
+            {/* Hamburger Button with 3-Bar Morphing Icon */}
             <button
               type="button"
               onClick={() => {
@@ -819,29 +803,27 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   setIsSidebarCollapsed(!isSidebarCollapsed);
                 }
               }}
-              className={`rounded-xl bg-[#16293D] hover:bg-[#1E3A5F] text-[#38BDF8] hover:text-white transition-all duration-200 border border-slate-700/80 shadow-xs cursor-pointer flex items-center justify-center shrink-0 group ${
+              className={`rounded-xl bg-[#16293D] hover:bg-[#1E3A5F] text-[#38BDF8] hover:text-white transition-all duration-200 border border-slate-700/80 shadow-xs cursor-pointer flex items-center justify-center shrink-0 ${
                 isSidebarCollapsed ? 'w-11 h-11 mx-auto' : 'p-2'
               }`}
               title={isSidebarCollapsed ? 'Expand Side Panel' : 'Collapse to Icon Bar'}
               aria-label="Toggle Side Panel"
             >
-              <Menu
-                className={`text-[#38BDF8] transition-transform duration-300 ${
-                  isSidebarCollapsed
-                    ? 'w-5 h-5 group-hover:rotate-90 group-hover:scale-110'
-                    : 'w-4 h-4 group-hover:scale-110'
-                }`}
-              />
+              <HamburgerIcon isOpen={window.innerWidth < 1024 ? true : !isSidebarCollapsed} />
             </button>
           </div>
 
           {/* Navigation Links */}
           <div className="space-y-1">
-            {!isSidebarCollapsed && (
-              <p className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 transition-opacity duration-200">
+            <div
+              className={`transition-all duration-300 overflow-hidden ${
+                isSidebarCollapsed ? 'h-0 opacity-0 pointer-events-none' : 'h-auto opacity-100 mb-2'
+              }`}
+            >
+              <p className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
                 Academic Directorate
               </p>
-            )}
+            </div>
 
             <nav className="space-y-1.5">
               {navigationItems.map((item) => {
@@ -855,30 +837,41 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       handleTabChange(item.id);
                       if (window.innerWidth < 1024) setIsMobileSidebarOpen(false);
                     }}
-                    title={isSidebarCollapsed ? `${item.label} (${item.count !== undefined ? item.count : ''})` : undefined}
                     className={`rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer relative group flex items-center ${
                       isSidebarCollapsed
-                        ? 'w-11 h-11 mx-auto justify-center'
-                        : 'w-full justify-between px-3.5 py-2.5'
-                    } ${
-                      isActive
-                        ? 'bg-[#16293D] text-[#38BDF8] font-bold border-l-4 border-[#38BDF8] shadow-xs'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                        ? `w-11 h-11 mx-auto justify-center ${
+                            isActive
+                              ? 'bg-[#1E3A5F] text-[#38BDF8] font-bold border border-[#38BDF8]/40 shadow-sm ring-1 ring-[#38BDF8]/20'
+                              : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                          }`
+                        : `w-full justify-between px-3.5 py-2.5 ${
+                            isActive
+                              ? 'bg-[#16293D] text-[#38BDF8] font-bold border-l-4 border-[#38BDF8] shadow-xs'
+                              : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                          }`
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0 overflow-hidden">
                       <Icon
-                        className={`transition-transform duration-200 group-hover:scale-110 ${
+                        className={`transition-transform duration-200 group-hover:scale-110 shrink-0 ${
                           isSidebarCollapsed ? 'w-5 h-5' : 'w-4 h-4'
-                        } ${isActive ? 'text-[#38BDF8]' : 'text-slate-400'}`}
+                        } ${isActive ? 'text-[#38BDF8]' : 'text-slate-400 group-hover:text-white'}`}
                       />
-                      {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
+                      <span
+                        className={`transition-all duration-200 truncate whitespace-nowrap ${
+                          isSidebarCollapsed
+                            ? 'opacity-0 max-w-0 pointer-events-none'
+                            : 'opacity-100 max-w-xs'
+                        }`}
+                      >
+                        {item.label}
+                      </span>
                     </div>
 
                     {/* Count Pill when Expanded */}
                     {!isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
                       <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ${
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 transition-opacity duration-200 ${
                           isActive
                             ? 'bg-[#38BDF8] text-[#0F1E2E]'
                             : 'bg-slate-800 text-slate-300'
@@ -890,7 +883,19 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
                     {/* Glowing Notification Dot when in Collapsed Icon Mode */}
                     {isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#38BDF8] ring-2 ring-[#0F1E2E]" />
+                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#38BDF8] ring-2 ring-[#0F1E2E] animate-pulse" />
+                    )}
+
+                    {/* Floating Tooltip in Collapsed Mode (Desktop only) */}
+                    {isSidebarCollapsed && (
+                      <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0F1E2E] text-white text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:flex items-center gap-2">
+                        <span>{item.label}</span>
+                        {item.count !== undefined && item.count > 0 && (
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-[#38BDF8] text-[#0F1E2E]">
+                            {item.count}
+                          </span>
+                        )}
+                      </span>
                     )}
                   </button>
                 );
@@ -901,46 +906,56 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
         {/* Sidebar Bottom: User Profile & Sign Out */}
         <div className="space-y-3 pt-4 border-t border-slate-800/80">
-          {/* Expanded Profile Card */}
+          {/* Expanded Profile Card vs Collapsed Profile Icon */}
           {!isSidebarCollapsed ? (
-            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 transition-all duration-200">
               <div className="w-9 h-9 rounded-full bg-[#1E3A5F] text-[#38BDF8] text-xs font-bold flex items-center justify-center border border-[#38BDF8]/30 shrink-0">
                 {(user?.name || 'F')[0].toUpperCase()}
               </div>
-              <div className="min-w-0 flex-1">
-                <span className="block text-xs font-bold text-white truncate">
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <span className="block text-xs font-bold text-white truncate whitespace-nowrap">
                   {user?.name || 'Faculty Member'}
                 </span>
-                <span className="block text-[11px] text-[#38BDF8] truncate font-mono">
+                <span className="block text-[11px] text-[#38BDF8] truncate font-mono whitespace-nowrap">
                   {user?.degree || 'Lead Instructor'}
                 </span>
               </div>
             </div>
           ) : (
-            /* Collapsed Profile Icon */
-            <div
-              className="w-11 h-11 mx-auto rounded-xl bg-[#1E3A5F] text-[#38BDF8] text-sm font-bold flex items-center justify-center border border-[#38BDF8]/30 cursor-default"
-              title={`${user?.name || 'Faculty Member'} (${user?.degree || 'Instructor'})`}
-            >
-              {(user?.name || 'F')[0].toUpperCase()}
+            /* Collapsed Profile Icon with Floating Tooltip */
+            <div className="relative group flex justify-center">
+              <div
+                className="w-11 h-11 mx-auto rounded-xl bg-[#1E3A5F] text-[#38BDF8] text-sm font-bold flex items-center justify-center border border-[#38BDF8]/30 cursor-default shadow-xs transition-transform duration-200 group-hover:scale-105"
+              >
+                {(user?.name || 'F')[0].toUpperCase()}
+              </div>
+              <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0F1E2E] text-white text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:block">
+                {user?.name || 'Faculty Member'} ({user?.degree || 'Instructor'})
+              </span>
             </div>
           )}
 
           {/* Sign Out Button */}
-          <button
-            type="button"
-            onClick={() => {
-              logout();
-              if (onNavigate) onNavigate('staff-login');
-            }}
-            title={isSidebarCollapsed ? 'Sign Out' : undefined}
-            className={`rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-400 text-slate-300 text-xs font-semibold flex items-center justify-center border border-slate-700/80 transition-all cursor-pointer ${
-              isSidebarCollapsed ? 'w-11 h-11 mx-auto' : 'w-full py-2 px-3 gap-2'
-            }`}
-          >
-            <LogOut className={`${isSidebarCollapsed ? 'w-4 h-4' : 'w-4 h-4'}`} />
-            {!isSidebarCollapsed && <span>Sign Out</span>}
-          </button>
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                if (onNavigate) onNavigate('staff-login');
+              }}
+              className={`rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-400 text-slate-300 text-xs font-semibold flex items-center justify-center border border-slate-700/80 transition-all cursor-pointer ${
+                isSidebarCollapsed ? 'w-11 h-11 mx-auto' : 'w-full py-2 px-3 gap-2'
+              }`}
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              {!isSidebarCollapsed && <span>Sign Out</span>}
+            </button>
+            {isSidebarCollapsed && (
+              <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0F1E2E] text-rose-400 text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:block">
+                Sign Out
+              </span>
+            )}
+          </div>
         </div>
       </aside>
 
@@ -956,11 +971,11 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
             <button
               type="button"
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-[#F4F8F8] hover:bg-slate-200/80 text-[#0F1E2E] transition-colors border border-[#CBD5E1] cursor-pointer shadow-2xs shrink-0"
+              className="lg:hidden p-2 rounded-xl bg-[#F4F8F8] hover:bg-slate-200/80 text-[#0F1E2E] transition-colors border border-[#CBD5E1] cursor-pointer shadow-2xs shrink-0 flex items-center justify-center"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
-              <Menu className="w-5 h-5" />
+              <HamburgerIcon isOpen={isMobileSidebarOpen} className="w-5 h-5 text-[#0F1E2E]" />
             </button>
 
             <div className="min-w-0">
@@ -968,7 +983,6 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                 {activeTab === 'overview' && 'Faculty Executive Overview'}
                 {activeTab === 'classes' && 'Course Classes & Episodes Curriculum'}
                 {activeTab === 'progress' && 'Student Progress & Attendance Tracking'}
-                {activeTab === 'projects' && 'Final Project Reviews'}
                 {activeTab === 'profile' && 'Staff Faculty Profile & Credentials'}
                 {activeTab === 'courses' && 'Assigned Academic Programs'}
                 {activeTab === 'evaluations' && 'Candidate Application Reviews'}
@@ -1941,249 +1955,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
             </div>
           )}
 
-          {/* =================================================================== */}
-          {/* TAB 2.6: FINAL PROJECT REVIEWS & GITHUB VERIFICATION HUB           */}
-          {/* =================================================================== */}
-          {activeTab === 'projects' && (
-            <div className="space-y-6">
-              {/* Header */}
-              <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#0284C7] uppercase font-mono">
-                    <Award className="w-4 h-4" />
-                    <span>Capstone & Final Model Certification</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-[#0F1E2E]">Student Final Project Reviews</h3>
-                  <p className="text-xs text-slate-500">
-                    Verify students' submitted GitHub repositories, review codebase architecture and documentation, and certify graduation.
-                  </p>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 shrink-0">Filter Status:</label>
-                  <select
-                    value={projectFilterStatus}
-                    onChange={(e) => setProjectFilterStatus(e.target.value)}
-                    className="bg-[#F8FAFC] border border-[#CBD5E1] text-xs font-bold text-[#0F1E2E] py-2 px-3 rounded-xl outline-none focus:border-[#0F1E2E] transition-all cursor-pointer"
-                  >
-                    <option value="ALL">All Submissions ({projectSubmissions.length})</option>
-                    <option value="PENDING_REVIEW">Pending Review</option>
-                    <option value="APPROVED">Approved & Certified</option>
-                    <option value="CHANGES_REQUESTED">Changes Requested</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Projects Grid */}
-              {isLoadingProjects ? (
-                <div className="p-12 text-center text-xs text-slate-500 font-medium">
-                  Loading capstone project submissions...
-                </div>
-              ) : projectSubmissions.length === 0 ? (
-                <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-12 text-center space-y-3">
-                  <FileCode className="w-10 h-10 text-slate-300 mx-auto" />
-                  <h4 className="text-sm font-bold text-[#0F1E2E]">No project submissions yet</h4>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    When students complete their curriculum and submit their final project GitHub repository, they will appear here for faculty verification.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {projectSubmissions
-                    .filter((p) => projectFilterStatus === 'ALL' || p.status === projectFilterStatus)
-                    .map((proj) => (
-                      <div
-                        key={proj.id}
-                        className="bg-white border border-[#CBD5E1] rounded-[22px] p-6 space-y-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 font-bold">
-                                {proj.courseTitle}
-                              </span>
-                              <h4 className="text-base font-bold text-[#0F1E2E] mt-1.5">{proj.projectTitle}</h4>
-                              <span className="text-xs text-slate-500">
-                                By <strong className="text-slate-800">{proj.userName}</strong> ({proj.userEmail})
-                              </span>
-                            </div>
-
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${
-                              proj.status === 'APPROVED'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : proj.status === 'CHANGES_REQUESTED'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                            }`}>
-                              {proj.status.replace('_', ' ')}
-                            </span>
-                          </div>
-
-                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                            {proj.description || 'Final course model and production architecture submission.'}
-                          </p>
-
-                          {/* GitHub Link & Documentation */}
-                          <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
-                            <div className="flex items-center justify-between">
-                              <span className="font-semibold text-slate-600">GitHub Repository:</span>
-                              <a
-                                href={proj.githubUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white font-mono text-[11px] font-bold transition-colors cursor-pointer"
-                              >
-                                <FileCode className="w-3.5 h-3.5 text-[#38BDF8]" />
-                                <span>Open GitHub Repo</span>
-                                <ExternalLink className="w-3 h-3 text-slate-400" />
-                              </a>
-                            </div>
-
-                            {proj.documentationUrl && (
-                              <div className="flex items-center justify-between">
-                                <span className="text-slate-500">Documentation / Demo:</span>
-                                <a
-                                  href={proj.documentationUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-[#0284C7] hover:underline font-semibold flex items-center gap-1"
-                                >
-                                  <span>View Docs</span>
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              </div>
-                            )}
-
-                            {/* Existing Feedback if any */}
-                            {proj.staffFeedback && (
-                              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 mt-2">
-                                <span className="font-bold text-[#0F1E2E] block text-[10px] uppercase font-mono">
-                                  Faculty Review Feedback
-                                </span>
-                                <p className="text-slate-700 leading-relaxed">{proj.staffFeedback}</p>
-                                {proj.reviewedBy && (
-                                  <span className="text-[10px] text-slate-400 block pt-0.5">
-                                    Reviewed by {proj.reviewedBy} • {new Date(proj.reviewedAt || proj.updatedAt).toLocaleDateString()}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Review Action Button */}
-                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            Submitted: {new Date(proj.submittedAt).toLocaleDateString()}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedProjectForReview(proj);
-                              setReviewStatus(proj.status === 'PENDING_REVIEW' ? 'APPROVED' : proj.status);
-                              setReviewFeedback(proj.staffFeedback || '');
-                            }}
-                            className="px-4 py-2 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-                          >
-                            <ShieldCheck className="w-3.5 h-3.5 text-[#38BDF8]" />
-                            <span>Verify & Review</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-
-              {/* Project Review Modal */}
-              {selectedProjectForReview && (
-                <div className="fixed inset-0 bg-[#0F1E2E]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-                  <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-6 sm:p-7 max-w-lg w-full space-y-4 shadow-2xl">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                      <div>
-                        <h4 className="text-base font-bold text-[#0F1E2E] font-display">
-                          Verify Project: {selectedProjectForReview.projectTitle}
-                        </h4>
-                        <p className="text-xs text-[#0284C7] font-medium">
-                          Student: {selectedProjectForReview.userName} ({selectedProjectForReview.courseTitle})
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedProjectForReview(null)}
-                        className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer rounded-lg hover:bg-slate-100"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-700">GitHub Repository Link:</span>
-                        <a
-                          href={selectedProjectForReview.githubUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-mono text-[#0284C7] hover:underline font-bold flex items-center gap-1"
-                        >
-                          <span>Open Repository</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                      <p className="text-slate-600 leading-relaxed font-mono text-[11px] break-all">
-                        {selectedProjectForReview.githubUrl}
-                      </p>
-                    </div>
-
-                    <form onSubmit={handleSaveProjectReview} className="space-y-4 text-xs">
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Verification Decision *</label>
-                        <select
-                          value={reviewStatus}
-                          onChange={(e) => setReviewStatus(e.target.value)}
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] font-mono font-bold focus:bg-white focus:border-[#0F1E2E] outline-none"
-                        >
-                          <option value="APPROVED">APPROVE & CERTIFY (Student Passes Course)</option>
-                          <option value="CHANGES_REQUESTED">REQUEST CHANGES (Code or Docs Need Revisions)</option>
-                          <option value="REJECTED">REJECT (Does Not Meet Course Standards)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">
-                          Faculty Review Feedback & Evaluation Notes *
-                        </label>
-                        <textarea
-                          rows={4}
-                          required
-                          value={reviewFeedback}
-                          onChange={(e) => setReviewFeedback(e.target.value)}
-                          placeholder="Provide detailed feedback on the codebase structure, model performance, documentation quality, and any required changes..."
-                          className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:bg-white focus:border-[#0F1E2E] outline-none leading-relaxed"
-                        />
-                      </div>
-
-                      <div className="pt-2 flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedProjectForReview(null)}
-                          className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold cursor-pointer"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={isSavingReview}
-                          className="px-5 py-2.5 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white font-bold cursor-pointer disabled:opacity-50"
-                        >
-                          {isSavingReview ? 'Saving Review...' : 'Submit Verification'}
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* =================================================================== */}
           {/* TAB 3: ASSIGNED COURSES & SYLLABI                                   */}
