@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch-path=routes --watch-path=middleware --watch-path=services --watch-path=server.js server.js",
-    "test": "node tests/test-persistence.js"
+    "test": "node tests/test-persistence.js && node tests/test-staff-appointment.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

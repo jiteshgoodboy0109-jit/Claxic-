@@ -101,6 +101,23 @@
       "salt": "GOOGLE_SALT",
       "createdAt": "2026-09-03T20:08:47.702Z",
       "updatedAt": "2026-09-03T20:08:47.702Z"
+    },
+    {
+      "id": "usr_staff_sarah",
+      "name": "Dr. Sarah Jenkins (Staff)",
+      "email": "staff@claxic.edu",
+      "mobile": "+91 98765 43210",
+      "role": "STAFF",
+      "isVerified": true,
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
+      "institution": "Claxic Faculty Directorate",
+      "degree": "Lead Curriculum & Admissions Reviewer",
+      "yearOfStudy": "Senior Staff Member",
+      "isActive": true,
+      "passwordHash": "20355d00aef74155e47542f54553144e326b1402a5b0c12a3eba4e8c7796b5dc2ec6fef9300742cdc8bb68e602a44270b01390a512ab81fe453fa1e219541ef7",
+      "salt": "claxic_salt_staff_2026",
+      "createdAt": "2026-08-01T00:00:00.000Z",
+      "updatedAt": "2026-08-30T10:00:00.000Z"
     }
   ],
   "courses": [
@@ -3157,17 +3174,21 @@
       "userId": "usr_admin_jitesh_genkit",
       "expiresAt": "2026-09-12T07:41:11.743Z"
     },
-    "stk_4b36b6c406453901d1b97afc8c48e802f1ba02d7e4015911476e1f6748de1b09": {
-      "userId": "usr_admin_jitesh_genkit",
-      "expiresAt": "2026-09-12T07:44:14.328Z"
-    },
-    "stk_5e5af365933f2a7b8b828dba0c80a502eb31585dfc70dd847e5fcff10dc9eb39": {
-      "userId": "usr_014913f218045675",
-      "expiresAt": "2026-09-12T07:45:19.809Z"
-    },
     "stk_01b2fc198a728813b81e5bf0ad0e641ee0de120a7f37706ac673350e3932cbab": {
       "userId": "usr_admin_jitesh",
       "expiresAt": "2026-09-12T07:47:44.886Z"
+    },
+    "stk_bf5f9f452ad2aeedc9d0fe5b3db2dd33034e0180eab1cd1f0b866ff907e7aa21": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-09-22T21:35:05.559Z"
+    },
+    "stk_4bbe7a885f6ce84fb0ae469876a02bb41301a0d1f535012a59c42f4757e35a68": {
+      "userId": "usr_admin_jitesh_genkit",
+      "expiresAt": "2026-09-22T21:36:10.012Z"
+    },
+    "stk_dbe095ddca30454afb62e8e97ae0f27a638a38b72532cfcdcc5603c766d09176": {
+      "userId": "usr_014913f218045675",
+      "expiresAt": "2026-09-24T12:47:32.091Z"
     }
   },
   "verificationTokens": [],
@@ -8196,6 +8217,21 @@
       ],
       "progressPercent": 40,
       "updatedAt": "2026-09-02T16:00:00.000Z"
+    },
+    {
+      "id": "prog_44b76f8d1c9aa6c9",
+      "userId": "usr_admin_jitesh_genkit",
+      "courseId": "crs_3cdf2c3d786d8e6a",
+      "startDate": "2026-09-05",
+      "completedClasses": [
+        "cls_crs_3cdf2c3d786d8e6a_1"
+      ],
+      "testResults": [],
+      "attendance": [
+        "cls_crs_3cdf2c3d786d8e6a_1"
+      ],
+      "progressPercent": 20,
+      "updatedAt": "2026-09-17T12:50:45.344Z"
     }
   ]
 }

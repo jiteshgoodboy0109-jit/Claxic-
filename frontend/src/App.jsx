@@ -536,9 +536,9 @@ const MainApp = () => {
 
         {currentView === 'course-detail' && (
           isCoursesLoading ? (
-            <div className="min-h-[70vh] bg-[#f6fafa] flex items-center justify-center p-6">
-              <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#d8ecec] text-center space-y-4 shadow-sm">
-                <div className="w-10 h-10 rounded-full border-3 border-[#0B4F50] border-t-transparent animate-spin mx-auto" />
+            <div className="min-h-[70vh] bg-[#F8FAFC] flex items-center justify-center p-6">
+              <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
+                <div className="w-10 h-10 rounded-full border-3 border-[#EE2D02] border-t-transparent animate-spin mx-auto" />
                 <h3 className="text-base font-bold text-slate-900">Loading Academic Program...</h3>
                 <p className="text-xs text-slate-500">Retrieving curriculum, modules, and schedule from database.</p>
               </div>
@@ -552,9 +552,9 @@ const MainApp = () => {
               onSelectCourse={handleSelectCourse}
             />
           ) : (
-            <div className="min-h-[70vh] bg-[#f6fafa] flex items-center justify-center p-6">
-              <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#d8ecec] text-center space-y-4 shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 text-[#0B4F50] flex items-center justify-center mx-auto">
+            <div className="min-h-[70vh] bg-[#F8FAFC] flex items-center justify-center p-6">
+              <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-[#FFF1EE] border border-[#FFD4CC] text-[#EE2D02] flex items-center justify-center mx-auto">
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">Course Program Not Found</h2>

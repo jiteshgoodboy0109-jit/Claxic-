@@ -542,6 +542,97 @@ router.get('/users', (req, res) => {
   res.json({ users });
 });
 
+// Appoint New Staff / Create User (Admin Only)
+router.post('/users', async (req, res) => {
+  try {
+    const admin = req.user;
+    const {
+      name,
+      email,
+      password,
+      role = 'STAFF',
+      mobile = '',
+      institution = 'Faculty Department',
+      degree = 'Instructor',
+      yearOfStudy = '',
+      isVerified = true,
+      isActive = true,
+    } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Full name is required.' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Email address is required.' });
+    }
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: 'Invalid email address format.' });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingUser = db.raw.users.find((u) => u.email.toLowerCase() === normalizedEmail);
+    if (existingUser) {
+      return res.status(409).json({ error: `An account with email "${normalizedEmail}" already exists.` });
+    }
+
+    const assignedRole = ['ADMIN', 'STAFF', 'USER'].includes(role) ? role : 'STAFF';
+    const salt = crypto.randomBytes(16).toString('hex');
+    const { hash } = hashPassword(password, salt);
+    const now = new Date().toISOString();
+
+    const prefix = assignedRole === 'ADMIN' ? 'adm_' : assignedRole === 'STAFF' ? 'stf_' : 'usr_';
+    const newUser = {
+      id: prefix + crypto.randomBytes(8).toString('hex'),
+      name: name.trim(),
+      email: normalizedEmail,
+      mobile: mobile ? mobile.trim() : '',
+      role: assignedRole,
+      isVerified: Boolean(isVerified),
+      isActive: Boolean(isActive),
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}`,
+      institution: institution ? institution.trim() : 'Faculty Department',
+      degree: degree ? degree.trim() : (assignedRole === 'STAFF' ? 'Faculty Instructor' : 'Academic Member'),
+      yearOfStudy: yearOfStudy ? yearOfStudy.trim() : '',
+      passwordHash: hash,
+      salt,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.transaction((data) => {
+      if (!data.users) data.users = [];
+      data.users.unshift(newUser);
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: assignedRole === 'STAFF' ? 'STAFF_APPOINTED' : 'USER_ACCOUNT_CREATED',
+        targetType: 'USER',
+        targetId: newUser.id,
+        targetTitle: `Appointed ${newUser.name} (${newUser.email}) as ${assignedRole}`,
+        createdAt: now,
+      });
+    });
+
+    const { passwordHash: _, salt: __, ...safeUser } = newUser;
+    return res.status(201).json({
+      success: true,
+      message: `Successfully appointed ${newUser.name} as ${assignedRole}.`,
+      user: safeUser,
+    });
+  } catch (err) {
+    console.error('Appoint staff error:', err);
+    return res.status(500).json({ error: 'Failed to create user account / appoint staff.' });
+  }
+});
+
 // Update User Profile
 router.put('/users/:id', async (req, res) => {
   try {

@@ -13,26 +13,26 @@ export const CourseCard = ({
   const getCategoryStyles = (category) => {
     switch (category) {
       case 'AI & Full Stack':
-        return 'bg-emerald-50 text-[#0B4F50] border-[#cbe4e4]';
+        return 'bg-[#FFF1EE] text-[#EE2D02] border-[#FFD4CC]';
       case 'Product & Design':
         return 'bg-amber-50 text-amber-900 border-amber-200';
       case 'Cyber Security':
         return 'bg-cyan-50 text-cyan-900 border-cyan-200';
       case 'Cloud & DevOps':
-        return 'bg-teal-50 text-teal-900 border-teal-200';
+        return 'bg-sky-50 text-sky-900 border-sky-200';
       case 'System Architecture':
         return 'bg-indigo-50 text-indigo-900 border-indigo-200';
       case 'Data & ML':
         return 'bg-emerald-50 text-emerald-900 border-emerald-200';
       default:
-        return 'bg-[#eef7f7] text-[#0B4F50] border-[#cbe4e4]';
+        return 'bg-[#FFF1EE] text-[#EE2D02] border-[#FFD4CC]';
     }
   };
 
   return (
     <div
       onClick={() => onSelect && onSelect(course)}
-      className="group bg-white border border-[#d8ecec] hover:border-[#96d0d0] rounded-[24px] overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(8,62,64,0.06)] hover:shadow-[0_20px_35px_-8px_rgba(8,62,64,0.12)] hover:-translate-y-1 cursor-pointer"
+      className="group bg-white border border-slate-200/90 hover:border-[#FFD4CC] rounded-[24px] overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_35px_-8px_rgba(238,45,2,0.12)] hover:-translate-y-1 cursor-pointer"
     >
       <div>
         {/* Course Banner Image with Fallback Pattern */}
@@ -45,11 +45,11 @@ export const CourseCard = ({
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#083E40] via-[#0B4F50] to-[#042021] flex flex-col items-center justify-center p-6 text-center text-white relative">
+            <div className="w-full h-full bg-gradient-to-br from-[#0B0E14] via-[#1A1D27] to-[#EE2D02]/30 flex flex-col items-center justify-center p-6 text-center text-white relative">
               <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20">
-                <BookOpen className="w-6 h-6 text-[#FDE047]" />
+                <BookOpen className="w-6 h-6 text-[#EE2D02]" />
               </div>
-              <span className="text-xs font-mono font-bold tracking-wider uppercase text-teal-200">
+              <span className="text-xs font-mono font-bold tracking-wider uppercase text-slate-300">
                 {course.category}
               </span>
             </div>
@@ -60,7 +60,7 @@ export const CourseCard = ({
             <span className={`px-3 py-1 rounded-full text-[11px] font-bold border backdrop-blur-md shadow-2xs ${getCategoryStyles(course.category)}`}>
               {course.category}
             </span>
-            <span className="px-3 py-1 rounded-full bg-[#083E40]/90 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-2xs">
+            <span className="px-3 py-1 rounded-full bg-[#0B0E14]/90 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-2xs">
               {course.mode}
             </span>
           </div>
@@ -79,7 +79,7 @@ export const CourseCard = ({
           {/* Duration & Star Rating */}
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#0B4F50]" />
+              <Clock className="w-3.5 h-3.5 text-[#EE2D02]" />
               <span>{course.duration}</span>
             </div>
             <div className="flex items-center gap-1 text-amber-800 font-bold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
@@ -92,31 +92,22 @@ export const CourseCard = ({
           {/* Title */}
           <h3
             onClick={() => onSelect && onSelect(course)}
-            className="text-base font-bold text-slate-900 group-hover:text-[#0B4F50] cursor-pointer transition-colors leading-snug line-clamp-2"
+            className="text-base font-bold text-slate-900 group-hover:text-[#EE2D02] cursor-pointer transition-colors leading-snug line-clamp-2"
           >
             {course.title}
           </h3>
 
           {/* Instructor Attribution */}
           {course.instructor && (
-            <div className="flex items-center gap-2.5 pt-0.5 pb-1">
+            <div className="flex items-center gap-2.5 pt-0.5">
               <img
-                src={
-                  (typeof course.instructor === 'object' && course.instructor?.avatar) ||
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'
-                }
-                alt={typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor}
-                className="w-6 h-6 rounded-full object-cover border border-[#d8ecec]"
-                onError={(e) => {
-                  const name = typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor;
-                  e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(name);
-                }}
+                src={course.instructor.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&q=80'}
+                alt={course.instructor.name}
+                className="w-6 h-6 rounded-full object-cover border border-slate-200"
               />
-              <div className="text-[11px] text-slate-600 truncate">
-                <span className="font-semibold text-slate-900">
-                  {typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor}
-                </span>
-                {typeof course.instructor === 'object' && course.instructor?.company && (
+              <div className="text-xs text-slate-600 font-medium truncate">
+                <span>{course.instructor.name}</span>
+                {course.instructor.company && (
                   <span className="text-slate-400"> • {course.instructor.company}</span>
                 )}
               </div>
@@ -134,7 +125,7 @@ export const CourseCard = ({
               {course.tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#f2f7f7] border border-[#d8ecec] text-[#0B4F50] font-medium"
+                  className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#FFF1EE] border border-[#FFD4CC] text-[#EE2D02] font-medium"
                 >
                   {tag}
                 </span>
@@ -150,10 +141,10 @@ export const CourseCard = ({
       </div>
 
       {/* Card Footer: Price & Action CTA */}
-      <div className="p-6 pt-3 border-t border-[#f2f7f7] flex items-center justify-between gap-3">
+      <div className="p-6 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
         <div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-lg font-bold text-[#083E40]">
+            <span className="text-lg font-bold text-slate-900">
               ₹{course.price.toLocaleString('en-IN')}
             </span>
             {course.originalPrice && (
@@ -170,7 +161,7 @@ export const CourseCard = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onSelect && onSelect(course)}
-            className="px-3.5 py-2 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-full text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all cursor-pointer"
           >
             Syllabus
           </button>
@@ -181,7 +172,7 @@ export const CourseCard = ({
                 e.stopPropagation();
                 if (onApply) onApply(course);
               }}
-              className="px-4 py-2 rounded-full text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] disabled:opacity-50 transition-all shadow-xs hover:shadow flex items-center gap-1 cursor-pointer"
+              className="px-4 py-2 rounded-full text-xs font-bold text-white bg-[#EE2D02] hover:bg-[#D42700] disabled:opacity-50 transition-all shadow-xs hover:shadow flex items-center gap-1 cursor-pointer"
             >
               <span>{course.status === 'FULL' ? 'Full' : 'Apply'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

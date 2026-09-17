@@ -13,7 +13,7 @@ export const Button = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0B4F50]/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-full sm:rounded-xl cursor-pointer';
+    'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#EE2D02]/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-full sm:rounded-xl cursor-pointer';
 
   const sizeStyles = {
     sm: 'text-xs px-3.5 py-1.5 gap-1.5 font-semibold',
@@ -23,13 +23,13 @@ export const Button = ({
 
   const variantStyles = {
     primary:
-      'bg-[#0B4F50] text-white hover:bg-[#073637] active:bg-[#052627] border border-[#0B4F50] shadow-xs hover:shadow-md transition-all active:scale-[0.99]',
+      'bg-[#EE2D02] text-white hover:bg-[#D02600] active:bg-[#B52000] border border-[#EE2D02] shadow-xs hover:shadow-md transition-all active:scale-[0.99]',
     secondary:
-      'bg-[#eef7f7] text-[#0B4F50] hover:bg-[#e2f0f0] active:bg-[#d8ecec] border border-[#cbe4e4] shadow-2xs font-semibold',
+      'bg-[#FFF1EE] text-[#EE2D02] hover:bg-[#FFE5E0] active:bg-[#FFD4CC] border border-[#FFD4CC] shadow-2xs font-semibold',
     outline:
-      'bg-white text-[#0B4F50] hover:text-[#063334] border border-[#d8ecec] hover:border-[#0B4F50]/40 hover:bg-[#f8fbfb] shadow-2xs',
+      'bg-white text-[#EE2D02] hover:text-[#D02600] border border-slate-200 hover:border-[#FFD4CC] hover:bg-slate-50 shadow-2xs',
     ghost:
-      'bg-transparent text-[#0B4F50] hover:text-[#063334] hover:bg-[#eef7f7]',
+      'bg-transparent text-[#EE2D02] hover:text-[#D02600] hover:bg-[#FFF1EE]',
     danger:
       'bg-red-700 text-white hover:bg-red-800 border border-red-700 shadow-2xs',
     success:

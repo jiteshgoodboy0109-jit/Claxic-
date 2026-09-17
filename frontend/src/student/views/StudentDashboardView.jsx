@@ -696,23 +696,23 @@ export const StudentDashboardView = ({
 
   // Helper for animated hamburger icon state:
   return (
-    <div className="min-h-screen bg-[#f6fafa] font-sans flex flex-col lg:flex-row text-slate-900 selection:bg-teal-100 selection:text-teal-900 antialiased">
+    <div className="min-h-screen bg-[#F8FAFC] font-sans flex flex-col lg:flex-row text-slate-900 selection:bg-[#FFF1EE] selection:text-[#EE2D02] antialiased">
       {/* ========================================================= */}
       {/* 1. MOBILE ONLY TOP BAR (< lg) - Clean trigger for drawer   */}
       {/* ========================================================= */}
-      <div className="lg:hidden bg-[#0B4F50] border-b border-[#083E40] px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+      <div className="lg:hidden bg-white border-b border-slate-200/90 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-xs">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setIsMobileSidebarOpen(true)}
-            className="p-1.5 rounded-lg text-teal-200 hover:text-white hover:bg-teal-800/60 cursor-pointer transition-colors"
+            className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer transition-colors"
             aria-label="Open Sidebar"
           >
             <HamburgerIcon isOpen={isMobileSidebarOpen} />
           </button>
-          <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain" />
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-700/60">
-            Student Portal
+          <img src="/logo.png" alt="Claxic" className="h-6 w-auto object-contain" />
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02] bg-[#FFF1EE] px-2.5 py-0.5 rounded-full border border-[#FFD4CC]">
+            Student
           </span>
         </div>
 
@@ -727,7 +727,7 @@ export const StudentDashboardView = ({
             onError={(e) => {
               e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
             }}
-            className="w-7 h-7 rounded-full object-cover border border-teal-400/50"
+            className="w-7 h-7 rounded-full object-cover border-2 border-slate-200 hover:border-[#EE2D02]/50 transition-colors"
           />
         </button>
       </div>
@@ -738,24 +738,24 @@ export const StudentDashboardView = ({
       {isMobileSidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200">
           <div
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
 
-          <aside className="fixed inset-y-0 left-0 w-72 bg-[#093E40] border-r border-[#073335] text-teal-100 flex flex-col z-50 shadow-2xl p-5 justify-between animate-in slide-in-from-left duration-200">
+          <aside className="fixed inset-y-0 left-0 w-[280px] sm:w-72 max-w-[85vw] bg-white border-r border-slate-200 text-slate-900 flex flex-col z-50 shadow-2xl p-5 justify-between animate-in slide-in-from-left duration-200">
             <div className="space-y-6 overflow-y-auto no-scrollbar flex-1">
               {/* Mobile Drawer Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-[#073335]">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                 <div className="flex items-center gap-2.5">
-                  <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain" />
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-700/60">
-                    Student Portal
+                  <img src="/logo.png" alt="Claxic" className="h-6 w-auto object-contain" />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02] bg-[#FFF1EE] px-2.5 py-0.5 rounded-full border border-[#FFD4CC]">
+                    Student
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-1.5 rounded-lg text-teal-300 hover:text-white hover:bg-teal-800/60 cursor-pointer transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
                   aria-label="Close Sidebar"
                 >
                   <X className="w-5 h-5" />
@@ -764,7 +764,7 @@ export const StudentDashboardView = ({
 
               {/* Mobile Navigation Section */}
               <div className="space-y-1.5">
-                <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400/80 mb-2 px-2">
+                <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 px-2">
                   Learning Hub
                 </p>
                 {navigationItems.map((item) => {
@@ -778,18 +778,25 @@ export const StudentDashboardView = ({
                         item.action();
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                         isActive
-                          ? 'bg-teal-800 text-white font-bold border-l-4 border-teal-400 pl-3 shadow-xs'
-                          : 'text-teal-100 hover:text-white hover:bg-teal-800/50'
+                          ? 'bg-[#FFF1EE] text-[#EE2D02] font-bold border border-[#FFD4CC] shadow-[0_2px_8px_rgba(238,45,2,0.08)]'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-teal-300' : 'text-teal-200/80'}`} />
+                      <div className="flex items-center gap-2.5">
+                        {isActive && (
+                          <span className="w-1.5 h-4.5 rounded-full bg-gradient-to-b from-[#EE2D02] to-[#FF4D26] shadow-[0_0_8px_rgba(238,45,2,0.4)] shrink-0" />
+                        )}
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-[#EE2D02]' : 'text-slate-400'}`} />
                         <span>{item.label}</span>
                       </div>
                       {item.count !== undefined && item.count > 0 && (
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-900 text-teal-200 border border-teal-700/60">
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                          isActive
+                            ? 'bg-[#EE2D02] text-white shadow-2xs'
+                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                        }`}>
                           {item.count}
                         </span>
                       )}
@@ -800,13 +807,13 @@ export const StudentDashboardView = ({
             </div>
 
             {/* Mobile Drawer Footer */}
-            <div className="pt-4 border-t border-[#073335] space-y-3">
+            <div className="pt-4 border-t border-slate-200 space-y-3">
               <div
                 onClick={() => {
                   handleTabChange('profile');
                   setIsMobileSidebarOpen(false);
                 }}
-                className="p-2.5 rounded-2xl bg-teal-900/40 border border-teal-800/50 flex items-center gap-3 cursor-pointer hover:bg-teal-900/70 transition-colors"
+                className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center gap-3 cursor-pointer transition-colors"
               >
                 <img
                   src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
@@ -814,11 +821,11 @@ export const StudentDashboardView = ({
                   onError={(e) => {
                     e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
                   }}
-                  className="w-8 h-8 rounded-full object-cover border border-teal-400/40 shrink-0"
+                  className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-xs shrink-0"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-white truncate">{user?.name}</p>
-                  <p className="text-[10px] font-mono text-teal-300 truncate">{user?.email}</p>
+                  <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
+                  <p className="text-[10px] font-mono text-[#EE2D02] font-bold uppercase truncate">{user?.email}</p>
                 </div>
               </div>
 
@@ -830,7 +837,7 @@ export const StudentDashboardView = ({
                   if (onNavigate) onNavigate('home');
                   else window.location.href = '/';
                 }}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-rose-950/40 hover:bg-rose-950/60 border border-rose-900/40 text-rose-300 text-xs font-medium transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-semibold transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>
@@ -845,14 +852,14 @@ export const StudentDashboardView = ({
       {/*    STICKY FULL HEIGHT (top-0 h-screen min-h-screen)       */}
       {/* ========================================================= */}
       <aside
-        className={`hidden lg:flex lg:flex-col bg-[#093E40] border-r border-[#073335] text-teal-100 min-h-screen sticky top-0 h-screen shrink-0 z-30 justify-between select-none transition-[width,padding] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+        className={`hidden lg:flex lg:flex-col bg-white border-r border-slate-200/80 text-slate-900 min-h-screen sticky top-0 h-screen shrink-0 z-30 justify-between select-none shadow-xs transition-[width,padding] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
           isSidebarCollapsed ? 'w-20 p-3' : 'w-72 p-5'
         }`}
       >
         <div className="flex-1 overflow-y-auto space-y-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Top of Sidebar: Logo & Animated Hamburger Button */}
           <div
-            className={`flex items-center pb-4 border-b border-[#073335] transition-all duration-300 ${
+            className={`flex items-center pb-4 border-b border-slate-200 transition-all duration-300 ${
               isSidebarCollapsed ? 'justify-center' : 'justify-between'
             }`}
           >
@@ -863,19 +870,19 @@ export const StudentDashboardView = ({
                   onClick={() => handleTabChange('courses')}
                 >
                   <img
-                    src="/logow.png"
+                    src="/logo.png"
                     alt="Claxic"
                     className="h-7 w-auto object-contain shrink-0"
                   />
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-700/60 truncate">
-                    Student Portal
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02] bg-[#FFF1EE] px-2.5 py-0.5 rounded-full border border-[#FFD4CC] shrink-0">
+                    Student
                   </span>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setIsSidebarCollapsed(true)}
-                  className="p-1.5 rounded-xl text-teal-200 hover:text-white hover:bg-teal-800/60 focus:outline-none transition-colors cursor-pointer shrink-0"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors cursor-pointer shrink-0"
                   title="Collapse Sidebar"
                   aria-label="Collapse Sidebar"
                 >
@@ -886,7 +893,7 @@ export const StudentDashboardView = ({
               <button
                 type="button"
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="p-2 rounded-xl text-teal-200 hover:text-white hover:bg-teal-800/60 focus:outline-none transition-colors cursor-pointer flex items-center justify-center w-full"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors cursor-pointer flex items-center justify-center w-full"
                 title="Expand Sidebar"
                 aria-label="Expand Sidebar"
               >
@@ -898,12 +905,12 @@ export const StudentDashboardView = ({
           {/* Navigation Section */}
           <div className="space-y-1.5">
             {!isSidebarCollapsed && (
-              <p className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400/80 mb-2">
+              <p className="px-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2">
                 Learning Hub
               </p>
             )}
 
-            <nav className="space-y-1.5">
+            <nav className="space-y-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -913,47 +920,54 @@ export const StudentDashboardView = ({
                     type="button"
                     onClick={item.action}
                     title={isSidebarCollapsed ? `${item.label}${item.count !== undefined && item.count > 0 ? ` (${item.count})` : ''}` : undefined}
-                    className={`w-full flex items-center transition-all duration-200 cursor-pointer group relative ${
+                    className={`w-full flex items-center transition-all duration-150 cursor-pointer group relative ${
                       isSidebarCollapsed
-                        ? `w-12 h-12 mx-auto justify-center rounded-2xl ${
+                        ? `w-11 h-11 mx-auto justify-center rounded-xl ${
                             isActive
-                              ? 'bg-teal-700 text-white shadow-sm border border-teal-500/50'
-                              : 'text-teal-200/80 hover:text-white hover:bg-teal-800/60'
+                              ? 'bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] shadow-2xs'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                           }`
-                        : `justify-between px-3.5 py-3 rounded-2xl text-xs font-semibold ${
+                        : `justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold ${
                             isActive
-                              ? 'bg-teal-800 text-white font-bold border-l-4 border-teal-400 pl-3 shadow-xs'
-                              : 'text-teal-100 hover:text-white hover:bg-teal-800/50'
+                              ? 'bg-[#FFF1EE] text-[#EE2D02] font-bold border border-[#FFD4CC] shadow-[0_2px_8px_rgba(238,45,2,0.08)]'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                           }`
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {!isSidebarCollapsed && isActive && (
+                        <span className="w-1.5 h-4.5 rounded-full bg-gradient-to-b from-[#EE2D02] to-[#FF4D26] shadow-[0_0_8px_rgba(238,45,2,0.4)] shrink-0" />
+                      )}
                       <Icon
-                        className={`transition-transform duration-200 group-hover:scale-110 shrink-0 ${
+                        className={`transition-transform duration-150 group-hover:scale-105 shrink-0 ${
                           isSidebarCollapsed ? 'w-5 h-5' : 'w-4 h-4'
-                        } ${isActive ? 'text-teal-300' : 'text-teal-200/80'}`}
+                        } ${isActive ? 'text-[#EE2D02]' : 'text-slate-400 group-hover:text-slate-600'}`}
                       />
                       {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
                     </div>
 
                     {/* Count badge when expanded */}
                     {!isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-900 text-teal-200 border border-teal-700/60 shrink-0">
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        isActive
+                          ? 'bg-[#EE2D02] text-white shadow-2xs'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
+                      }`}>
                         {item.count}
                       </span>
                     )}
 
                     {/* Notification dot when collapsed */}
                     {isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
-                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-teal-300 ring-2 ring-[#093E40]" />
+                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#EE2D02] ring-2 ring-white" />
                     )}
 
                     {/* Floating tooltip when collapsed */}
                     {isSidebarCollapsed && (
-                      <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 border border-slate-800 flex items-center gap-1.5">
+                      <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-50 flex items-center gap-1.5">
                         <span>{item.label}</span>
                         {item.count !== undefined && item.count > 0 && (
-                          <span className="text-[10px] font-mono bg-teal-900 text-teal-300 px-1.5 py-0.5 rounded-full border border-teal-700">
+                          <span className="text-[10px] font-mono bg-[#EE2D02] text-white px-1.5 py-0.5 rounded-full">
                             {item.count}
                           </span>
                         )}
@@ -967,12 +981,12 @@ export const StudentDashboardView = ({
         </div>
 
         {/* Sidebar Footer: Student Profile Card & Sign Out */}
-        <div className="pt-4 border-t border-[#073335] space-y-2">
+        <div className="pt-4 border-t border-slate-200 space-y-2">
           {!isSidebarCollapsed ? (
             <>
               <div
                 onClick={() => handleTabChange('profile')}
-                className="p-3 rounded-2xl bg-teal-900/40 border border-teal-800/50 flex items-center gap-3 cursor-pointer hover:bg-teal-900/70 transition-colors group"
+                className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center gap-3 cursor-pointer transition-all group"
                 title="View Student Profile"
               >
                 <img
@@ -981,11 +995,11 @@ export const StudentDashboardView = ({
                   onError={(e) => {
                     e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
                   }}
-                  className="w-9 h-9 rounded-full object-cover border border-teal-400/40 shrink-0 group-hover:scale-105 transition-transform"
+                  className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-xs shrink-0 group-hover:scale-105 transition-transform"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-white truncate">{user?.name}</p>
-                  <p className="text-[10px] font-mono text-teal-300 truncate">STUDENT</p>
+                  <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
+                  <p className="text-[10px] font-mono text-[#EE2D02] font-bold tracking-wider truncate">STUDENT</p>
                 </div>
               </div>
 
@@ -996,7 +1010,7 @@ export const StudentDashboardView = ({
                   if (onNavigate) onNavigate('home');
                   else window.location.href = '/';
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-300 hover:text-white hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-transparent hover:border-rose-100 transition-all cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>
@@ -1007,7 +1021,7 @@ export const StudentDashboardView = ({
               <button
                 type="button"
                 onClick={() => handleTabChange('profile')}
-                className="w-10 h-10 rounded-full overflow-hidden border border-teal-400/40 hover:scale-105 transition-transform cursor-pointer"
+                className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-200 hover:border-[#EE2D02] transition-colors cursor-pointer shadow-xs"
                 title={`${user?.name} (Click for profile)`}
               >
                 <img
@@ -1027,7 +1041,7 @@ export const StudentDashboardView = ({
                   if (onNavigate) onNavigate('home');
                   else window.location.href = '/';
                 }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-300 hover:text-white hover:bg-rose-950/40 transition-colors cursor-pointer group relative"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer group relative"
                 title="Sign Out"
               >
                 <LogOut className="w-4 h-4" />
@@ -1043,10 +1057,10 @@ export const StudentDashboardView = ({
       {/* ========================================================= */}
       {/* 4. MAIN CONTENT AREA (Full Height, No Top Nav on Desktop) */}
       {/* ========================================================= */}
-      <main className="flex-1 min-w-0 bg-[#f6fafa] p-4 sm:p-6 lg:p-8 overflow-y-auto h-screen min-h-screen">
+      <main className="flex-1 min-w-0 bg-[#F8FAFC] p-3 sm:p-6 lg:p-8 overflow-y-auto h-screen min-h-screen">
         <div className="max-w-7xl mx-auto space-y-8">
             {/* Student Identity Header */}
-            <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="p-8 rounded-[32px] bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-5">
                 {/* Header Avatar with Direct Edit Tooltip */}
                 <div
@@ -1060,9 +1074,9 @@ export const StudentDashboardView = ({
                     onError={(e) => {
                       e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
                     }}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm transition-transform duration-150 group-hover:scale-105"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-slate-200 shadow-sm transition-transform duration-150 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-[#0B4F50]/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                  <div className="absolute inset-0 bg-[#EE2D02]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                     <Camera className="w-5 h-5" />
                   </div>
                 </div>
@@ -1086,15 +1100,15 @@ export const StudentDashboardView = ({
                   onClick={() => handleTabChange('courses')}
                   className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
                     activeTab === 'courses'
-                      ? 'bg-[#0B4F50] text-white border-[#0B4F50] shadow-xs'
-                      : 'bg-[#f2f7f7] border-[#d8ecec] hover:bg-[#e6f1f1]'
+                      ? 'bg-[#EE2D02] text-white border-[#EE2D02] shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
                   title="View Enrolled Cohorts"
                 >
-                  <span className={`text-xl font-bold block ${activeTab === 'courses' ? 'text-teal-200' : 'text-[#0B4F50]'}`}>
+                  <span className={`text-xl font-bold block ${activeTab === 'courses' ? 'text-white' : 'text-[#EE2D02]'}`}>
                     {confirmedApps.length}
                   </span>
-                  <span className={`text-[11px] font-semibold ${activeTab === 'courses' ? 'text-teal-100' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-semibold ${activeTab === 'courses' ? 'text-white/80' : 'text-slate-500'}`}>
                     Enrolled Cohorts
                   </span>
                 </div>
@@ -1103,15 +1117,15 @@ export const StudentDashboardView = ({
                   onClick={() => handleTabChange('catalog')}
                   className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
                     activeTab === 'catalog'
-                      ? 'bg-[#0B4F50] text-white border-[#0B4F50] shadow-xs'
-                      : 'bg-[#f2f7f7] border-[#d8ecec] hover:bg-[#e6f1f1]'
+                      ? 'bg-[#EE2D02] text-white border-[#EE2D02] shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
                   title="Explore Course Catalog"
                 >
-                  <span className={`text-xl font-bold block ${activeTab === 'catalog' ? 'text-teal-200' : 'text-[#0B4F50]'}`}>
+                  <span className={`text-xl font-bold block ${activeTab === 'catalog' ? 'text-white' : 'text-[#EE2D02]'}`}>
                     {studentAvailableCourses.length}
                   </span>
-                  <span className={`text-[11px] font-semibold ${activeTab === 'catalog' ? 'text-teal-100' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-semibold ${activeTab === 'catalog' ? 'text-white/80' : 'text-slate-500'}`}>
                     Available Programs
                   </span>
                 </div>
@@ -1120,15 +1134,15 @@ export const StudentDashboardView = ({
                   onClick={() => handleTabChange('billing')}
                   className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
                     activeTab === 'billing'
-                      ? 'bg-[#0B4F50] text-white border-[#0B4F50] shadow-xs'
-                      : 'bg-[#f2f7f7] border-[#d8ecec] hover:bg-[#e6f1f1]'
+                      ? 'bg-[#EE2D02] text-white border-[#EE2D02] shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
                   title="View Invoices"
                 >
-                  <span className={`text-xl font-bold block ${activeTab === 'billing' ? 'text-teal-200' : 'text-[#0B4F50]'}`}>
+                  <span className={`text-xl font-bold block ${activeTab === 'billing' ? 'text-white' : 'text-[#EE2D02]'}`}>
                     {payments.length}
                   </span>
-                  <span className={`text-[11px] font-semibold ${activeTab === 'billing' ? 'text-teal-100' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-semibold ${activeTab === 'billing' ? 'text-white/80' : 'text-slate-500'}`}>
                     Tax Invoices
                   </span>
                 </div>
@@ -1139,8 +1153,8 @@ export const StudentDashboardView = ({
       {activeTab === 'courses' && (
         <div className="space-y-8">
           {enrolledCourses.length === 0 && confirmedApps.length === 0 ? (
-            <div className="text-center py-16 px-4 bg-white rounded-[32px] border border-[#d8ecec] space-y-4">
-              <Award className="w-12 h-12 text-[#0B4F50]/50 mx-auto" />
+            <div className="text-center py-16 px-4 bg-white rounded-[32px] border border-slate-200 space-y-4">
+              <Award className="w-12 h-12 text-[#EE2D02]/50 mx-auto" />
               <h3 className="text-lg font-bold text-slate-900">No Enrolled Cohorts Found</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 Explore our accredited engineering masterclasses and bootcamps to get started.
@@ -1148,7 +1162,7 @@ export const StudentDashboardView = ({
               <button
                 type="button"
                 onClick={() => handleTabChange('catalog')}
-                className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-[#EE2D02] hover:bg-[#D02600] transition-all cursor-pointer"
               >
                 Explore Course Catalog
               </button>
@@ -1188,8 +1202,8 @@ export const StudentDashboardView = ({
                           onClick={() => setSelectedLearningCourseId(c.courseId)}
                           className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-2 ${
                             selectedLearningCourseId === c.courseId
-                              ? 'bg-[#0B4F50] text-white shadow-xs'
-                              : 'bg-white border border-[#d8ecec] text-slate-700 hover:bg-[#f2f7f7]'
+                              ? 'bg-[#EE2D02] text-white shadow-xs'
+                              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <BookOpen className="w-3.5 h-3.5" />
@@ -1200,12 +1214,12 @@ export const StudentDashboardView = ({
                   )}
 
                   {/* Active Course Learning Overview Card (Simple & Neat UI) */}
-                  <div className="p-6 sm:p-7 rounded-[28px] bg-white border border-[#d8ecec] shadow-xs space-y-5">
+                  <div className="p-6 sm:p-7 rounded-[28px] bg-white border border-slate-200 shadow-xs space-y-5">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
                       <div className="space-y-2.5 flex-1">
                         {/* Status & Cohort Badges */}
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-3 py-1 rounded-full bg-[#0B4F50]/10 text-[#0B4F50] text-[11px] font-mono font-bold tracking-wider uppercase border border-[#0B4F50]/15">
+                          <span className="px-3 py-1 rounded-full bg-[#EE2D02]/10 text-[#EE2D02] text-[11px] font-mono font-bold tracking-wider uppercase border border-[#EE2D02]/20">
                             {activeCourse.category} Cohort
                           </span>
                           <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200/80 flex items-center gap-1.5">
@@ -1222,16 +1236,16 @@ export const StudentDashboardView = ({
                         {/* Academic Metadata Info Strip */}
                         <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-600 font-medium pt-0.5">
                           <span className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 text-[#0B4F50]" />
+                            <Calendar className="w-3.5 h-3.5 text-[#EE2D02]" />
                             <span>Commenced: <strong className="text-slate-800 font-semibold">{activeCourse.formattedStartDate || activeCourse.startDate}</strong></span>
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-[#0B4F50]" />
+                            <Clock className="w-3.5 h-3.5 text-[#EE2D02]" />
                             <span>Duration: <strong className="text-slate-800 font-semibold">{activeCourse.duration}</strong> ({activeCourse.totalClasses} Day Schedule)</span>
                           </span>
                           {activeCourse.instructor && (
                             <span className="flex items-center gap-1.5">
-                              <GraduationCap className="w-3.5 h-3.5 text-[#0B4F50]" />
+                              <GraduationCap className="w-3.5 h-3.5 text-[#EE2D02]" />
                               <span>Faculty: <strong className="text-slate-800 font-semibold">{typeof activeCourse.instructor === 'object' ? activeCourse.instructor?.name || 'Lead Instructor' : activeCourse.instructor}</strong></span>
                             </span>
                           )}
@@ -1239,10 +1253,10 @@ export const StudentDashboardView = ({
                       </div>
 
                       {/* Course Completion Telemetry Pill */}
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-4 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] shrink-0 sm:min-w-[155px] text-left sm:text-right">
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-4 rounded-2xl bg-slate-50 border border-slate-200 shrink-0 sm:min-w-[155px] text-left sm:text-right">
                         <div>
                           <div className="flex items-baseline gap-1 sm:justify-end">
-                            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B4F50]">
+                            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#EE2D02]">
                               {activeCourse.progressPercent}%
                             </span>
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
@@ -1263,22 +1277,22 @@ export const StudentDashboardView = ({
                           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                           <span>Curriculum Progression</span>
                         </span>
-                        <span className="font-mono text-xs font-bold text-[#0B4F50]">
+                        <span className="font-mono text-xs font-bold text-[#EE2D02]">
                           {activeCourse.completedCount}/{activeCourse.totalClasses} Milestones Reached
                         </span>
                       </div>
 
                       <div className="w-full h-2.5 rounded-full bg-slate-100 border border-slate-200/70 overflow-hidden p-0.5">
                         <div
-                          className="h-full bg-gradient-to-r from-[#0B4F50] to-teal-500 rounded-full transition-all duration-500 ease-out"
+                          className="h-full bg-gradient-to-r from-[#EE2D02] to-orange-500 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${Math.min(100, activeCourse.progressPercent)}%` }}
                         />
                       </div>
 
                       <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-0.5">
                         <span>Day 1 ({activeCourse.formattedStartDate || activeCourse.startDate})</span>
-                        <span className="flex items-center gap-1 text-[#0B4F50] font-semibold">
-                          <Award className="w-3.5 h-3.5 text-[#0B4F50]" />
+                        <span className="flex items-center gap-1 text-[#EE2D02] font-semibold">
+                          <Award className="w-3.5 h-3.5 text-[#EE2D02]" />
                           <span>Capstone Certification</span>
                         </span>
                       </div>
@@ -1286,7 +1300,7 @@ export const StudentDashboardView = ({
                   </div>
 
                   {/* Assigned Course Faculty & Staff Profile (Only Visible Inside Student's Course Content) */}
-                  <div className="p-6 sm:p-7 rounded-[28px] bg-white border border-[#d8ecec] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="p-6 sm:p-7 rounded-[28px] bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4 sm:gap-5">
                       <div className="relative shrink-0">
                         <img
@@ -1300,7 +1314,7 @@ export const StudentDashboardView = ({
                               ? activeCourse.instructor?.name || 'Faculty Lead'
                               : activeCourse.instructor || 'Faculty Lead'
                           }
-                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-[#d8ecec] shadow-xs"
+                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-slate-200 shadow-xs"
                         />
                         <span
                           className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"
@@ -1309,7 +1323,7 @@ export const StudentDashboardView = ({
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#0B4F50]/10 text-[#0B4F50] border border-[#0B4F50]/20">
+                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#EE2D02]/10 text-[#EE2D02] border border-[#EE2D02]/20">
                             Assigned Course Faculty
                           </span>
                           <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200">
@@ -1336,32 +1350,32 @@ export const StudentDashboardView = ({
                     <div className="flex items-center gap-2.5 shrink-0">
                       <a
                         href="mailto:faculty.office@claxic.edu"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#f2f7f7] hover:bg-[#e4efef] text-[#0B4F50] text-xs font-bold border border-[#d8ecec] transition-all shadow-2xs cursor-pointer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#EE2D02] text-xs font-bold border border-slate-200 transition-all shadow-2xs cursor-pointer"
                       >
-                        <Mail className="w-4 h-4 text-[#0B4F50]" />
+                        <Mail className="w-4 h-4 text-[#EE2D02]" />
                         <span>Contact Faculty</span>
                       </a>
                       <button
                         type="button"
                         onClick={() => window.open('https://meet.google.com', '_blank')}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B4F50] hover:bg-[#083e40] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                       >
-                        <Video className="w-4 h-4 text-teal-200" />
+                        <Video className="w-4 h-4 text-white" />
                         <span>Faculty Mentorship & Office Hours</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Navigation Filter Tabs for Course Schedule */}
-                  <div className="flex items-center justify-between border-b border-[#d8ecec] pb-2 overflow-x-auto gap-2">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2 overflow-x-auto gap-2">
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setClassFilter('ALL')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           classFilter === 'ALL'
-                            ? 'bg-[#0B4F50] text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-[#f2f7f7] border border-[#d8ecec]'
+                            ? 'bg-[#EE2D02] text-white shadow-xs'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                         }`}
                       >
                         All Classes ({activeCourse.schedule.length})
@@ -1372,8 +1386,8 @@ export const StudentDashboardView = ({
                         onClick={() => setClassFilter('TODAY')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                           classFilter === 'TODAY'
-                            ? 'bg-[#0B4F50] text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-[#f2f7f7] border border-[#d8ecec]'
+                            ? 'bg-[#EE2D02] text-white shadow-xs'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                         }`}
                       >
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -1385,8 +1399,8 @@ export const StudentDashboardView = ({
                         onClick={() => setClassFilter('COMPLETED')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           classFilter === 'COMPLETED'
-                            ? 'bg-[#0B4F50] text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-[#f2f7f7] border border-[#d8ecec]'
+                            ? 'bg-[#EE2D02] text-white shadow-xs'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                         }`}
                       >
                         Completed ({activeCourse.completedCount})
@@ -1397,8 +1411,8 @@ export const StudentDashboardView = ({
                         onClick={() => setClassFilter('UPCOMING')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           classFilter === 'UPCOMING'
-                            ? 'bg-[#0B4F50] text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-[#f2f7f7] border border-[#d8ecec]'
+                            ? 'bg-[#EE2D02] text-white shadow-xs'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                         }`}
                       >
                         Upcoming ({activeCourse.schedule.filter((c) => c.status === 'UPCOMING').length})
@@ -1409,8 +1423,8 @@ export const StudentDashboardView = ({
                         onClick={() => setClassFilter('PROJECT')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                           classFilter === 'PROJECT'
-                            ? 'bg-[#0B4F50] text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-[#f2f7f7] border border-[#d8ecec]'
+                            ? 'bg-[#EE2D02] text-white shadow-xs'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                         }`}
                       >
                         <Code2 className="w-3.5 h-3.5" />
@@ -1432,7 +1446,7 @@ export const StudentDashboardView = ({
                   {classFilter !== 'PROJECT' && (
                     <div className="space-y-4">
                       {filteredSchedule.length === 0 ? (
-                        <div className="p-12 text-center bg-white rounded-[28px] border border-[#d8ecec] space-y-2">
+                        <div className="p-12 text-center bg-white rounded-[28px] border border-slate-200 space-y-2">
                           <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
                           <h4 className="text-sm font-bold text-slate-800">No classes match this filter</h4>
                           <p className="text-xs text-slate-500">
@@ -1448,13 +1462,13 @@ export const StudentDashboardView = ({
                                 ? 'border-sky-300 ring-2 ring-sky-100'
                                 : cls.status === 'COMPLETED'
                                 ? 'border-emerald-200'
-                                : 'border-[#d8ecec]'
+                                : 'border-slate-200'
                             }`}
                           >
                             {/* Class Card Header */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
                               <div className="flex items-center gap-2.5">
-                                <span className="px-3 py-1 rounded-full bg-[#0B4F50] text-white text-[10px] font-mono font-bold tracking-wider">
+                                <span className="px-3 py-1 rounded-full bg-[#EE2D02] text-white text-[10px] font-mono font-bold tracking-wider">
                                   DAY {cls.dayNumber} • CLASS {cls.classNumber}
                                 </span>
                                 <span className="text-xs font-mono font-semibold text-slate-600">
@@ -1507,7 +1521,7 @@ export const StudentDashboardView = ({
                                   {cls.topics.map((topic, tidx) => (
                                     <span
                                       key={tidx}
-                                      className="px-2.5 py-0.5 rounded-md bg-[#f2f7f7] border border-[#d8ecec] text-[#0B4F50] font-mono text-[10px] font-semibold"
+                                      className="px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[10px] font-semibold"
                                     >
                                       #{topic}
                                     </span>
@@ -1517,12 +1531,12 @@ export const StudentDashboardView = ({
 
                               {/* Staff Post-Class Summary: What was taught in this session */}
                               {cls.summary && !cls.isLocked && (
-                                <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/80 text-xs text-teal-950 space-y-1 mt-1">
+                                <div className="p-4 rounded-2xl bg-[#FFF1EE]/70 border border-[#FFD4CC]/80 text-xs text-slate-900 space-y-1 mt-1">
                                   <div className="flex items-center justify-between">
-                                    <span className="font-bold text-[#0B4F50] text-[10px] uppercase font-mono tracking-wider">
+                                    <span className="font-bold text-[#EE2D02] text-[10px] uppercase font-mono tracking-wider">
                                       Faculty Post-Class Summary (What Was Taught)
                                     </span>
-                                    <span className="text-[10px] font-mono font-semibold text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded">
+                                    <span className="text-[10px] font-mono font-semibold text-[#EE2D02] bg-[#FFF1EE] px-2 py-0.5 rounded border border-[#FFD4CC]">
                                       Recorded by Faculty
                                     </span>
                                   </div>
@@ -1546,7 +1560,7 @@ export const StudentDashboardView = ({
                                       <button
                                         type="button"
                                         onClick={() => setActiveClassForVideo(cls)}
-                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073637] text-white font-bold transition-all cursor-pointer shadow-2xs"
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] text-white font-bold transition-all cursor-pointer shadow-2xs"
                                       >
                                         <Play className="w-3.5 h-3.5 fill-current" />
                                         <span>Watch Class Video</span>
@@ -1561,9 +1575,9 @@ export const StudentDashboardView = ({
                                           href={mat.url}
                                           target="_blank"
                                           rel="noreferrer"
-                                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#f2f7f7] hover:bg-[#ebf4f4] border border-[#d8ecec] text-slate-800 font-semibold transition-colors cursor-pointer"
+                                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold transition-colors cursor-pointer"
                                         >
-                                          <FileText className="w-3.5 h-3.5 text-[#0B4F50]" />
+                                          <FileText className="w-3.5 h-3.5 text-[#EE2D02]" />
                                           <span>{mat.title || 'Learning Materials'}</span>
                                           <ExternalLink className="w-3 h-3 text-slate-400" />
                                         </a>
@@ -1573,9 +1587,9 @@ export const StudentDashboardView = ({
                                         href={cls.resourcesUrl}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#f2f7f7] hover:bg-[#ebf4f4] border border-[#d8ecec] text-slate-800 font-semibold transition-colors cursor-pointer"
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold transition-colors cursor-pointer"
                                       >
-                                        <FileText className="w-3.5 h-3.5 text-[#0B4F50]" />
+                                        <FileText className="w-3.5 h-3.5 text-[#EE2D02]" />
                                         <span>Learning Materials</span>
                                         <ExternalLink className="w-3 h-3 text-slate-400" />
                                       </a>
@@ -1621,9 +1635,9 @@ export const StudentDashboardView = ({
                                     <button
                                       type="button"
                                       onClick={() => setActiveClassForVideo(cls)}
-                                      className="px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-[#0B4F50] font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-98"
+                                      className="px-3.5 py-2 rounded-xl bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] text-[#EE2D02] font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-98"
                                     >
-                                      <PlayCircle className="w-3.5 h-3.5 text-[#0B4F50]" />
+                                      <PlayCircle className="w-3.5 h-3.5 text-[#EE2D02]" />
                                       <span>Watch & Verify Attendance</span>
                                     </button>
                                   )}
@@ -1638,10 +1652,10 @@ export const StudentDashboardView = ({
 
                   {/* Final Course Project Section */}
                   {(classFilter === 'ALL' || classFilter === 'PROJECT') && (
-                    <div className="p-6 sm:p-8 rounded-[32px] bg-white border border-[#d8ecec] space-y-6 shadow-xs">
+                    <div className="p-6 sm:p-8 rounded-[32px] bg-white border border-slate-200 space-y-6 shadow-xs">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0B4F50] uppercase">
+                          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#EE2D02] uppercase">
                             <Award className="w-4 h-4" />
                             <span>Final Course Capstone & Graduation Model</span>
                           </div>
@@ -1672,7 +1686,7 @@ export const StudentDashboardView = ({
 
                       {/* If Project is Submitted */}
                       {activeCourse.finalProject ? (
-                        <div className="p-5 rounded-2xl bg-[#f8fbfb] border border-[#d8ecec] space-y-4">
+                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
                               <h4 className="text-base font-bold text-slate-900">
@@ -1689,7 +1703,7 @@ export const StudentDashboardView = ({
                               rel="noreferrer"
                               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-mono font-bold transition-all cursor-pointer shrink-0"
                             >
-                              <Code2 className="w-4 h-4 text-[#38BDF8]" />
+                              <Code2 className="w-4 h-4 text-[#EE2D02]" />
                               <span>Open Submitted GitHub Repo</span>
                               <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                             </a>
@@ -1702,7 +1716,7 @@ export const StudentDashboardView = ({
                           {/* Faculty Feedback Card */}
                           {activeCourse.finalProject.staffFeedback ? (
                             <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs space-y-1.5 shadow-2xs">
-                              <span className="font-bold text-[#0B4F50] block text-[11px] uppercase font-mono">
+                              <span className="font-bold text-[#EE2D02] block text-[11px] uppercase font-mono">
                                 Faculty Review Remarks & Verification Feedback
                               </span>
                               <p className="text-slate-800 leading-relaxed">
@@ -1745,7 +1759,7 @@ export const StudentDashboardView = ({
                                 placeholder="e.g. Distributed Consensus Engine with Multi-Raft"
                                 value={projectForm.projectTitle}
                                 onChange={(e) => setProjectForm({ ...projectForm, projectTitle: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-[#f2f7f7] border border-[#d8ecec] rounded-xl text-slate-900 focus:bg-white focus:border-[#0B4F50] outline-none font-semibold"
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none font-semibold transition-all"
                               />
                             </div>
 
@@ -1759,7 +1773,7 @@ export const StudentDashboardView = ({
                                 placeholder="https://github.com/your-username/repository"
                                 value={projectForm.githubUrl}
                                 onChange={(e) => setProjectForm({ ...projectForm, githubUrl: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-[#f2f7f7] border border-[#d8ecec] rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#0B4F50] outline-none"
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none transition-all"
                               />
                             </div>
                           </div>
@@ -1774,7 +1788,7 @@ export const StudentDashboardView = ({
                                 placeholder="https://github.com/.../blob/main/README.md or Notion doc"
                                 value={projectForm.documentationUrl}
                                 onChange={(e) => setProjectForm({ ...projectForm, documentationUrl: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-[#f2f7f7] border border-[#d8ecec] rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#0B4F50] outline-none"
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none transition-all"
                               />
                             </div>
 
@@ -1787,7 +1801,7 @@ export const StudentDashboardView = ({
                                 placeholder="https://my-app.vercel.app or demo endpoint"
                                 value={projectForm.liveDemoUrl}
                                 onChange={(e) => setProjectForm({ ...projectForm, liveDemoUrl: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-[#f2f7f7] border border-[#d8ecec] rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#0B4F50] outline-none"
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none transition-all"
                               />
                             </div>
                           </div>
@@ -1802,7 +1816,7 @@ export const StudentDashboardView = ({
                               placeholder="Describe your model architecture, algorithms implemented, testing methodology, and instructions for faculty review..."
                               value={projectForm.description}
                               onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                              className="w-full px-3.5 py-2.5 bg-[#f2f7f7] border border-[#d8ecec] rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0B4F50] outline-none leading-relaxed"
+                              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none leading-relaxed transition-all"
                             />
                           </div>
 
@@ -1810,7 +1824,7 @@ export const StudentDashboardView = ({
                             <button
                               type="submit"
                               disabled={isSubmittingProject}
-                              className="px-6 py-3 rounded-full bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                              className="px-6 py-3 rounded-full bg-[#EE2D02] hover:bg-[#D02600] text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 active:scale-98"
                             >
                               <Award className="w-4 h-4" />
                               <span>{isSubmittingProject ? 'Submitting...' : 'Submit Project for Faculty Review'}</span>
@@ -1823,11 +1837,11 @@ export const StudentDashboardView = ({
 
                   {/* Video Player Modal */}
                   {activeClassForVideo && (
-                    <div className="fixed inset-0 bg-[#0F1E2E]/75 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-                      <div className="bg-white border border-[#CBD5E1] rounded-[28px] p-6 max-w-2xl w-full space-y-4 shadow-2xl">
+                    <div className="fixed inset-0 bg-[#0B0E14]/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+                      <div className="bg-white border border-slate-200 rounded-[28px] p-6 max-w-2xl w-full space-y-4 shadow-2xl">
                         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                           <div>
-                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B4F50]">
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02]">
                               DAY {activeClassForVideo.dayNumber} • {activeCourse.courseTitle}
                             </span>
                             <h4 className="text-base font-bold text-slate-900 mt-0.5">
@@ -1855,13 +1869,13 @@ export const StudentDashboardView = ({
                             />
                           ) : (
                             <div className="p-8 text-center text-white space-y-3">
-                              <Film className="w-12 h-12 text-[#38BDF8] mx-auto" />
+                              <Film className="w-12 h-12 text-[#EE2D02] mx-auto" />
                               <h5 className="text-sm font-bold">{activeClassForVideo.title}</h5>
                               <a
                                 href={activeClassForVideo.videoUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0284C7] text-white text-xs font-bold"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] text-white text-xs font-bold transition-all"
                               >
                                 <ExternalLink className="w-3.5 h-3.5" />
                                 <span>Launch Video Stream</span>
@@ -1872,8 +1886,8 @@ export const StudentDashboardView = ({
 
                         {/* Post-Class Summary in Modal */}
                         {activeClassForVideo.summary && (
-                          <div className="p-3.5 rounded-xl bg-teal-50 border border-teal-100 text-xs text-teal-950 space-y-1">
-                            <span className="font-bold text-[#0B4F50] block text-[10px] uppercase font-mono">
+                          <div className="p-3.5 rounded-xl bg-[#FFF1EE] border border-[#FFD4CC] text-xs text-slate-900 space-y-1">
+                            <span className="font-bold text-[#EE2D02] block text-[10px] uppercase font-mono">
                               What Was Taught
                             </span>
                             <p className="leading-relaxed">{activeClassForVideo.summary}</p>
@@ -1881,7 +1895,7 @@ export const StudentDashboardView = ({
                         )}
 
                         {/* Anti-Skip Live Engagement & Watch Verification Meter */}
-                        <div className="p-4 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] space-y-2.5">
+                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
                           <div className="flex items-center justify-between text-xs">
                             <span className="font-bold text-slate-800 flex items-center gap-1.5">
                               {watchSeconds >= WATCH_REQUIREMENT_SECONDS ? (
@@ -1891,8 +1905,8 @@ export const StudentDashboardView = ({
                                 </>
                               ) : (
                                 <>
-                                  <Clock className="w-4 h-4 text-[#0B4F50] animate-pulse" />
-                                  <span className="text-[#0B4F50]">Engagement Verification in Progress</span>
+                                  <Clock className="w-4 h-4 text-[#EE2D02] animate-pulse" />
+                                  <span className="text-[#EE2D02]">Engagement Verification in Progress</span>
                                 </>
                               )}
                             </span>
@@ -1907,7 +1921,7 @@ export const StudentDashboardView = ({
                               className={`h-full transition-all duration-300 ${
                                 watchSeconds >= WATCH_REQUIREMENT_SECONDS
                                   ? 'bg-emerald-500'
-                                  : 'bg-[#0B4F50]'
+                                  : 'bg-[#EE2D02]'
                               }`}
                               style={{
                                 width: `${Math.min(100, Math.round((watchSeconds / WATCH_REQUIREMENT_SECONDS) * 100))}%`,
@@ -1964,11 +1978,11 @@ export const StudentDashboardView = ({
 
                   {/* Interactive Quiz / Test Modal */}
                   {activeClassForQuiz && activeClassForQuiz.test && (
-                    <div className="fixed inset-0 bg-[#0F1E2E]/75 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-                      <div className="bg-white border border-[#CBD5E1] rounded-[28px] p-6 max-w-lg w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="fixed inset-0 bg-[#0B0E14]/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+                      <div className="bg-white border border-slate-200 rounded-[28px] p-6 max-w-lg w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                           <div>
-                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B4F50]">
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02]">
                               DAY {activeClassForQuiz.dayNumber} COMPREHENSION TEST
                             </span>
                             <h4 className="text-base font-bold text-slate-900 mt-0.5">
@@ -2049,7 +2063,7 @@ export const StudentDashboardView = ({
                                   setActiveClassForQuiz(null);
                                   setQuizResult(null);
                                 }}
-                                className="px-5 py-2.5 rounded-xl bg-[#0B4F50] text-white text-xs font-bold cursor-pointer hover:bg-[#073637]"
+                                className="px-5 py-2.5 rounded-xl bg-[#EE2D02] text-white text-xs font-bold cursor-pointer hover:bg-[#D02600] transition-colors"
                               >
                                 Done & Return to Curriculum
                               </button>
@@ -2060,8 +2074,8 @@ export const StudentDashboardView = ({
                           <form onSubmit={handleSubmitQuiz} className="space-y-4 text-xs">
                             <div className="space-y-4">
                               {(activeClassForQuiz.test.questions || []).map((q, qIdx) => (
-                                <div key={q.id || qIdx} className="p-4 rounded-2xl bg-[#f8fbfb] border border-[#d8ecec] space-y-2.5">
-                                  <span className="font-mono font-bold text-[10px] text-[#0B4F50] block">
+                                <div key={q.id || qIdx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+                                  <span className="font-mono font-bold text-[10px] text-[#EE2D02] block">
                                     QUESTION {qIdx + 1}
                                   </span>
                                   <p className="font-bold text-slate-900 text-sm">{q.question}</p>
@@ -2072,7 +2086,7 @@ export const StudentDashboardView = ({
                                         key={optIdx}
                                         className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-all cursor-pointer ${
                                           quizAnswers[q.id] === optIdx
-                                            ? 'bg-teal-50 border-[#0B4F50] text-[#0B4F50] font-semibold'
+                                            ? 'bg-[#FFF1EE] border-[#EE2D02] text-[#EE2D02] font-semibold'
                                             : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
                                         }`}
                                       >
@@ -2081,7 +2095,7 @@ export const StudentDashboardView = ({
                                           name={`question_${q.id}`}
                                           checked={quizAnswers[q.id] === optIdx}
                                           onChange={() => setQuizAnswers({ ...quizAnswers, [q.id]: optIdx })}
-                                          className="text-[#0B4F50]"
+                                          className="accent-[#EE2D02]"
                                         />
                                         <span>{opt}</span>
                                       </label>
@@ -2098,7 +2112,7 @@ export const StudentDashboardView = ({
                               <button
                                 type="submit"
                                 disabled={isSubmittingQuiz}
-                                className="px-5 py-2.5 rounded-xl bg-[#0B4F50] hover:bg-[#073637] text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                                className="px-5 py-2.5 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-50 active:scale-98"
                               >
                                 {isSubmittingQuiz ? 'Grading Answers...' : 'Submit Answers for Grading'}
                               </button>
@@ -2119,10 +2133,10 @@ export const StudentDashboardView = ({
       {activeTab === 'catalog' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* Catalog Top Filter & Search Bar */}
-          <div className="p-6 rounded-[28px] bg-white border border-[#d8ecec] shadow-xs space-y-4">
+          <div className="p-6 rounded-[28px] bg-white border border-slate-200 shadow-xs space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold font-mono text-[#0B4F50] uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-xs font-bold font-mono text-[#EE2D02] uppercase tracking-wider">
                   <Compass className="w-4 h-4" />
                   <span>Academic Offerings & Curriculum</span>
                 </div>
@@ -2142,7 +2156,7 @@ export const StudentDashboardView = ({
                   value={catalogSearch}
                   onChange={(e) => setCatalogSearch(e.target.value)}
                   placeholder="Search courses, skills, faculty..."
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-900 outline-none transition-all placeholder-slate-400"
+                  className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full pl-9.5 pr-8 py-2 text-xs text-slate-900 outline-none transition-all placeholder-slate-400"
                 />
                 {catalogSearch && (
                   <button
@@ -2167,8 +2181,8 @@ export const StudentDashboardView = ({
                     onClick={() => setCatalogCategory(cat)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       catalogCategory === cat
-                        ? 'bg-[#0B4F50] text-white shadow-xs'
-                        : 'bg-[#f2f7f7] hover:bg-[#e4efef] text-slate-700'
+                        ? 'bg-[#EE2D02] text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                     }`}
                   >
                     {cat === 'ALL' ? 'All Categories' : cat}
@@ -2182,7 +2196,7 @@ export const StudentDashboardView = ({
                 <select
                   value={catalogLevel}
                   onChange={(e) => setCatalogLevel(e.target.value)}
-                  className="bg-[#f2f7f7] hover:bg-[#e4efef] border border-[#d8ecec] text-xs font-semibold text-slate-700 rounded-full px-3 py-1.5 outline-none focus:border-[#0B4F50] cursor-pointer"
+                  className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 rounded-full px-3 py-1.5 outline-none focus:border-[#EE2D02] cursor-pointer transition-all"
                 >
                   <option value="ALL">All Levels</option>
                   <option value="Beginner">Beginner</option>
@@ -2195,7 +2209,7 @@ export const StudentDashboardView = ({
 
           {/* Courses Grid */}
           {filteredCatalogCourses.length === 0 ? (
-            <div className="text-center py-16 px-4 bg-white rounded-[28px] border border-[#d8ecec] space-y-3">
+            <div className="text-center py-16 px-4 bg-white rounded-[28px] border border-slate-200 space-y-3">
               <Compass className="w-12 h-12 text-slate-300 mx-auto" />
               <h3 className="text-base font-bold text-slate-800">No courses match your criteria</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -2209,7 +2223,7 @@ export const StudentDashboardView = ({
                     setCatalogCategory('ALL');
                     setCatalogLevel('ALL');
                   }}
-                  className="px-4 py-2 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-full text-xs font-bold text-[#EE2D02] bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] transition-colors cursor-pointer"
                 >
                   Reset Filters
                 </button>
@@ -2224,7 +2238,7 @@ export const StudentDashboardView = ({
                 return (
                   <div
                     key={course.id}
-                    className="bg-white rounded-[26px] border border-[#d8ecec] hover:border-teal-300 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+                    className="bg-white rounded-[26px] border border-slate-200 hover:border-[#FFD4CC] shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between group"
                   >
                     {/* Top Banner Image with Badges */}
                     <div className="relative h-44 bg-slate-100 overflow-hidden shrink-0">
@@ -2240,11 +2254,11 @@ export const StudentDashboardView = ({
 
                       {/* Top Badges */}
                       <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-white/95 text-[#0B4F50] px-2.5 py-1 rounded-lg shadow-xs border border-slate-200/60">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-white/95 text-[#EE2D02] px-2.5 py-1 rounded-lg shadow-xs border border-slate-200/60">
                           {course.category || 'Engineering'}
                         </span>
                         {course.level && (
-                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900/85 text-teal-200 px-2.5 py-1 rounded-lg">
+                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900/85 text-slate-300 px-2.5 py-1 rounded-lg">
                             {course.level}
                           </span>
                         )}
@@ -2265,8 +2279,8 @@ export const StudentDashboardView = ({
                           </span>
                         )}
                         {status.type === 'OPEN' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#0B4F50]/90 text-teal-100 shadow-xs backdrop-blur-xs border border-teal-400/30">
-                            <Sparkles className="w-3 h-3 text-teal-300" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#EE2D02] text-white shadow-xs backdrop-blur-xs border border-white/20">
+                            <Sparkles className="w-3 h-3 text-white" />
                             Open
                           </span>
                         )}
@@ -2274,7 +2288,7 @@ export const StudentDashboardView = ({
 
                       {/* Bottom Image Overlay: Mode & Tuition */}
                       <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs">
-                        <span className="text-[10px] font-mono font-bold bg-slate-950/70 backdrop-blur-xs px-2 py-0.5 rounded text-teal-200">
+                        <span className="text-[10px] font-mono font-bold bg-slate-950/70 backdrop-blur-xs px-2 py-0.5 rounded text-slate-200">
                           {course.mode || 'Cohort Masterclass'}
                         </span>
                         <span className="text-xs font-mono font-bold bg-slate-950/80 backdrop-blur-xs px-2.5 py-0.5 rounded text-white">
@@ -2286,7 +2300,7 @@ export const StudentDashboardView = ({
                     {/* Card Body Content */}
                     <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-2">
-                        <h3 className="font-bold text-base text-slate-900 font-display line-clamp-1 group-hover:text-[#0B4F50] transition-colors">
+                        <h3 className="font-bold text-base text-slate-900 font-display line-clamp-1 group-hover:text-[#EE2D02] transition-colors">
                           {course.title}
                         </h3>
                         <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
@@ -2319,7 +2333,7 @@ export const StudentDashboardView = ({
                             className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-[#0B4F50] text-teal-200 text-xs font-bold flex items-center justify-center shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-[#EE2D02] text-white text-xs font-bold flex items-center justify-center shrink-0">
                             {instructor.initial}
                           </div>
                         )}
@@ -2368,9 +2382,9 @@ export const StudentDashboardView = ({
                               setSelectedCatalogCourse(course);
                               setIsCatalogAppModalOpen(true);
                             }}
-                            className="w-full py-2.5 px-4 rounded-xl bg-[#0B4F50] hover:bg-[#073637] active:bg-[#052627] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
                           >
-                            <Sparkles className="w-3.5 h-3.5 text-teal-300" />
+                            <Sparkles className="w-3.5 h-3.5 text-white" />
                             <span>Apply Now</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                           </button>
@@ -2388,46 +2402,48 @@ export const StudentDashboardView = ({
       {/* Tab 2: Applications */}
       {activeTab === 'applications' && (
         <div className="space-y-6">
-          <div className="border border-[#d8ecec] rounded-[28px] overflow-hidden bg-white shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#f2f7f7] font-mono text-[#0B4F50] uppercase text-[11px] border-b border-[#d8ecec]">
-                <tr>
-                  <th className="p-4">Application ID</th>
-                  <th className="p-4">Program</th>
-                  <th className="p-4">Applied Date</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Tuition</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800">
-                {applications.map((app) => (
-                  <tr key={app.id} className="hover:bg-[#f8fbfb] transition-colors">
-                    <td className="p-4 font-mono font-bold text-slate-900">{app.id}</td>
-                    <td className="p-4 font-semibold text-slate-900">{app.courseTitle}</td>
-                    <td className="p-4 font-mono text-slate-600">
-                      {new Date(app.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="p-4">
-                      <Badge
-                        variant={
-                          app.status === 'CONFIRMED'
-                            ? 'success'
-                            : app.status === 'DRAFT'
-                            ? 'neutral'
-                            : 'warning'
-                        }
-                        size="sm"
-                      >
-                        {app.status}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-right font-mono font-bold text-[#0B4F50]">
-                      ₹{(app.totalFee || app.courseFee || 0).toLocaleString('en-IN')}
-                    </td>
+          <div className="border border-slate-200 rounded-[28px] overflow-hidden bg-white shadow-xs">
+            <div className="overflow-x-auto [scrollbar-width:thin]">
+              <table className="w-full text-left text-xs min-w-[620px]">
+                <thead className="bg-slate-50 font-mono text-slate-700 uppercase text-[11px] border-b border-slate-200">
+                  <tr>
+                    <th className="p-4">Application ID</th>
+                    <th className="p-4">Program</th>
+                    <th className="p-4">Applied Date</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 text-right">Tuition</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  {applications.map((app) => (
+                    <tr key={app.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4 font-mono font-bold text-slate-900">{app.id}</td>
+                      <td className="p-4 font-semibold text-slate-900">{app.courseTitle}</td>
+                      <td className="p-4 font-mono text-slate-600">
+                        {new Date(app.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4">
+                        <Badge
+                          variant={
+                            app.status === 'CONFIRMED'
+                              ? 'success'
+                              : app.status === 'DRAFT'
+                              ? 'neutral'
+                              : 'warning'
+                          }
+                          size="sm"
+                        >
+                          {app.status}
+                        </Badge>
+                      </td>
+                      <td className="p-4 text-right font-mono font-bold text-[#EE2D02]">
+                        ₹{(app.totalFee || app.courseFee || 0).toLocaleString('en-IN')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -2435,42 +2451,44 @@ export const StudentDashboardView = ({
       {/* Tab 3: Billing & Invoices */}
       {activeTab === 'billing' && (
         <div className="space-y-6">
-          <div className="border border-[#d8ecec] rounded-[28px] overflow-hidden bg-white shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#f2f7f7] font-mono text-[#0B4F50] uppercase text-[11px] border-b border-[#d8ecec]">
-                <tr>
-                  <th className="p-4">Receipt #</th>
-                  <th className="p-4">Course Program</th>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Payment Method</th>
-                  <th className="p-4 text-right">Amount</th>
-                  <th className="p-4 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800">
-                {payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#f8fbfb] transition-colors">
-                    <td className="p-4 font-mono font-bold text-slate-900">{p.receiptNumber}</td>
-                    <td className="p-4 font-semibold text-slate-900">{p.courseTitle}</td>
-                    <td className="p-4 font-mono text-slate-600">
-                      {new Date(p.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="p-4 text-slate-600">{p.paymentMethod || 'Razorpay Gateway'}</td>
-                    <td className="p-4 text-right font-mono font-bold text-[#0B4F50]">
-                      ₹{p.amount.toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-4 text-center">
-                      <button
-                        onClick={() => onViewReceipt(p.receiptNumber)}
-                        className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-colors cursor-pointer"
-                      >
-                        View Tax Invoice
-                      </button>
-                    </td>
+          <div className="border border-slate-200 rounded-[28px] overflow-hidden bg-white shadow-xs">
+            <div className="overflow-x-auto [scrollbar-width:thin]">
+              <table className="w-full text-left text-xs min-w-[640px]">
+                <thead className="bg-slate-50 font-mono text-slate-700 uppercase text-[11px] border-b border-slate-200">
+                  <tr>
+                    <th className="p-4">Receipt #</th>
+                    <th className="p-4">Course Program</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Payment Method</th>
+                    <th className="p-4 text-right">Amount</th>
+                    <th className="p-4 text-center">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  {payments.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4 font-mono font-bold text-slate-900">{p.receiptNumber}</td>
+                      <td className="p-4 font-semibold text-slate-900">{p.courseTitle}</td>
+                      <td className="p-4 font-mono text-slate-600">
+                        {new Date(p.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4 text-slate-600">{p.paymentMethod || 'Razorpay Gateway'}</td>
+                      <td className="p-4 text-right font-mono font-bold text-[#EE2D02]">
+                        ₹{p.amount.toLocaleString('en-IN')}
+                      </td>
+                      <td className="p-4 text-center">
+                        <button
+                          onClick={() => onViewReceipt(p.receiptNumber)}
+                          className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#EE2D02] bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] transition-colors cursor-pointer"
+                        >
+                          View Tax Invoice
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -2480,7 +2498,7 @@ export const StudentDashboardView = ({
         <div className="max-w-4xl mx-auto">
           
           {/* Main Profile Info & Photo Form */}
-          <div className="p-6 sm:p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs space-y-6">
+          <div className="p-6 sm:p-8 rounded-[32px] bg-white border border-slate-200 shadow-xs space-y-6">
             
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-xl font-bold text-slate-900 tracking-tight font-display">
@@ -2506,7 +2524,7 @@ export const StudentDashboardView = ({
             )}
 
             {/* Profile Photo Upload & Preview Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 p-5 sm:p-6 rounded-[24px] bg-[#f2f7f7] border border-[#d8ecec]">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6 p-5 sm:p-6 rounded-[24px] bg-slate-50 border border-slate-200">
               <div className="relative group mx-auto sm:mx-0 shrink-0">
                 <img
                   src={avatarPreview || user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
@@ -2514,7 +2532,7 @@ export const StudentDashboardView = ({
                   onError={(e) => {
                     e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(profileName || user?.name || 'Student');
                   }}
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white shadow-md ring-2 ring-[#d8ecec] transition-all"
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white shadow-md ring-2 ring-slate-200 transition-all"
                 />
                 
                 {/* Floating Camera / Edit Icon Button */}
@@ -2522,7 +2540,7 @@ export const StudentDashboardView = ({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   title="Upload / Change profile photo"
-                  className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#0B4F50] hover:bg-[#073637] active:bg-[#052627] text-white flex items-center justify-center shadow-md border-2 border-white transition-all transform hover:scale-110 active:scale-95 cursor-pointer"
+                  className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000] text-white flex items-center justify-center shadow-md border-2 border-white transition-all transform hover:scale-110 active:scale-95 cursor-pointer"
                   aria-label="Upload profile photo"
                 >
                   <Camera className="w-4 h-4" />
@@ -2549,9 +2567,9 @@ export const StudentDashboardView = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-white hover:bg-slate-50 text-[#0B4F50] border border-[#d8ecec] hover:border-[#0B4F50]/40 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
+                    className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
                   >
-                    <Upload className="w-3.5 h-3.5" />
+                    <Upload className="w-3.5 h-3.5 text-[#EE2D02]" />
                     <span>{hasPhotoChanged ? 'Change Selection' : 'Upload New Photo'}</span>
                   </button>
 
@@ -2568,8 +2586,8 @@ export const StudentDashboardView = ({
                 </div>
 
                 {hasPhotoChanged && (
-                  <div className="text-[11px] text-teal-800 bg-teal-50 border border-teal-200/80 rounded-lg px-2.5 py-1 inline-flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                  <div className="text-[11px] text-slate-800 bg-[#FFF1EE] border border-[#FFD4CC] rounded-lg px-2.5 py-1 inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#EE2D02] animate-pulse" />
                     <span>Photo preview ready — remember to click <strong>Save Profile Changes</strong> below.</span>
                   </div>
                 )}
@@ -2587,7 +2605,7 @@ export const StudentDashboardView = ({
                   required
                   value={profileName}
                   onChange={(e) => setProfileName(e.target.value)}
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
 
@@ -2601,8 +2619,8 @@ export const StudentDashboardView = ({
                       </span>
                     )}
                   </label>
-                  <div className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus-within:bg-white border border-[#d8ecec] focus-within:border-[#0B4F50] focus-within:ring-2 focus-within:ring-[#0B4F50]/15 rounded-full flex items-center transition-all overflow-hidden">
-                    <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 border-r border-[#d8ecec] select-none shrink-0 bg-[#e5f0f0]/60 text-slate-800 font-mono font-bold text-xs sm:text-sm">
+                  <div className="w-full bg-slate-50 hover:bg-slate-100 focus-within:bg-white border border-slate-200 focus-within:border-[#EE2D02] focus-within:ring-2 focus-within:ring-[#EE2D02]/15 rounded-full flex items-center transition-all overflow-hidden">
+                    <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 border-r border-slate-200 select-none shrink-0 bg-slate-100 text-slate-800 font-mono font-bold text-xs sm:text-sm">
                       <span className="text-sm leading-none">🇮🇳</span>
                       <span>+91</span>
                     </div>
@@ -2626,7 +2644,7 @@ export const StudentDashboardView = ({
                     value={profileYear}
                     onChange={(e) => setProfileYear(e.target.value)}
                     placeholder="e.g. 3rd Year, Current"
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -2641,7 +2659,7 @@ export const StudentDashboardView = ({
                     value={profileInstitution}
                     onChange={(e) => setProfileInstitution(e.target.value)}
                     placeholder="e.g. Verified Google Student / College"
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
                 <div>
@@ -2653,7 +2671,7 @@ export const StudentDashboardView = ({
                     value={profileDegree}
                     onChange={(e) => setProfileDegree(e.target.value)}
                     placeholder="e.g. B.Tech Computer Science"
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -2662,7 +2680,7 @@ export const StudentDashboardView = ({
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="px-6 py-2.5 bg-[#0B4F50] hover:bg-[#073637] active:bg-[#052627] text-white font-bold text-xs sm:text-sm rounded-full shadow-xs hover:shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000] text-white font-bold text-xs sm:text-sm rounded-full shadow-xs hover:shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSavingProfile ? (
                     <>

@@ -84,24 +84,24 @@ export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
       ) : receiptData ? (
         <div className="space-y-6 font-sans">
           {/* Action Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec]">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="flex items-center gap-2">
               <Badge variant="gold">PAID & VERIFIED</Badge>
-              <span className="text-xs font-mono text-[#0B4F50] font-bold">
+              <span className="text-xs font-mono text-slate-700 font-bold">
                 GSTIN: {receiptData.organization.gstin}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyReceiptNumber}
-                className="px-4 py-1.5 rounded-full text-xs font-bold text-[#0B4F50] bg-white hover:bg-[#ebf4f4] border border-[#d8ecec] transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-4 py-1.5 rounded-full text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
-                <Copy className="w-3.5 h-3.5 text-[#0B4F50]" />
+                <Copy className="w-3.5 h-3.5 text-[#EE2D02]" />
                 <span>{copied ? 'Copied!' : 'Copy Receipt #'}</span>
               </button>
               <button
                 onClick={handleDownloadPDF}
-                className="px-4 py-1.5 rounded-full text-xs font-bold text-white bg-[#0B4F50] hover:bg-[#073637] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-4 py-1.5 rounded-full text-xs font-bold text-white bg-[#EE2D02] hover:bg-[#D02600] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download PDF</span>
@@ -110,12 +110,12 @@ export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
           </div>
 
           {/* Printable Invoice Container */}
-          <div className="p-6 sm:p-8 rounded-[28px] bg-white border border-[#d8ecec] space-y-6 shadow-xs">
+          <div className="p-6 sm:p-8 rounded-[28px] bg-white border border-slate-200 space-y-6 shadow-xs">
             {/* Header branding & CIN */}
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-6 border-b border-slate-200">
               <div className="space-y-2">
                 <img
-                  src="/logob.png"
+                  src="/logo.png"
                   alt="Claxic"
                   className="h-6 sm:h-7 w-auto object-contain"
                 />
@@ -160,8 +160,8 @@ export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
             </div>
 
             {/* Itemized Table */}
-            <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-              <table className="w-full text-left">
+            <div className="border border-slate-200 rounded-xl overflow-x-auto [scrollbar-width:thin] text-xs">
+              <table className="w-full text-left min-w-[380px]">
                 <thead className="bg-slate-50 font-mono text-slate-600 uppercase text-[11px] border-b border-slate-200">
                   <tr>
                     <th className="py-3 px-4">Description</th>

@@ -31,8 +31,12 @@ app.use((err, req, res, next) => {
 // Mount Main API Router FIRST
 app.use('/api', apiRouter);
 
-// Serve Frontend SPA ONLY if explicitly configured in production (SERVE_FRONTEND=true)
-if (process.env.SERVE_FRONTEND === 'true' && fs.existsSync(distPath)) {
+// Serve Frontend SPA if configured (SERVE_FRONTEND=true) OR in production when dist exists
+const shouldServeFrontend =
+  (process.env.SERVE_FRONTEND === 'true' || process.env.NODE_ENV === 'production') &&
+  fs.existsSync(distPath);
+
+if (shouldServeFrontend) {
   app.use(express.static(distPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) {

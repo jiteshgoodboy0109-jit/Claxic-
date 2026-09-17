@@ -63,11 +63,11 @@ export const CoursesView = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 font-sans text-slate-900 bg-[#f6fafa] min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 font-sans text-slate-900 bg-[#F8FAFC] min-h-screen">
       {/* Header Banner */}
       <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#eef7f7] border border-[#cbe4e4] text-xs font-semibold text-[#0B4F50]">
-          <BookOpen className="w-3.5 h-3.5 text-[#0B4F50]" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF1EE] border border-[#FFD4CC] text-xs font-semibold text-[#EE2D02]">
+          <BookOpen className="w-3.5 h-3.5 text-[#EE2D02]" />
           <span>Academic Catalog Registry</span>
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
@@ -79,7 +79,7 @@ export const CoursesView = ({
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="p-6 sm:p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-xs space-y-6">
+      <div className="p-4 sm:p-6 lg:p-8 rounded-[24px] sm:rounded-[32px] bg-white border border-slate-200/90 shadow-2xs space-y-6">
         {/* Top Row: Search + Sort */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="relative flex-1 w-full">
@@ -89,7 +89,7 @@ export const CoursesView = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by course title, skills (e.g. React, Kubernetes, AI), or faculty..."
-              className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] rounded-full pl-11 pr-10 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 placeholder:text-slate-400 transition-all"
+              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 rounded-full pl-11 pr-10 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 placeholder:text-slate-400 transition-all"
             />
             {searchTerm && (
               <button
@@ -106,7 +106,7 @@ export const CoursesView = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] rounded-full px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 font-medium w-full md:w-auto cursor-pointer"
+              className="bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 rounded-full px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 font-medium w-full md:w-auto cursor-pointer"
             >
               <option value="featured">Featured First</option>
               <option value="price_asc">Fee: Low to High</option>
@@ -118,13 +118,13 @@ export const CoursesView = ({
         </div>
 
         {/* Filter Pills */}
-        <div className="pt-4 border-t border-[#f2f7f7] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div>
             <label className="block text-slate-700 font-semibold mb-1.5">Specialization Category</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 cursor-pointer font-medium"
+              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 cursor-pointer font-medium"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -139,7 +139,7 @@ export const CoursesView = ({
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 cursor-pointer font-medium"
+              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 cursor-pointer font-medium"
             >
               <option value="All">All Levels</option>
               <option value="Beginner">Beginner</option>
@@ -153,7 +153,7 @@ export const CoursesView = ({
             <select
               value={selectedMode}
               onChange={(e) => setSelectedMode(e.target.value)}
-              className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 cursor-pointer font-medium"
+              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 cursor-pointer font-medium"
             >
               <option value="All">All Modes</option>
               <option value="Live Interactive">Live Interactive</option>
@@ -172,7 +172,7 @@ export const CoursesView = ({
           {(searchTerm || selectedCategory !== 'All' || selectedLevel !== 'All' || selectedMode !== 'All') && (
             <button
               onClick={resetFilters}
-              className="text-[#0B4F50] underline hover:text-[#073637] font-bold cursor-pointer"
+              className="text-[#EE2D02] underline hover:text-[#D42700] font-bold cursor-pointer"
             >
               Reset Filters
             </button>
@@ -180,7 +180,7 @@ export const CoursesView = ({
         </div>
 
         {filteredCourses.length === 0 ? (
-          <div className="py-20 text-center bg-white border border-[#d8ecec] rounded-[32px] space-y-4 shadow-xs">
+          <div className="py-20 text-center bg-white border border-slate-200 rounded-[32px] space-y-4 shadow-xs">
             <BookOpen className="w-12 h-12 text-slate-400 mx-auto" />
             <h3 className="text-lg font-bold text-slate-900">No Matching Courses Found</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -188,7 +188,7 @@ export const CoursesView = ({
             </p>
             <button
               onClick={resetFilters}
-              className="px-6 py-2.5 bg-[#0B4F50] text-white rounded-full font-bold text-xs shadow-xs hover:bg-[#073637] cursor-pointer"
+              className="px-6 py-2.5 bg-[#EE2D02] hover:bg-[#D02600] text-white rounded-full font-bold text-xs shadow-xs transition-all cursor-pointer"
             >
               Reset All Filters
             </button>

@@ -326,13 +326,13 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
         {step === 'form' ? (
           <form onSubmit={handleFormSubmit} className="space-y-6">
             {/* Summary Card */}
-            <div className="p-5 rounded-2xl bg-[#f2f7f7] border border-[#d8ecec] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-0.5 rounded-full bg-yellow-50 text-yellow-900 border border-yellow-300 font-mono text-[10px] font-bold">
                     {course.category}
                   </span>
-                  <span className="px-3 py-0.5 rounded-full bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] font-mono text-[10px] font-bold">
+                  <span className="px-3 py-0.5 rounded-full bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] font-mono text-[10px] font-bold">
                     {course.mode}
                   </span>
                 </div>
@@ -344,10 +344,10 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono text-[#0B4F50]">
+                <div className="text-2xl font-bold font-mono text-[#EE2D02]">
                   ₹{course.price.toLocaleString('en-IN')}
                 </div>
-                <span className="text-[10px] font-mono text-[#0B4F50] uppercase font-semibold">
+                <span className="text-[10px] font-mono text-[#EE2D02] uppercase font-semibold">
                   Inclusive of 18% GST & Tax Invoice
                 </span>
               </div>
@@ -355,7 +355,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
 
             {/* Form Fields */}
             <div className="space-y-4">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B4F50] border-b border-[#d8ecec] pb-2">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#EE2D02] border-b border-slate-200 pb-2">
                 1. Personal & Contact Information
               </h4>
 
@@ -369,7 +369,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
                 <div>
@@ -381,7 +381,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -395,8 +395,8 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     </span>
                   )}
                 </label>
-                <div className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus-within:bg-white border border-[#d8ecec] focus-within:border-[#0B4F50] focus-within:ring-2 focus-within:ring-[#0B4F50]/15 rounded-full flex items-center transition-all overflow-hidden">
-                  <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 border-r border-[#d8ecec] select-none shrink-0 bg-[#e5f0f0]/60 text-slate-800 font-mono font-bold text-xs sm:text-sm">
+                <div className="w-full bg-slate-50 hover:bg-slate-100 focus-within:bg-white border border-slate-200 focus-within:border-[#EE2D02] focus-within:ring-2 focus-within:ring-[#EE2D02]/15 rounded-full flex items-center transition-all overflow-hidden">
+                  <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 border-r border-slate-200 select-none shrink-0 bg-slate-100 text-slate-800 font-mono font-bold text-xs sm:text-sm">
                     <span className="text-sm leading-none">🇮🇳</span>
                     <span>+91</span>
                   </div>
@@ -413,7 +413,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </div>
               </div>
 
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B4F50] border-b border-[#d8ecec] pb-2 pt-2">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#EE2D02] border-b border-slate-200 pb-2 pt-2">
                 2. Academic & Background Context
               </h4>
 
@@ -428,7 +428,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     value={institution}
                     onChange={(e) => setInstitution(e.target.value)}
                     placeholder="Stanford University / Enterprise Tech"
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
                 <div>
@@ -441,7 +441,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     value={degree}
                     onChange={(e) => setDegree(e.target.value)}
                     placeholder="B.S. Computer Science"
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -454,7 +454,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <select
                     value={yearOfStudy}
                     onChange={(e) => setYearOfStudy(e.target.value)}
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   >
                     <option value="1st Year">1st Year Undergraduate</option>
                     <option value="2nd Year">2nd Year Undergraduate</option>
@@ -471,7 +471,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <select
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value)}
-                    className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
                   >
                     <option value="Beginner">Beginner (Basic JS/HTML)</option>
                     <option value="Intermediate">Intermediate (React/Node basics)</option>
@@ -481,12 +481,12 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
               </div>
 
               {/* Automated Schedule & Start Date Selection */}
-              <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/80 space-y-2">
+              <div className="p-4 rounded-2xl bg-[#FFF1EE] border border-[#FFD4CC] space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-mono uppercase tracking-wider text-[#0B4F50] font-bold">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#EE2D02] font-bold">
                     Preferred Course Start Date *
                   </label>
-                  <span className="text-[10px] font-mono font-bold text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-mono font-bold text-[#EE2D02] bg-white/80 border border-[#FFD4CC] px-2 py-0.5 rounded-md">
                     Automated Daily Schedule
                   </span>
                 </div>
@@ -495,9 +495,9 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   required
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none font-mono font-semibold"
+                  className="w-full bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none font-mono font-semibold"
                 />
-                <p className="text-[11px] text-teal-800/80 leading-relaxed">
+                <p className="text-[11px] text-slate-600 leading-relaxed">
                   Your day-by-day learning schedule will automatically generate starting from this date. Daily class videos, topics, summaries, and quizzes will follow this schedule automatically.
                 </p>
               </div>
@@ -511,7 +511,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   value={statementOfIntent}
                   onChange={(e) => setStatementOfIntent(e.target.value)}
                   placeholder="Share what you hope to build or accomplish during this cohort..."
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-2xl p-3.5 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-2xl p-3.5 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
 
@@ -522,7 +522,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="rounded border-[#d8ecec] text-[#0B4F50]"
+                    className="rounded border-slate-300 accent-[#EE2D02]"
                   />
                   <span>I agree to Claxic Cohort Terms & Code of Conduct.</span>
                 </label>
@@ -531,7 +531,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                     type="checkbox"
                     checked={agreedToRefundPolicy}
                     onChange={(e) => setAgreedToRefundPolicy(e.target.checked)}
-                    className="rounded border-[#d8ecec] text-[#0B4F50]"
+                    className="rounded border-slate-300 accent-[#EE2D02]"
                   />
                   <span>I acknowledge the 7-day unconditional 100% money-back guarantee policy.</span>
                 </label>
@@ -546,19 +546,19 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <button
                 type="button"
                 onClick={handleSaveDraft}
                 disabled={isSavingDraft}
-                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-bold text-[#0B4F50] bg-[#eef7f7] hover:bg-[#e2f0f0] border border-[#cbe4e4] transition-all cursor-pointer shrink-0"
+                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-bold text-[#EE2D02] bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] transition-all cursor-pointer shrink-0 text-center"
               >
                 Save Draft
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-8 bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 px-6 sm:px-8 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000] text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <span>Proceed to Razorpay Secure Payment</span>
                 <ArrowRight className="w-4 h-4" />
@@ -568,8 +568,8 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
         ) : (
           /* Step 2: Payment Checkout Overview */
           <div className="space-y-6">
-            <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] text-center space-y-4 shadow-sm">
-              <div className="w-12 h-12 rounded-full bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] flex items-center justify-center mx-auto">
+            <div className="p-4 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-white border border-slate-200 text-center space-y-4 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] flex items-center justify-center mx-auto">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -582,7 +582,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </p>
               </div>
 
-              <div className="py-4 border-y border-[#d8ecec] max-w-sm mx-auto space-y-2 font-mono text-sm">
+              <div className="py-4 border-y border-slate-200 max-w-sm mx-auto space-y-2 font-mono text-sm">
                 <div className="flex justify-between text-slate-600">
                   <span>Tuition Base:</span>
                   <span>₹{Math.round(course.price / 1.18).toLocaleString('en-IN')}</span>
@@ -591,9 +591,9 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <span>GST (18%):</span>
                   <span>₹{(course.price - Math.round(course.price / 1.18)).toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between text-slate-900 font-bold text-base pt-2 border-t border-[#d8ecec]">
+                <div className="flex justify-between text-slate-900 font-bold text-base pt-2 border-t border-slate-200">
                   <span>Total Due:</span>
-                  <span className="text-[#0B4F50]">₹{course.price.toLocaleString('en-IN')}</span>
+                  <span className="text-[#EE2D02]">₹{course.price.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
@@ -601,7 +601,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 <button
                   onClick={handleRazorpayCheckout}
                   disabled={isLoading}
-                  className="w-full py-3.5 px-6 rounded-full bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-6 rounded-full bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <CreditCard className="w-5 h-5" />
                   <span>Pay via Razorpay (UPI, Cards, NetBanking, EMI)</span>
@@ -609,7 +609,7 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
 
                 <button
                   onClick={simulatePaymentSuccess}
-                  className="w-full text-center text-xs font-mono text-[#0B4F50] hover:text-[#073637] underline py-1 font-bold cursor-pointer"
+                  className="w-full text-center text-xs font-mono text-[#EE2D02] hover:text-[#D02600] underline py-1 font-bold cursor-pointer"
                 >
                   ⚡ Instant Demo Payment Simulation (Skip Gateway)
                 </button>

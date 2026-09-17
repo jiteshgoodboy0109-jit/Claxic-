@@ -15,13 +15,13 @@ export const Badge = ({
   };
 
   const variantStyles = {
-    default: 'bg-[#eef7f7] text-[#0B4F50] border-[#cbe4e4]',
-    primary: 'bg-[#0B4F50] text-white border-[#0B4F50]',
-    teal: 'bg-[#eef7f7] text-[#0B4F50] border-[#cbe4e4]',
+    default: 'bg-[#FFF1EE] text-[#EE2D02] border-[#FFD4CC]',
+    primary: 'bg-[#EE2D02] text-white border-[#EE2D02]',
+    teal: 'bg-[#FFF1EE] text-[#EE2D02] border-[#FFD4CC]',
     success: 'bg-emerald-50 text-emerald-800 border-emerald-300',
     warning: 'bg-amber-50 text-amber-900 border-amber-300',
     danger: 'bg-rose-50 text-rose-800 border-rose-300',
-    info: 'bg-teal-50 text-teal-800 border-teal-300',
+    info: 'bg-sky-50 text-sky-800 border-sky-300',
     gold: 'bg-yellow-50 text-yellow-900 border-yellow-300 font-bold',
   };
 

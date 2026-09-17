@@ -392,7 +392,7 @@ export const AdminLoginView = ({ onNavigate }) => {
                 title="Claxic Admin Console"
               >
                 <img
-                  src="/logow.png"
+                  src="/logo.png"
                   alt="Claxic"
                   className="h-10 sm:h-11 w-auto object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
                 />

@@ -181,17 +181,17 @@ export const StaffLoginView = ({ onNavigate }) => {
         {/* ======================================================== */}
         {/* LEFT COLUMN: SLEEK DARK ACADEMIC STAFF ARTWORK AREA      */}
         {/* ======================================================== */}
-        <div className="lg:col-span-6 bg-[#0F1E2E] p-8 sm:p-10 lg:p-12 flex flex-col items-center justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800 min-h-[380px] lg:min-h-[560px]">
+        <div className="hidden lg:flex lg:col-span-6 bg-[#0B111C] p-8 sm:p-10 lg:p-12 flex-col items-center justify-between relative overflow-hidden lg:border-r border-slate-800 min-h-[560px]">
           
           {/* Top Left: Claxic Brand Logo (Large, Clean, No Pill Background) */}
           <div className="w-full flex items-center justify-start z-10">
             <div className="flex items-center gap-3 select-none">
               <img
-                src="/logow.png"
+                src="/logo.png"
                 alt="Claxic"
                 className="h-7 sm:h-8 lg:h-9 w-auto object-contain transition-transform duration-200 hover:scale-102"
               />
-              <span className="text-[11px] font-mono uppercase font-bold tracking-wider text-[#38BDF8] border-l border-slate-700/80 pl-3">
+              <span className="text-[11px] font-mono uppercase font-bold tracking-wider text-[#FB7185] border-l border-slate-700/80 pl-3">
                 Staff Portal
               </span>
             </div>
@@ -206,38 +206,38 @@ export const StaffLoginView = ({ onNavigate }) => {
               className="w-full h-auto drop-shadow-md"
             >
               {/* Subtle Ambient Glow */}
-              <circle cx="200" cy="180" r="110" fill="#0284C7" opacity="0.08" filter="blur(30px)" />
+              <circle cx="200" cy="180" r="110" fill="#E11D48" opacity="0.08" filter="blur(30px)" />
 
               {/* Minimal Organic Background Accents */}
-              <circle cx="95" cy="85" r="4.5" stroke="#38BDF8" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.8" />
-              <circle cx="340" cy="180" r="3.5" stroke="#38BDF8" strokeWidth="1.5" opacity="0.8" />
+              <circle cx="95" cy="85" r="4.5" stroke="#FB7185" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.8" />
+              <circle cx="340" cy="180" r="3.5" stroke="#FB7185" strokeWidth="1.5" opacity="0.8" />
               <path d="M 60 140 Q 75 130 90 140 T 120 140" stroke="#64748B" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
               <path d="M 60 190 Q 75 200 90 190 T 110 195" stroke="#64748B" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
 
               {/* Minimalist Wall Clock */}
               <circle cx="270" cy="90" r="24" stroke="#94A3B8" strokeWidth="2" fill="#16293D" />
-              <path d="M 270 76 L 270 90 L 282 90" stroke="#38BDF8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M 270 76 L 270 90 L 282 90" stroke="#FB7185" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
               {/* Base Platform Line */}
               <path d="M 50 280 L 350 280" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
 
               {/* Left Pedestal Column (Patterned with luminous dots) */}
               <rect x="90" y="210" width="48" height="70" fill="#1E3A5F" rx="3" stroke="#334E68" strokeWidth="1" />
-              <circle cx="102" cy="225" r="2" fill="#38BDF8" />
-              <circle cx="118" cy="225" r="2" fill="#38BDF8" />
-              <circle cx="126" cy="245" r="2" fill="#38BDF8" />
-              <circle cx="106" cy="250" r="2" fill="#38BDF8" />
-              <circle cx="116" cy="265" r="2" fill="#38BDF8" />
+              <circle cx="102" cy="225" r="2" fill="#FB7185" />
+              <circle cx="118" cy="225" r="2" fill="#FB7185" />
+              <circle cx="126" cy="245" r="2" fill="#FB7185" />
+              <circle cx="106" cy="250" r="2" fill="#FB7185" />
+              <circle cx="116" cy="265" r="2" fill="#FB7185" />
 
               {/* Central Main Platform Block */}
-              <rect x="150" y="180" width="75" height="100" fill="#0369A1" rx="3" stroke="#0284C7" strokeWidth="1" />
+              <rect x="150" y="180" width="75" height="100" fill="#881337" rx="3" stroke="#BE123C" strokeWidth="1" />
 
               {/* Seated Staff Character */}
               {/* Hair */}
               <path
                 d="M 170 115 C 160 100 175 80 195 85 C 210 90 215 105 205 120 C 190 118 180 125 170 115 Z"
                 fill="#0F172A"
-                stroke="#38BDF8"
+                stroke="#FB7185"
                 strokeWidth="1.5"
               />
               {/* Head */}
@@ -247,7 +247,7 @@ export const StaffLoginView = ({ onNavigate }) => {
               <path
                 d="M 185 130 C 175 140 170 160 170 180 L 215 180 C 218 165 215 145 205 130 Z"
                 fill="#0F172A"
-                stroke="#38BDF8"
+                stroke="#FB7185"
                 strokeWidth="1.5"
               />
               {/* Bright White Collar & Dashes on Shirt */}
@@ -272,9 +272,9 @@ export const StaffLoginView = ({ onNavigate }) => {
                 fill="none"
               />
 
-              {/* Glowing Laptop (Cyan Screen) */}
-              <path d="M 240 172 L 280 172 L 275 168 L 244 168 Z" fill="#0F172A" stroke="#38BDF8" strokeWidth="1" />
-              <path d="M 255 170 L 275 125 L 285 130 L 265 170 Z" fill="#38BDF8" stroke="#0F172A" strokeWidth="1.5" />
+              {/* Glowing Laptop (Ruby Screen) */}
+              <path d="M 240 172 L 280 172 L 275 168 L 244 168 Z" fill="#0F172A" stroke="#FB7185" strokeWidth="1" />
+              <path d="M 255 170 L 275 125 L 285 130 L 265 170 Z" fill="#FB7185" stroke="#0F172A" strokeWidth="1.5" />
 
               {/* Legs Seated Comfortably */}
               <path
@@ -285,14 +285,14 @@ export const StaffLoginView = ({ onNavigate }) => {
               />
 
               {/* Shoes */}
-              <path d="M 245 260 C 255 260 262 268 258 274 L 240 274 L 240 262 Z" fill="#38BDF8" stroke="#0F172A" strokeWidth="1" />
-              <path d="M 215 250 C 220 250 226 256 224 262 L 208 262 L 210 252 Z" fill="#38BDF8" stroke="#0F172A" strokeWidth="1" />
+              <path d="M 245 260 C 255 260 262 268 258 274 L 240 274 L 240 262 Z" fill="#FB7185" stroke="#0F172A" strokeWidth="1" />
+              <path d="M 215 250 C 220 250 226 256 224 262 L 208 262 L 210 252 Z" fill="#FB7185" stroke="#0F172A" strokeWidth="1" />
             </svg>
           </div>
 
           {/* Bottom Academic Trust Notice */}
           <div className="flex items-center gap-2 text-center text-slate-300 text-xs font-medium">
-            <ShieldCheck className="w-4 h-4 text-[#38BDF8] shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[#FB7185] shrink-0" />
             <span>Authorized Claxic Staff Access Directorate</span>
           </div>
 
@@ -301,8 +301,16 @@ export const StaffLoginView = ({ onNavigate }) => {
         {/* ======================================================== */}
         {/* RIGHT COLUMN: CLEAN WHITE FORM WITH DARK NAVY ACCENT     */}
         {/* ======================================================== */}
-        <div className="lg:col-span-6 p-7 sm:p-9 lg:p-11 flex flex-col justify-center bg-[#FFFFFF]">
+        <div className="lg:col-span-6 p-5 sm:p-9 lg:p-11 flex flex-col justify-center bg-[#FFFFFF]">
           <div className="max-w-[360px] w-full mx-auto space-y-5">
+
+            {/* Mobile-only Brand Header */}
+            <div className="flex items-center gap-2.5 pb-1 lg:hidden">
+              <img src="/logo.png" alt="Claxic" className="h-7 w-auto object-contain" />
+              <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#FB7185] bg-[#E11D48]/15 border border-[#E11D48]/35 px-2.5 py-0.5 rounded-full">
+                Faculty
+              </span>
+            </div>
 
             {/* Header: Title & Subtitle */}
             <div className="text-left space-y-1">
@@ -334,11 +342,11 @@ export const StaffLoginView = ({ onNavigate }) => {
               
               {/* Input 1: Staff Email */}
               <div className="space-y-1.5 group">
-                <label className="block text-xs font-semibold text-[#0F1E2E]/90 transition-colors duration-150 group-focus-within:text-[#0F1E2E]">
+                <label className="block text-xs font-semibold text-[#0F1E2E]/90 transition-colors duration-150 group-focus-within:text-[#E11D48]">
                   Staff Email Address
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#829AB1] group-focus-within:text-[#0F1E2E] transition-colors duration-150">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#829AB1] group-focus-within:text-[#E11D48] transition-colors duration-150">
                     <UserIcon className="w-4 h-4" />
                   </div>
                   <input
@@ -347,18 +355,18 @@ export const StaffLoginView = ({ onNavigate }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@claxic.edu"
-                    className="w-full bg-[#FFFFFF] border border-[#CBD5E1] hover:border-[#0F1E2E]/50 focus:bg-white focus:border-[#0F1E2E] focus:ring-4 focus:ring-[#0F1E2E]/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#0F1E2E] placeholder:text-[#94A3B8] outline-none transition-all duration-150"
+                    className="w-full bg-[#FFFFFF] border border-[#CBD5E1] hover:border-[#E11D48]/50 focus:bg-white focus:border-[#E11D48] focus:ring-4 focus:ring-[#E11D48]/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#0F1E2E] placeholder:text-[#94A3B8] outline-none transition-all duration-150"
                   />
                 </div>
               </div>
 
               {/* Input 2: Password */}
               <div className="space-y-1.5 group">
-                <label className="block text-xs font-semibold text-[#0F1E2E]/90 transition-colors duration-150 group-focus-within:text-[#0F1E2E]">
+                <label className="block text-xs font-semibold text-[#0F1E2E]/90 transition-colors duration-150 group-focus-within:text-[#E11D48]">
                   Account Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#829AB1] group-focus-within:text-[#0F1E2E] transition-colors duration-150">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#829AB1] group-focus-within:text-[#E11D48] transition-colors duration-150">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -367,7 +375,7 @@ export const StaffLoginView = ({ onNavigate }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-[#FFFFFF] border border-[#CBD5E1] hover:border-[#0F1E2E]/50 focus:bg-white focus:border-[#0F1E2E] focus:ring-4 focus:ring-[#0F1E2E]/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#0F1E2E] placeholder:text-[#94A3B8] outline-none transition-all duration-150 font-mono"
+                    className="w-full bg-[#FFFFFF] border border-[#CBD5E1] hover:border-[#E11D48]/50 focus:bg-white focus:border-[#E11D48] focus:ring-4 focus:ring-[#E11D48]/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#0F1E2E] placeholder:text-[#94A3B8] outline-none transition-all duration-150 font-mono"
                   />
                   <button
                     type="button"
@@ -380,12 +388,12 @@ export const StaffLoginView = ({ onNavigate }) => {
                 </div>
               </div>
 
-              {/* Submit Button (Dark Navy Accent #0F1E2E) */}
+              {/* Submit Button (Imperial Ruby Gradient) */}
               <div className="pt-1">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 bg-[#0F1E2E] hover:bg-[#182C40] active:bg-[#0A1521] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] active:scale-[0.99] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>

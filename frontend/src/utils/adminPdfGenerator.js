@@ -5,12 +5,12 @@ import autoTable from 'jspdf-autotable';
 let cachedLogoBase64 = null;
 
 /**
- * Loads and caches the original Claxic black logo (/logob.png) as a Base64 data URL
+ * Loads and caches the original Claxic logo (/logo.png) as a Base64 data URL
  */
 export async function getLogoBase64() {
   if (cachedLogoBase64) return cachedLogoBase64;
   try {
-    const res = await fetch('/logob.png');
+    const res = await fetch('/logo.png');
     if (!res.ok) throw new Error('Failed to fetch logo image');
     const blob = await res.blob();
     return new Promise((resolve) => {
@@ -55,7 +55,7 @@ function applyBrandedHeaderAndFooter(doc, options = {}) {
     } else {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(15);
-      doc.setTextColor(11, 79, 80); // #0B4F50
+      doc.setTextColor(238, 45, 2); // #EE2D02 Claxic Vermilion
       doc.text('CLAXIC ACADEMY', margin, 17);
     }
 

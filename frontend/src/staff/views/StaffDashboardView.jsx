@@ -740,8 +740,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#0F1E2E] text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom-5 border border-slate-700">
-          <CheckCircle2 className="w-4 h-4 text-[#38BDF8]" />
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0B111C] text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom-5 border border-slate-700/80">
+          <CheckCircle2 className="w-4 h-4 text-[#FF5533]" />
           <span>{toastMsg}</span>
         </div>
       )}
@@ -751,7 +751,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       {/* ========================================================= */}
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-[#0F1E2E]/60 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-200"
+          className="fixed inset-0 bg-[#0B111C]/60 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-200"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
@@ -760,9 +760,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       {/* SIDE PANEL / SIDEBAR (Responsive & Collapsible with Morphing Nav) */}
       {/* ========================================================= */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen bg-[#0F1E2E] border-r border-slate-800 flex flex-col justify-between select-none transition-[width,padding,transform] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen bg-[#0B111C] border-r border-slate-800/90 flex flex-col justify-between select-none transition-[width,padding,transform] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
           // Mobile state: slide in / out
-          isMobileSidebarOpen ? 'translate-x-0 shadow-2xl w-72 p-5' : '-translate-x-full lg:translate-x-0'
+          isMobileSidebarOpen ? 'translate-x-0 shadow-2xl w-[280px] sm:w-72 max-w-[85vw] p-5' : '-translate-x-full lg:translate-x-0'
         } ${
           // Desktop state: expanded w-72 or collapsed icon rail w-20
           isSidebarCollapsed ? 'lg:w-20 lg:p-3' : 'lg:w-72 lg:p-5'
@@ -771,7 +771,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
         <div className="space-y-6">
           {/* Sidebar Top: Logo & Morphing Hamburger Menu Toggle */}
           <div
-            className={`flex items-center pb-3 border-b border-slate-800/80 transition-all duration-300 ${
+            className={`flex items-center pb-3.5 border-b border-slate-800/80 transition-all duration-300 ${
               isSidebarCollapsed ? 'justify-center pt-1' : 'justify-between pt-1'
             }`}
           >
@@ -784,12 +784,12 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               title="Staff Portal Overview"
             >
               <img
-                src="/logow.png"
+                src="/logo.png"
                 alt="Claxic"
                 className="h-7 sm:h-8 w-auto object-contain drop-shadow-xs shrink-0"
               />
-              <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#38BDF8] border-l border-slate-700 pl-2 truncate whitespace-nowrap">
-                Staff Portal
+              <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#FB7185] bg-[#E11D48]/15 border border-[#E11D48]/35 px-2.5 py-0.5 rounded-full shrink-0">
+                Faculty
               </span>
             </div>
 
@@ -803,7 +803,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   setIsSidebarCollapsed(!isSidebarCollapsed);
                 }
               }}
-              className={`rounded-xl bg-[#16293D] hover:bg-[#1E3A5F] text-[#38BDF8] hover:text-white transition-all duration-200 border border-slate-700/80 shadow-xs cursor-pointer flex items-center justify-center shrink-0 ${
+              className={`rounded-xl bg-[#131C2E] hover:bg-[#1A273D] text-slate-300 hover:text-white transition-all duration-200 border border-slate-700/70 shadow-xs cursor-pointer flex items-center justify-center shrink-0 ${
                 isSidebarCollapsed ? 'w-11 h-11 mx-auto' : 'p-2'
               }`}
               title={isSidebarCollapsed ? 'Expand Side Panel' : 'Collapse to Icon Bar'}
@@ -814,14 +814,15 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
           </div>
 
           {/* Navigation Links */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div
               className={`transition-all duration-300 overflow-hidden ${
                 isSidebarCollapsed ? 'h-0 opacity-0 pointer-events-none' : 'h-auto opacity-100 mb-2'
               }`}
             >
-              <p className="px-3 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
-                Academic Directorate
+              <p className="px-3 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48] shadow-[0_0_8px_rgba(225,29,72,0.7)] shrink-0" />
+                <span>Academic Directorate</span>
               </p>
             </div>
 
@@ -841,21 +842,25 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       isSidebarCollapsed
                         ? `w-11 h-11 mx-auto justify-center ${
                             isActive
-                              ? 'bg-[#1E3A5F] text-[#38BDF8] font-bold border border-[#38BDF8]/40 shadow-sm ring-1 ring-[#38BDF8]/20'
-                              : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                              ? 'bg-[#1C1827] text-[#FB7185] font-bold border border-[#E11D48]/40 shadow-[0_2px_12px_rgba(225,29,72,0.22)] ring-1 ring-[#E11D48]/30'
+                              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                           }`
                         : `w-full justify-between px-3.5 py-2.5 ${
                             isActive
-                              ? 'bg-[#16293D] text-[#38BDF8] font-bold border-l-4 border-[#38BDF8] shadow-xs'
-                              : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                              ? 'bg-[#1C1827] text-white font-bold border border-[#E11D48]/35 shadow-[0_4px_16px_rgba(225,29,72,0.18)] ring-1 ring-[#E11D48]/20'
+                              : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                           }`
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+                    <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
+                      {/* Left accent indicator for expanded active state */}
+                      {!isSidebarCollapsed && isActive && (
+                        <span className="w-1.5 h-4.5 rounded-full bg-gradient-to-b from-[#FB7185] to-[#E11D48] shadow-[0_0_8px_rgba(225,29,72,0.6)] shrink-0" />
+                      )}
                       <Icon
-                        className={`transition-transform duration-200 group-hover:scale-110 shrink-0 ${
+                        className={`transition-transform duration-200 group-hover:scale-105 shrink-0 ${
                           isSidebarCollapsed ? 'w-5 h-5' : 'w-4 h-4'
-                        } ${isActive ? 'text-[#38BDF8]' : 'text-slate-400 group-hover:text-white'}`}
+                        } ${isActive ? 'text-[#FB7185]' : 'text-slate-400 group-hover:text-slate-200'}`}
                       />
                       <span
                         className={`transition-all duration-200 truncate whitespace-nowrap ${
@@ -873,8 +878,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       <span
                         className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 transition-opacity duration-200 ${
                           isActive
-                            ? 'bg-[#38BDF8] text-[#0F1E2E]'
-                            : 'bg-slate-800 text-slate-300'
+                            ? 'bg-[#EE2D02] text-white shadow-2xs'
+                            : 'bg-slate-800/90 text-slate-300 border border-slate-700/60'
                         }`}
                       >
                         {item.count}
@@ -883,15 +888,15 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
                     {/* Glowing Notification Dot when in Collapsed Icon Mode */}
                     {isSidebarCollapsed && item.count !== undefined && item.count > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#38BDF8] ring-2 ring-[#0F1E2E] animate-pulse" />
+                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#EE2D02] ring-2 ring-[#0B111C] animate-pulse" />
                     )}
 
                     {/* Floating Tooltip in Collapsed Mode (Desktop only) */}
                     {isSidebarCollapsed && (
-                      <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0F1E2E] text-white text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:flex items-center gap-2">
+                      <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0B111C] text-white text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:flex items-center gap-2">
                         <span>{item.label}</span>
                         {item.count !== undefined && item.count > 0 && (
-                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-[#38BDF8] text-[#0F1E2E]">
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-[#EE2D02] text-white">
                             {item.count}
                           </span>
                         )}
@@ -908,16 +913,20 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
         <div className="space-y-3 pt-4 border-t border-slate-800/80">
           {/* Expanded Profile Card vs Collapsed Profile Icon */}
           {!isSidebarCollapsed ? (
-            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 transition-all duration-200">
-              <div className="w-9 h-9 rounded-full bg-[#1E3A5F] text-[#38BDF8] text-xs font-bold flex items-center justify-center border border-[#38BDF8]/30 shrink-0">
+            <div
+              onClick={() => handleTabChange('profile')}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-[#131C2E] hover:bg-[#18243A] border border-slate-700/70 transition-all duration-200 cursor-pointer shadow-xs group"
+              title="View Faculty Profile"
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#FB7185] to-[#E11D48] text-white text-xs font-bold flex items-center justify-center shadow-xs shrink-0 ring-2 ring-slate-700/80 group-hover:ring-[#FB7185]/50 transition-all">
                 {(user?.name || 'F')[0].toUpperCase()}
               </div>
               <div className="min-w-0 flex-1 overflow-hidden">
-                <span className="block text-xs font-bold text-white truncate whitespace-nowrap">
+                <span className="block text-xs font-bold text-white truncate group-hover:text-slate-100">
                   {user?.name || 'Faculty Member'}
                 </span>
-                <span className="block text-[11px] text-[#38BDF8] truncate font-mono whitespace-nowrap">
-                  {user?.degree || 'Lead Instructor'}
+                <span className="block text-[10px] text-[#FB7185] truncate font-mono uppercase font-bold tracking-wider">
+                  {user?.degree || 'Academic Program'}
                 </span>
               </div>
             </div>
@@ -925,12 +934,14 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
             /* Collapsed Profile Icon with Floating Tooltip */
             <div className="relative group flex justify-center">
               <div
-                className="w-11 h-11 mx-auto rounded-xl bg-[#1E3A5F] text-[#38BDF8] text-sm font-bold flex items-center justify-center border border-[#38BDF8]/30 cursor-default shadow-xs transition-transform duration-200 group-hover:scale-105"
+                onClick={() => handleTabChange('profile')}
+                className="w-11 h-11 mx-auto rounded-xl bg-gradient-to-br from-[#FB7185] to-[#E11D48] text-white text-sm font-bold flex items-center justify-center cursor-pointer shadow-xs ring-2 ring-slate-700/80 hover:ring-[#FB7185]/50 transition-transform duration-200 group-hover:scale-105"
+                title={`${user?.name || 'Faculty Member'} (Click for profile)`}
               >
                 {(user?.name || 'F')[0].toUpperCase()}
               </div>
-              <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0F1E2E] text-white text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:block">
-                {user?.name || 'Faculty Member'} ({user?.degree || 'Instructor'})
+              <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0B111C] text-white text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:block">
+                {user?.name || 'Faculty Member'}
               </span>
             </div>
           )}
@@ -943,7 +954,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                 logout();
                 if (onNavigate) onNavigate('staff-login');
               }}
-              className={`rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-400 text-slate-300 text-xs font-semibold flex items-center justify-center border border-slate-700/80 transition-all cursor-pointer ${
+              className={`rounded-xl bg-slate-900/80 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 text-xs font-semibold flex items-center justify-center border border-slate-800 hover:border-rose-900/50 transition-all cursor-pointer ${
                 isSidebarCollapsed ? 'w-11 h-11 mx-auto' : 'w-full py-2 px-3 gap-2'
               }`}
             >
@@ -951,7 +962,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               {!isSidebarCollapsed && <span>Sign Out</span>}
             </button>
             {isSidebarCollapsed && (
-              <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0F1E2E] text-rose-400 text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:block">
+              <span className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#0B111C] text-rose-400 text-xs font-semibold tracking-wide shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 translate-x-1 group-hover:translate-x-0 hidden lg:block">
                 Sign Out
               </span>
             )}
@@ -971,15 +982,15 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
             <button
               type="button"
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-[#F4F8F8] hover:bg-slate-200/80 text-[#0F1E2E] transition-colors border border-[#CBD5E1] cursor-pointer shadow-2xs shrink-0 flex items-center justify-center"
+              className="lg:hidden p-2 rounded-xl bg-[#F4F8F8] hover:bg-slate-200/80 text-slate-800 transition-colors border border-[#CBD5E1] cursor-pointer shadow-2xs shrink-0 flex items-center justify-center"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
-              <HamburgerIcon isOpen={isMobileSidebarOpen} className="w-5 h-5 text-[#0F1E2E]" />
+              <HamburgerIcon isOpen={isMobileSidebarOpen} className="w-5 h-5 text-slate-800" />
             </button>
 
             <div className="min-w-0">
-              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-[#0F1E2E] font-display truncate">
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 font-display truncate">
                 {activeTab === 'overview' && 'Faculty Executive Overview'}
                 {activeTab === 'classes' && 'Course Classes & Episodes Curriculum'}
                 {activeTab === 'progress' && 'Student Progress & Attendance Tracking'}
@@ -1001,7 +1012,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               <button
                 type="button"
                 onClick={handleOpenNewClassModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">Upload Class</span>
@@ -1015,7 +1026,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   const input = document.getElementById('announcement-title-input');
                   if (input) input.focus();
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">New Notice</span>
@@ -1024,7 +1035,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
             {/* Clean Faculty Staff Identity Pill */}
             <div className="flex items-center gap-2 sm:gap-2.5 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3 py-1 rounded-2xl bg-[#F4F8F8] border border-[#CBD5E1] shadow-2xs">
-              <div className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0F1E2E] text-white text-xs font-bold shrink-0 shadow-xs">
+              <div className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0B111C] text-white text-xs font-bold shrink-0 shadow-xs ring-1 ring-slate-300">
                 {(user?.name || user?.email || 'F').charAt(0).toUpperCase()}
                 <span
                   className="absolute -bottom-0.5 -right-0.5 w-2 sm:w-2.5 h-2 sm:h-2.5 bg-emerald-500 border-2 border-white rounded-full"
@@ -1032,7 +1043,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                 />
               </div>
               <div className="hidden sm:flex flex-col text-left leading-tight min-w-0">
-                <span className="text-xs font-bold text-[#0F1E2E] truncate max-w-[130px] md:max-w-[180px]">
+                <span className="text-xs font-bold text-slate-900 truncate max-w-[130px] md:max-w-[180px]">
                   {user?.name || 'Faculty Staff'}
                 </span>
                 <span
@@ -1042,8 +1053,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   {user?.email}
                 </span>
               </div>
-              <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#0284C7]/10 text-[#0284C7] uppercase tracking-wider shrink-0 border border-[#0284C7]/20">
-                Staff
+              <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-[#EE2D02]/10 text-[#EE2D02] uppercase tracking-wider shrink-0 border border-[#EE2D02]/20">
+                Faculty
               </span>
             </div>
           </div>
@@ -1126,8 +1137,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               {/* Upcoming Lecture & Quick Actions */}
               <div className="lg:col-span-7 space-y-6">
                 {/* Today's Live Class Banner with Staff Navy Background */}
-                <div className="bg-[#0F1E2E] text-white border border-slate-800 rounded-[22px] p-6 relative overflow-hidden shadow-md">
-                  <div className="flex items-center gap-2 text-[#38BDF8] text-xs font-mono font-bold mb-2">
+                <div className="bg-[#0C121E] text-white border border-[#E11D48]/30 rounded-[22px] p-6 relative overflow-hidden shadow-lg">
+                  <div className="flex items-center gap-2 text-[#FB7185] text-xs font-mono font-bold mb-2">
                     <Calendar className="w-4 h-4" />
                     <span>TODAY'S SCHEDULED LIVE LECTURE</span>
                   </div>
@@ -1143,7 +1154,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       href="https://meet.google.com"
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-[0.99]"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-[0.99]"
                     >
                       <Video className="w-3.5 h-3.5" />
                       <span>Launch Faculty Meeting Room</span>
@@ -1155,7 +1166,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       onClick={() => handleTabChange('classes')}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold border border-white/10 cursor-pointer transition-all"
                     >
-                      <Film className="w-3.5 h-3.5 text-[#38BDF8]" />
+                      <Film className="w-3.5 h-3.5 text-[#FB7185]" />
                       <span>Manage Course Classes ({classesList.length})</span>
                     </button>
                   </div>
@@ -1286,9 +1297,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   <button
                     type="button"
                     onClick={handleOpenNewClassModal}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B111C] hover:bg-[#161F30] text-white text-xs font-bold border border-slate-800 shadow-xs transition-all cursor-pointer shrink-0"
                   >
-                    <Plus className="w-4 h-4 text-[#38BDF8]" />
+                    <Plus className="w-4 h-4 text-[#FB7185]" />
                     <span>Upload New Class</span>
                   </button>
                 </div>
@@ -1372,9 +1383,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   <button
                     type="button"
                     onClick={handleOpenNewClassModal}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F1E2E] text-white text-xs font-bold cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B111C] hover:bg-[#161F30] text-white text-xs font-bold border border-slate-800 cursor-pointer"
                   >
-                    <Plus className="w-4 h-4 text-[#38BDF8]" />
+                    <Plus className="w-4 h-4 text-[#FB7185]" />
                     <span>Upload First Class</span>
                   </button>
                 </div>
@@ -1427,8 +1438,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
                           {/* Post-Class Summary: What was taught */}
                           {cls.summary && (
-                            <div className="p-2.5 rounded-xl bg-teal-50/70 border border-teal-100/90 text-[11px] text-teal-950 leading-relaxed">
-                              <span className="font-bold text-[#0B4F50] block text-[10px] uppercase font-mono tracking-wider mb-0.5">
+                            <div className="p-2.5 rounded-xl bg-sky-50/70 border border-sky-100/90 text-[11px] text-slate-900 leading-relaxed">
+                              <span className="font-bold text-[#0284C7] block text-[10px] uppercase font-mono tracking-wider mb-0.5">
                                 What Was Taught (Post-Class Summary)
                               </span>
                               <p className="line-clamp-3">{cls.summary}</p>
@@ -1619,10 +1630,10 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       </div>
 
                       {/* Section 3: Post-Class Summary (What was taught) */}
-                      <div className="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-200/80 space-y-1.5">
-                        <label className="block font-bold text-[#0B4F50] flex items-center justify-between">
+                      <div className="p-3.5 rounded-2xl bg-sky-50/70 border border-sky-200/80 space-y-1.5">
+                        <label className="block font-bold text-[#0284C7] flex items-center justify-between">
                           <span>Post-Class Summary: What Was Taught *</span>
-                          <span className="text-[10px] font-mono text-teal-700 bg-teal-100/60 px-2 py-0.5 rounded">
+                          <span className="text-[10px] font-mono text-sky-700 bg-sky-100/60 px-2 py-0.5 rounded">
                             Updated After Class
                           </span>
                         </label>
@@ -1631,7 +1642,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                           placeholder="Record key topics covered, architecture patterns demonstrated, student questions answered, and core takeaways..."
                           value={classForm.summary}
                           onChange={(e) => setClassForm({ ...classForm, summary: e.target.value })}
-                          className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:border-[#0B4F50] outline-none leading-relaxed"
+                          className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-xl text-[#0F1E2E] placeholder-slate-400 focus:border-[#0284C7] outline-none leading-relaxed"
                         />
                       </div>
 
@@ -1970,9 +1981,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                 <button
                   type="button"
                   onClick={handleOpenNewCourseModal}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F1E2E] hover:bg-slate-800 text-white text-xs font-bold shadow-xs cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B111C] hover:bg-[#161F30] text-white text-xs font-bold border border-slate-800 shadow-xs cursor-pointer shrink-0"
                 >
-                  <Plus className="w-4 h-4 text-[#38BDF8]" />
+                  <Plus className="w-4 h-4 text-[#FB7185]" />
                   <span>+ Create New Course</span>
                 </button>
               </div>
@@ -2368,7 +2379,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               {/* Profile Overview Card */}
               <div className="bg-white border border-[#CBD5E1] rounded-[22px] p-6 sm:p-8 shadow-xs relative overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 pb-6 border-b border-slate-100">
-                  <div className="w-20 h-20 rounded-2xl bg-[#0F1E2E] text-white text-2xl font-bold flex items-center justify-center border-2 border-[#38BDF8]/40 shadow-md shrink-0">
+                  <div className="w-20 h-20 rounded-2xl bg-[#0B111C] text-white text-2xl font-bold flex items-center justify-center border-2 border-[#E11D48]/40 shadow-md shrink-0">
                     {(user?.name || user?.email || 'F')[0].toUpperCase()}
                   </div>
 
@@ -2549,13 +2560,13 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   </div>
 
                   {/* Daily Lecture Release Time configuration */}
-                  <div className="p-3.5 rounded-2xl bg-teal-50/80 border border-teal-200/80 space-y-1.5">
-                    <label className="block font-bold text-[#0B4F50] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-sky-50/80 border border-sky-200/80 space-y-1.5">
+                    <label className="block font-bold text-[#0284C7] flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-[#0B4F50]" />
+                        <Clock className="w-4 h-4 text-[#0284C7]" />
                         <span>Daily Lecture Release Time *</span>
                       </span>
-                      <span className="text-[10px] font-mono text-teal-700 bg-teal-100/70 px-2 py-0.5 rounded font-bold">
+                      <span className="text-[10px] font-mono text-sky-700 bg-sky-100/70 px-2 py-0.5 rounded font-bold">
                         Individual Day-by-Day Release
                       </span>
                     </label>
@@ -2565,9 +2576,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                         required
                         value={courseForm.dailyReleaseTime}
                         onChange={(e) => setCourseForm({ ...courseForm, dailyReleaseTime: e.target.value })}
-                        className="px-3 py-2 bg-white border border-teal-300 rounded-xl text-[#0F1E2E] font-mono font-bold text-sm outline-none focus:border-[#0B4F50]"
+                        className="px-3 py-2 bg-white border border-sky-300 rounded-xl text-[#0F1E2E] font-mono font-bold text-sm outline-none focus:border-[#0284C7]"
                       />
-                      <span className="text-[11px] text-teal-900 leading-snug">
+                      <span className="text-[11px] text-slate-700 leading-snug">
                         Every day's video and test automatically unlocks at this scheduled time based on each student's individual start date.
                       </span>
                     </div>
@@ -2700,7 +2711,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                                 App #: <strong className="text-slate-700">{app.applicationNumber || app.id.slice(0, 10)}</strong>
                               </span>
                               <span>•</span>
-                              <span className="text-[10px] font-mono text-[#0B4F50] font-semibold">
+                              <span className="text-[10px] font-mono text-sky-700 font-semibold">
                                 Start Date: {app.formData?.startDate || app.createdAt?.split('T')[0] || 'Day 1'}
                               </span>
                             </div>

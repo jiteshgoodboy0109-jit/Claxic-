@@ -140,40 +140,40 @@ export const HomeView = ({
   const publishedCourses = courses.filter((c) => c.status === 'PUBLISHED' || c.status === 'FULL');
 
   return (
-    <div className="space-y-12 pb-20 font-sans text-slate-900 bg-[#f6fafa]">
+    <div className="space-y-12 pb-20 font-sans text-slate-900 bg-[#F8FAFC]">
       {/* 1. COMPACT, ATTRACTIVE HERO SECTION */}
-      <section className="relative pt-9 sm:pt-12 pb-24 sm:pb-28 bg-[#083E40] text-white overflow-hidden">
-        {/* Subtle Ambient Radial Lighting */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(20,184,166,0.3),transparent)] pointer-events-none" />
+      <section className="relative pt-10 sm:pt-14 pb-24 sm:pb-28 bg-[#0B0E14] text-white overflow-hidden">
+        {/* Subtle Ambient Radial Lighting in Brand Vermilion */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(238,45,2,0.22),transparent)] pointer-events-none" />
         
-        {/* Botanical Watermark */}
-        <div className="absolute top-0 right-0 opacity-15 pointer-events-none">
-          <svg width="220" height="220" viewBox="0 0 100 100" fill="none" stroke="#FDE047" strokeWidth="1.2">
-            <path d="M10,90 Q50,10 90,50 Q60,80 10,90 Z" />
-            <path d="M10,90 Q30,50 90,50" />
-            <path d="M30,70 Q45,55 55,60" />
-          </svg>
-        </div>
+        {/* Modern Brand Grid Ambient Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-2xl mx-auto space-y-3.5">
-
-
+            {/* Pill Tag */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white">
+              <Sparkles className="w-3.5 h-3.5 text-[#EE2D02]" />
+              <span>Industry-Accredited Engineering Tracks</span>
+            </div>
 
             {/* Headline */}
             <h1 className="text-2xl sm:text-4xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
               Master Production Systems & Advanced Engineering.
             </h1>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+              Cohort-based technical specializations taught by senior principal architects.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* 2. DIRECT ADMISSIONS REGISTRATION FORM CARD (ELEVATED WITH RICH BACKGROUND SHADOW) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 -mt-16 sm:-mt-20 relative z-20">
-        <div className="bg-white border border-[#d8ecec]/90 rounded-[32px] sm:rounded-[36px] p-6 sm:p-10 shadow-[0_25px_60px_-15px_rgba(8,62,64,0.28),0_12px_30px_-5px_rgba(0,0,0,0.12)] space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#eef7f7] pb-5">
+      {/* 2. DIRECT ADMISSIONS REGISTRATION FORM CARD */}
+      <section className="max-w-4xl mx-auto px-3 sm:px-6 -mt-16 sm:-mt-20 relative z-20">
+        <div className="bg-white border border-slate-200/90 rounded-[24px] sm:rounded-[36px] p-4 sm:p-8 lg:p-10 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.12),0_12px_30px_-5px_rgba(0,0,0,0.06)] space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
-              <span className="text-xs font-semibold text-[#0B4F50] uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-[#EE2D02] uppercase tracking-wider block">
                 Direct Candidate Admissions
               </span>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
@@ -181,9 +181,9 @@ export const HomeView = ({
               </h2>
             </div>
             {selectedCourse && (
-              <div className="bg-[#f2f7f7] px-4 py-2 rounded-2xl border border-[#d8ecec] text-left sm:text-right">
+              <div className="bg-[#FFF1EE] px-4 py-2 rounded-2xl border border-[#FFD4CC] text-left sm:text-right">
                 <span className="text-[10px] text-slate-500 block uppercase font-medium">Program Tuition</span>
-                <span className="text-lg font-bold text-[#0B4F50]">
+                <span className="text-lg font-bold text-[#EE2D02]">
                   ₹{selectedCourse.price.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -220,7 +220,7 @@ export const HomeView = ({
               <select
                 value={selectedCourseId}
                 onChange={(e) => setSelectedCourseId(e.target.value)}
-                className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-3 text-sm text-slate-900 outline-none font-semibold transition-all cursor-pointer"
+                className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-3 text-sm text-slate-900 outline-none font-semibold transition-all cursor-pointer"
               >
                 {publishedCourses.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -242,7 +242,7 @@ export const HomeView = ({
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. Priya Sharma"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
 
@@ -256,7 +256,7 @@ export const HomeView = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. priya.sharma@domain.com"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
@@ -271,8 +271,8 @@ export const HomeView = ({
                     </span>
                   )}
                 </label>
-                <div className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus-within:bg-white border border-[#d8ecec] focus-within:border-[#0B4F50] focus-within:ring-2 focus-within:ring-[#0B4F50]/15 rounded-full flex items-center transition-all overflow-hidden">
-                  <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 sm:py-3 border-r border-[#d8ecec] select-none shrink-0 bg-[#e5f0f0]/60 text-slate-800 font-mono font-bold text-xs sm:text-sm">
+                <div className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus-within:bg-white border border-slate-200 focus-within:border-[#EE2D02] focus-within:ring-2 focus-within:ring-[#EE2D02]/15 rounded-full flex items-center transition-all overflow-hidden">
+                  <div className="flex items-center gap-1.5 pl-3.5 pr-2.5 py-2.5 sm:py-3 border-r border-slate-200 select-none shrink-0 bg-slate-100/70 text-slate-800 font-mono font-bold text-xs sm:text-sm">
                     <span className="text-sm leading-none">🇮🇳</span>
                     <span>+91</span>
                   </div>
@@ -284,7 +284,7 @@ export const HomeView = ({
                     value={mobile}
                     onChange={handleMobileChange}
                     placeholder="Enter 10-digit mobile"
-                    className="w-full bg-transparent px-3.5 py-2.5 sm:py-3 text-sm text-slate-900 outline-none font-mono placeholder:font-sans placeholder:text-slate-400"
+                    className="w-full min-w-0 flex-1 bg-transparent px-3.5 py-2.5 sm:py-3 text-sm text-slate-900 outline-none font-mono placeholder:font-sans placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -298,7 +298,7 @@ export const HomeView = ({
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
                   placeholder="Stanford / Microsoft"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
 
@@ -311,7 +311,7 @@ export const HomeView = ({
                   value={degree}
                   onChange={(e) => setDegree(e.target.value)}
                   placeholder="B.Tech CS / SDE 2"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
@@ -325,7 +325,7 @@ export const HomeView = ({
                 <select
                   value={batch}
                   onChange={(e) => setBatch(e.target.value)}
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none font-medium transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none font-medium transition-all"
                 >
                   <option value="Weekend Evening">Weekend Evening (Sat & Sun 6:00 - 9:00 PM IST)</option>
                   <option value="Weekday Morning">Weekday Morning (Tue & Thu 7:30 - 9:30 AM IST)</option>
@@ -342,7 +342,7 @@ export const HomeView = ({
                   required
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2 sm:py-2.5 text-sm text-slate-900 outline-none font-mono font-semibold transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2 sm:py-2.5 text-sm text-slate-900 outline-none font-mono font-semibold transition-all"
                 />
               </div>
 
@@ -355,22 +355,22 @@ export const HomeView = ({
                   value={sop}
                   onChange={(e) => setSop(e.target.value)}
                   placeholder="e.g. Lead Staff Architect interviews"
-                  className="w-full bg-[#f2f7f7] hover:bg-[#ebf4f4] focus:bg-white border border-[#d8ecec] focus:border-[#0B4F50] focus:ring-2 focus:ring-[#0B4F50]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
+                  className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 sm:py-3 text-sm text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="pt-4 border-t border-[#eef7f7] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
               <div className="text-xs text-slate-500 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#EE2D02] shrink-0" />
                 <span>Verified Razorpay Gateway & Instant PDF Tax Invoice</span>
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto px-8 py-3.5 bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3.5 bg-[#EE2D02] hover:bg-[#D42700] text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg shadow-[#EE2D02]/25 transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <span>{user ? 'Submit Application & Reserve Seat' : 'Sign In & Submit Application'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -381,10 +381,10 @@ export const HomeView = ({
       </section>
 
       {/* 3. CATALOG REDIRECT BANNER */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="p-6 rounded-[28px] bg-white border border-[#d8ecec] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <section className="max-w-4xl mx-auto px-3 sm:px-6">
+        <div className="p-4 sm:p-6 rounded-[24px] sm:rounded-[28px] bg-white border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#eef7f7] text-[#0B4F50] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] flex items-center justify-center shrink-0">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
@@ -399,7 +399,7 @@ export const HomeView = ({
 
           <button
             onClick={() => onNavigate('courses')}
-            className="px-5 py-2.5 rounded-full bg-[#eef7f7] hover:bg-[#e2f0f0] text-[#0B4F50] font-bold text-xs border border-[#cbe4e4] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#FFF1EE] hover:bg-[#FFE5E0] text-[#EE2D02] font-bold text-xs border border-[#FFD4CC] transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
           >
             <span>Browse Catalog</span>
             <ChevronRight className="w-4 h-4" />
@@ -410,7 +410,7 @@ export const HomeView = ({
       {/* 4. VALUE PILLARS: WHY CLAXIC COHORTS */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-2">
         <div className="text-center max-w-xl mx-auto mb-8 space-y-1.5">
-          <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+          <span className="text-xs font-bold text-[#EE2D02] uppercase tracking-wider">
             Pedagogical Excellence
           </span>
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -422,8 +422,8 @@ export const HomeView = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white border border-[#d8ecec] p-6 rounded-[24px] space-y-3 shadow-2xs hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-2xl bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] flex items-center justify-center">
+          <div className="bg-white border border-slate-200/90 p-6 rounded-[24px] space-y-3 shadow-2xs hover:shadow-md hover:border-[#FFD4CC] transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] flex items-center justify-center">
               <Layers className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Production-Scale Architecture</h3>
@@ -432,8 +432,8 @@ export const HomeView = ({
             </p>
           </div>
 
-          <div className="bg-white border border-[#d8ecec] p-6 rounded-[24px] space-y-3 shadow-2xs hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-2xl bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] flex items-center justify-center">
+          <div className="bg-white border border-slate-200/90 p-6 rounded-[24px] space-y-3 shadow-2xs hover:shadow-md hover:border-[#FFD4CC] transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] flex items-center justify-center">
               <Code2 className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Direct 1-on-1 Mentorship</h3>
@@ -442,8 +442,8 @@ export const HomeView = ({
             </p>
           </div>
 
-          <div className="bg-white border border-[#d8ecec] p-6 rounded-[24px] space-y-3 shadow-2xs hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-2xl bg-[#eef7f7] text-[#0B4F50] border border-[#cbe4e4] flex items-center justify-center">
+          <div className="bg-white border border-slate-200/90 p-6 rounded-[24px] space-y-3 shadow-2xs hover:shadow-md hover:border-[#FFD4CC] transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] flex items-center justify-center">
               <Award className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Verifiable Invoices & Certificates</h3>

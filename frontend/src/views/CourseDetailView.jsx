@@ -25,9 +25,9 @@ export const CourseDetailView = ({
 }) => {
   if (!course) {
     return (
-      <div className="min-h-screen bg-[#f6fafa] flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
-          <div className="w-10 h-10 rounded-full border-2 border-[#0B4F50] border-t-transparent animate-spin mx-auto" />
+          <div className="w-10 h-10 rounded-full border-2 border-[#EE2D02] border-t-transparent animate-spin mx-auto" />
           <h3 className="text-base font-bold text-slate-900">Loading Course Program...</h3>
           <p className="text-xs text-slate-500">Retrieving curriculum, syllabus, and enrollment details.</p>
         </div>
@@ -40,13 +40,13 @@ export const CourseDetailView = ({
     .slice(0, 3);
 
   return (
-    <div className="pb-24 space-y-16 font-sans text-slate-900 bg-[#f6fafa] min-h-screen">
+    <div className="pb-24 space-y-16 font-sans text-slate-900 bg-[#F8FAFC] min-h-screen">
       {/* Top Banner */}
-      <section className="relative pt-10 pb-16 bg-white border-b border-[#d8ecec] shadow-2xs">
+      <section className="relative pt-10 pb-16 bg-white border-b border-slate-200/90 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-2 text-xs text-[#0B4F50] hover:text-[#073637] mb-8 transition-colors font-bold cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs text-[#EE2D02] hover:text-[#D42700] mb-8 transition-colors font-bold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to All Programs</span>
@@ -55,13 +55,13 @@ export const CourseDetailView = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
             <div className="lg:col-span-2 space-y-6">
               <div className="flex flex-wrap gap-2.5">
-                <span className="px-3.5 py-1 rounded-full bg-emerald-50 text-[#0B4F50] border border-[#cbe4e4] text-xs font-bold">
+                <span className="px-3.5 py-1 rounded-full bg-[#FFF1EE] text-[#EE2D02] border border-[#FFD4CC] text-xs font-bold">
                   {course.category}
                 </span>
-                <span className="px-3.5 py-1 rounded-full bg-[#f2f7f7] text-[#0B4F50] border border-[#d8ecec] text-xs font-medium">
+                <span className="px-3.5 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200 text-xs font-medium">
                   {course.level}
                 </span>
-                <span className="px-3.5 py-1 rounded-full bg-[#083E40] text-white text-xs font-medium">
+                <span className="px-3.5 py-1 rounded-full bg-[#0B0E14] text-white text-xs font-medium">
                   {course.mode}
                 </span>
               </div>
@@ -75,7 +75,7 @@ export const CourseDetailView = ({
               </p>
 
               {/* Key Meta Badges */}
-              <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-[#f2f7f7] text-xs">
+              <div className="pt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 border-t border-slate-100 text-xs">
                 <div>
                   <span className="text-slate-500 block uppercase font-medium text-[11px]">Duration</span>
                   <span className="text-slate-900 font-bold text-sm mt-0.5 block">{course.duration}</span>
@@ -90,7 +90,7 @@ export const CourseDetailView = ({
                 </div>
                 <div>
                   <span className="text-slate-500 block uppercase font-medium text-[11px]">Seat Availability</span>
-                  <span className="text-[#0B4F50] font-bold text-sm mt-0.5 block">
+                  <span className="text-[#EE2D02] font-bold text-sm mt-0.5 block">
                     {course.capacity - course.enrolledCount} / {course.capacity} Remaining
                   </span>
                 </div>
@@ -98,11 +98,11 @@ export const CourseDetailView = ({
             </div>
 
             {/* Sidebar Pricing Box */}
-            <div className="bg-white border border-[#d8ecec] p-8 rounded-[32px] space-y-6 shadow-md sticky top-28">
+            <div className="bg-white border border-slate-200/90 p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] space-y-6 shadow-md sticky top-28">
               <div className="space-y-1">
                 <span className="text-xs text-slate-500 uppercase block font-semibold">Tuition Fee</span>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-extrabold text-[#083E40]">
+                  <span className="text-3xl font-extrabold text-slate-900">
                     ₹{course.price.toLocaleString('en-IN')}
                   </span>
                   {course.originalPrice && (
@@ -111,7 +111,7 @@ export const CourseDetailView = ({
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-[#0B4F50] block pt-1 font-semibold">
+                <span className="text-xs text-[#EE2D02] block pt-1 font-semibold">
                   Includes 18% GST Tax Receipt & Lifetime Materials Access
                 </span>
               </div>
@@ -120,7 +120,7 @@ export const CourseDetailView = ({
                 <button
                   disabled={course.status === 'FULL'}
                   onClick={() => onApply(course)}
-                  className="w-full py-3.5 px-6 rounded-full bg-[#0B4F50] hover:bg-[#073637] text-white font-bold text-sm shadow-md hover:shadow-lg disabled:opacity-50 transition-all cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-full bg-[#EE2D02] hover:bg-[#D42700] text-white font-bold text-sm shadow-md hover:shadow-lg shadow-[#EE2D02]/25 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {course.status === 'FULL' ? 'Cohort Capacity Reached' : 'Apply & Reserve Seat'}
                 </button>
@@ -129,17 +129,17 @@ export const CourseDetailView = ({
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-[#f2f7f7] space-y-2.5 text-xs text-slate-700 font-medium">
+              <div className="pt-4 border-t border-slate-100 space-y-2.5 text-xs text-slate-700 font-medium">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#EE2D02] shrink-0" />
                   <span>Live Interactive Workshops + 4K Recordings</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#EE2D02] shrink-0" />
                   <span>1-on-1 Architecture Code Reviews</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#EE2D02] shrink-0" />
                   <span>Verified Claxic Credential Certificate</span>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export const CourseDetailView = ({
         {course.modules && course.modules.length > 0 && (
           <div className="space-y-6">
             <div className="space-y-1">
-              <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#EE2D02] uppercase tracking-wider">
                 Full Syllabus & Structure
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -165,9 +165,9 @@ export const CourseDetailView = ({
 
             <div className="space-y-4">
               {course.modules.map((mod, idx) => (
-                <div key={mod.id || idx} className="p-6 sm:p-7 rounded-[24px] bg-white border border-[#d8ecec] shadow-2xs space-y-3 hover:border-[#b4dede] transition-all">
+                <div key={mod.id || idx} className="p-6 sm:p-7 rounded-[24px] bg-white border border-slate-200/90 shadow-2xs space-y-3 hover:border-[#FFD4CC] transition-all">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#0B4F50] font-bold uppercase tracking-wide">
+                    <span className="text-xs text-[#EE2D02] font-bold uppercase tracking-wide">
                       Module {idx + 1} • {mod.duration}
                     </span>
                   </div>
@@ -175,7 +175,7 @@ export const CourseDetailView = ({
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-700 pt-2 font-medium">
                     {mod.topics && mod.topics.map((top, tIdx) => (
                       <li key={tIdx} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#EE2D02] shrink-0" />
                         <span>{top}</span>
                       </li>
                     ))}
@@ -190,7 +190,7 @@ export const CourseDetailView = ({
         {course.instructor && (
           <div className="space-y-6">
             <div className="space-y-1">
-              <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#EE2D02] uppercase tracking-wider">
                 Academic Faculty
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -198,7 +198,7 @@ export const CourseDetailView = ({
               </h2>
             </div>
 
-            <div className="p-8 rounded-[32px] bg-white border border-[#d8ecec] shadow-2xs space-y-6">
+            <div className="p-8 rounded-[32px] bg-white border border-slate-200/90 shadow-2xs space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <img
                   src={
@@ -210,7 +210,7 @@ export const CourseDetailView = ({
                       ? course.instructor?.name || 'Faculty Member'
                       : course.instructor
                   }
-                  className="w-20 h-20 rounded-full object-cover border-2 border-[#d8ecec] shadow-sm shrink-0"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-slate-200 shadow-sm shrink-0"
                   onError={(e) => {
                     const name = typeof course.instructor === 'object' ? course.instructor?.name || 'Faculty' : course.instructor;
                     e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(name);
@@ -222,7 +222,7 @@ export const CourseDetailView = ({
                       ? course.instructor?.name || 'Faculty Member'
                       : course.instructor}
                   </h3>
-                  <p className="text-xs text-[#0B4F50] font-bold">
+                  <p className="text-xs text-[#EE2D02] font-bold">
                     {typeof course.instructor === 'object'
                       ? course.instructor?.title || 'Lead Faculty Instructor'
                       : 'Lead Faculty Instructor'}
@@ -235,7 +235,7 @@ export const CourseDetailView = ({
                 </div>
               </div>
               {typeof course.instructor === 'object' && course.instructor?.bio && (
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal border-t border-[#f2f7f7] pt-4">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal border-t border-slate-100 pt-4">
                   {course.instructor.bio}
                 </p>
               )}
@@ -247,7 +247,7 @@ export const CourseDetailView = ({
         {course.faq && course.faq.length > 0 && (
           <div className="space-y-6">
             <div className="space-y-1">
-              <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#EE2D02] uppercase tracking-wider">
                 Admissions & Logistics
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -257,9 +257,9 @@ export const CourseDetailView = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {course.faq.map((f, idx) => (
-                <div key={idx} className="p-6 rounded-[24px] bg-white border border-[#d8ecec] shadow-2xs space-y-2">
+                <div key={idx} className="p-6 rounded-[24px] bg-white border border-slate-200/90 shadow-2xs space-y-2">
                   <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-[#0B4F50] shrink-0" />
+                    <HelpCircle className="w-4 h-4 text-[#EE2D02] shrink-0" />
                     <span>{f.question}</span>
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed font-normal">{f.answer}</p>
@@ -271,10 +271,10 @@ export const CourseDetailView = ({
 
         {/* Related Specialization Tracks */}
         {related.length > 0 && (
-          <div className="pt-12 border-t border-[#d8ecec] space-y-6">
+          <div className="pt-12 border-t border-slate-200 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-[#0B4F50] uppercase tracking-wider">Related Specializations</span>
+                <span className="text-xs font-bold text-[#EE2D02] uppercase tracking-wider">Related Specializations</span>
                 <h3 className="text-xl font-bold text-slate-900 mt-0.5">Explore Complementary Cohorts</h3>
               </div>
             </div>

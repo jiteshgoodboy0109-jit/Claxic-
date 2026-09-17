@@ -56,16 +56,16 @@ export const Footer = ({ onNavigate }) => {
   ];
 
   return (
-    <footer className="bg-[#083E40] border-t border-[#0e5254] text-teal-100/75 text-sm font-sans relative">
+    <footer className="bg-[#0B0E14] border-t border-[#1F2633] text-slate-400 text-sm font-sans relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         
         {/* Main 3-Column Content Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-10 pb-8 border-b border-[#0e5254] items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-10 pb-8 border-b border-[#1F2633] items-start">
           
           {/* Column 1: Brand Logo */}
           <div className="md:col-span-4 lg:col-span-5 flex items-start">
             <img
-              src="/logow.png"
+              src="/logo.png"
               alt="Claxic"
               className="h-7 sm:h-8 w-auto object-contain cursor-pointer transition-opacity hover:opacity-90"
               onClick={() => onNavigate && onNavigate('home')}
@@ -136,9 +136,9 @@ export const Footer = ({ onNavigate }) => {
             <div>
               <a
                 href="mailto:support.claxic@gmail.com"
-                className="inline-flex items-center gap-2.5 text-xs text-teal-100/80 hover:text-white transition-colors group"
+                className="inline-flex items-center gap-2.5 text-xs text-slate-400 hover:text-white transition-colors group"
               >
-                <div className="w-6 h-6 rounded-md bg-teal-900/60 border border-teal-700/50 flex items-center justify-center text-teal-300 group-hover:text-white group-hover:border-teal-400 transition-colors shrink-0">
+                <div className="w-6 h-6 rounded-md bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 group-hover:text-[#EE2D02] group-hover:border-[#EE2D02]/40 transition-colors shrink-0">
                   <Mail className="w-3.5 h-3.5" />
                 </div>
                 <span>support.claxic@gmail.com</span>
@@ -147,7 +147,7 @@ export const Footer = ({ onNavigate }) => {
 
             {/* Social Media Links */}
             <div className="pt-1 space-y-2">
-              <p className="text-[11px] font-medium text-teal-200/70">Follow our community</p>
+              <p className="text-[11px] font-medium text-slate-500">Follow our community</p>
               <div className="flex items-center flex-wrap gap-2">
                 {socialLinks.map((item) => (
                   <a
@@ -156,7 +156,7 @@ export const Footer = ({ onNavigate }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={item.name}
-                    className={`w-8 h-8 rounded-lg bg-teal-900/50 border border-teal-700/60 flex items-center justify-center text-teal-200/90 transition-all duration-200 hover:-translate-y-0.5 shadow-xs cursor-pointer ${item.hoverColor}`}
+                    className={`w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 transition-all duration-200 hover:-translate-y-0.5 hover:text-white hover:border-slate-700 shadow-xs cursor-pointer ${item.hoverColor}`}
                   >
                     {item.icon}
                   </a>
@@ -168,9 +168,9 @@ export const Footer = ({ onNavigate }) => {
         </div>
 
         {/* Clean Bottom Bar */}
-        <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-teal-100/60">
+        <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 text-center sm:text-left">
           <p>© {new Date().getFullYear()} Claxic. All rights reserved.</p>
-          <div className="flex items-center gap-4 sm:gap-6 text-[11px]">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 md:gap-6 text-[11px]">
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('home')}

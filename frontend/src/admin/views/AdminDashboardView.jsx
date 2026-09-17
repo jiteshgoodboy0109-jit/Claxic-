@@ -59,6 +59,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { UserEditModal } from '../modals/UserEditModal.jsx';
+import { AppointStaffModal } from '../modals/AppointStaffModal.jsx';
 import {
   exportApplicationsPDF,
   exportApplicationDossierPDF,
@@ -96,6 +97,7 @@ export const AdminDashboardView = ({
 
   // Modals state
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
+  const [isAppointStaffModalOpen, setIsAppointStaffModalOpen] = useState(false);
   const [selectedUserToEdit, setSelectedUserToEdit] = useState(null);
   const [activeUserMenuId, setActiveUserMenuId] = useState(null);
 
@@ -700,7 +702,7 @@ export const AdminDashboardView = ({
       {/* ========================================================= */}
       {/* 1. MOBILE TOP NAVIGATION BAR (< lg) */}
       {/* ========================================================= */}
-      <div className="lg:hidden bg-[#18181B] border-b border-stone-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
+      <div className="lg:hidden bg-[#18181B] border-b border-stone-800 px-3 sm:px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -710,8 +712,8 @@ export const AdminDashboardView = ({
           >
             <Menu className="w-5 h-5" />
           </button>
-          <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded border border-[#F59E0B]/30">
+          <img src="/logo.png" alt="Claxic" className="h-6 w-auto object-contain" />
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FBBF24] bg-[#F59E0B]/15 px-2.5 py-0.5 rounded-full border border-[#F59E0B]/35">
             Admin Console
           </span>
         </div>
@@ -746,13 +748,13 @@ export const AdminDashboardView = ({
             onClick={() => setIsMobileSidebarOpen(false)}
           />
 
-          <aside className="fixed inset-y-0 left-0 w-72 bg-[#18181B] border-r border-stone-800 text-stone-300 flex flex-col z-50 shadow-2xl p-5 justify-between animate-in slide-in-from-left duration-200">
+          <aside className="fixed inset-y-0 left-0 w-[280px] sm:w-72 max-w-[85vw] bg-[#18181B] border-r border-stone-800 text-stone-300 flex flex-col z-50 shadow-2xl p-5 justify-between animate-in slide-in-from-left duration-200">
             <div className="space-y-6 overflow-y-auto no-scrollbar flex-1">
               {/* Header */}
               <div className="flex items-center justify-between pb-4 border-b border-stone-800">
                 <div className="flex items-center gap-2.5">
-                  <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded border border-[#F59E0B]/30">
+                  <img src="/logo.png" alt="Claxic" className="h-6 w-auto object-contain" />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FBBF24] bg-[#F59E0B]/15 px-2.5 py-0.5 rounded-full border border-[#F59E0B]/35">
                     Admin Console
                   </span>
                 </div>
@@ -783,19 +785,22 @@ export const AdminDashboardView = ({
                           handleTabChange(item.id);
                           setIsMobileSidebarOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                           isActive
-                            ? 'bg-gradient-to-r from-[#F59E0B]/20 via-[#F59E0B]/10 to-transparent text-white border-l-4 border-[#F59E0B] rounded-r-xl rounded-l-none font-bold'
-                            : 'text-stone-400 hover:text-white hover:bg-stone-800/80'
+                            ? 'bg-[#222329] border border-[#F59E0B]/35 text-white font-bold shadow-[0_2px_12px_rgba(245,158,11,0.14)]'
+                            : 'text-stone-400 hover:text-white hover:bg-stone-800/70'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <Icon className={`w-4 h-4 ${isActive ? 'text-[#F59E0B]' : 'text-stone-400'}`} />
+                        <div className="flex items-center gap-2.5">
+                          {isActive && (
+                            <span className="w-1.5 h-4.5 rounded-full bg-gradient-to-b from-[#FBBF24] to-[#D97706] shadow-[0_0_8px_rgba(245,158,11,0.5)] shrink-0" />
+                          )}
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-[#FBBF24]' : 'text-stone-400'}`} />
                           <span>{item.label}</span>
                         </div>
                         {item.count !== undefined && (
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            isActive ? 'bg-[#F59E0B] text-black' : 'bg-stone-800 text-stone-300 border border-stone-700'
+                            isActive ? 'bg-[#F59E0B] text-black shadow-xs' : 'bg-stone-800 text-stone-300 border border-stone-700'
                           }`}>
                             {item.count}
                           </span>
@@ -855,8 +860,8 @@ export const AdminDashboardView = ({
             {!isSidebarCollapsed ? (
               <>
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <img src="/logow.png" alt="Claxic" className="h-6 w-auto object-contain shrink-0" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded-md border border-[#F59E0B]/30 truncate">
+                  <img src="/logo.png" alt="Claxic" className="h-6 w-auto object-contain shrink-0" />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FBBF24] bg-[#F59E0B]/15 px-2.5 py-0.5 rounded-full border border-[#F59E0B]/35 truncate">
                     Admin Console
                   </span>
                 </div>
@@ -905,23 +910,26 @@ export const AdminDashboardView = ({
                         isSidebarCollapsed
                           ? `justify-center p-2.5 rounded-xl ${
                               isActive
-                                ? 'bg-[#F59E0B]/20 text-[#F59E0B] shadow-xs'
+                                ? 'bg-[#222329] text-[#FBBF24] font-bold border border-[#F59E0B]/35 shadow-[0_2px_10px_rgba(245,158,11,0.2)]'
                                 : 'text-stone-400 hover:text-white hover:bg-stone-800'
                             }`
-                          : `justify-between px-3 py-2.5 text-xs ${
+                          : `justify-between px-3.5 py-2.5 text-xs rounded-xl ${
                               isActive
-                                ? 'bg-gradient-to-r from-[#F59E0B]/20 via-[#F59E0B]/10 to-transparent text-white border-l-4 border-[#F59E0B] rounded-r-xl rounded-l-none font-bold'
-                                : 'text-stone-400 hover:text-white hover:bg-stone-800/70 font-medium rounded-xl'
+                                ? 'bg-[#222329] border border-[#F59E0B]/35 text-white font-bold shadow-[0_2px_12px_rgba(245,158,11,0.14)]'
+                                : 'text-stone-400 hover:text-white hover:bg-stone-800/70 font-medium'
                             }`
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-[#F59E0B]' : 'text-stone-400'}`} />
+                        {!isSidebarCollapsed && isActive && (
+                          <span className="w-1.5 h-4.5 rounded-full bg-gradient-to-b from-[#FBBF24] to-[#D97706] shadow-[0_0_8px_rgba(245,158,11,0.5)] shrink-0" />
+                        )}
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-[#FBBF24]' : 'text-stone-400'}`} />
                         {!isSidebarCollapsed && <span>{item.label}</span>}
                       </div>
                       {!isSidebarCollapsed && item.count !== undefined && (
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          isActive ? 'bg-[#F59E0B] text-black' : 'bg-stone-800 text-stone-300 border border-stone-700'
+                          isActive ? 'bg-[#F59E0B] text-black shadow-xs' : 'bg-stone-800 text-stone-300 border border-stone-700'
                         }`}>
                           {item.count}
                         </span>
@@ -1016,8 +1024,8 @@ export const AdminDashboardView = ({
           </div>
         </header>
 
-        {/* Main Body Content */}
-        <main className="p-6 sm:p-8 lg:p-10 space-y-8 flex-1">
+        {/* 4. MAIN CONTENT AREA */}
+        <main className="p-3.5 sm:p-6 lg:p-10 space-y-6 sm:space-y-8 flex-1 min-w-0">
 
         {/* Error Alert */}
         {error && (
@@ -1052,7 +1060,7 @@ export const AdminDashboardView = ({
               <button
                 type="button"
                 onClick={() => exportExecutiveOverviewPDF({ overviewData, courses, applications, users, payments })}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white border border-stone-700/80 text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
                 title="Download complete executive overview report in official PDF format"
               >
                 <FileText className="w-3.5 h-3.5 text-amber-400" />
@@ -1356,8 +1364,8 @@ export const AdminDashboardView = ({
                 </button>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto [scrollbar-width:thin]">
+                <table className="w-full text-left text-xs min-w-[620px]">
                   <thead>
                     <tr className="border-b border-[#E8E3DC] text-[#6B6258] font-semibold uppercase tracking-wider">
                       <th className="pb-3">Candidate</th>
@@ -1458,7 +1466,7 @@ export const AdminDashboardView = ({
                   <button
                     type="button"
                     onClick={() => exportApplicationsPDF(filteredApplications, statusFilter)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white border border-stone-700/80 text-xs font-bold transition-all shadow-xs cursor-pointer"
                     title="Download complete applications registry in official PDF format with Claxic logo"
                   >
                     <FileText className="w-3.5 h-3.5 text-amber-400" />
@@ -1479,8 +1487,8 @@ export const AdminDashboardView = ({
 
             {/* Applications Table */}
             <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto [scrollbar-width:thin]">
+                <table className="w-full text-left text-xs min-w-[660px]">
                   <thead className="bg-[#FFF7E6] border-b border-[#E8E3DC] text-[#1F1F1F] font-bold uppercase tracking-wider">
                     <tr>
                       <th className="py-3.5 px-4">Application #</th>
@@ -1579,7 +1587,7 @@ export const AdminDashboardView = ({
                 <button
                   type="button"
                   onClick={() => exportCoursesPDF(courses)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white border border-stone-700/80 text-xs font-bold transition-all shadow-xs cursor-pointer"
                   title="Download accredited course catalog in official PDF format with Claxic logo"
                 >
                   <FileText className="w-3.5 h-3.5 text-amber-400" />
@@ -1703,7 +1711,7 @@ export const AdminDashboardView = ({
                 <button
                   type="button"
                   onClick={() => exportFinancialsPDF(payments)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white border border-stone-700/80 text-xs font-bold transition-all shadow-xs cursor-pointer"
                   title="Download complete financial audit and tax settlements report in official PDF format with Claxic logo"
                 >
                   <FileText className="w-3.5 h-3.5 text-amber-400" />
@@ -1716,8 +1724,8 @@ export const AdminDashboardView = ({
             </div>
 
             <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto [scrollbar-width:thin]">
+                <table className="w-full text-left text-xs min-w-[700px]">
                   <thead className="bg-[#FFF7E6] border-b border-[#E8E3DC] text-[#1F1F1F] font-bold uppercase tracking-wider">
                     <tr>
                       <th className="py-3.5 px-4">Receipt / Order</th>
@@ -1809,19 +1817,28 @@ export const AdminDashboardView = ({
                 </div>
                 <button
                   type="button"
+                  onClick={() => setIsAppointStaffModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  title="Directly appoint faculty instructors, evaluators, or administrators"
+                >
+                  <Plus className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Appoint Faculty / Staff</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => exportUsersPDF(filteredUsers)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B4F50] hover:bg-[#073839] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAFAF7] text-[#1F1F1F] border border-[#E8E3DC] text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
                   title="Download user directory report in official PDF format with Claxic logo"
                 >
-                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                  <FileText className="w-3.5 h-3.5 text-amber-600" />
                   <span>Download Users (PDF)</span>
                 </button>
               </div>
             </div>
 
             <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto [scrollbar-width:thin]">
+                <table className="w-full text-left text-xs min-w-[620px]">
                   <thead className="bg-[#FFF7E6] border-b border-[#E8E3DC] text-[#1F1F1F] font-bold uppercase tracking-wider">
                     <tr>
                       <th className="py-3.5 px-4">Student / Staff Profile</th>
@@ -2069,10 +2086,10 @@ export const AdminDashboardView = ({
                 <button
                   type="button"
                   onClick={() => exportAuditLogsPDF(auditLogs)}
-                  className="px-3.5 py-2.5 rounded-xl border border-[#E8E3DC] bg-white hover:bg-[#FAF7F2] text-[#1F1F1F] hover:text-[#0B4F50] text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+                  className="px-3.5 py-2.5 rounded-xl border border-[#E8E3DC] bg-white hover:bg-[#FAF7F2] text-[#1F1F1F] hover:text-[#D97706] text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-2"
                   title="Download full immutable audit trail PDF"
                 >
-                  <FileText className="w-4 h-4 text-[#0B4F50]" />
+                  <FileText className="w-4 h-4 text-[#D97706]" />
                   <span>Download Audit Trail (PDF)</span>
                 </button>
                 <button
@@ -2087,8 +2104,8 @@ export const AdminDashboardView = ({
             </div>
 
             <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto [scrollbar-width:thin]">
+                <table className="w-full text-left text-xs min-w-[720px]">
                   <thead className="bg-[#FFF7E6] border-b border-[#E8E3DC] text-[#1F1F1F] font-bold uppercase tracking-wider">
                     <tr>
                       <th className="py-4 px-5 whitespace-nowrap">Event #</th>
@@ -2251,10 +2268,10 @@ export const AdminDashboardView = ({
                 <button
                   type="button"
                   onClick={() => exportApplicationDossierPDF(selectedAppDetail)}
-                  className="px-3.5 py-1.5 rounded-xl border border-[#0B4F50]/30 bg-[#0B4F50]/10 hover:bg-[#0B4F50]/20 text-[#0B4F50] font-semibold text-xs shadow-xs cursor-pointer transition-all flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 font-semibold text-xs shadow-xs cursor-pointer transition-all flex items-center gap-1.5"
                   title="Download candidate official dossier with full submitted data as PDF"
                 >
-                  <FileText className="w-3.5 h-3.5 text-[#0B4F50]" />
+                  <FileText className="w-3.5 h-3.5 text-amber-600" />
                   <span>Download Dossier (PDF)</span>
                 </button>
                 <button
@@ -2328,6 +2345,17 @@ export const AdminDashboardView = ({
           }}
         />
       )}
+
+      {/* Appoint Faculty & Staff Modal */}
+      <AppointStaffModal
+        isOpen={isAppointStaffModalOpen}
+        onClose={() => setIsAppointStaffModalOpen(false)}
+        onStaffAppointed={(newStaff) => {
+          setIsAppointStaffModalOpen(false);
+          fetchAdminData();
+          setStatusToast(`Successfully appointed ${newStaff.name} as ${newStaff.role}`);
+        }}
+      />
 
       </div>
     </div>

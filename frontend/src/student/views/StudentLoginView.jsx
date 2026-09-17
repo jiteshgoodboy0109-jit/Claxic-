@@ -409,25 +409,25 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#083E40] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans antialiased selection:bg-[#0B4F50]/20 selection:text-[#0B4F50]">
+    <div className="min-h-screen w-full bg-[#0B0E14] flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans antialiased selection:bg-[#EE2D02]/20 selection:text-[#EE2D02]">
       
       {/* Centered Main Authentication Container */}
-      <div className="w-full max-w-[920px] bg-[#FFFFFF] rounded-[24px] sm:rounded-[32px] shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative my-auto">
+      <div className="w-full max-w-[920px] bg-[#FFFFFF] rounded-[24px] sm:rounded-[32px] shadow-[0_25px_60px_rgba(0,0,0,0.5)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative my-auto border border-[#1F2633]/60">
         
         {/* ======================================================== */}
         {/* LEFT COLUMN: AUTHENTICATION FORMS (CLEAN WHITE THEME)    */}
         {/* ======================================================== */}
-        <div className="lg:col-span-7 p-7 sm:p-9 lg:p-11 flex flex-col justify-center relative bg-[#FFFFFF]">
+        <div className="lg:col-span-7 p-5 sm:p-9 lg:p-11 flex flex-col justify-center relative bg-[#FFFFFF]">
           
           <div className="max-w-[360px] w-full mx-auto space-y-5">
             
 
             {/* Pending Course Registration Notice */}
             {pendingCourse && (
-              <div className="p-3 rounded-xl bg-[#eef7f7] border border-[#cbe4e4] text-[#0B4F50] text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
-                <span className="w-2 h-2 rounded-full bg-[#0B4F50] animate-pulse shrink-0" />
+              <div className="p-3 rounded-xl bg-[#FFF1EE] border border-[#FFD4CC] text-[#EE2D02] text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
+                <span className="w-2 h-2 rounded-full bg-[#EE2D02] animate-pulse shrink-0" />
                 <span className="leading-snug">
-                  Sign in to continue your registration for <strong className="text-[#073637]">{pendingCourse.title}</strong>
+                  Sign in to continue your registration for <strong className="text-[#D02600]">{pendingCourse.title}</strong>
                 </span>
               </div>
             )}
@@ -473,14 +473,14 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                     Email Address
                   </label>
                   <div className="relative flex items-center group">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50] transition-colors" />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02] transition-colors" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="admin@vannamayil.com"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] focus:ring-4 focus:ring-[#0B4F50]/10 text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all duration-150 placeholder:text-slate-400"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#EE2D02] focus:ring-4 focus:ring-[#EE2D02]/10 text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all duration-150 placeholder:text-slate-400"
                     />
                   </div>
                 </div>
@@ -498,20 +498,20 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                         setError(null);
                         setSuccessMsg(null);
                       }}
-                      className="text-xs text-[#0B4F50] font-medium hover:underline transition-colors cursor-pointer"
+                      className="text-xs text-[#EE2D02] font-medium hover:underline transition-colors cursor-pointer"
                     >
                       Forgot Password?
                     </button>
                   </div>
                   <div className="relative flex items-center group">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50] transition-colors" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02] transition-colors" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] focus:ring-4 focus:ring-[#0B4F50]/10 text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-10 py-2.5 outline-none transition-all duration-150 font-mono placeholder:text-slate-400"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#EE2D02] focus:ring-4 focus:ring-[#EE2D02]/10 text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-10 py-2.5 outline-none transition-all duration-150 font-mono placeholder:text-slate-400"
                     />
                     <button
                       type="button"
@@ -529,7 +529,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3 px-4 bg-[#0B4F50] hover:bg-[#073637] active:bg-[#052627] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 px-4 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B82100] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isLoading ? (
                       <>
@@ -552,7 +552,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                       setError(null);
                       setSuccessMsg(null);
                     }}
-                    className="font-bold text-[#0B4F50] hover:underline cursor-pointer"
+                    className="font-bold text-[#EE2D02] hover:underline cursor-pointer"
                   >
                     Sign Up
                   </button>
@@ -566,14 +566,14 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-slate-700">Full Name</label>
                   <div className="relative flex items-center group">
-                    <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                    <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                     <input
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Full Name"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2 outline-none transition-all"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#EE2D02] text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -581,20 +581,20 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-slate-700">Email Address</label>
                   <div className="relative flex items-center group">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@student.edu"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2 outline-none transition-all"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#EE2D02] text-slate-900 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2 outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="relative flex items-center bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus-within:bg-white focus-within:border-[#0B4F50] rounded-xl overflow-hidden transition-all">
+                  <div className="relative flex items-center bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus-within:bg-white focus-within:border-[#EE2D02] rounded-xl overflow-hidden transition-all">
                     <div className="flex items-center gap-1 pl-2.5 pr-2 py-2 border-r border-slate-200 select-none shrink-0 bg-slate-100/70 text-slate-800 font-mono font-bold text-xs">
                       <span className="text-xs">🇮🇳</span>
                       <span>+91</span>
@@ -611,13 +611,13 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                   </div>
 
                   <div className="relative flex items-center group">
-                    <School className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                    <School className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                     <input
                       type="text"
                       value={institution}
                       onChange={(e) => setInstitution(e.target.value)}
                       placeholder="College / Institution"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] text-slate-900 text-xs rounded-xl pl-9 pr-3 py-2 outline-none transition-all"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#EE2D02] text-slate-900 text-xs rounded-xl pl-9 pr-3 py-2 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -625,14 +625,14 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-slate-700">Password</label>
                   <div className="relative flex items-center group">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create Password (min 8 chars)"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#0B4F50] text-slate-900 text-xs rounded-xl pl-10 pr-10 py-2 outline-none transition-all font-mono"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 hover:border-slate-300 focus:bg-white focus:border-[#EE2D02] text-slate-900 text-xs rounded-xl pl-10 pr-10 py-2 outline-none transition-all font-mono"
                     />
                     <button
                       type="button"
@@ -647,7 +647,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 bg-[#0B4F50] hover:bg-[#073637] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B82100] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? 'Creating Account...' : 'Sign Up'}
                 </button>
@@ -661,7 +661,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                       setError(null);
                       setSuccessMsg(null);
                     }}
-                    className="font-bold text-[#0B4F50] hover:underline cursor-pointer"
+                    className="font-bold text-[#EE2D02] hover:underline cursor-pointer"
                   >
                     Sign In
                   </button>
@@ -673,7 +673,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
             {mode === 'verify' && (
               <form onSubmit={handleVerifySubmit} className="space-y-3">
                 <div className="relative flex items-center group">
-                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                   <input
                     type="text"
                     required
@@ -681,14 +681,14 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                     value={verifyToken}
                     onChange={(e) => setVerifyToken(e.target.value.trim())}
                     placeholder="Enter 6-Digit Code"
-                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#0B4F50] text-slate-900 font-mono font-bold text-sm text-center tracking-widest rounded-xl py-2.5 outline-none"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#EE2D02] text-slate-900 font-mono font-bold text-sm text-center tracking-widest rounded-xl py-2.5 outline-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 bg-[#0B4F50] hover:bg-[#073637] text-white font-semibold text-xs rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] text-white font-semibold text-xs rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? 'Verifying...' : 'Confirm Code'}
                 </button>
@@ -698,7 +698,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                     type="button"
                     onClick={handleResendVerification}
                     disabled={resendCooldown > 0}
-                    className="text-xs text-[#0B4F50] hover:underline font-bold disabled:opacity-50 cursor-pointer"
+                    className="text-xs text-[#EE2D02] hover:underline font-bold disabled:opacity-50 cursor-pointer"
                   >
                     {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend Code'}
                   </button>
@@ -711,14 +711,14 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
               <div className="space-y-3">
                 <form onSubmit={handleForgotSubmit} className="space-y-2">
                   <div className="relative flex items-center group">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter Your Account Email"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#0B4F50] text-slate-900 text-xs rounded-xl pl-10 pr-4 py-2 outline-none transition-all"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#EE2D02] text-slate-900 text-xs rounded-xl pl-10 pr-4 py-2 outline-none transition-all"
                     />
                   </div>
                   <button
@@ -737,23 +737,23 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                     value={resetToken}
                     onChange={(e) => setResetToken(e.target.value.trim())}
                     placeholder="6-Digit Reset Code"
-                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#0B4F50] text-slate-900 font-mono font-bold text-center rounded-xl py-2 text-xs outline-none"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#EE2D02] text-slate-900 font-mono font-bold text-center rounded-xl py-2 text-xs outline-none"
                   />
                   <div className="relative flex items-center group">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#0B4F50]" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none group-focus-within:text-[#EE2D02]" />
                     <input
                       type="password"
                       required
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="New Password (min 8 chars)"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#0B4F50] text-slate-900 rounded-xl pl-10 pr-4 py-2 text-xs outline-none"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 focus:bg-white focus:border-[#EE2D02] text-slate-900 rounded-xl pl-10 pr-4 py-2 text-xs outline-none"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-2.5 bg-[#0B4F50] hover:bg-[#073637] text-white font-semibold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                    className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] text-white font-semibold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
                   >
                     Update Password & Sign In
                   </button>
@@ -802,42 +802,35 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
         </div>
 
         {/* ======================================================== */}
-        {/* RIGHT COLUMN: 3D STUDENT ILLUSTRATION & TEAL ARTWORK     */}
+        {/* RIGHT COLUMN: 3D STUDENT ILLUSTRATION & OBSIDIAN ARTWORK */}
         {/* ======================================================== */}
-        <div className="hidden lg:flex lg:col-span-5 bg-[#0B4F50] relative flex-col items-center justify-between p-7 sm:p-8 overflow-hidden rounded-r-[24px] sm:rounded-r-[32px]">
+        <div className="hidden lg:flex lg:col-span-5 bg-[#0B0E14] relative flex-col items-center justify-between p-7 sm:p-8 overflow-hidden rounded-r-[24px] sm:rounded-r-[32px] border-l border-[#1F2633]">
           
-          {/* Top Branding on Dark Teal Panel */}
+          {/* Top Branding on Dark Panel */}
           <div className="w-full flex items-center justify-between z-10">
             <img
-              src="/logow.png"
+              src="/logo.png"
               alt="Claxic"
               className="h-6 sm:h-7 w-auto object-contain drop-shadow-xs transition-transform duration-200 hover:scale-102"
             />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-200 bg-teal-900/60 px-2.5 py-1 rounded-full border border-teal-700/50">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02] bg-[#EE2D02]/10 px-2.5 py-1 rounded-full border border-[#EE2D02]/20">
               Admissions
             </span>
           </div>
 
-          {/* Subtle Golden Leaf Accent */}
-          <div className="absolute top-4 right-4 opacity-25 pointer-events-none">
-            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="#FDE047" strokeWidth="1.5">
-              <path d="M10,90 Q50,10 90,50 Q60,80 10,90 Z" />
-              <path d="M10,90 Q30,50 90,50" />
-              <path d="M30,70 Q45,55 55,60" />
-              <path d="M45,50 Q60,35 70,40" />
-            </svg>
-          </div>
+          {/* Ambient Brand Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#EE2D02]/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* 3D Student Reading Render */}
           <div className="relative z-10 w-full max-w-[270px] flex flex-col items-center text-center space-y-3.5 my-auto py-3">
-            <div className="w-full aspect-square rounded-[22px] overflow-hidden shadow-2xl border-2 border-white/20 relative group transform transition-transform hover:scale-[1.02]">
+            <div className="w-full aspect-square rounded-[22px] overflow-hidden shadow-2xl border-2 border-white/10 relative group transform transition-transform hover:scale-[1.02]">
               <img
                 src="/student-learning-3d.jpg"
                 alt="Student reading books 3D illustration"
                 className="w-full h-full object-cover"
                 loading="eager"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B4F50]/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E14]/70 via-transparent to-transparent pointer-events-none" />
             </div>
 
             {/* Motivational Tagline */}
@@ -845,7 +838,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
               <h3 className="text-lg sm:text-xl font-bold text-white font-display">
                 Learn, Build, & Excel.
               </h3>
-              <p className="text-xs text-teal-100/80 leading-relaxed max-w-[240px] mx-auto">
+              <p className="text-xs text-slate-400 leading-relaxed max-w-[240px] mx-auto">
                 Join over 5,000+ ambitious candidates in verified masterclasses and engineering bootcamps.
               </p>
             </div>
