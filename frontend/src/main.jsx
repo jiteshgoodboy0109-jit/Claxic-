@@ -16,6 +16,15 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// Register PWA Service Worker in browser
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.debug('PWA ServiceWorker registration failed:', err);
+    });
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

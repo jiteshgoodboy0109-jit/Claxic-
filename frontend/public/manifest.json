@@ -1,0 +1,32 @@
+{
+  "name": "Claxic — Academic Admissions & Learning Portal",
+  "short_name": "Claxic",
+  "description": "Next-generation Academic Admissions & Unified Learning Management Portal",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0B0E14",
+  "theme_color": "#EE2D02",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["education", "learning", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

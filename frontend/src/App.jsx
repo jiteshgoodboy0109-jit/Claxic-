@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Navbar } from './components/layout/Navbar.jsx';
 import { Footer } from './components/layout/Footer.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { AuthModal } from './components/modals/AuthModal.jsx';
-import { ApplicationModal } from './components/modals/ApplicationModal.jsx';
-import { ReceiptModal } from './components/modals/ReceiptModal.jsx';
-import { CourseModal } from './admin/modals/CourseModal.jsx';
-import { EmailSandboxModal } from './admin/modals/EmailSandboxModal.jsx';
 import { ToastContainer } from './components/ui/Toast.jsx';
 import { Button } from './components/ui/Button.jsx';
 import {
@@ -20,22 +16,43 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 
-// Public & General Views
+// Public Views (Home is eagerly loaded for instant initial render)
 import { HomeView } from './views/HomeView.jsx';
-import { CoursesView } from './views/CoursesView.jsx';
-import { CourseDetailView } from './views/CourseDetailView.jsx';
 
-// Role-Based Views: Student
-import { StudentDashboardView } from './student/views/StudentDashboardView.jsx';
-import { StudentLoginView as UserLoginView } from './student/views/StudentLoginView.jsx';
+// Lazy-Loaded Catalog Views
+const CoursesView = React.lazy(() => import('./views/CoursesView.jsx').then(m => ({ default: m.CoursesView })));
+const CourseDetailView = React.lazy(() => import('./views/CourseDetailView.jsx').then(m => ({ default: m.CourseDetailView })));
 
-// Role-Based Views: Staff & Faculty
-import { StaffLoginView } from './staff/views/StaffLoginView.jsx';
-import { StaffDashboardView } from './staff/views/StaffDashboardView.jsx';
+// Lazy-Loaded Role Views: Student
+const StudentDashboardView = React.lazy(() => import('./student/views/StudentDashboardView.jsx').then(m => ({ default: m.StudentDashboardView })));
+const UserLoginView = React.lazy(() => import('./student/views/StudentLoginView.jsx').then(m => ({ default: m.StudentLoginView })));
 
-// Role-Based Views: Administration
-import { AdminDashboardView } from './admin/views/AdminDashboardView.jsx';
-import { AdminLoginView } from './admin/views/AdminLoginView.jsx';
+// Lazy-Loaded Role Views: Staff & Faculty
+const StaffLoginView = React.lazy(() => import('./staff/views/StaffLoginView.jsx').then(m => ({ default: m.StaffLoginView })));
+const StaffDashboardView = React.lazy(() => import('./staff/views/StaffDashboardView.jsx').then(m => ({ default: m.StaffDashboardView })));
+
+// Lazy-Loaded Role Views: Administration
+const AdminDashboardView = React.lazy(() => import('./admin/views/AdminDashboardView.jsx').then(m => ({ default: m.AdminDashboardView })));
+const AdminLoginView = React.lazy(() => import('./admin/views/AdminLoginView.jsx').then(m => ({ default: m.AdminLoginView })));
+
+// Lazy-Loaded Modals
+const ApplicationModal = React.lazy(() => import('./components/modals/ApplicationModal.jsx').then(m => ({ default: m.ApplicationModal })));
+const ReceiptModal = React.lazy(() => import('./components/modals/ReceiptModal.jsx').then(m => ({ default: m.ReceiptModal })));
+const CourseModal = React.lazy(() => import('./admin/modals/CourseModal.jsx').then(m => ({ default: m.CourseModal })));
+const EmailSandboxModal = React.lazy(() => import('./admin/modals/EmailSandboxModal.jsx').then(m => ({ default: m.EmailSandboxModal })));
+
+// Branded Claxic Loading Indicator for Suspense Transitions
+const ClaxicLoader = () => (
+  <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center space-y-4 animate-in fade-in duration-200">
+    <div className="relative flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-2 border-slate-200 border-t-[#EE2D02] animate-spin" />
+      <img src="/logo.png" alt="Claxic" className="w-6 h-6 object-contain absolute" />
+    </div>
+    <p className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 animate-pulse">
+      Loading Claxic View...
+    </p>
+  </div>
+);
 
 const MainApp = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -517,7 +534,8 @@ const MainApp = () => {
 
       {/* Main Content Router */}
       <main className="flex-1">
-        {currentView === 'home' && (
+        <Suspense fallback={<ClaxicLoader />}>
+          {currentView === 'home' && (
           <HomeView
             courses={courses}
             onSelectCourse={handleSelectCourse}
@@ -735,38 +753,49 @@ const MainApp = () => {
             />
           )
         )}
+        </Suspense>
       </main>
 
       {/* Global Footer (Hidden on Login/Register/Admin-Login/Admin Dashboard views) */}
       {showGlobalFooter && <Footer onNavigate={handleNavigate} />}
 
-      {/* Modals Container */}
-      <AuthModal />
+      {/* Modals Container (Lazy Loaded On Demand) */}
+      <Suspense fallback={null}>
+        <AuthModal />
 
-      <ApplicationModal
-        isOpen={isAppModalOpen}
-        onClose={() => setIsAppModalOpen(false)}
-        course={appModalCourse}
-        onSuccess={handlePaymentSuccess}
-      />
+        {isAppModalOpen && (
+          <ApplicationModal
+            isOpen={isAppModalOpen}
+            onClose={() => setIsAppModalOpen(false)}
+            course={appModalCourse}
+            onSuccess={handlePaymentSuccess}
+          />
+        )}
 
-      <ReceiptModal
-        isOpen={isReceiptModalOpen}
-        onClose={() => setIsReceiptModalOpen(false)}
-        paymentIdOrReceipt={receiptPaymentId}
-      />
+        {isReceiptModalOpen && (
+          <ReceiptModal
+            isOpen={isReceiptModalOpen}
+            onClose={() => setIsReceiptModalOpen(false)}
+            paymentIdOrReceipt={receiptPaymentId}
+          />
+        )}
 
-      <CourseModal
-        isOpen={isCourseModalOpen}
-        onClose={() => setIsCourseModalOpen(false)}
-        courseToEdit={courseToEdit}
-        onSaved={handleCourseSaved}
-      />
+        {isCourseModalOpen && (
+          <CourseModal
+            isOpen={isCourseModalOpen}
+            onClose={() => setIsCourseModalOpen(false)}
+            courseToEdit={courseToEdit}
+            onSaved={handleCourseSaved}
+          />
+        )}
 
-      <EmailSandboxModal
-        isOpen={isEmailSandboxOpen}
-        onClose={() => setIsEmailSandboxOpen(false)}
-      />
+        {isEmailSandboxOpen && (
+          <EmailSandboxModal
+            isOpen={isEmailSandboxOpen}
+            onClose={() => setIsEmailSandboxOpen(false)}
+          />
+        )}
+      </Suspense>
 
       {/* Toast Alert Stream */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />

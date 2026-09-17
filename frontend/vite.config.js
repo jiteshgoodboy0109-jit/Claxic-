@@ -23,8 +23,30 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       external: [/^core-js/],
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts') || id.includes('d3-') || id.includes('victory-vendor')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('jspdf') || id.includes('jspdf-autotable')) {
+              return 'vendor-pdf';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('framer-motion') || id.includes('motion') || id.includes('canvas-confetti')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is')) {
+              return 'vendor-react';
+            }
+          }
+        },
+      },
     },
   },
   server: {
