@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 import {
   UserCheck,
   Mail,
@@ -471,7 +472,10 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                 className="px-5 py-2.5 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {isLoading ? (
-                  <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <>
+                    <LoadingSpinner size="xs" variant="white" inline />
+                    <span>Appointing...</span>
+                  </>
                 ) : (
                   <>
                     <UserPlus className="w-3.5 h-3.5 text-amber-400" />

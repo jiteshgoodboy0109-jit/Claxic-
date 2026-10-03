@@ -58,6 +58,8 @@ import {
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
+import { NotificationBell } from '../../components/notifications/NotificationBell.jsx';
 import { UserEditModal } from '../modals/UserEditModal.jsx';
 import { AppointStaffModal } from '../modals/AppointStaffModal.jsx';
 import {
@@ -1021,6 +1023,11 @@ export const AdminDashboardView = ({
               {activeTab === 'users' && `Student & Faculty Directory (${users.length})`}
               {activeTab === 'audit' && 'System Security & Audit Trail'}
             </h1>
+          </div>
+
+          {/* Right Header Bar - Notification Bell & Quick Actions */}
+          <div className="flex items-center gap-3 shrink-0">
+            <NotificationBell onNavigate={onNavigate} />
           </div>
         </header>
 
@@ -2285,7 +2292,7 @@ export const AdminDashboardView = ({
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isUpdatingAppStatus && (
-                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <LoadingSpinner size="xs" variant="white" inline className="mr-1.5" />
                   )}
                   {selectedAppDetail.status === 'APPROVED' ? '✓ Approved' : 'Approve Application'}
                 </button>
@@ -2300,7 +2307,7 @@ export const AdminDashboardView = ({
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isUpdatingAppStatus && (
-                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <LoadingSpinner size="xs" variant="white" inline className="mr-1.5" />
                   )}
                   {selectedAppDetail.status === 'CONFIRMED' ? '✓ Enrolled' : 'Mark Enrolled'}
                 </button>
@@ -2315,7 +2322,7 @@ export const AdminDashboardView = ({
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isUpdatingAppStatus && (
-                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <LoadingSpinner size="xs" variant="white" inline className="mr-1.5" />
                   )}
                   {selectedAppDetail.status === 'REJECTED' ? '✓ Rejected' : 'Reject'}
                 </button>

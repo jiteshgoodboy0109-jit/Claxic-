@@ -62,20 +62,23 @@ export const Footer = ({ onNavigate }) => {
         {/* Main 3-Column Content Layout */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-10 pb-8 border-b border-[#1F2633] items-start">
           
-          {/* Column 1: Brand Logo */}
-          <div className="md:col-span-4 lg:col-span-5 flex items-start">
+          {/* Column 1: Brand Logo & Mission */}
+          <div className="md:col-span-4 lg:col-span-4 space-y-3">
             <img
               src="/logo.png"
               alt="Claxic"
               className="h-7 sm:h-8 w-auto object-contain cursor-pointer transition-opacity hover:opacity-90"
               onClick={() => onNavigate && onNavigate('home')}
             />
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              Premier academic institution delivering cohort-based engineering specializations, production-scale curricula, and cryptographically verified certifications.
+            </p>
           </div>
 
-          {/* Column 2: Quick Links */}
-          <div className="md:col-span-4 lg:col-span-3 space-y-3">
+          {/* Column 2: Academic Programs */}
+          <div className="md:col-span-4 lg:col-span-4 space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white">
-              Quick Links
+              Academic Programs
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -84,56 +87,82 @@ export const Footer = ({ onNavigate }) => {
                   onClick={() => onNavigate && onNavigate('courses')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Explore Courses
+                  Explore All Programs
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate('home')}
+                  onClick={() => onNavigate && onNavigate('courses')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Admissions Application
+                  Computer Science & AI Tracks
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate('login')}
+                  onClick={() => onNavigate && onNavigate('courses')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Student Portal
+                  Engineering & Modern Technology
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate('staff-login')}
+                  onClick={() => onNavigate && onNavigate('courses')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Staff & Faculty Portal
+                  Curriculum & Syllabus Modules
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate && onNavigate('admin-login')}
+                  onClick={() => onNavigate && onNavigate('courses')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Admin Console
+                  Tuition & GST Tax Invoicing
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Contact & Support */}
+          {/* Column 3: Admissions, Contact & Support */}
           <div className="md:col-span-4 lg:col-span-4 space-y-3.5">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white">
-              Contact & Support
+              Admissions & Support
             </h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onNavigate) onNavigate('home');
+                    setTimeout(() => {
+                      const form = document.querySelector('form');
+                      if (form) form.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Admissions Application Form
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate && onNavigate('courses')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Verifiable Student Certification
+                </button>
+              </li>
+            </ul>
             
             {/* Email Link */}
-            <div>
+            <div className="pt-1">
               <a
                 href="mailto:support.claxic@gmail.com"
                 className="inline-flex items-center gap-2.5 text-xs text-slate-400 hover:text-white transition-colors group"

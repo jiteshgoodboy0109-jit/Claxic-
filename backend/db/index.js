@@ -1016,6 +1016,7 @@ class SQLiteDatabase {
         message TEXT NOT NULL,
         type TEXT NOT NULL DEFAULT 'info',
         link TEXT,
+        meta TEXT,
         isRead INTEGER NOT NULL DEFAULT 0,
         createdAt TEXT NOT NULL
       );
@@ -1084,6 +1085,7 @@ class SQLiteDatabase {
     try { this.sqlite.exec("ALTER TABLE courses ADD COLUMN classes TEXT DEFAULT '[]';"); } catch(e) {}
     try { this.sqlite.exec("ALTER TABLE applications ADD COLUMN reviewNotes TEXT DEFAULT '';"); } catch(e) {}
     try { this.sqlite.exec("ALTER TABLE applications ADD COLUMN adminNotes TEXT DEFAULT '';"); } catch(e) {}
+    try { this.sqlite.exec("ALTER TABLE notifications ADD COLUMN meta TEXT;"); } catch(e) {}
   }
 
   migrateOrSeed() {
@@ -1275,19 +1277,19 @@ class SQLiteDatabase {
       for (const a of data.applications || []) {
         insertApp.run(
           a.id,
-          a.applicationNumber,
-          a.userId,
-          a.userEmail,
-          a.userName,
-          a.userMobile || '',
-          a.courseId,
-          a.courseTitle,
-          a.coursePrice || 0,
+          a.applicationNumber || `APP-${a.id || Date.now()}`,
+          a.userId || '',
+          a.userEmail || '',
+          a.userName || 'Student',
+          a.userMobile || a.phone || '',
+          a.courseId || '',
+          a.courseTitle || 'Course',
+          Number(a.coursePrice) || 0,
           a.status || 'SUBMITTED',
           JSON.stringify(a.formData || {}),
           a.reviewNotes || a.adminNotes || '',
           a.adminNotes || a.reviewNotes || '',
-          a.createdAt || new Date().toISOString(),
+          a.createdAt || a.appliedAt || new Date().toISOString(),
           a.updatedAt || new Date().toISOString()
         );
       }
@@ -1344,9 +1346,10 @@ class SQLiteDatabase {
 
       // Clear & Seed Notifications
       this.sqlite.exec('DELETE FROM notifications;');
-      const insertNotif = this.sqlite.prepare('INSERT INTO notifications (id, userId, title, message, type, link, isRead, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+      const insertNotif = this.sqlite.prepare('INSERT INTO notifications (id, userId, title, message, type, link, meta, isRead, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
       for (const n of data.notifications || []) {
-        insertNotif.run(n.id, n.userId, n.title, n.message, n.type || 'info', n.link || '', n.isRead ? 1 : 0, n.createdAt || new Date().toISOString());
+        const metaStr = n.meta ? (typeof n.meta === 'string' ? n.meta : JSON.stringify(n.meta)) : null;
+        insertNotif.run(n.id, n.userId, n.title, n.message, n.type || 'info', n.link || '', metaStr, n.isRead ? 1 : 0, n.createdAt || new Date().toISOString());
       }
 
       // Clear & Seed Audit Logs
@@ -1360,7 +1363,13 @@ class SQLiteDatabase {
       this.sqlite.exec('DELETE FROM email_records;');
       const insertEmail = this.sqlite.prepare('INSERT INTO email_records (id, toEmail, subject, previewText, timestamp) VALUES (?, ?, ?, ?, ?)');
       for (const em of data.emailRecords || []) {
-        insertEmail.run(em.id, em.toEmail, em.subject, em.previewText || '', em.timestamp || new Date().toISOString());
+        insertEmail.run(
+          em.id,
+          em.toEmail || em.to || 'student@claxic.edu',
+          em.subject || 'Claxic Notification',
+          em.previewText || (em.htmlBody ? em.htmlBody.slice(0, 100) : ''),
+          em.timestamp || em.sentAt || new Date().toISOString()
+        );
       }
 
       // Clear & Seed Project Submissions
@@ -1468,10 +1477,17 @@ class SQLiteDatabase {
       ...pr,
       used: Boolean(pr.used),
     }));
-    const notifications = this.sqlite.prepare('SELECT * FROM notifications').all().map((n) => ({
-      ...n,
-      isRead: Boolean(n.isRead),
-    }));
+    const notifications = this.sqlite.prepare('SELECT * FROM notifications').all().map((n) => {
+      let parsedMeta = null;
+      if (n.meta) {
+        try { parsedMeta = JSON.parse(n.meta); } catch (e) { parsedMeta = n.meta; }
+      }
+      return {
+        ...n,
+        isRead: Boolean(n.isRead),
+        meta: parsedMeta,
+      };
+    });
     const auditLogs = this.sqlite.prepare('SELECT * FROM audit_logs').all();
     const emailRecords = this.sqlite.prepare('SELECT * FROM email_records').all();
 

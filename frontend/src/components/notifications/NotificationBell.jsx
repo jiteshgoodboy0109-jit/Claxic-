@@ -1,0 +1,583 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Bell,
+  Sparkles,
+  Flame,
+  BookOpen,
+  CheckCheck,
+  Trash2,
+  ExternalLink,
+  X,
+  ChevronRight,
+  Clock,
+  Tag,
+  ArrowRight,
+  GraduationCap,
+  Layers,
+  Award,
+  Volume2,
+  Smartphone,
+  ShieldCheck,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import {
+  triggerInBuildPopNotification,
+  requestDeviceNotificationPermission,
+  showDeviceNotification,
+} from './notificationHelper.js';
+
+export const NotificationBell = ({ onNavigate }) => {
+  const { user, token } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [categoryCounts, setCategoryCounts] = useState({ all: 0, classes: 0, launches: 0, academic: 0 });
+  const [activeTab, setActiveTab] = useState('all');
+  const [isLoading, setIsLoading] = useState(false);
+  const [devicePermission, setDevicePermission] = useState(() => {
+    return typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported';
+  });
+  const dropdownRef = useRef(null);
+  const seenIdsRef = useRef(new Set());
+  const isFirstFetchRef = useRef(true);
+
+  const authToken = token || localStorage.getItem('claxic_token');
+
+  // Fetch notifications from API
+  const fetchNotifications = useCallback(async () => {
+    if (!authToken || !user) return;
+    try {
+      const res = await fetch(`/api/notifications?type=${activeTab}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const incoming = data.notifications || [];
+        setNotifications(incoming);
+        setUnreadCount(data.unreadCount || 0);
+        if (data.categoryCounts) {
+          setCategoryCounts(data.categoryCounts);
+        }
+
+        // On first load, seed seen IDs so we don't bombard user with all historical notices
+        if (isFirstFetchRef.current) {
+          incoming.forEach((n) => seenIdsRef.current.add(n.id));
+          isFirstFetchRef.current = false;
+        } else {
+          // Detect truly new incoming unread notifications
+          const freshItems = incoming.filter((n) => !n.isRead && !seenIdsRef.current.has(n.id));
+          freshItems.forEach((fresh) => {
+            seenIdsRef.current.add(fresh.id);
+            // Trigger in-build pop toast + device push notification + audio chime!
+            triggerInBuildPopNotification(fresh);
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  }, [authToken, user, activeTab]);
+
+  // Periodic polling & on tab change & live event updates
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000); // 10s live auto-refresh
+    const handleUpdate = () => fetchNotifications();
+    const handleOpenDrawer = () => {
+      setIsOpen(true);
+      fetchNotifications();
+    };
+
+    window.addEventListener('claxic_notifications_updated', handleUpdate);
+    window.addEventListener('claxic_open_notification_drawer', handleOpenDrawer);
+
+    // Refresh device permission state
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setDevicePermission(Notification.permission);
+    }
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('claxic_notifications_updated', handleUpdate);
+      window.removeEventListener('claxic_open_notification_drawer', handleOpenDrawer);
+    };
+  }, [fetchNotifications]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  // Mark single notification as read
+  const handleMarkAsRead = async (id, e) => {
+    if (e) e.stopPropagation();
+    try {
+      const res = await fetch(`/api/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (res.ok) {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        );
+        setUnreadCount((c) => Math.max(0, c - 1));
+      }
+    } catch (err) {
+      console.error('Failed to mark read:', err);
+    }
+  };
+
+  // Mark all as read
+  const handleMarkAllRead = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/notifications/read-all', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        setUnreadCount(0);
+      }
+    } catch (err) {
+      console.error('Failed to mark all read:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete notification
+  const handleDelete = async (id, e) => {
+    if (e) e.stopPropagation();
+    try {
+      const res = await fetch(`/api/notifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.error('Failed to delete notification:', err);
+    }
+  };
+
+  // Handle card click / navigation
+  const handleCardClick = (notif) => {
+    if (!notif.isRead) {
+      handleMarkAsRead(notif.id);
+    }
+    setIsOpen(false);
+
+    if (notif.link) {
+      if (onNavigate) {
+        if (notif.link.startsWith('/courses/')) {
+          const slug = notif.link.replace('/courses/', '');
+          onNavigate('course-detail', { slug });
+        } else if (notif.link.startsWith('/student') || notif.link === '/dashboard') {
+          onNavigate('student');
+        } else {
+          window.location.href = notif.link;
+        }
+      } else {
+        window.location.href = notif.link;
+      }
+    }
+  };
+
+  // Format time relative
+  const formatTimeAgo = (dateStr) => {
+    if (!dateStr) return 'Recently';
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffSecs = Math.floor((now - date) / 1000);
+    if (diffSecs < 60) return 'Just now';
+    if (diffSecs < 3600) return `${Math.floor(diffSecs / 60)}m ago`;
+    if (diffSecs < 86400) return `${Math.floor(diffSecs / 3600)}h ago`;
+    if (diffSecs < 604800) return `${Math.floor(diffSecs / 86400)}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  // Request browser push notification permission
+  const handleEnableDevicePush = async () => {
+    const perm = await requestDeviceNotificationPermission();
+    setDevicePermission(perm);
+  };
+
+  // Test In-Build Pop & Native Device Notification on demand
+  const handleTestPopAndDeviceNotification = (e) => {
+    if (e) e.stopPropagation();
+    const testPayload = {
+      id: 'test_alert_' + Date.now(),
+      title: '🎨 Creative Class: Agentic Architectures Live',
+      message: 'New curriculum episode released with interactive coding notebook and video lecture!',
+      type: 'CREATIVE_CLASS',
+      link: '/student/courses',
+    };
+    triggerInBuildPopNotification(testPayload);
+  };
+
+  return (
+    <div className="relative inline-block" ref={dropdownRef}>
+      {/* 1. Trigger Bell Button */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen) fetchNotifications();
+        }}
+        aria-label="Notifications"
+        className={`relative p-2 rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center ${
+          isOpen
+            ? 'bg-slate-100 text-[#EE2D02] ring-2 ring-[#EE2D02]/20'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 active:scale-95'
+        }`}
+      >
+        <Bell className="w-5 h-5 transition-transform duration-200 hover:rotate-12" />
+
+        {/* Pulsing Badge for Unread */}
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center px-1">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EE2D02] opacity-60"></span>
+            <span className="relative inline-flex items-center justify-center rounded-full h-4 min-w-4 px-1 bg-gradient-to-r from-[#EE2D02] to-orange-500 text-[10px] font-black font-mono text-white shadow-md">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          </span>
+        )}
+      </button>
+
+      {/* 2. Floating Notification Center Window */}
+      {isOpen && (
+        <div
+          className="absolute right-0 sm:-right-4 mt-3 w-[92vw] sm:w-[460px] md:w-[500px] max-w-[500px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-3 duration-200 font-sans"
+          style={{
+            boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.08)',
+          }}
+        >
+          {/* Header */}
+          <div className="px-5 py-4 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#EE2D02] to-amber-500 flex items-center justify-center text-white shadow-sm shadow-[#EE2D02]/30">
+                <Bell className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">Notifications</h3>
+                  {unreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF1EE] text-[#EE2D02] border border-[#EE2D02]/20">
+                      {unreadCount} new
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500">Class alerts & Academy announcements</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleMarkAllRead}
+                  disabled={isLoading}
+                  title="Mark all as read"
+                  className="px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:text-[#EE2D02] hover:bg-[#FFF1EE] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <CheckCheck className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Mark read</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="px-4 py-2.5 bg-slate-50/70 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {[
+              { id: 'all', label: 'All', count: categoryCounts.all },
+              { id: 'classes', label: 'Creative Classes 🎨', count: categoryCounts.classes },
+              { id: 'launches', label: 'New Launches 🚀', count: categoryCounts.launches },
+              { id: 'academic', label: 'Academic 🎓', count: categoryCounts.academic },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === tab.id
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                }`}
+              >
+                <span>{tab.label}</span>
+                {tab.count > 0 && (
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                      activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Notifications Scrollable List */}
+          <div className="max-h-[62vh] overflow-y-auto divide-y divide-slate-100 overscroll-contain">
+            {notifications.length === 0 ? (
+              <div className="py-16 px-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-slate-100 to-orange-50 flex items-center justify-center text-slate-400">
+                  <Sparkles className="w-7 h-7 text-amber-500/70" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-800">You're all caught up!</h4>
+                <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                  {activeTab === 'classes'
+                    ? 'No new class session updates for your enrolled courses.'
+                    : activeTab === 'launches'
+                    ? 'No new academy course launches right now.'
+                    : 'No notifications in this category right now.'}
+                </p>
+              </div>
+            ) : (
+              notifications.map((notif) => {
+                const isClass =
+                  notif.type === 'CREATIVE_CLASS' || notif.type === 'class_alert' || notif.type?.includes('CLASS');
+                const isLaunch =
+                  notif.type === 'COURSE_LAUNCH_AD' || notif.type === 'course_launch' || notif.type?.includes('LAUNCH');
+
+                return (
+                  <div
+                    key={notif.id}
+                    onClick={() => handleCardClick(notif)}
+                    className={`group relative p-4 transition-all duration-200 cursor-pointer hover:bg-slate-50/90 ${
+                      !notif.isRead ? 'bg-[#FFF9F8]/70 border-l-4 border-l-[#EE2D02]' : 'border-l-4 border-l-transparent'
+                    }`}
+                  >
+                    {/* CARD TYPE 1: NEW COURSE LAUNCH AD */}
+                    {isLaunch ? (
+                      <div className="space-y-3">
+                        {/* Top Promo Tag */}
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-orange-500 to-[#EE2D02] text-white shadow-xs shadow-orange-500/30">
+                            <Flame className="w-3 h-3 fill-white" />
+                            {notif.meta?.badge || 'NEW LAUNCH • SPECIAL AD'}
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTimeAgo(notif.createdAt)}
+                          </span>
+                        </div>
+
+                        {/* Ad Banner Image Preview (if present) */}
+                        {notif.meta?.bannerImage && (
+                          <div className="relative rounded-2xl overflow-hidden aspect-[16/7] bg-slate-900 border border-slate-200/80 shadow-xs group-hover:shadow-md transition-shadow">
+                            <img
+                              src={notif.meta.bannerImage}
+                              alt={notif.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-3">
+                              <span className="text-white text-xs font-bold drop-shadow-sm line-clamp-1">
+                                {notif.meta?.courseTitle || notif.title}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Title & Message */}
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 group-hover:text-[#EE2D02] transition-colors line-clamp-1">
+                            {notif.title}
+                          </h4>
+                          <p className="text-xs text-slate-600 mt-1 leading-relaxed line-clamp-2">
+                            {notif.message}
+                          </p>
+                        </div>
+
+                        {/* Price & Offer Row */}
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+                          <div className="flex items-center gap-2">
+                            {notif.meta?.price !== undefined && (
+                              <span className="text-sm font-black text-slate-900">
+                                ₹{Number(notif.meta.price).toLocaleString('en-IN')}
+                              </span>
+                            )}
+                            {notif.meta?.originalPrice && Number(notif.meta.originalPrice) > Number(notif.meta.price) && (
+                              <span className="text-xs font-semibold text-slate-400 line-through">
+                                ₹{Number(notif.meta.originalPrice).toLocaleString('en-IN')}
+                              </span>
+                            )}
+                            {notif.meta?.discountPercent && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                                {notif.meta.discountPercent}% OFF
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-[#EE2D02] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                              {notif.meta?.actionLabel || 'Claim Seat'}
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : isClass ? (
+                      /* CARD TYPE 2: CREATIVE CLASS ALERT (Enrolled Students) */
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <BookOpen className="w-3 h-3 text-emerald-600" />
+                            {notif.meta?.dayNumber ? `Day ${notif.meta.dayNumber} Live Class` : 'Creative Session'}
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTimeAgo(notif.createdAt)}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                            {notif.title}
+                          </h4>
+                          <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                            {notif.message}
+                          </p>
+                        </div>
+
+                        {/* Topics Pill List */}
+                        {Array.isArray(notif.meta?.topics) && notif.meta.topics.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                            {notif.meta.topics.slice(0, 3).map((topic, i) => (
+                              <span
+                                key={i}
+                                className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-medium"
+                              >
+                                #{topic}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Action Link */}
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[11px] font-semibold text-slate-400">
+                            {notif.meta?.courseTitle || 'Enrolled Course'}
+                          </span>
+                          <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 group-hover:underline">
+                            {notif.meta?.actionLabel || 'Jump to Class'}
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      /* CARD TYPE 3: ACADEMIC & GENERAL SYSTEM NOTIFICATION */
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200">
+                            <GraduationCap className="w-3 h-3 text-sky-600" />
+                            Academic Alert
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {formatTimeAgo(notif.createdAt)}
+                          </span>
+                        </div>
+
+                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-[#EE2D02] transition-colors">
+                          {notif.title}
+                        </h4>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          {notif.message}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Quick Row Hover Controls */}
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-white/90 backdrop-blur-xs p-1 rounded-lg border border-slate-200 shadow-xs">
+                      {!notif.isRead && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleMarkAsRead(notif.id, e)}
+                          title="Mark as read"
+                          className="p-1 hover:text-[#EE2D02] hover:bg-[#FFF1EE] rounded text-slate-400 transition-colors"
+                        >
+                          <CheckCheck className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => handleDelete(notif.id, e)}
+                        title="Dismiss"
+                        className="p-1 hover:text-rose-600 hover:bg-rose-50 rounded text-slate-400 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Footer Bar: Device Push Status + Test Notification Button */}
+          <div className="px-4 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            {devicePermission === 'granted' ? (
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Device Push Active</span>
+              </div>
+            ) : devicePermission === 'denied' ? (
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                <span>Push Blocked in Browser</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleEnableDevicePush}
+                className="text-[11px] font-bold text-[#EE2D02] hover:text-rose-700 hover:underline transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-[#EE2D02]" />
+                <span>Enable Device System Push</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleTestPopAndDeviceNotification}
+              title="Test In-Build Pop Banner, Chime & Device Push Alert"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:text-slate-900 hover:border-slate-300 shadow-2xs transition-all cursor-pointer active:scale-95"
+            >
+              <Volume2 className="w-3 h-3 text-[#EE2D02]" />
+              <span>Test Pop Alert</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

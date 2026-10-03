@@ -9,6 +9,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 
 export const StaffLoginView = ({ onNavigate }) => {
   const { login } = useAuth();
@@ -397,7 +398,7 @@ export const StaffLoginView = ({ onNavigate }) => {
                 >
                   {isLoading ? (
                     <>
-                      <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <LoadingSpinner size="xs" variant="white" inline className="mr-2" />
                       <span>Signing in...</span>
                     </>
                   ) : (

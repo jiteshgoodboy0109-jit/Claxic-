@@ -14,6 +14,7 @@ import {
 import { Modal } from '../ui/Modal.jsx';
 import { Button } from '../ui/Button.jsx';
 import { Badge } from '../ui/Badge.jsx';
+import { DegreeSelect } from '../ui/DegreeSelect.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import confetti from 'canvas-confetti';
 
@@ -435,13 +436,11 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold">
                     Degree / Specialization *
                   </label>
-                  <input
-                    type="text"
-                    required
+                  <DegreeSelect
                     value={degree}
-                    onChange={(e) => setDegree(e.target.value)}
-                    placeholder="B.S. Computer Science"
-                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    onChange={setDegree}
+                    placeholder="Search degree or enter field (e.g. B.Tech, BCA...)"
+                    rounded="rounded-full"
                   />
                 </div>
               </div>

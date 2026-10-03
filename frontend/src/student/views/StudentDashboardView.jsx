@@ -44,6 +44,9 @@ import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { ApplicationModal } from '../../components/modals/ApplicationModal.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
+import { DegreeSelect } from '../../components/ui/DegreeSelect.jsx';
+import { NotificationBell } from '../../components/notifications/NotificationBell.jsx';
 
 // Clean 3-bar morphing Hamburger-to-Close icon
 const HamburgerIcon = ({ isOpen }) => {
@@ -227,12 +230,28 @@ export const StudentDashboardView = ({
   };
 
   // Student Profile Form State
+  // Helper to ensure fields start clean & empty until explicitly saved by the user
+  const cleanProfileField = (val) => {
+    if (!val) return '';
+    const trimmed = String(val).trim();
+    const dummyDefaults = [
+      'academic program',
+      'undergraduate',
+      'not specified',
+      'verified google student',
+      'current',
+      '1st year',
+    ];
+    if (dummyDefaults.includes(trimmed.toLowerCase())) return '';
+    return trimmed;
+  };
+
   const fileInputRef = useRef(null);
   const [profileName, setProfileName] = useState(user?.name || '');
   const [profileMobile, setProfileMobile] = useState(extract10DigitMobile(user?.mobile));
-  const [profileInstitution, setProfileInstitution] = useState(user?.institution || '');
-  const [profileDegree, setProfileDegree] = useState(user?.degree || '');
-  const [profileYear, setProfileYear] = useState(user?.yearOfStudy || '');
+  const [profileInstitution, setProfileInstitution] = useState(cleanProfileField(user?.institution));
+  const [profileDegree, setProfileDegree] = useState(cleanProfileField(user?.degree));
+  const [profileYear, setProfileYear] = useState(cleanProfileField(user?.yearOfStudy));
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
   const [avatarData, setAvatarData] = useState(user?.avatar || '');
   const [hasPhotoChanged, setHasPhotoChanged] = useState(false);
@@ -245,9 +264,9 @@ export const StudentDashboardView = ({
     if (user) {
       setProfileName(user.name || '');
       setProfileMobile(extract10DigitMobile(user.mobile));
-      setProfileInstitution(user.institution || '');
-      setProfileDegree(user.degree || '');
-      setProfileYear(user.yearOfStudy || '');
+      setProfileInstitution(cleanProfileField(user.institution));
+      setProfileDegree(cleanProfileField(user.degree));
+      setProfileYear(cleanProfileField(user.yearOfStudy));
       setAvatarPreview(user.avatar || '');
       setAvatarData(user.avatar || '');
       setHasPhotoChanged(false);
@@ -716,20 +735,23 @@ export const StudentDashboardView = ({
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={() => handleTabChange('profile')}
-          className="flex items-center gap-2 cursor-pointer"
-        >
-          <img
-            src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-            alt={user?.name}
-            onError={(e) => {
-              e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
-            }}
-            className="w-7 h-7 rounded-full object-cover border-2 border-slate-200 hover:border-[#EE2D02]/50 transition-colors"
-          />
-        </button>
+        <div className="flex items-center gap-2.5">
+          <NotificationBell onNavigate={onNavigate} />
+          <button
+            type="button"
+            onClick={() => handleTabChange('profile')}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <img
+              src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+              alt={user?.name}
+              onError={(e) => {
+                e.target.src = 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(user?.name || 'Student');
+              }}
+              className="w-7 h-7 rounded-full object-cover border-2 border-slate-200 hover:border-[#EE2D02]/50 transition-colors"
+            />
+          </button>
+        </div>
       </div>
 
       {/* ========================================================= */}
@@ -1146,6 +1168,10 @@ export const StudentDashboardView = ({
                     Tax Invoices
                   </span>
                 </div>
+
+                <div className="flex items-center pl-3 border-l border-slate-200">
+                  <NotificationBell onNavigate={onNavigate} />
+                </div>
               </div>
             </div>
 
@@ -1176,8 +1202,13 @@ export const StudentDashboardView = ({
 
               if (!activeCourse) {
                 return (
-                  <div className="p-8 text-center text-xs text-slate-500">
-                    Loading your learning curriculum...
+                  <div className="p-12 text-center">
+                    <LoadingSpinner
+                      size="md"
+                      text="Loading curriculum & class episodes..."
+                      subtext="SYNCHRONIZING SYLLABI"
+                      minHeight="min-h-[25vh]"
+                    />
                   </div>
                 );
               }
@@ -2639,13 +2670,49 @@ export const StudentDashboardView = ({
                   <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold">
                     Year / Status
                   </label>
-                  <input
-                    type="text"
-                    value={profileYear}
-                    onChange={(e) => setProfileYear(e.target.value)}
-                    placeholder="e.g. 3rd Year, Current"
-                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
-                  />
+                  <div className="relative">
+                    <select
+                      value={profileYear}
+                      onChange={(e) => setProfileYear(e.target.value)}
+                      className={`w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm outline-none transition-all appearance-none cursor-pointer pr-10 ${
+                        !profileYear ? 'text-slate-400' : 'text-slate-900 font-medium'
+                      }`}
+                    >
+                      <option value="" disabled className="text-slate-400">
+                        Select Academic Year / Status
+                      </option>
+                      <option value="1st Year (Freshman)" className="text-slate-900">
+                        1st Year (Freshman)
+                      </option>
+                      <option value="2nd Year (Sophomore)" className="text-slate-900">
+                        2nd Year (Sophomore)
+                      </option>
+                      <option value="3rd Year (Junior)" className="text-slate-900">
+                        3rd Year (Junior)
+                      </option>
+                      <option value="4th Year (Senior)" className="text-slate-900">
+                        4th Year (Senior)
+                      </option>
+                      <option value="Final Year" className="text-slate-900">
+                        Final Year
+                      </option>
+                      <option value="Recent Graduate / Alumni" className="text-slate-900">
+                        Recent Graduate / Alumni
+                      </option>
+                      <option value="Postgraduate (Master's / Ph.D)" className="text-slate-900">
+                        Postgraduate (Master's / Ph.D)
+                      </option>
+                      <option value="Working Professional" className="text-slate-900">
+                        Working Professional
+                      </option>
+                      <option value="Independent Learner" className="text-slate-900">
+                        Independent Learner
+                      </option>
+                    </select>
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -2658,20 +2725,19 @@ export const StudentDashboardView = ({
                     type="text"
                     value={profileInstitution}
                     onChange={(e) => setProfileInstitution(e.target.value)}
-                    placeholder="e.g. Verified Google Student / College"
-                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    placeholder="e.g. SRM University, Anna University, TCS..."
+                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1 font-semibold">
                     Degree / Field
                   </label>
-                  <input
-                    type="text"
+                  <DegreeSelect
                     value={profileDegree}
-                    onChange={(e) => setProfileDegree(e.target.value)}
-                    placeholder="e.g. B.Tech Computer Science"
-                    className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 rounded-full px-4 py-2.5 text-sm text-slate-900 outline-none transition-all"
+                    onChange={setProfileDegree}
+                    placeholder="Search Indian degrees or type your field (e.g. B.Tech CSE, BCA, B.Sc...)"
+                    rounded="rounded-full"
                   />
                 </div>
               </div>
@@ -2684,7 +2750,7 @@ export const StudentDashboardView = ({
                 >
                   {isSavingProfile ? (
                     <>
-                      <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <LoadingSpinner size="xs" variant="white" inline className="mr-1.5" />
                       <span>Saving Profile...</span>
                     </>
                   ) : (

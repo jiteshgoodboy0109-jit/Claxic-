@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { NotificationBell } from '../notifications/NotificationBell.jsx';
 
 export const Navbar = ({ currentView = 'home', onNavigate }) => {
   const { user, logout, openAuthModal } = useAuth();
@@ -157,7 +158,10 @@ export const Navbar = ({ currentView = 'home', onNavigate }) => {
           {/* Right Controls (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
+                {/* Notification Bell */}
+                <NotificationBell onNavigate={handleNav} />
+
                 {/* User Menu Dropdown */}
                 <div className="relative">
                   <button
@@ -263,8 +267,9 @@ export const Navbar = ({ currentView = 'home', onNavigate }) => {
             )}
           </div>
 
-          {/* Mobile Menu Hamburger Button */}
-          <div className="flex items-center gap-2 md:hidden">
+          {/* Mobile Menu Hamburger Button & Mobile Notification Bell */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            {user && <NotificationBell onNavigate={handleNav} />}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 cursor-pointer"

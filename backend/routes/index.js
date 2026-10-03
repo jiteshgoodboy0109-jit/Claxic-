@@ -6,6 +6,7 @@ import paymentsRoutes from './payments.routes.js';
 import adminRoutes from './admin.routes.js';
 import staffRoutes from './staff.routes.js';
 import learningRoutes from './learning.routes.js';
+import notificationsRoutes from './notifications.routes.js';
 
 const router = express.Router();
 
@@ -46,6 +47,7 @@ router.use('/payments', paymentsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/staff', staffRoutes);
 router.use('/learning', learningRoutes);
+router.use('/notifications', notificationsRoutes);
 
 // Compatibility alias for user applications, payments, courses, and projects
 router.use('/user/applications', (req, res, next) => {

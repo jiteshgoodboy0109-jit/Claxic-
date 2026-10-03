@@ -15,6 +15,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { CourseCard } from '../components/courses/CourseCard.jsx';
+import { LoadingSpinner } from '../components/ui/LoadingSpinner.jsx';
 
 export const CourseDetailView = ({
   course,
@@ -26,11 +27,11 @@ export const CourseDetailView = ({
   if (!course) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
-          <div className="w-10 h-10 rounded-full border-2 border-[#EE2D02] border-t-transparent animate-spin mx-auto" />
-          <h3 className="text-base font-bold text-slate-900">Loading Course Program...</h3>
-          <p className="text-xs text-slate-500">Retrieving curriculum, syllabus, and enrollment details.</p>
-        </div>
+        <LoadingSpinner
+          size="lg"
+          text="Loading Course Program..."
+          subtext="RETRIEVING CURRICULUM & SYLLABUS"
+        />
       </div>
     );
   }

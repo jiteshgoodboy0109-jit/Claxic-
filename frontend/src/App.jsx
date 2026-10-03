@@ -4,6 +4,7 @@ import { Footer } from './components/layout/Footer.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { AuthModal } from './components/modals/AuthModal.jsx';
 import { ToastContainer } from './components/ui/Toast.jsx';
+import { NotificationPopupManager } from './components/notifications/NotificationPopupManager.jsx';
 import { Button } from './components/ui/Button.jsx';
 import {
   ShieldAlert,
@@ -42,17 +43,7 @@ const CourseModal = React.lazy(() => import('./admin/modals/CourseModal.jsx').th
 const EmailSandboxModal = React.lazy(() => import('./admin/modals/EmailSandboxModal.jsx').then(m => ({ default: m.EmailSandboxModal })));
 
 // Branded Claxic Loading Indicator for Suspense Transitions
-const ClaxicLoader = () => (
-  <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center space-y-4 animate-in fade-in duration-200">
-    <div className="relative flex items-center justify-center">
-      <div className="w-12 h-12 rounded-full border-2 border-slate-200 border-t-[#EE2D02] animate-spin" />
-      <img src="/logo.png" alt="Claxic" className="w-6 h-6 object-contain absolute" />
-    </div>
-    <p className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 animate-pulse">
-      Loading Claxic View...
-    </p>
-  </div>
-);
+import { LoadingSpinner, ClaxicLoader } from './components/ui/LoadingSpinner.jsx';
 
 const MainApp = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -174,6 +165,43 @@ const MainApp = () => {
   const [courses, setCourses] = useState([]);
   const [isCoursesLoading, setIsCoursesLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState(null);
+
+  // Smooth, lag-free page transition state
+  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
+  const [transitionMeta, setTransitionMeta] = useState({
+    text: 'Loading Claxic View...',
+    subtext: 'CLAXIC ACADEMIC ENGINE',
+  });
+
+  const getTransitionMeta = (view, tab = null) => {
+    switch (view) {
+      case 'home':
+        return { text: 'Returning to Claxic Admissions...', subtext: 'GLOBAL ACADEMIC PORTAL' };
+      case 'courses':
+        return { text: 'Opening Academic Catalog...', subtext: 'SPECIALIZATION TRACKS' };
+      case 'course-detail':
+        return { text: 'Loading Course Curriculum & Syllabi...', subtext: 'CLAXIC COURSE PORTAL' };
+      case 'student':
+        if (tab === 'catalog') return { text: 'Browsing Program Directory...', subtext: 'ACADEMIC CATALOG' };
+        if (tab === 'applications') return { text: 'Loading Admission Dossier...', subtext: 'CANDIDATE APPLICATIONS' };
+        if (tab === 'billing' || tab === 'payments') return { text: 'Loading Payment Ledger...', subtext: 'FEE STATEMENTS & RECEIPTS' };
+        if (tab === 'profile') return { text: 'Loading Student Dossier...', subtext: 'STUDENT IDENTITY PROFILE' };
+        return { text: 'Connecting to Student Learning Hub...', subtext: 'SYNCHRONIZING CURRICULUM' };
+      case 'staff':
+        return { text: 'Entering Faculty & Staff Workspace...', subtext: 'COHORT & EVALUATION CONSOLE' };
+      case 'admin':
+        return { text: 'Authorizing Executive Admin Console...', subtext: 'SYSTEM GOVERNANCE PLATFORM' };
+      case 'login':
+      case 'register':
+        return { text: 'Securing Student Authentication...', subtext: 'STUDENT IDENTITY GATEWAY' };
+      case 'staff-login':
+        return { text: 'Faculty Portal Authentication...', subtext: 'STAFF ACCESS GATEWAY' };
+      case 'admin-login':
+        return { text: 'Executive Console Authentication...', subtext: 'ADMIN SECURITY GATEWAY' };
+      default:
+        return { text: 'Loading Claxic View...', subtext: 'CLAXIC ACADEMIC ENGINE' };
+    }
+  };
 
   // Modals state
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
@@ -415,19 +443,76 @@ const MainApp = () => {
     }
 
     document.title = pageTitle;
-    setCurrentView(targetView);
 
-    if (targetView === 'home' && param) {
+    const isViewChange = targetView !== currentView;
+    const isTabChange =
+      (targetView === 'student' && targetTab && targetTab !== studentTab) ||
+      (targetView === 'staff' && targetTab && targetTab !== staffTab) ||
+      (targetView === 'admin' && targetTab && targetTab !== adminTab);
+
+    // If it's only anchor scrolling on the same home page (e.g. #courses, #faq)
+    const isHomeAnchorScroll =
+      targetView === 'home' &&
+      currentView === 'home' &&
+      typeof param === 'string' &&
+      !param.startsWith('/');
+
+    if ((isViewChange || isTabChange) && !isHomeAnchorScroll) {
+      setIsPageTransitioning(true);
+      setTransitionMeta(getTransitionMeta(targetView, targetTab));
       setTimeout(() => {
-        const elem = document.getElementById(param);
-        if (elem) {
-          elem.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
+        setCurrentView(targetView);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        setTimeout(() => {
+          setIsPageTransitioning(false);
+        }, 40);
+      }, 90);
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCurrentView(targetView);
+      if (targetView === 'home' && param) {
+        setTimeout(() => {
+          const elem = document.getElementById(param);
+          if (elem) {
+            elem.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 80);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
+
+  // Browser back/forward popstate handler with smooth transition
+  useEffect(() => {
+    const handlePopState = () => {
+      const parsed = parseRouteFromUrl(courses);
+      if (
+        parsed.view !== currentView ||
+        (parsed.tab && (
+          (parsed.view === 'student' && parsed.tab !== studentTab) ||
+          (parsed.view === 'staff' && parsed.tab !== staffTab) ||
+          (parsed.view === 'admin' && parsed.tab !== adminTab)
+        ))
+      ) {
+        setIsPageTransitioning(true);
+        setTransitionMeta(getTransitionMeta(parsed.view, parsed.tab));
+        setTimeout(() => {
+          setCurrentView(parsed.view);
+          if (parsed.tab) {
+            if (parsed.view === 'student') setStudentTab(parsed.tab);
+            if (parsed.view === 'staff') setStaffTab(parsed.tab);
+            if (parsed.view === 'admin') setAdminTab(parsed.tab);
+          }
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          setTimeout(() => {
+            setIsPageTransitioning(false);
+          }, 40);
+        }, 90);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [courses, currentView, studentTab, staffTab, adminTab, parseRouteFromUrl]);
 
   // Resume pending course application after student signs in
   useEffect(() => {
@@ -518,23 +603,41 @@ const MainApp = () => {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-[#0F1E2E] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-slate-300 text-xs font-mono">
-          <div className="w-8 h-8 rounded-full border-2 border-[#38BDF8] border-t-transparent animate-spin" />
-          <span>Authenticating Session...</span>
-        </div>
+      <div className="min-h-screen bg-[#0B0E14] flex items-center justify-center">
+        <LoadingSpinner
+          size="lg"
+          minHeight="min-h-screen"
+        />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white font-sans antialiased">
+      {/* Universal Page Transition (Slim Glowing Top Bar + Clean Center Floating Indicator - NO bulky background) */}
+      {isPageTransitioning && (
+        <>
+          <div className="fixed top-0 left-0 right-0 z-[100] h-[3px] bg-gradient-to-r from-transparent via-[#EE2D02] to-[#FF7A00] shadow-[0_0_12px_rgba(238,45,2,0.9)] animate-pulse" />
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none animate-in fade-in duration-75 select-none"
+            aria-live="polite"
+          >
+            <div className="flex flex-col items-center justify-center p-4">
+              <LoadingSpinner
+                size="md"
+                variant="brand"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Top Navbar (Hidden on Login / Register / Staff Login / Admin Login / Dedicated Portals) */}
       {showGlobalNav && <Navbar currentView={currentView} onNavigate={handleNavigate} />}
 
       {/* Main Content Router */}
-      <main className="flex-1">
-        <Suspense fallback={<ClaxicLoader />}>
+      <main className="flex-1 min-h-[70vh] relative">
+        <Suspense fallback={<ClaxicLoader minHeight="min-h-[70vh]" />}>
           {currentView === 'home' && (
           <HomeView
             courses={courses}
@@ -555,11 +658,10 @@ const MainApp = () => {
         {currentView === 'course-detail' && (
           isCoursesLoading ? (
             <div className="min-h-[70vh] bg-[#F8FAFC] flex items-center justify-center p-6">
-              <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
-                <div className="w-10 h-10 rounded-full border-3 border-[#EE2D02] border-t-transparent animate-spin mx-auto" />
-                <h3 className="text-base font-bold text-slate-900">Loading Academic Program...</h3>
-                <p className="text-xs text-slate-500">Retrieving curriculum, modules, and schedule from database.</p>
-              </div>
+              <LoadingSpinner
+                size="lg"
+                minHeight="min-h-[50vh]"
+              />
             </div>
           ) : selectedCourse ? (
             <CourseDetailView
@@ -799,6 +901,9 @@ const MainApp = () => {
 
       {/* Toast Alert Stream */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
+
+      {/* Global In-Build Interactive Pop Notifications */}
+      <NotificationPopupManager onNavigate={handleNavigate} />
     </div>
   );
 };

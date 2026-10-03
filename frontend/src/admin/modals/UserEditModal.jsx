@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
+import { DegreeSelect } from '../../components/ui/DegreeSelect.jsx';
 import {
   User as UserIcon,
   Mail,
@@ -329,16 +331,12 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
               <label className="block text-xs font-semibold text-[#6B6258] mb-1">
                 Degree / Qualification
               </label>
-              <div className="relative">
-                <GraduationCap className="w-4 h-4 text-[#82684D] absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  value={degree}
-                  onChange={(e) => setDegree(e.target.value)}
-                  placeholder="e.g. B.Tech Computer Science"
-                  className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1F1F1F] outline-none transition-all"
-                />
-              </div>
+              <DegreeSelect
+                value={degree}
+                onChange={setDegree}
+                placeholder="Search Indian degrees or enter field..."
+                rounded="rounded-xl"
+              />
             </div>
 
             <div>
@@ -465,7 +463,10 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
               className="px-5 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
             >
               {isLoading ? (
-                <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <>
+                  <LoadingSpinner size="xs" variant="white" inline />
+                  <span>Saving...</span>
+                </>
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />

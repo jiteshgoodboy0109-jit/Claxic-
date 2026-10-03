@@ -151,12 +151,6 @@ export const HomeView = ({
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-2xl mx-auto space-y-3.5">
-            {/* Pill Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white">
-              <Sparkles className="w-3.5 h-3.5 text-[#EE2D02]" />
-              <span>Industry-Accredited Engineering Tracks</span>
-            </div>
-
             {/* Headline */}
             <h1 className="text-2xl sm:text-4xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
               Master Production Systems & Advanced Engineering.

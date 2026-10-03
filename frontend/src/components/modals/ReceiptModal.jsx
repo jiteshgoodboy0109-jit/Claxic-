@@ -17,6 +17,7 @@ import { Modal } from '../ui/Modal.jsx';
 import { Button } from '../ui/Button.jsx';
 import { Badge } from '../ui/Badge.jsx';
 import { exportTaxReceiptPDF } from '../../utils/adminPdfGenerator.js';
+import { LoadingSpinner } from '../ui/LoadingSpinner.jsx';
 
 export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
   const [receiptData, setReceiptData] = useState(null);
@@ -72,9 +73,13 @@ export const ReceiptModal = ({ isOpen, onClose, paymentIdOrReceipt }) => {
       maxWidth="max-w-3xl"
     >
       {isLoading ? (
-        <div className="py-16 text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-neutral-400 font-mono">Generating tax receipt document...</p>
+        <div className="py-8">
+          <LoadingSpinner
+            size="md"
+            minHeight="min-h-[140px]"
+            text="Generating Tax Receipt Document..."
+            subtext="SECURE INVOICE VERIFICATION"
+          />
         </div>
       ) : error ? (
         <div className="p-4 rounded-xl bg-rose-950/80 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">

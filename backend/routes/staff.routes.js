@@ -365,6 +365,45 @@ router.post('/announcements', async (req, res) => {
     await db.transaction((data) => {
       if (!data.announcements) data.announcements = [];
       data.announcements.unshift(newAnnouncement);
+
+      // Targeted Notification to Students
+      if (!data.notifications) data.notifications = [];
+      let targetStudentIds = [];
+      if (courseId && courseId !== 'ALL') {
+        targetStudentIds = Array.from(
+          new Set([
+            ...(data.applications || [])
+              .filter((a) => a.courseId === courseId && (a.status === 'CONFIRMED' || a.status === 'APPROVED'))
+              .map((a) => a.userId),
+            ...(data.studentProgress || [])
+              .filter((p) => p.courseId === courseId)
+              .map((p) => p.userId),
+          ])
+        ).filter(Boolean);
+      } else {
+        targetStudentIds = (data.users || [])
+          .filter((u) => u.role === 'USER' && u.isActive !== false)
+          .map((u) => u.id);
+      }
+
+      for (const studentId of targetStudentIds) {
+        data.notifications.unshift({
+          id: 'notif_ann_' + Math.random().toString(36).substring(2, 9),
+          userId: studentId,
+          title: `📢 Faculty Notice: ${title.trim()}`,
+          message: content.trim(),
+          type: priority === 'HIGH' ? 'urgent' : 'info',
+          link: '/student/learning',
+          meta: {
+            authorName: staffUser.name,
+            priority,
+            courseId: courseId || 'ALL',
+            badge: priority === 'HIGH' ? 'URGENT NOTICE' : 'FACULTY ANNOUNCEMENT',
+          },
+          isRead: false,
+          createdAt: now,
+        });
+      }
     });
 
     return res.status(201).json({
@@ -526,12 +565,49 @@ router.post('/courses/:courseId/classes', async (req, res) => {
         c.classes.push(createdClass);
         // Sort sequentially by dayNumber
         c.classes.sort((a, b) => (a.dayNumber || a.classNumber || 0) - (b.dayNumber || b.classNumber || 0));
+
+        // Targeted Notification: Only students enrolled in this specific course
+        if (!data.notifications) data.notifications = [];
+        const enrolledUserIds = Array.from(
+          new Set([
+            ...(data.applications || [])
+              .filter((a) => a.courseId === course.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED'))
+              .map((a) => a.userId),
+            ...(data.studentProgress || [])
+              .filter((p) => p.courseId === course.id)
+              .map((p) => p.userId),
+          ])
+        ).filter(Boolean);
+
+        for (const studentId of enrolledUserIds) {
+          data.notifications.unshift({
+            id: 'notif_class_' + Math.random().toString(36).substring(2, 9),
+            userId: studentId,
+            title: `🎨 Creative Class: Day ${nextNum} - ${title.trim()}`,
+            message: `A new interactive session for "${course.title}" is live! Topics: ${parsedTopics.slice(0, 3).join(', ') || 'Hands-on curriculum'}. Duration: ${duration || '1 hr 30 mins'}.`,
+            type: 'CREATIVE_CLASS',
+            link: '/student/courses',
+            meta: {
+              courseId: course.id,
+              courseTitle: course.title,
+              dayNumber: nextNum,
+              classTitle: title.trim(),
+              duration: duration || '1 hr 30 mins',
+              topics: parsedTopics,
+              instructorName: req.user.name,
+              badge: 'LIVE CLASS',
+              actionLabel: 'Jump to Class',
+            },
+            isRead: false,
+            createdAt: now,
+          });
+        }
       }
     });
 
     return res.status(201).json({
       success: true,
-      message: 'Class uploaded successfully with curriculum content.',
+      message: 'Class uploaded successfully with curriculum content and enrolled students notified.',
       class: createdClass,
     });
   } catch (err) {

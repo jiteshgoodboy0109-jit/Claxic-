@@ -253,6 +253,8 @@ router.post('/courses', async (req, res) => {
       faq: courseData.faq || [],
     };
 
+    const now = new Date().toISOString();
+
     await db.transaction((data) => {
       data.courses.unshift(newCourse);
       if (!data.auditLogs) data.auditLogs = [];
@@ -264,11 +266,48 @@ router.post('/courses', async (req, res) => {
         targetType: 'COURSE',
         targetId: newCourse.id,
         targetTitle: newCourse.title,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
       });
+
+      // Automated Broadcast: NEW LAUNCH PROMO AD TO ALL STUDENTS
+      if (newCourse.status === 'PUBLISHED') {
+        if (!data.notifications) data.notifications = [];
+        const studentUsers = (data.users || []).filter((u) => u.role === 'USER' && u.isActive !== false);
+        const discountPct =
+          newCourse.originalPrice && newCourse.originalPrice > newCourse.price
+            ? Math.round(((newCourse.originalPrice - newCourse.price) / newCourse.originalPrice) * 100)
+            : null;
+
+        for (const student of studentUsers) {
+          data.notifications.unshift({
+            id: 'notif_launch_' + Math.random().toString(36).substring(2, 9),
+            userId: student.id,
+            title: `🚀 NEW LAUNCH: ${newCourse.title}`,
+            message: `Special Launch Cohort Open! ${newCourse.shortDescription || 'Master industry-grade skills with live mentor support.'} Limited capacity of ${newCourse.capacity || 40} seats. Enroll today!`,
+            type: 'COURSE_LAUNCH_AD',
+            link: `/courses/${newCourse.slug || newCourse.id}`,
+            meta: {
+              courseId: newCourse.id,
+              slug: newCourse.slug || newCourse.id,
+              courseTitle: newCourse.title,
+              bannerImage: newCourse.bannerImage,
+              price: newCourse.price,
+              originalPrice: newCourse.originalPrice,
+              discountPercent: discountPct,
+              category: newCourse.category,
+              duration: newCourse.duration,
+              level: newCourse.level,
+              badge: 'NEW LAUNCH • AD',
+              actionLabel: 'Explore & Claim Seat',
+            },
+            isRead: false,
+            createdAt: now,
+          });
+        }
+      }
     });
 
-    return res.status(201).json({ success: true, message: 'Course created successfully.', course: newCourse });
+    return res.status(201).json({ success: true, message: 'Course created and launch ad broadcasted successfully.', course: newCourse });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to create course.' });
   }
@@ -348,6 +387,84 @@ router.delete('/courses/:id', async (req, res) => {
     return res.json({ success: true, message: 'Course deleted successfully.' });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to delete course.' });
+  }
+});
+
+// Broadcast Course Promo Ad to All Students
+router.post('/courses/:id/broadcast-ad', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+    const { customHeadline, customDiscount } = req.body || {};
+
+    const course = (db.raw.courses || []).find((c) => c.id === id || c.slug === id);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found.' });
+    }
+
+    const now = new Date().toISOString();
+    let recipientCount = 0;
+
+    await db.transaction((data) => {
+      if (!data.notifications) data.notifications = [];
+      const studentUsers = (data.users || []).filter((u) => u.role === 'USER' && u.isActive !== false);
+      recipientCount = studentUsers.length;
+
+      const discountPct =
+        customDiscount ||
+        (course.originalPrice && course.originalPrice > course.price
+          ? Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100)
+          : null);
+
+      for (const student of studentUsers) {
+        data.notifications.unshift({
+          id: 'notif_ad_' + Math.random().toString(36).substring(2, 9),
+          userId: student.id,
+          title: customHeadline ? `🔥 ${customHeadline}` : `🚀 NEW LAUNCH: ${course.title}`,
+          message: `Special Spotlight Cohort! ${course.shortDescription || 'Master cutting-edge skills with industry leaders.'} Seats are filling rapidly. Enroll now to secure your spot.`,
+          type: 'COURSE_LAUNCH_AD',
+          link: `/courses/${course.slug || course.id}`,
+          meta: {
+            courseId: course.id,
+            slug: course.slug || course.id,
+            courseTitle: course.title,
+            bannerImage: course.bannerImage,
+            price: course.price,
+            originalPrice: course.originalPrice,
+            discountPercent: discountPct,
+            category: course.category,
+            duration: course.duration,
+            level: course.level,
+            badge: 'FEATURED AD • NEW LAUNCH',
+            actionLabel: 'Explore & Claim Seat',
+          },
+          isRead: false,
+          createdAt: now,
+        });
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'COURSE_AD_BROADCASTED',
+        targetType: 'COURSE',
+        targetId: course.id,
+        targetTitle: `${course.title} (Sent to ${recipientCount} students)`,
+        createdAt: now,
+      });
+    });
+
+    return res.json({
+      success: true,
+      message: `Course ad broadcasted to ${recipientCount} active students.`,
+      recipientCount,
+      courseId: course.id,
+    });
+  } catch (err) {
+    console.error('Broadcast ad error:', err);
+    return res.status(500).json({ error: 'Failed to broadcast course ad.' });
   }
 });
 

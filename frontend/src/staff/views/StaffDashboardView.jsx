@@ -41,6 +41,8 @@ import {
   User,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
+import { NotificationBell } from '../../components/notifications/NotificationBell.jsx';
 
 // Elegant 3-bar hamburger icon that smoothly morphs into a close 'X'
 const HamburgerIcon = ({ isOpen, className = 'w-5 h-5' }) => (
@@ -1033,6 +1035,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               </button>
             )}
 
+            {/* Notification Bell */}
+            <NotificationBell onNavigate={onNavigate} />
+
             {/* Clean Faculty Staff Identity Pill */}
             <div className="flex items-center gap-2 sm:gap-2.5 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3 py-1 rounded-2xl bg-[#F4F8F8] border border-[#CBD5E1] shadow-2xs">
               <div className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0B111C] text-white text-xs font-bold shrink-0 shadow-xs ring-1 ring-slate-300">
@@ -1370,8 +1375,13 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
               {/* Class Episodes List */}
               {isLoadingClasses ? (
-                <div className="p-12 text-center text-xs text-slate-500 font-medium">
-                  Loading class curriculum episodes...
+                <div className="p-12 text-center">
+                  <LoadingSpinner
+                    size="md"
+                    text="Loading class curriculum episodes..."
+                    subtext="FACULTY CURRICULUM SYLLABI"
+                    minHeight="min-h-[20vh]"
+                  />
                 </div>
               ) : classesList.length === 0 ? (
                 <div className="bg-white border border-[#CBD5E1] rounded-[24px] p-12 text-center space-y-3">
@@ -1837,8 +1847,13 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               {/* Student Progress Table */}
               <div className="bg-white border border-[#CBD5E1] rounded-[22px] overflow-hidden shadow-xs">
                 {isLoadingProgress ? (
-                  <div className="p-12 text-center text-xs text-slate-500 font-medium">
-                    Loading student cohort progress records...
+                  <div className="p-12 text-center">
+                    <LoadingSpinner
+                      size="md"
+                      text="Loading student cohort progress records..."
+                      subtext="ATTENDANCE & MILESTONE TRACKING"
+                      minHeight="min-h-[20vh]"
+                    />
                   </div>
                 ) : studentProgressList.length === 0 ? (
                   <div className="p-12 text-center space-y-2">
@@ -2677,8 +2692,13 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                 </div>
 
                 {isLoadingCourseApps ? (
-                  <div className="p-12 text-center text-xs text-slate-500 font-medium">
-                    Loading applied students list...
+                  <div className="p-12 text-center">
+                    <LoadingSpinner
+                      size="md"
+                      text="Loading applied students list..."
+                      subtext="ADMISSIONS APPLICANT DOSSIER"
+                      minHeight="min-h-[20vh]"
+                    />
                   </div>
                 ) : courseAppsList.length === 0 ? (
                   <div className="p-12 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-2">

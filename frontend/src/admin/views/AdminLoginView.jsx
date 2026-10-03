@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 
 export const AdminLoginView = ({ onNavigate }) => {
   const { login } = useAuth();
@@ -535,7 +536,10 @@ export const AdminLoginView = ({ onNavigate }) => {
                       className="w-full py-3 px-4 bg-[#F59E0B] hover:bg-[#D97706] active:bg-[#B45309] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                       {isLoading ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="flex items-center gap-2">
+                          <LoadingSpinner size="xs" variant="white" inline />
+                          <span>Authorizing...</span>
+                        </div>
                       ) : (
                         <>
                           <span>Login</span>

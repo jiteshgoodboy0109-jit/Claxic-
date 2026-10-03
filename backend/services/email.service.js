@@ -65,10 +65,13 @@ export async function sendEmail(to, subject, templateType, data) {
   const record = {
     id: emailId,
     to,
+    toEmail: to,
     subject,
     templateType,
     htmlBody,
+    previewText: htmlBody ? htmlBody.replace(/<[^>]*>?/gm, '').slice(0, 120) : '',
     sentAt: now,
+    timestamp: now,
     status: 'DELIVERED',
   };
 

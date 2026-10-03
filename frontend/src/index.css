@@ -130,3 +130,31 @@
   scrollbar-width: thin;
 }
 
+/* Claxic Premium Loading Shimmer Animation */
+@keyframes claxic-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-claxic-shimmer {
+  animation: claxic-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Notification Pop Auto-Dismiss Countdown Bar */
+@keyframes shrink-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-shrink-progress {
+  animation: shrink-progress 6.5s linear forwards;
+}
+

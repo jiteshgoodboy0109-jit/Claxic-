@@ -12,6 +12,7 @@ import {
   KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 
 export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
   const { login } = useAuth();
@@ -533,7 +534,7 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                   >
                     {isLoading ? (
                       <>
-                        <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <LoadingSpinner size="xs" variant="white" inline className="mr-2" />
                         <span>Signing in...</span>
                       </>
                     ) : (
@@ -647,9 +648,16 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B82100] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B82100] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isLoading ? 'Creating Account...' : 'Sign Up'}
+                  {isLoading ? (
+                    <>
+                      <LoadingSpinner size="xs" variant="white" inline />
+                      <span>Creating Account...</span>
+                    </>
+                  ) : (
+                    <span>Sign Up</span>
+                  )}
                 </button>
 
                 <div className="text-center pt-0.5 text-xs text-slate-600">
@@ -688,9 +696,16 @@ export const StudentLoginView = ({ onNavigate, initialMode = 'login' }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] text-white font-semibold text-xs rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-[#EE2D02] hover:bg-[#D02600] text-white font-semibold text-xs rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isLoading ? 'Verifying...' : 'Confirm Code'}
+                  {isLoading ? (
+                    <>
+                      <LoadingSpinner size="xs" variant="white" inline />
+                      <span>Verifying...</span>
+                    </>
+                  ) : (
+                    <span>Confirm Code</span>
+                  )}
                 </button>
 
                 <div className="text-center pt-0.5">
