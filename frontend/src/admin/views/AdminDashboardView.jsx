@@ -62,6 +62,8 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 import { NotificationBell } from '../../components/notifications/NotificationBell.jsx';
 import { UserEditModal } from '../modals/UserEditModal.jsx';
 import { AppointStaffModal } from '../modals/AppointStaffModal.jsx';
+import { ManageAllotmentsModal } from '../modals/ManageAllotmentsModal.jsx';
+import { ResetStaffModal } from '../modals/ResetStaffModal.jsx';
 import {
   exportApplicationsPDF,
   exportApplicationDossierPDF,
@@ -89,17 +91,24 @@ export const AdminDashboardView = ({
   const [users, setUsers] = useState([]);
   const [payments, setPayments] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [allotmentsList, setAllotmentsList] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [appSearch, setAppSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [staffSearch, setStaffSearch] = useState('');
+  const [allotmentSearch, setAllotmentSearch] = useState('');
   const [globalSearch, setGlobalSearch] = useState('');
 
   // Modals state
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
   const [isAppointStaffModalOpen, setIsAppointStaffModalOpen] = useState(false);
+  const [isManageAllotmentsModalOpen, setIsManageAllotmentsModalOpen] = useState(false);
+  const [selectedStaffForAllotment, setSelectedStaffForAllotment] = useState(null);
+  const [isResetStaffModalOpen, setIsResetStaffModalOpen] = useState(false);
   const [selectedUserToEdit, setSelectedUserToEdit] = useState(null);
   const [activeUserMenuId, setActiveUserMenuId] = useState(null);
 
@@ -135,14 +144,16 @@ export const AdminDashboardView = ({
     {
       title: 'Operations & People',
       items: [
+        { id: 'staff', label: 'Faculty Directorate', icon: ShieldCheck, count: staffList.length },
+        { id: 'allotments', label: 'Course Allotments', icon: Layers, count: allotmentsList.length },
         { id: 'financials', label: 'Financial Settlements', icon: CreditCard, count: payments.filter((p) => p.status === 'SUCCESS').length },
-        { id: 'users', label: 'Student & Faculty Directory', icon: Users, count: users.length },
+        { id: 'users', label: 'Account Directory', icon: Users, count: users.filter((u) => u.role === 'USER').length },
       ],
     },
     {
       title: 'System Directorate',
       items: [
-        { id: 'audit', label: 'Audit Security Trail', icon: ShieldCheck },
+        { id: 'audit', label: 'Audit Security Trail', icon: ShieldAlert },
       ],
     },
   ];
@@ -172,13 +183,15 @@ export const AdminDashboardView = ({
       const token = localStorage.getItem('claxic_token');
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [ovRes, crsRes, appRes, usrRes, auditRes, payRes] = await Promise.all([
+      const [ovRes, crsRes, appRes, usrRes, auditRes, payRes, stfRes, allotRes] = await Promise.all([
         fetch('/api/admin/overview', { headers }),
         fetch('/api/admin/courses', { headers }),
         fetch('/api/admin/applications', { headers }),
         fetch('/api/admin/users', { headers }),
         fetch('/api/admin/audit-logs', { headers }),
         fetch('/api/admin/payments', { headers }),
+        fetch('/api/admin/staff', { headers }),
+        fetch('/api/admin/allotments', { headers }),
       ]);
 
       if (ovRes.status === 401 || crsRes.status === 401 || appRes.status === 401 || usrRes.status === 401) {
@@ -198,6 +211,8 @@ export const AdminDashboardView = ({
       if (usrRes.ok) setUsers((await usrRes.json()).users || []);
       if (auditRes.ok) setAuditLogs((await auditRes.json()).auditLogs || []);
       if (payRes.ok) setPayments((await payRes.json()).payments || []);
+      if (stfRes?.ok) setStaffList((await stfRes.json()).staff || []);
+      if (allotRes?.ok) setAllotmentsList((await allotRes.json()).allotments || []);
     } catch (err) {
       setError('Failed loading administrator metrics.');
     } finally {
@@ -549,6 +564,60 @@ export const AdminDashboardView = ({
       console.error('Failed to delete user:', e);
       fetchAdminData();
     }
+  };
+
+  // Toggle Staff status (active / suspended)
+  const handleToggleStaffStatus = async (staffMember) => {
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/admin/staff/${staffMember.id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isActive: !staffMember.isActive }),
+      });
+      if (res.ok) {
+        fetchAdminData();
+        setStatusToast(`Staff member status changed to ${!staffMember.isActive ? 'Active' : 'Suspended'}`);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to update staff status.');
+      }
+    } catch (e) {
+      console.error('Failed to toggle staff status:', e);
+    }
+  };
+
+  // Revoke Staff Member (sever allotments and delete account)
+  const handleRevokeStaff = async (staffMember) => {
+    if (!window.confirm(`Are you sure you want to revoke staff privileges for "${staffMember.name}" (${staffMember.email})? All course allotments will be severed.`)) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/admin/staff/${staffMember.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        fetchAdminData();
+        setStatusToast(`Revoked staff appointment for ${staffMember.name}`);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to revoke staff access.');
+      }
+    } catch (e) {
+      console.error('Failed to revoke staff:', e);
+    }
+  };
+
+  const handleOpenAllotmentsForStaff = (staffMember) => {
+    setSelectedStaffForAllotment(staffMember);
+    setIsManageAllotmentsModalOpen(true);
   };
 
   // Issue Refund
@@ -1012,15 +1081,17 @@ export const AdminDashboardView = ({
               <span>Directorate</span>
               <ChevronRight className="w-3 h-3 text-[#A89076]" />
               <span className="text-[#D97706] capitalize font-bold">
-                {activeTab === 'audit' ? 'Audit' : activeTab}
+                {activeTab === 'audit' ? 'Audit' : activeTab === 'staff' ? 'Staff Directorate' : activeTab === 'allotments' ? 'Course Allotments' : activeTab}
               </span>
             </div>
             <h1 className="text-lg sm:text-xl font-bold text-[#1F1F1F] tracking-tight mt-0.5">
               {activeTab === 'overview' && 'Executive Overview & Live Metrics'}
               {activeTab === 'applications' && `Candidate Applications Registry (${applications.length})`}
               {activeTab === 'courses' && `Accredited Course Offerings (${courses.length})`}
+              {activeTab === 'staff' && `Faculty & Staff Directorate (${staffList.length})`}
+              {activeTab === 'allotments' && `Course Allotments Matrix (${allotmentsList.length})`}
               {activeTab === 'financials' && 'Financial Settlements & Transactions'}
-              {activeTab === 'users' && `Student & Faculty Directory (${users.length})`}
+              {activeTab === 'users' && `Account Directory (${users.filter((u) => u.role === 'USER').length})`}
               {activeTab === 'audit' && 'System Security & Audit Trail'}
             </h1>
           </div>
@@ -1079,57 +1150,115 @@ export const AdminDashboardView = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
 
               {/* 1. Program Offerings */}
-              <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#F59E0B]/50 transition-all">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => handleTabChange('courses')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTabChange('courses');
+                  }
+                }}
+                className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#F59E0B] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group select-none text-left"
+                title="Click to view and manage Program Offerings"
+              >
                 <div className="flex items-center justify-between text-[#6B6258] mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#6B6258]">Program Offerings</span>
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] flex items-center justify-center">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#6B6258] group-hover:text-[#D97706] transition-colors flex items-center gap-1.5">
+                    <span>Program Offerings</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#D97706]" />
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] flex items-center justify-center group-hover:bg-[#F59E0B] group-hover:text-white transition-all shadow-2xs">
                     <BookOpen className="w-4 h-4" />
                   </div>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F1F] tracking-tight font-mono">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F1F] tracking-tight font-mono group-hover:text-[#D97706] transition-colors">
                   {courses.length}
                 </h3>
-                <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6B6258] font-medium">
+                <div className="mt-2.5 flex items-center justify-between text-xs text-[#6B6258] font-medium pt-2 border-t border-[#F0EBE3]">
                   <span>
                     {courses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0)} / {courses.reduce((sum, c) => sum + (c.capacity || 40), 0)} Total Seats Filled
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#D97706] opacity-90 group-hover:translate-x-0.5 transition-transform">
+                    View Catalog <ChevronRight className="w-3 h-3" />
                   </span>
                 </div>
               </div>
 
               {/* 2. Registered Accounts */}
-              <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#F59E0B]/50 transition-all">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => handleTabChange('users')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTabChange('users');
+                  }
+                }}
+                className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#F59E0B] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group select-none text-left"
+                title="Click to view Account Directory and registered accounts"
+              >
                 <div className="flex items-center justify-between text-[#6B6258] mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#6B6258]">Registered Accounts</span>
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] flex items-center justify-center">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#6B6258] group-hover:text-[#D97706] transition-colors flex items-center gap-1.5">
+                    <span>Registered Accounts</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#D97706]" />
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] flex items-center justify-center group-hover:bg-[#F59E0B] group-hover:text-white transition-all shadow-2xs">
                     <Users className="w-4 h-4" />
                   </div>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F1F] tracking-tight font-mono">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F1F] tracking-tight font-mono group-hover:text-[#D97706] transition-colors">
                   {users.length}
                 </h3>
-                <div className="mt-2 flex items-center gap-1.5 text-xs text-[#16A34A] font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>{users.filter((u) => u.isVerified).length} Verified Email Profiles</span>
+                <div className="mt-2.5 flex items-center justify-between text-xs text-[#6B6258] font-medium pt-2 border-t border-[#F0EBE3]">
+                  <div className="flex items-center gap-1.5 text-xs text-[#16A34A] font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span>{users.filter((u) => u.isVerified).length} Verified Email Profiles</span>
+                  </div>
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#D97706] opacity-90 group-hover:translate-x-0.5 transition-transform">
+                    View Directory <ChevronRight className="w-3 h-3" />
+                  </span>
                 </div>
               </div>
 
               {/* 3. Applicant Registrations */}
-              <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#F59E0B]/50 transition-all">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => handleTabChange('applications')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTabChange('applications');
+                  }
+                }}
+                className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#F59E0B] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group select-none text-left"
+                title="Click to view and review Applicant Registrations"
+              >
                 <div className="flex items-center justify-between text-[#6B6258] mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#6B6258]">Applicant Registrations</span>
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] flex items-center justify-center">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#6B6258] group-hover:text-[#D97706] transition-colors flex items-center gap-1.5">
+                    <span>Applicant Registrations</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#D97706]" />
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] flex items-center justify-center group-hover:bg-[#F59E0B] group-hover:text-white transition-all shadow-2xs">
                     <FileText className="w-4 h-4" />
                   </div>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F1F] tracking-tight font-mono">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F1F] tracking-tight font-mono group-hover:text-[#D97706] transition-colors">
                   {applications.length}
                 </h3>
-                <div className="mt-2 flex items-center gap-2 text-xs text-[#6B6258]">
-                  <span className="font-semibold text-[#D97706]">
-                    {applications.filter((a) => a.status === 'CONFIRMED').length} Confirmed
+                <div className="mt-2.5 flex items-center justify-between text-xs text-[#6B6258] font-medium pt-2 border-t border-[#F0EBE3]">
+                  <div className="flex items-center gap-2 text-xs text-[#6B6258]">
+                    <span className="font-semibold text-[#D97706]">
+                      {applications.filter((a) => a.status === 'CONFIRMED').length} Confirmed
+                    </span>
+                    <span>•</span>
+                    <span>{applications.filter((a) => a.status === 'SUBMITTED').length} In Review</span>
+                  </div>
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#D97706] opacity-90 group-hover:translate-x-0.5 transition-transform">
+                    Review All <ChevronRight className="w-3 h-3" />
                   </span>
-                  <span>•</span>
-                  <span>{applications.filter((a) => a.status === 'SUBMITTED').length} In Review</span>
                 </div>
               </div>
 
@@ -1695,6 +1824,310 @@ export const AdminDashboardView = ({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB: FACULTY & STAFF DIRECTORATE                          */}
+        {/* ========================================================= */}
+        {activeTab === 'staff' && (
+          <div className="space-y-6">
+            {/* Top Toolbar */}
+            <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-[#82684D] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={staffSearch}
+                  onChange={(e) => setStaffSearch(e.target.value)}
+                  placeholder="Search staff by name, email, or department..."
+                  className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl pl-9 pr-4 py-2 text-xs text-[#1F1F1F] outline-none transition-all"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsResetStaffModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  title="Audited system operation to clear all staff accounts and allotments"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset Staff Data</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAppointStaffModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Appoint Faculty / Staff</span>
+                </button>
+              </div>
+            </div>
+
+            {/* KPI Summary Tiles */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white border border-[#E8E3DC] rounded-2xl p-4 shadow-xs">
+                <span className="text-[11px] font-mono uppercase font-bold text-[#6B6258] block">Appointed Faculty</span>
+                <span className="text-2xl font-bold font-mono text-[#1F1F1F] block mt-1">{staffList.length}</span>
+                <span className="text-[10px] text-emerald-600 font-semibold mt-1 block">Active Directorate Accounts</span>
+              </div>
+              <div className="bg-white border border-[#E8E3DC] rounded-2xl p-4 shadow-xs">
+                <span className="text-[11px] font-mono uppercase font-bold text-[#6B6258] block">Active Staff Members</span>
+                <span className="text-2xl font-bold font-mono text-[#D97706] block mt-1">{staffList.filter(s => s.isActive).length}</span>
+                <span className="text-[10px] text-stone-500 font-medium mt-1 block">Authorized for Portal Login</span>
+              </div>
+              <div className="bg-white border border-[#E8E3DC] rounded-2xl p-4 shadow-xs">
+                <span className="text-[11px] font-mono uppercase font-bold text-[#6B6258] block">Total Course Allotments</span>
+                <span className="text-2xl font-bold font-mono text-[#1F1F1F] block mt-1">{allotmentsList.length}</span>
+                <span className="text-[10px] text-stone-500 font-medium mt-1 block">Active Program Bindings</span>
+              </div>
+            </div>
+
+            {/* Staff Members Table */}
+            <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
+              <div className="overflow-x-auto [scrollbar-width:thin]">
+                <table className="w-full text-left text-xs min-w-[700px]">
+                  <thead className="bg-[#FFF7E6] border-b border-[#E8E3DC] text-[#1F1F1F] font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4">Faculty Member</th>
+                      <th className="py-3.5 px-4">Department & Degree</th>
+                      <th className="py-3.5 px-4">Course Allotments</th>
+                      <th className="py-3.5 px-4">Account Status</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#EEEAE4]">
+                    {staffList
+                      .filter((s) => {
+                        const term = staffSearch.toLowerCase();
+                        return (
+                          (s.name || '').toLowerCase().includes(term) ||
+                          (s.email || '').toLowerCase().includes(term) ||
+                          (s.institution || '').toLowerCase().includes(term) ||
+                          (s.degree || '').toLowerCase().includes(term)
+                        );
+                      })
+                      .map((s) => (
+                        <tr key={s.id} className="hover:bg-[#FFF9EF] transition-colors">
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#18181B] text-amber-300 font-bold flex items-center justify-center text-xs shrink-0">
+                                {(s.name || s.email || 'S')[0].toUpperCase()}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-[#1F1F1F] truncate">{s.name}</p>
+                                <p className="text-[11px] text-[#6B6258] font-mono truncate">{s.email}</p>
+                                {s.mobile && <p className="text-[10px] text-stone-500 font-mono">{s.mobile}</p>}
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="py-3.5 px-4 text-[#6B6258]">
+                            <p className="font-semibold text-[#1F1F1F]">{s.degree || 'Faculty Member'}</p>
+                            <p className="text-[11px] text-stone-500">{s.institution || 'Department of Computer Science'}</p>
+                          </td>
+
+                          <td className="py-3.5 px-4">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenAllotmentsForStaff(s)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA] hover:bg-[#FEDDAA]/50 transition-colors cursor-pointer"
+                              title="Click to view and edit course allotments"
+                            >
+                              <Layers className="w-3 h-3" />
+                              <span>{s.allotmentsCount || (s.allottedCourses || []).length} Allotted Courses</span>
+                            </button>
+                          </td>
+
+                          <td className="py-3.5 px-4">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStaffStatus(s)}
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border cursor-pointer transition-colors ${
+                                s.isActive
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                              }`}
+                              title="Click to toggle active / suspended status"
+                            >
+                              {s.isActive ? 'Active' : 'Suspended'}
+                            </button>
+                          </td>
+
+                          <td className="py-3.5 px-4 text-right space-x-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenAllotmentsForStaff(s)}
+                              className="px-2.5 py-1 rounded-lg bg-[#FAFAF7] hover:bg-[#FFF7E6] text-[#D97706] border border-[#E8E3DC] font-semibold transition-colors cursor-pointer"
+                              title="Manage course allotments"
+                            >
+                              Allot Courses
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedUserToEdit(s);
+                                setIsUserEditModalOpen(true);
+                              }}
+                              className="p-1.5 rounded-lg bg-[#FAFAF7] hover:bg-stone-200 text-[#1F1F1F] border border-[#E8E3DC] transition-colors cursor-pointer inline-flex items-center"
+                              title="Edit Staff Member"
+                            >
+                              <Edit className="w-3.5 h-3.5 text-[#6B6258]" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRevokeStaff(s)}
+                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors cursor-pointer inline-flex items-center"
+                              title="Revoke Staff Appointment"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+
+                    {staffList.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center bg-white">
+                          <ShieldCheck className="w-10 h-10 text-stone-300 mx-auto mb-2" />
+                          <p className="font-bold text-[#1F1F1F] text-sm">No Faculty Appointed Yet</p>
+                          <p className="text-xs text-[#6B6258] mt-0.5 max-w-sm mx-auto">
+                            Appoint faculty instructors and mentors to manage curriculum courses and evaluate candidate admissions.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setIsAppointStaffModalOpen(true)}
+                            className="mt-4 px-4 py-2 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Appoint First Faculty Member</span>
+                          </button>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB: COURSE ALLOTMENTS MATRIX                             */}
+        {/* ========================================================= */}
+        {activeTab === 'allotments' && (
+          <div className="space-y-6">
+            <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h2 className="text-base font-bold text-[#1F1F1F] tracking-tight">
+                  Academic Curriculum Course Allotments
+                </h2>
+                <p className="text-xs text-[#6B6258] mt-0.5">
+                  Explicitly bind faculty instructors to accredited courses. Staff members only manage allotted programs.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (staffList.length > 0) {
+                    handleOpenAllotmentsForStaff(staffList[0]);
+                  } else {
+                    alert('Please appoint at least one staff member before managing course allotments.');
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Allot Courses to Faculty</span>
+              </button>
+            </div>
+
+            {/* Matrix of Courses & Appointed Faculty */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {courses.map((course) => {
+                const assignedStaff = staffList.filter((s) =>
+                  (s.allottedCourses || []).some((c) => (typeof c === 'string' ? c === course.id : c.id === course.id))
+                );
+
+                return (
+                  <div
+                    key={course.id}
+                    className="bg-white border border-[#E8E3DC] rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#FEDDAA] transition-all"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-md bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA]">
+                          {course.category}
+                        </span>
+                        <span className="text-[10px] font-mono text-stone-500 font-semibold">
+                          {course.duration || '10 Days'}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-bold text-[#1F1F1F] mt-2 line-clamp-1">{course.title}</h4>
+                      <p className="text-xs text-[#6B6258] mt-1 line-clamp-2 leading-relaxed">
+                        {course.shortDescription || course.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-[#EEEAE4] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-stone-600 text-[11px]">Assigned Faculty:</span>
+                        <span className="font-mono text-xs font-bold text-[#D97706]">
+                          {assignedStaff.length} Instructor{assignedStaff.length === 1 ? '' : 's'}
+                        </span>
+                      </div>
+
+                      {assignedStaff.length > 0 ? (
+                        <div className="space-y-1.5">
+                          {assignedStaff.map((staff) => (
+                            <div
+                              key={staff.id}
+                              className="p-2 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC] flex items-center justify-between gap-2 text-xs"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-6 h-6 rounded-full bg-[#18181B] text-amber-300 font-bold text-[10px] flex items-center justify-center shrink-0">
+                                  {(staff.name || 'S')[0].toUpperCase()}
+                                </div>
+                                <span className="font-semibold text-[#1F1F1F] truncate">{staff.name}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAllotmentsForStaff(staff)}
+                                className="text-[10px] font-bold text-[#D97706] hover:underline shrink-0"
+                              >
+                                Edit
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-900 flex items-center justify-between">
+                          <span>No faculty allotted yet</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (staffList.length > 0) {
+                                handleOpenAllotmentsForStaff(staffList[0]);
+                              } else {
+                                setIsAppointStaffModalOpen(true);
+                              }
+                            }}
+                            className="font-bold text-[#D97706] hover:underline"
+                          >
+                            + Allot
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -2363,6 +2796,37 @@ export const AdminDashboardView = ({
           setStatusToast(`Successfully appointed ${newStaff.name} as ${newStaff.role}`);
         }}
       />
+
+      {/* Manage Course Allotments Modal */}
+      {selectedStaffForAllotment && (
+        <ManageAllotmentsModal
+          isOpen={isManageAllotmentsModalOpen}
+          onClose={() => {
+            setIsManageAllotmentsModalOpen(false);
+            setSelectedStaffForAllotment(null);
+          }}
+          staffMember={selectedStaffForAllotment}
+          allCourses={courses}
+          onAllotmentsSaved={(updatedAllotments) => {
+            setIsManageAllotmentsModalOpen(false);
+            setSelectedStaffForAllotment(null);
+            fetchAdminData();
+            setStatusToast('Course allotments successfully updated.');
+          }}
+        />
+      )}
+
+      {/* Reset Staff System Modal */}
+      <ResetStaffModal
+        isOpen={isResetStaffModalOpen}
+        onClose={() => setIsResetStaffModalOpen(false)}
+        onStaffResetSuccess={() => {
+          setIsResetStaffModalOpen(false);
+          fetchAdminData();
+          setStatusToast('Staff data reset completed successfully.');
+        }}
+      />
+
 
       </div>
     </div>

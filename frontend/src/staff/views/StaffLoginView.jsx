@@ -111,7 +111,7 @@ export const StaffLoginView = ({ onNavigate }) => {
         );
       }
 
-      if (!data.user || data.user.role !== 'STAFF') {
+      if (!data.user || (data.user.role !== 'STAFF' && data.user.role !== 'ADMIN')) {
         throw new Error('Access denied. This account is not registered as Staff.');
       }
 
@@ -136,8 +136,23 @@ export const StaffLoginView = ({ onNavigate }) => {
           scope: 'email profile openid',
           callback: async (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
+              let userProfile = {};
+              try {
+                const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                if (profileRes.ok) {
+                  userProfile = await profileRes.json();
+                }
+              } catch (e) {
+                console.warn('Browser userinfo fetch notice:', e);
+              }
+
               await handleGoogleStaffLogin({
                 accessToken: tokenResponse.access_token,
+                email: userProfile.email,
+                name: userProfile.name,
+                avatar: userProfile.picture,
               });
             } else if (tokenResponse && tokenResponse.error) {
               setError(`Google Sign-In error: ${tokenResponse.error}`);
@@ -174,15 +189,15 @@ export const StaffLoginView = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f4f8f8] flex items-center justify-center p-3 sm:p-5 lg:p-6 font-sans antialiased selection:bg-[#0F1E2E]/15 selection:text-[#0F1E2E]">
+    <div className="min-h-screen w-full bg-[#FAF7F2] flex items-center justify-center p-3 sm:p-5 lg:p-6 font-sans antialiased selection:bg-[#FFF7E6] selection:text-[#D97706]">
       
       {/* Centered Main Authentication Container */}
-      <div className="w-full max-w-[880px] bg-[#FFFFFF] border border-[#CBD5E1] rounded-[24px] sm:rounded-[30px] shadow-[0_20px_50px_rgba(15,23,42,0.08)] hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)] transition-all duration-200 overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative my-auto">
+      <div className="w-full max-w-[880px] bg-[#FFFFFF] border border-[#E8E3DC] rounded-[24px] sm:rounded-[30px] shadow-[0_20px_50px_rgba(15,23,42,0.08)] hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)] transition-all duration-200 overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative my-auto">
         
         {/* ======================================================== */}
         {/* LEFT COLUMN: SLEEK DARK ACADEMIC STAFF ARTWORK AREA      */}
         {/* ======================================================== */}
-        <div className="hidden lg:flex lg:col-span-6 bg-[#0B111C] p-8 sm:p-10 lg:p-12 flex-col items-center justify-between relative overflow-hidden lg:border-r border-slate-800 min-h-[560px]">
+        <div className="hidden lg:flex lg:col-span-6 bg-[#18181B] p-8 sm:p-10 lg:p-12 flex-col items-center justify-between relative overflow-hidden lg:border-r border-stone-800 min-h-[560px]">
           
           {/* Top Left: Claxic Brand Logo (Large, Clean, No Pill Background) */}
           <div className="w-full flex items-center justify-start z-10">
@@ -192,7 +207,7 @@ export const StaffLoginView = ({ onNavigate }) => {
                 alt="Claxic"
                 className="h-7 sm:h-8 lg:h-9 w-auto object-contain transition-transform duration-200 hover:scale-102"
               />
-              <span className="text-[11px] font-mono uppercase font-bold tracking-wider text-[#FB7185] border-l border-slate-700/80 pl-3">
+              <span className="text-[11px] font-mono uppercase font-bold tracking-wider text-[#FBBF24] border-l border-stone-700/80 pl-3">
                 Staff Portal
               </span>
             </div>
@@ -207,48 +222,48 @@ export const StaffLoginView = ({ onNavigate }) => {
               className="w-full h-auto drop-shadow-md"
             >
               {/* Subtle Ambient Glow */}
-              <circle cx="200" cy="180" r="110" fill="#E11D48" opacity="0.08" filter="blur(30px)" />
+              <circle cx="200" cy="180" r="110" fill="#F59E0B" opacity="0.08" filter="blur(30px)" />
 
               {/* Minimal Organic Background Accents */}
-              <circle cx="95" cy="85" r="4.5" stroke="#FB7185" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.8" />
-              <circle cx="340" cy="180" r="3.5" stroke="#FB7185" strokeWidth="1.5" opacity="0.8" />
-              <path d="M 60 140 Q 75 130 90 140 T 120 140" stroke="#64748B" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
-              <path d="M 60 190 Q 75 200 90 190 T 110 195" stroke="#64748B" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
+              <circle cx="95" cy="85" r="4.5" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.8" />
+              <circle cx="340" cy="180" r="3.5" stroke="#FBBF24" strokeWidth="1.5" opacity="0.8" />
+              <path d="M 60 140 Q 75 130 90 140 T 120 140" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
+              <path d="M 60 190 Q 75 200 90 190 T 110 195" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.7" />
 
               {/* Minimalist Wall Clock */}
-              <circle cx="270" cy="90" r="24" stroke="#94A3B8" strokeWidth="2" fill="#16293D" />
-              <path d="M 270 76 L 270 90 L 282 90" stroke="#FB7185" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="270" cy="90" r="24" stroke="#A1A1AA" strokeWidth="2" fill="#27272A" />
+              <path d="M 270 76 L 270 90 L 282 90" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
               {/* Base Platform Line */}
-              <path d="M 50 280 L 350 280" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+              <path d="M 50 280 L 350 280" stroke="#52525B" strokeWidth="2" strokeLinecap="round" />
 
               {/* Left Pedestal Column (Patterned with luminous dots) */}
-              <rect x="90" y="210" width="48" height="70" fill="#1E3A5F" rx="3" stroke="#334E68" strokeWidth="1" />
-              <circle cx="102" cy="225" r="2" fill="#FB7185" />
-              <circle cx="118" cy="225" r="2" fill="#FB7185" />
-              <circle cx="126" cy="245" r="2" fill="#FB7185" />
-              <circle cx="106" cy="250" r="2" fill="#FB7185" />
-              <circle cx="116" cy="265" r="2" fill="#FB7185" />
+              <rect x="90" y="210" width="48" height="70" fill="#27272A" rx="3" stroke="#3F3F46" strokeWidth="1" />
+              <circle cx="102" cy="225" r="2" fill="#FBBF24" />
+              <circle cx="118" cy="225" r="2" fill="#FBBF24" />
+              <circle cx="126" cy="245" r="2" fill="#FBBF24" />
+              <circle cx="106" cy="250" r="2" fill="#FBBF24" />
+              <circle cx="116" cy="265" r="2" fill="#FBBF24" />
 
               {/* Central Main Platform Block */}
-              <rect x="150" y="180" width="75" height="100" fill="#881337" rx="3" stroke="#BE123C" strokeWidth="1" />
+              <rect x="150" y="180" width="75" height="100" fill="#222329" rx="3" stroke="#3F3F46" strokeWidth="1" />
 
               {/* Seated Staff Character */}
               {/* Hair */}
               <path
                 d="M 170 115 C 160 100 175 80 195 85 C 210 90 215 105 205 120 C 190 118 180 125 170 115 Z"
-                fill="#0F172A"
-                stroke="#FB7185"
+                fill="#18181B"
+                stroke="#F59E0B"
                 strokeWidth="1.5"
               />
               {/* Head */}
-              <circle cx="198" cy="112" r="13" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+              <circle cx="198" cy="112" r="13" fill="#FFFFFF" stroke="#18181B" strokeWidth="2" />
 
               {/* Torso & Shirt with Luminous Pattern */}
               <path
                 d="M 185 130 C 175 140 170 160 170 180 L 215 180 C 218 165 215 145 205 130 Z"
-                fill="#0F172A"
-                stroke="#FB7185"
+                fill="#18181B"
+                stroke="#F59E0B"
                 strokeWidth="1.5"
               />
               {/* Bright White Collar & Dashes on Shirt */}
@@ -273,34 +288,34 @@ export const StaffLoginView = ({ onNavigate }) => {
                 fill="none"
               />
 
-              {/* Glowing Laptop (Ruby Screen) */}
-              <path d="M 240 172 L 280 172 L 275 168 L 244 168 Z" fill="#0F172A" stroke="#FB7185" strokeWidth="1" />
-              <path d="M 255 170 L 275 125 L 285 130 L 265 170 Z" fill="#FB7185" stroke="#0F172A" strokeWidth="1.5" />
+              {/* Glowing Laptop */}
+              <path d="M 240 172 L 280 172 L 275 168 L 244 168 Z" fill="#18181B" stroke="#F59E0B" strokeWidth="1" />
+              <path d="M 255 170 L 275 125 L 285 130 L 265 170 Z" fill="#F59E0B" stroke="#18181B" strokeWidth="1.5" />
 
               {/* Legs Seated Comfortably */}
               <path
                 d="M 185 180 C 185 195 190 210 210 215 C 225 218 240 230 245 260 L 225 262 C 220 240 205 230 190 225 C 175 220 170 200 170 180 Z"
                 fill="#FFFFFF"
-                stroke="#0F172A"
+                stroke="#18181B"
                 strokeWidth="2"
               />
 
               {/* Shoes */}
-              <path d="M 245 260 C 255 260 262 268 258 274 L 240 274 L 240 262 Z" fill="#FB7185" stroke="#0F172A" strokeWidth="1" />
-              <path d="M 215 250 C 220 250 226 256 224 262 L 208 262 L 210 252 Z" fill="#FB7185" stroke="#0F172A" strokeWidth="1" />
+              <path d="M 245 260 C 255 260 262 268 258 274 L 240 274 L 240 262 Z" fill="#F59E0B" stroke="#18181B" strokeWidth="1" />
+              <path d="M 215 250 C 220 250 226 256 224 262 L 208 262 L 210 252 Z" fill="#F59E0B" stroke="#18181B" strokeWidth="1" />
             </svg>
           </div>
 
           {/* Bottom Academic Trust Notice */}
-          <div className="flex items-center gap-2 text-center text-slate-300 text-xs font-medium">
-            <ShieldCheck className="w-4 h-4 text-[#FB7185] shrink-0" />
+          <div className="flex items-center gap-2 text-center text-stone-300 text-xs font-medium">
+            <ShieldCheck className="w-4 h-4 text-[#FBBF24] shrink-0" />
             <span>Authorized Claxic Staff Access Directorate</span>
           </div>
 
         </div>
 
         {/* ======================================================== */}
-        {/* RIGHT COLUMN: CLEAN WHITE FORM WITH DARK NAVY ACCENT     */}
+        {/* RIGHT COLUMN: CLEAN WHITE FORM WITH CHARCOAL & AMBER ACCENT */}
         {/* ======================================================== */}
         <div className="lg:col-span-6 p-5 sm:p-9 lg:p-11 flex flex-col justify-center bg-[#FFFFFF]">
           <div className="max-w-[360px] w-full mx-auto space-y-5">
@@ -308,17 +323,17 @@ export const StaffLoginView = ({ onNavigate }) => {
             {/* Mobile-only Brand Header */}
             <div className="flex items-center gap-2.5 pb-1 lg:hidden">
               <img src="/logo.png" alt="Claxic" className="h-7 w-auto object-contain" />
-              <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#FB7185] bg-[#E11D48]/15 border border-[#E11D48]/35 px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-[#FBBF24] bg-[#F59E0B]/15 border border-[#F59E0B]/35 px-2.5 py-0.5 rounded-full">
                 Faculty
               </span>
             </div>
 
             {/* Header: Title & Subtitle */}
             <div className="text-left space-y-1">
-              <h1 className="text-[26px] sm:text-[30px] font-bold text-[#0F1E2E] tracking-tight font-display">
+              <h1 className="text-[26px] sm:text-[30px] font-bold text-[#1F1F1F] tracking-tight font-display">
                 Staff Login
               </h1>
-              <p className="text-xs sm:text-sm text-[#627D98] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#6B6258] leading-relaxed">
                 Enter your staff credentials to access your portal
               </p>
             </div>
@@ -343,11 +358,11 @@ export const StaffLoginView = ({ onNavigate }) => {
               
               {/* Input 1: Staff Email */}
               <div className="space-y-1.5 group">
-                <label className="block text-xs font-semibold text-[#0F1E2E]/90 transition-colors duration-150 group-focus-within:text-[#E11D48]">
+                <label className="block text-xs font-semibold text-[#6B6258] transition-colors duration-150 group-focus-within:text-[#D97706]">
                   Staff Email Address
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#829AB1] group-focus-within:text-[#E11D48] transition-colors duration-150">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#82684D] group-focus-within:text-[#F59E0B] transition-colors duration-150">
                     <UserIcon className="w-4 h-4" />
                   </div>
                   <input
@@ -356,18 +371,18 @@ export const StaffLoginView = ({ onNavigate }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@claxic.edu"
-                    className="w-full bg-[#FFFFFF] border border-[#CBD5E1] hover:border-[#E11D48]/50 focus:bg-white focus:border-[#E11D48] focus:ring-4 focus:ring-[#E11D48]/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#0F1E2E] placeholder:text-[#94A3B8] outline-none transition-all duration-150"
+                    className="w-full bg-[#FAFAF7] border border-[#E8E3DC] hover:border-[#D0C7BC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#1F1F1F] placeholder:text-[#82684D]/50 outline-none transition-all duration-150"
                   />
                 </div>
               </div>
 
               {/* Input 2: Password */}
               <div className="space-y-1.5 group">
-                <label className="block text-xs font-semibold text-[#0F1E2E]/90 transition-colors duration-150 group-focus-within:text-[#E11D48]">
+                <label className="block text-xs font-semibold text-[#6B6258] transition-colors duration-150 group-focus-within:text-[#D97706]">
                   Account Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#829AB1] group-focus-within:text-[#E11D48] transition-colors duration-150">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#82684D] group-focus-within:text-[#F59E0B] transition-colors duration-150">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -376,12 +391,12 @@ export const StaffLoginView = ({ onNavigate }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-[#FFFFFF] border border-[#CBD5E1] hover:border-[#E11D48]/50 focus:bg-white focus:border-[#E11D48] focus:ring-4 focus:ring-[#E11D48]/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#0F1E2E] placeholder:text-[#94A3B8] outline-none transition-all duration-150 font-mono"
+                    className="w-full bg-[#FAFAF7] border border-[#E8E3DC] hover:border-[#D0C7BC] focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/15 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#1F1F1F] placeholder:text-[#82684D]/50 outline-none transition-all duration-150 font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#829AB1] hover:text-[#0F1E2E] transition-colors duration-150 cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#82684D] hover:text-[#1F1F1F] transition-colors duration-150 cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -389,12 +404,12 @@ export const StaffLoginView = ({ onNavigate }) => {
                 </div>
               </div>
 
-              {/* Submit Button (Imperial Ruby Gradient) */}
+              {/* Submit Button */}
               <div className="pt-1">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] active:scale-[0.99] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 px-4 bg-[#F59E0B] hover:bg-[#D97706] active:bg-[#B45309] text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
@@ -411,18 +426,18 @@ export const StaffLoginView = ({ onNavigate }) => {
             {/* Social Authentication: Google OAuth SSO for Staff */}
             <div className="space-y-3 pt-0.5">
               <div className="flex items-center gap-3">
-                <div className="h-px bg-[#E2E8F0] flex-1" />
-                <span className="text-xs text-[#627D98] whitespace-nowrap font-medium select-none">
+                <div className="h-px bg-[#E8E3DC] flex-1" />
+                <span className="text-xs text-[#6B6258] whitespace-nowrap font-medium select-none">
                   Or sign in with
                 </span>
-                <div className="h-px bg-[#E2E8F0] flex-1" />
+                <div className="h-px bg-[#E8E3DC] flex-1" />
               </div>
 
               <button
                 type="button"
                 onClick={handleGoogleButtonClick}
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 text-[#0F1E2E] border border-[#CBD5E1] hover:border-[#0F1E2E]/50 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2.5 transition-all duration-150 shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAFAF7] text-[#1F1F1F] border border-[#E8E3DC] hover:border-[#D0C7BC] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2.5 transition-all duration-150 shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />

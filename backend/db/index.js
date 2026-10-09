@@ -294,24 +294,10 @@ export const initialData = {
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-08-30T10:00:00.000Z',
     },
-    {
-      id: 'usr_staff_sarah',
-      name: 'Dr. Sarah Jenkins (Staff)',
-      email: 'staff@claxic.edu',
-      mobile: '+91 98765 43210',
-      role: 'STAFF',
-      isVerified: true,
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
-      institution: 'Claxic Faculty Directorate',
-      degree: 'Lead Curriculum & Admissions Reviewer',
-      yearOfStudy: 'Senior Staff Member',
-      isActive: true,
-      passwordHash: staffCreds.hash,
-      salt: staffCreds.salt,
-      createdAt: '2026-08-01T00:00:00.000Z',
-      updatedAt: '2026-08-30T10:00:00.000Z',
-    },
   ],
+  staffCourseAllotments: [],
+  lessonVideos: [],
+  lessonPlaybackProgress: [],
   courses: [
     {
       id: 'crs_ai_fullstack_2026',
@@ -844,6 +830,80 @@ export const initialData = {
       updatedAt: '2026-09-02T16:00:00.000Z',
     }
   ],
+  doubts: [
+    {
+      id: "dbt_sample_1",
+      studentId: "usr_055ed132fa71fbff",
+      studentName: "Jitesh P",
+      studentEmail: "jiteshgoodboy.008@gmail.com",
+      courseId: "crs_ai_fullstack_2026",
+      courseTitle: "Applied GenAI & Full-Stack System Architecture",
+      classId: "cls_crs_ai_fullstack_2026_1",
+      classNumber: 1,
+      classTitle: "Day 1: Architectural Foundations, Prerequisites & Environment Setup",
+      question: "How do we handle Docker Compose secrets if we want to run this in a production cloud environment instead of local workstation?",
+      reply: "In production cloud setups (such as AWS ECS or GCP Cloud Run), use AWS Secrets Manager or Google Secret Manager and inject them as environment variables during container initialization rather than committing them in docker-compose.yml.",
+      repliedBy: "Dr. Sarah Jenkins (Lead Faculty)",
+      repliedAt: "2026-09-02T14:30:00.000Z",
+      status: "RESOLVED",
+      createdAt: "2026-09-02T11:20:00.000Z",
+      updatedAt: "2026-09-02T14:30:00.000Z"
+    },
+    {
+      id: "dbt_sample_2",
+      studentId: "usr_055ed132fa71fbff",
+      studentName: "Jitesh P",
+      studentEmail: "jiteshgoodboy.008@gmail.com",
+      courseId: "crs_ai_fullstack_2026",
+      courseTitle: "Applied GenAI & Full-Stack System Architecture",
+      classId: "cls_crs_ai_fullstack_2026_2",
+      classNumber: 2,
+      classTitle: "Day 2: Relational Schema Modeling, Indexes & ACID Transactions",
+      question: "When streaming LLM tokens via gRPC versus Server-Sent Events (SSE), what are the latency tradeoffs when behind an NGINX reverse proxy?",
+      reply: "",
+      repliedBy: "",
+      repliedAt: null,
+      status: "OPEN",
+      createdAt: "2026-09-03T16:45:00.000Z",
+      updatedAt: "2026-09-03T16:45:00.000Z"
+    },
+    {
+      id: "dbt_sample_3",
+      studentId: "usr_admin_jitesh_genkit",
+      studentName: "Jitesh",
+      studentEmail: "jitesh.genkit@gmail.com",
+      courseId: "crs_ai_fullstack_2026",
+      courseTitle: "Applied GenAI & Full-Stack System Architecture",
+      classId: "cls_crs_ai_fullstack_2026_1",
+      classNumber: 1,
+      classTitle: "Day 1: Architectural Foundations, Prerequisites & Environment Setup",
+      question: "Is Node.js v22 LTS required or does Node v20 LTS also satisfy all toolchain dependencies for the vector search library?",
+      reply: "",
+      repliedBy: "",
+      repliedAt: null,
+      status: "OPEN",
+      createdAt: "2026-09-04T10:15:00.000Z",
+      updatedAt: "2026-09-04T10:15:00.000Z"
+    },
+    {
+      id: "dbt_sample_4",
+      studentId: "usr_student_alpha",
+      studentName: "Student Alpha",
+      studentEmail: "student@claxic.edu",
+      courseId: "crs_ai_fullstack_2026",
+      courseTitle: "Applied GenAI & Full-Stack System Architecture",
+      classId: "cls_crs_ai_fullstack_2026_2",
+      classNumber: 2,
+      classTitle: "Day 2: Relational Schema Modeling, Indexes & ACID Transactions",
+      question: "In SQLite transactions, what is the exact difference between BEGIN IMMEDIATE and standard BEGIN during concurrent read/write locks?",
+      reply: "BEGIN IMMEDIATE prevents SQLITE_BUSY deadlocks by immediately acquiring a RESERVED lock, ensuring that no other thread can start writing while your transaction prepares its mutations.",
+      repliedBy: "Dr. Sarah Jenkins (Lead Faculty)",
+      repliedAt: "2026-09-04T12:00:00.000Z",
+      status: "RESOLVED",
+      createdAt: "2026-09-04T11:00:00.000Z",
+      updatedAt: "2026-09-04T12:00:00.000Z"
+    }
+  ],
   notifications: [],
   auditLogs: [
     {
@@ -1075,6 +1135,80 @@ class SQLiteDatabase {
         updatedAt TEXT NOT NULL
       );
       CREATE UNIQUE INDEX IF NOT EXISTS idx_progress_user_course ON student_progress(userId, courseId);
+
+      -- Class Doubts & Clarifications Table
+      CREATE TABLE IF NOT EXISTS doubts (
+        id TEXT PRIMARY KEY,
+        studentId TEXT NOT NULL,
+        studentName TEXT NOT NULL,
+        studentEmail TEXT NOT NULL,
+        courseId TEXT NOT NULL,
+        courseTitle TEXT NOT NULL,
+        classId TEXT NOT NULL,
+        classNumber INTEGER DEFAULT 1,
+        classTitle TEXT NOT NULL,
+        question TEXT NOT NULL,
+        reply TEXT DEFAULT '',
+        repliedBy TEXT DEFAULT '',
+        repliedAt TEXT,
+        status TEXT NOT NULL DEFAULT 'OPEN',
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_doubts_course ON doubts(courseId);
+      CREATE INDEX IF NOT EXISTS idx_doubts_class ON doubts(classId);
+      CREATE INDEX IF NOT EXISTS idx_doubts_student ON doubts(studentId);
+
+      -- Staff Course Allotments Table (Admin-Controlled Allotment)
+      CREATE TABLE IF NOT EXISTS staff_course_allotments (
+        id TEXT PRIMARY KEY,
+        staffId TEXT NOT NULL,
+        courseId TEXT NOT NULL,
+        assignedBy TEXT NOT NULL,
+        assignedAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'ACTIVE',
+        UNIQUE(staffId, courseId)
+      );
+      CREATE INDEX IF NOT EXISTS idx_allotments_staff ON staff_course_allotments(staffId);
+      CREATE INDEX IF NOT EXISTS idx_allotments_course ON staff_course_allotments(courseId);
+
+      -- Lesson Uploaded Videos Table (Locally Uploaded Videos with Authentication)
+      CREATE TABLE IF NOT EXISTS lesson_videos (
+        id TEXT PRIMARY KEY,
+        courseId TEXT NOT NULL,
+        classId TEXT NOT NULL,
+        originalName TEXT NOT NULL,
+        filename TEXT NOT NULL,
+        storagePath TEXT NOT NULL,
+        mimeType TEXT NOT NULL,
+        sizeBytes INTEGER NOT NULL,
+        durationSeconds REAL DEFAULT 0,
+        uploadedBy TEXT NOT NULL,
+        uploadedAt TEXT NOT NULL,
+        UNIQUE(courseId, classId)
+      );
+      CREATE INDEX IF NOT EXISTS idx_lesson_videos_course ON lesson_videos(courseId);
+      CREATE INDEX IF NOT EXISTS idx_lesson_videos_class ON lesson_videos(classId);
+
+      -- Lesson Playback Progress Table (75% completion threshold & 5s skip tracking)
+      CREATE TABLE IF NOT EXISTS lesson_playback_progress (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        courseId TEXT NOT NULL,
+        classId TEXT NOT NULL,
+        lastPosition REAL NOT NULL DEFAULT 0,
+        furthestPosition REAL NOT NULL DEFAULT 0,
+        watchedSeconds REAL NOT NULL DEFAULT 0,
+        durationSeconds REAL NOT NULL DEFAULT 0,
+        completed INTEGER NOT NULL DEFAULT 0,
+        completedAt TEXT,
+        updatedAt TEXT NOT NULL,
+        UNIQUE(userId, courseId, classId)
+      );
+      CREATE INDEX IF NOT EXISTS idx_playback_user ON lesson_playback_progress(userId);
+      CREATE INDEX IF NOT EXISTS idx_playback_course ON lesson_playback_progress(courseId);
+      CREATE INDEX IF NOT EXISTS idx_playback_class ON lesson_playback_progress(classId);
     `);
 
     // Ensure columns exist if table was previously created with older schema
@@ -1108,20 +1242,8 @@ class SQLiteDatabase {
           }
         }
 
-        const checkStaff = this.sqlite.prepare("SELECT id FROM users WHERE email = 'staff@claxic.edu'").get();
-        if (!checkStaff) {
-          const staff = initialData.users.find((u) => u.email === 'staff@claxic.edu');
-          if (staff) {
-            const insertUser = this.sqlite.prepare(`
-              INSERT INTO users (id, name, email, mobile, role, isVerified, avatar, institution, degree, yearOfStudy, isActive, passwordHash, salt, createdAt, updatedAt)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `);
-            insertUser.run(
-              staff.id, staff.name, staff.email, staff.mobile || '', staff.role, staff.isVerified ? 1 : 0, staff.avatar || '',
-              staff.institution || '', staff.degree || '', staff.yearOfStudy || '', 1, staff.passwordHash, staff.salt, staff.createdAt, staff.updatedAt
-            );
-          }
-        }
+        // NOTE: Staff accounts are strictly managed and appointed by the Administrator.
+        // No hardcoded or automatic staff account is seeded upon startup.
 
         // Ensure courses have rich classes with videos, topics, summaries, and tests populated
         const existingCourses = this.sqlite.prepare('SELECT id, title, classes FROM courses').all();
@@ -1175,6 +1297,22 @@ class SQLiteDatabase {
               sp.id, sp.userId, sp.courseId, sp.startDate || '',
               JSON.stringify(sp.completedClasses || []), JSON.stringify(sp.testResults || []),
               JSON.stringify(sp.attendance || []), sp.progressPercent || 0, sp.updatedAt
+            );
+          }
+        }
+
+        // Seed sample doubts if table is empty
+        const doubtsCount = this.sqlite.prepare('SELECT count(*) as count FROM doubts').get();
+        if (doubtsCount && doubtsCount.count === 0) {
+          for (const d of initialData.doubts || []) {
+            this.sqlite.prepare(`
+              INSERT INTO doubts (id, studentId, studentName, studentEmail, courseId, courseTitle, classId, classNumber, classTitle, question, reply, repliedBy, repliedAt, status, createdAt, updatedAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(
+              d.id, d.studentId, d.studentName, d.studentEmail, d.courseId, d.courseTitle,
+              d.classId, d.classNumber || 1, d.classTitle || '', d.question, d.reply || '',
+              d.repliedBy || '', d.repliedAt || null, d.status || 'OPEN',
+              d.createdAt, d.updatedAt
             );
           }
         }
@@ -1421,6 +1559,95 @@ class SQLiteDatabase {
         );
       }
 
+      // Clear & Seed Doubts
+      this.sqlite.exec('DELETE FROM doubts;');
+      const insertDoubt = this.sqlite.prepare(`
+        INSERT INTO doubts (id, studentId, studentName, studentEmail, courseId, courseTitle, classId, classNumber, classTitle, question, reply, repliedBy, repliedAt, status, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const d of data.doubts || []) {
+        insertDoubt.run(
+          d.id,
+          d.studentId,
+          d.studentName,
+          d.studentEmail,
+          d.courseId,
+          d.courseTitle,
+          d.classId,
+          d.classNumber || 1,
+          d.classTitle || '',
+          d.question,
+          d.reply || '',
+          d.repliedBy || '',
+          d.repliedAt || null,
+          d.status || 'OPEN',
+          d.createdAt || new Date().toISOString(),
+          d.updatedAt || new Date().toISOString()
+        );
+      }
+
+      // Clear & Seed Staff Course Allotments
+      this.sqlite.exec('DELETE FROM staff_course_allotments;');
+      const insertAllotment = this.sqlite.prepare(`
+        INSERT INTO staff_course_allotments (id, staffId, courseId, assignedBy, assignedAt, updatedAt, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const a of data.staffCourseAllotments || []) {
+        insertAllotment.run(
+          a.id,
+          a.staffId,
+          a.courseId,
+          a.assignedBy || 'admin',
+          a.assignedAt || new Date().toISOString(),
+          a.updatedAt || new Date().toISOString(),
+          a.status || 'ACTIVE'
+        );
+      }
+
+      // Clear & Seed Lesson Videos
+      this.sqlite.exec('DELETE FROM lesson_videos;');
+      const insertVideo = this.sqlite.prepare(`
+        INSERT INTO lesson_videos (id, courseId, classId, originalName, filename, storagePath, mimeType, sizeBytes, durationSeconds, uploadedBy, uploadedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const v of data.lessonVideos || []) {
+        insertVideo.run(
+          v.id,
+          v.courseId || '',
+          v.classId || v.lessonId || '',
+          v.originalName || '',
+          v.filename || '',
+          v.storagePath || '',
+          v.mimeType || 'video/mp4',
+          v.sizeBytes || 0,
+          v.durationSeconds || v.durationSec || 0,
+          v.uploadedBy || 'staff',
+          v.uploadedAt || new Date().toISOString()
+        );
+      }
+
+      // Clear & Seed Lesson Playback Progress
+      this.sqlite.exec('DELETE FROM lesson_playback_progress;');
+      const insertPlayback = this.sqlite.prepare(`
+        INSERT INTO lesson_playback_progress (id, userId, courseId, classId, lastPosition, furthestPosition, watchedSeconds, durationSeconds, completed, completedAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const p of data.lessonPlaybackProgress || []) {
+        insertPlayback.run(
+          p.id,
+          p.userId || p.studentId || '',
+          p.courseId || '',
+          p.classId || p.lessonId || '',
+          p.lastPosition || p.lastPositionSec || 0,
+          p.furthestPosition || p.furthestPositionSec || 0,
+          p.watchedSeconds || 0,
+          p.durationSeconds || p.durationSec || 0,
+          (p.completed || p.isCompleted) ? 1 : 0,
+          p.completedAt || null,
+          p.updatedAt || new Date().toISOString()
+        );
+      }
+
       this.sqlite.exec('COMMIT;');
     } catch (err) {
       this.sqlite.exec('ROLLBACK;');
@@ -1512,6 +1739,41 @@ class SQLiteDatabase {
       studentProgress = [];
     }
 
+    // Query doubts
+    let doubts = [];
+    try {
+      doubts = this.sqlite.prepare('SELECT * FROM doubts ORDER BY createdAt DESC').all();
+    } catch (e) {
+      doubts = [];
+    }
+
+    // Query staff course allotments
+    let staffCourseAllotments = [];
+    try {
+      staffCourseAllotments = this.sqlite.prepare('SELECT * FROM staff_course_allotments').all();
+    } catch (e) {
+      staffCourseAllotments = [];
+    }
+
+    // Query lesson videos
+    let lessonVideos = [];
+    try {
+      lessonVideos = this.sqlite.prepare('SELECT * FROM lesson_videos').all();
+    } catch (e) {
+      lessonVideos = [];
+    }
+
+    // Query lesson playback progress
+    let lessonPlaybackProgress = [];
+    try {
+      lessonPlaybackProgress = this.sqlite.prepare('SELECT * FROM lesson_playback_progress').all().map((p) => ({
+        ...p,
+        completed: Boolean(p.completed),
+      }));
+    } catch (e) {
+      lessonPlaybackProgress = [];
+    }
+
     return {
       users,
       courses,
@@ -1525,9 +1787,63 @@ class SQLiteDatabase {
       emailRecords,
       projectSubmissions,
       studentProgress,
+      doubts,
+      staffCourseAllotments,
+      lessonVideos,
+      lessonPlaybackProgress,
     };
   }
 
+  resetAllStaffData({ adminId = 'admin', adminName = 'Administrator' } = {}) {
+    this.sqlite.exec('BEGIN IMMEDIATE;');
+    try {
+      const staffUsers = this.sqlite.prepare("SELECT id, name, email FROM users WHERE role = 'STAFF'").all();
+      const staffIds = staffUsers.map((s) => s.id);
+
+      if (staffIds.length > 0) {
+        const placeholders = staffIds.map(() => '?').join(',');
+        this.sqlite.prepare(`DELETE FROM sessions WHERE userId IN (${placeholders})`).run(...staffIds);
+        this.sqlite.prepare(`DELETE FROM verification_tokens WHERE userId IN (${placeholders})`).run(...staffIds);
+        this.sqlite.prepare(`DELETE FROM password_reset_tokens WHERE userId IN (${placeholders})`).run(...staffIds);
+        this.sqlite.prepare(`DELETE FROM notifications WHERE userId IN (${placeholders})`).run(...staffIds);
+        this.sqlite.prepare(`DELETE FROM staff_course_allotments WHERE staffId IN (${placeholders})`).run(...staffIds);
+        this.sqlite.prepare(`DELETE FROM users WHERE id IN (${placeholders})`).run(...staffIds);
+      } else {
+        this.sqlite.exec('DELETE FROM staff_course_allotments;');
+      }
+
+      const now = new Date().toISOString();
+      const auditId = 'audit_staff_reset_' + crypto.randomBytes(6).toString('hex');
+      this.sqlite.prepare(`
+        INSERT INTO audit_logs (id, adminId, adminName, action, targetType, targetId, targetTitle, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        auditId,
+        adminId,
+        adminName,
+        'STAFF_COMPLETE_DATA_RESET',
+        'STAFF_MANAGEMENT',
+        'all_staff_records',
+        `Complete staff data reset executed. ${staffUsers.length} staff accounts and all assignments removed.`,
+        now
+      );
+
+      this.sqlite.exec('COMMIT;');
+      this.raw = this.loadAll();
+      this.save(this.raw);
+
+      return {
+        success: true,
+        removedStaffCount: staffUsers.length,
+        removedStaff: staffUsers,
+        timestamp: now,
+      };
+    } catch (err) {
+      this.sqlite.exec('ROLLBACK;');
+      console.error('[SQLite 3] Staff reset failed:', err);
+      throw err;
+    }
+  }
 
   save(data) {
     const target = data || this.raw;

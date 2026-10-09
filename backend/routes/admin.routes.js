@@ -963,6 +963,508 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
+// ===================================================================
+// ADMIN-ONLY STAFF APPOINTMENT & MANAGEMENT (Strictly Admin Access)
+// ===================================================================
+
+// Complete Staff Data Reset Endpoint
+router.post('/staff/reset', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { confirm } = req.body;
+    if (!confirm) {
+      return res.status(400).json({ error: 'Confirmation required. Pass { confirm: true } to reset staff data.' });
+    }
+
+    const result = db.resetAllStaffData({
+      adminId: admin.id,
+      adminName: admin.name,
+    });
+
+    return res.json({
+      success: true,
+      message: `Complete staff data reset executed. Removed ${result.removedStaffCount} staff accounts.`,
+      result,
+    });
+  } catch (err) {
+    console.error('Staff reset error:', err);
+    return res.status(500).json({ error: 'Failed to reset staff data.' });
+  }
+});
+
+// Get All Staff Accounts with their Allotted Courses
+router.get('/staff', (req, res) => {
+  try {
+    const staffMembers = (db.raw.users || [])
+      .filter((u) => u.role === 'STAFF')
+      .map((u) => {
+        const { passwordHash: _, salt: __, ...safeUser } = u;
+        const allotments = (db.raw.staffCourseAllotments || [])
+          .filter((a) => a.staffId === u.id && a.status === 'ACTIVE')
+          .map((a) => {
+            const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
+            return {
+              id: a.id,
+              courseId: a.courseId,
+              courseTitle: course ? course.title : 'Course',
+              courseSlug: course ? course.slug : '',
+              courseCategory: course ? course.category : '',
+              assignedAt: a.assignedAt,
+              updatedAt: a.updatedAt,
+              status: a.status,
+            };
+          });
+        return {
+          ...safeUser,
+          allottedCourses: allotments,
+          allottedCourseCount: allotments.length,
+        };
+      });
+
+    return res.json({ success: true, staff: staffMembers });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to retrieve staff members.' });
+  }
+});
+
+// Appoint New Staff Member (Admin-Only Recruitment)
+router.post('/staff', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { name, email, password, mobile, institution, degree, avatar, assignedCourseIds } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Staff member name is required.' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Staff email address is required.' });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: 'Invalid email address format.' });
+    }
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Temporary password must be at least 8 characters long.' });
+    }
+
+    const existingUser = (db.raw.users || []).find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (existingUser) {
+      return res.status(409).json({ error: 'An account with this email address already exists.' });
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const { hash } = hashPassword(password, salt);
+    const now = new Date().toISOString();
+    const staffId = 'usr_staff_' + crypto.randomBytes(6).toString('hex');
+
+    const newStaff = {
+      id: staffId,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      mobile: mobile ? mobile.trim() : '',
+      role: 'STAFF',
+      isVerified: true,
+      avatar: avatar && avatar.trim() ? avatar.trim() : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+      institution: institution ? institution.trim() : 'Claxic Academic Faculty',
+      degree: degree ? degree.trim() : 'Instructor / Course Mentor',
+      yearOfStudy: 'Faculty Member',
+      isActive: true,
+      passwordHash: hash,
+      salt,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    let createdAllotments = [];
+
+    await db.transaction((data) => {
+      if (!data.users) data.users = [];
+      data.users.push(newStaff);
+
+      if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
+
+      // If initial course assignments provided
+      if (Array.isArray(assignedCourseIds) && assignedCourseIds.length > 0) {
+        for (const cid of assignedCourseIds) {
+          const course = (data.courses || []).find((c) => c.id === cid);
+          if (course) {
+            const allotment = {
+              id: 'allot_' + crypto.randomBytes(6).toString('hex'),
+              staffId: newStaff.id,
+              courseId: cid,
+              assignedBy: admin.id,
+              assignedAt: now,
+              updatedAt: now,
+              status: 'ACTIVE',
+            };
+            data.staffCourseAllotments.push(allotment);
+            createdAllotments.push({
+              ...allotment,
+              courseTitle: course.title,
+            });
+          }
+        }
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_APPOINTED',
+        targetType: 'STAFF',
+        targetId: newStaff.id,
+        targetTitle: `Appointed ${newStaff.name} (${newStaff.email}) with ${createdAllotments.length} assigned courses.`,
+        createdAt: now,
+      });
+    });
+
+    const { passwordHash: _, salt: __, ...safeStaff } = newStaff;
+    return res.status(201).json({
+      success: true,
+      message: `Staff member ${newStaff.name} appointed successfully.`,
+      staff: {
+        ...safeStaff,
+        allottedCourses: createdAllotments,
+        allottedCourseCount: createdAllotments.length,
+      },
+    });
+  } catch (err) {
+    console.error('Appoint staff error:', err);
+    return res.status(500).json({ error: 'Failed to appoint staff member.' });
+  }
+});
+
+// Update Staff Member Details
+router.put('/staff/:id', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+    const { name, email, mobile, institution, degree, avatar, isActive } = req.body;
+
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member record not found.' });
+    }
+
+    if (email && email.trim().toLowerCase() !== staff.email.toLowerCase()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        return res.status(400).json({ error: 'Invalid email address format.' });
+      }
+      const duplicate = (db.raw.users || []).find(
+        (u) => u.id !== id && u.email.toLowerCase() === email.trim().toLowerCase()
+      );
+      if (duplicate) {
+        return res.status(409).json({ error: 'Another user already exists with this email address.' });
+      }
+    }
+
+    const now = new Date().toISOString();
+    let updatedStaff;
+
+    await db.transaction((data) => {
+      const u = (data.users || []).find((x) => x.id === id);
+      if (u) {
+        if (name && name.trim()) u.name = name.trim();
+        if (email && email.trim()) u.email = email.trim().toLowerCase();
+        if (mobile !== undefined) u.mobile = mobile ? mobile.trim() : '';
+        if (institution !== undefined) u.institution = institution ? institution.trim() : '';
+        if (degree !== undefined) u.degree = degree ? degree.trim() : '';
+        if (avatar !== undefined) u.avatar = avatar ? avatar.trim() : u.avatar;
+        if (isActive !== undefined) u.isActive = Boolean(isActive);
+        u.updatedAt = now;
+        updatedStaff = u;
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_PROFILE_UPDATED_BY_ADMIN',
+        targetType: 'STAFF',
+        targetId: staff.id,
+        targetTitle: `Updated ${staff.name} (${staff.email})`,
+        createdAt: now,
+      });
+    });
+
+    const { passwordHash: _, salt: __, ...safeStaff } = updatedStaff;
+    return res.json({ success: true, message: 'Staff details updated successfully.', staff: safeStaff });
+  } catch (err) {
+    console.error('Update staff error:', err);
+    return res.status(500).json({ error: 'Failed to update staff member.' });
+  }
+});
+
+// Toggle Staff Account Status (Activate / Suspend)
+router.patch('/staff/:id/status', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member record not found.' });
+    }
+
+    const now = new Date().toISOString();
+    let updatedStaff;
+
+    await db.transaction((data) => {
+      const u = (data.users || []).find((x) => x.id === id);
+      if (u) {
+        u.isActive = Boolean(isActive);
+        u.updatedAt = now;
+        updatedStaff = u;
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_STATUS_TOGGLED',
+        targetType: 'STAFF',
+        targetId: staff.id,
+        targetTitle: `${staff.name} -> ${isActive ? 'ACTIVATED' : 'SUSPENDED'}`,
+        createdAt: now,
+      });
+    });
+
+    // If deactivated, terminate active sessions
+    if (!isActive) {
+      await destroyAllUserSessions(id);
+    }
+
+    const { passwordHash: _, salt: __, ...safeStaff } = updatedStaff;
+    return res.json({
+      success: true,
+      message: `Staff member ${safeStaff.name} is now ${safeStaff.isActive ? 'Active' : 'Deactivated'}.`,
+      staff: safeStaff,
+    });
+  } catch (err) {
+    console.error('Toggle staff status error:', err);
+    return res.status(500).json({ error: 'Failed to toggle staff status.' });
+  }
+});
+
+// Revoke / Delete Staff Member
+router.delete('/staff/:id', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member record not found.' });
+    }
+
+    const now = new Date().toISOString();
+    await db.transaction((data) => {
+      data.users = (data.users || []).filter((u) => u.id !== id);
+      data.staffCourseAllotments = (data.staffCourseAllotments || []).filter((a) => a.staffId !== id);
+
+      if (data.sessions && typeof data.sessions === 'object') {
+        for (const [tokenKey, sess] of Object.entries(data.sessions)) {
+          if (sess && sess.userId === id) {
+            delete data.sessions[tokenKey];
+          }
+        }
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_APPOINTMENT_REVOKED',
+        targetType: 'STAFF',
+        targetId: staff.id,
+        targetTitle: `Revoked appointment for ${staff.name} (${staff.email}) and removed all course allotments.`,
+        createdAt: now,
+      });
+    });
+
+    return res.json({ success: true, message: `Staff member ${staff.name} and all course allotments have been removed.` });
+  } catch (err) {
+    console.error('Delete staff error:', err);
+    return res.status(500).json({ error: 'Failed to revoke staff appointment.' });
+  }
+});
+
+// ===================================================================
+// ADMIN-CONTROLLED COURSE ALLOTMENT (Staff Allotment Workflow)
+// ===================================================================
+
+// Get All Course Allotments across Platform
+router.get('/allotments', (req, res) => {
+  try {
+    const allotments = (db.raw.staffCourseAllotments || []).map((a) => {
+      const staff = (db.raw.users || []).find((u) => u.id === a.staffId);
+      const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
+      return {
+        ...a,
+        staffName: staff ? staff.name : 'Unknown Staff',
+        staffEmail: staff ? staff.email : '',
+        staffAvatar: staff ? staff.avatar : '',
+        courseTitle: course ? course.title : 'Unknown Course',
+        courseSlug: course ? course.slug : '',
+        courseCategory: course ? course.category : '',
+      };
+    });
+
+    return res.json({ success: true, allotments });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to load course allotments.' });
+  }
+});
+
+// Get Allotments for Specific Staff Member
+router.get('/staff/:id/allotments', (req, res) => {
+  try {
+    const { id } = req.params;
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member not found.' });
+    }
+
+    const allotments = (db.raw.staffCourseAllotments || [])
+      .filter((a) => a.staffId === id && a.status === 'ACTIVE')
+      .map((a) => {
+        const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
+        return {
+          ...a,
+          courseTitle: course ? course.title : 'Course',
+          courseSlug: course ? course.slug : '',
+          courseCategory: course ? course.category : '',
+          courseDuration: course ? course.duration : '',
+        };
+      });
+
+    return res.json({ success: true, staffId: id, staffName: staff.name, allotments });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to load staff allotments.' });
+  }
+});
+
+// Set / Update Allotments for Staff Member (Admin Workflow: multi-course selection)
+router.post('/staff/:id/allotments', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+    const { courseIds } = req.body; // Array of course IDs
+
+    if (!Array.isArray(courseIds)) {
+      return res.status(400).json({ error: 'courseIds must be an array of course IDs.' });
+    }
+
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member record not found.' });
+    }
+
+    // Validate courseIds exist
+    const validCourseIds = courseIds.filter((cid) => (db.raw.courses || []).some((c) => c.id === cid));
+    const now = new Date().toISOString();
+    let updatedAllotments = [];
+
+    await db.transaction((data) => {
+      if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
+
+      // Remove existing allotments for this staff member
+      data.staffCourseAllotments = data.staffCourseAllotments.filter((a) => a.staffId !== id);
+
+      // Insert new unique allotments
+      const uniqueCids = [...new Set(validCourseIds)];
+      for (const cid of uniqueCids) {
+        const allotment = {
+          id: 'allot_' + crypto.randomBytes(6).toString('hex'),
+          staffId: id,
+          courseId: cid,
+          assignedBy: admin.id,
+          assignedAt: now,
+          updatedAt: now,
+          status: 'ACTIVE',
+        };
+        data.staffCourseAllotments.push(allotment);
+
+        const course = (data.courses || []).find((c) => c.id === cid);
+        updatedAllotments.push({
+          ...allotment,
+          courseTitle: course ? course.title : 'Course',
+        });
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_COURSE_ALLOTMENT_UPDATED',
+        targetType: 'STAFF',
+        targetId: staff.id,
+        targetTitle: `Allotted ${updatedAllotments.length} courses to ${staff.name}`,
+        createdAt: now,
+      });
+    });
+
+    return res.json({
+      success: true,
+      message: `Course allotment updated for ${staff.name}. (${updatedAllotments.length} assigned)`,
+      allotments: updatedAllotments,
+    });
+  } catch (err) {
+    console.error('Update allotments error:', err);
+    return res.status(500).json({ error: 'Failed to update course allotments.' });
+  }
+});
+
+// Revoke a Specific Course Allotment
+router.delete('/staff/:id/allotments/:courseId', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id, courseId } = req.params;
+
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member record not found.' });
+    }
+
+    const course = (db.raw.courses || []).find((c) => c.id === courseId);
+    const now = new Date().toISOString();
+
+    await db.transaction((data) => {
+      if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
+      data.staffCourseAllotments = data.staffCourseAllotments.filter(
+        (a) => !(a.staffId === id && a.courseId === courseId)
+      );
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_COURSE_ALLOTMENT_REVOKED',
+        targetType: 'STAFF',
+        targetId: staff.id,
+        targetTitle: `Revoked access to "${course ? course.title : courseId}" for ${staff.name}`,
+        createdAt: now,
+      });
+    });
+
+    return res.json({
+      success: true,
+      message: `Course assignment for "${course ? course.title : courseId}" revoked from ${staff.name}.`,
+    });
+  } catch (err) {
+    console.error('Revoke allotment error:', err);
+    return res.status(500).json({ error: 'Failed to revoke course allotment.' });
+  }
+});
+
 // Get All Payments
 router.get('/payments', (req, res) => {
   try {

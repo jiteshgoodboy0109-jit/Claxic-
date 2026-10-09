@@ -393,47 +393,6 @@ export const Navbar = ({ currentView = 'home', onNavigate }) => {
                 </button>
               )}
             </nav>
-
-            {/* Dedicated 3-Role Portals Section in Mobile Drawer */}
-            <div className="pt-3 border-t border-slate-100">
-              <span className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2">
-                Claxic Role Portals
-              </span>
-              <div className="flex flex-col gap-1.5">
-                <button
-                  onClick={() => handleNav('login')}
-                  className="text-left px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-800 bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] transition-colors flex items-center justify-between cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <LayoutDashboard className="w-3.5 h-3.5 text-[#EE2D02]" />
-                    <span>Student Portal</span>
-                  </span>
-                  <span className="text-[10px] font-mono font-bold text-[#EE2D02] bg-white px-1.5 py-0.5 rounded border border-[#FFD4CC]">STUDENT</span>
-                </button>
-
-                <button
-                  onClick={() => handleNav('staff-login')}
-                  className="text-left px-3.5 py-2 rounded-xl text-xs font-semibold text-sky-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-colors flex items-center justify-between cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <GraduationCap className="w-3.5 h-3.5 text-sky-600" />
-                    <span>Staff & Faculty Portal</span>
-                  </span>
-                  <span className="text-[10px] font-mono font-bold text-sky-600 bg-white px-1.5 py-0.5 rounded border border-sky-200">STAFF</span>
-                </button>
-
-                <button
-                  onClick={() => handleNav('admin-login')}
-                  className="text-left px-3.5 py-2 rounded-xl text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-between cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Admin Console</span>
-                  </span>
-                  <span className="text-[10px] font-mono font-bold text-amber-600 bg-white px-1.5 py-0.5 rounded border border-amber-200">ADMIN</span>
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* Bottom Drawer User Status & Actions */}

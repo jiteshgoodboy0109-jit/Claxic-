@@ -58,6 +58,45 @@ export async function sendEmail(to, subject, templateType, data) {
       `;
       break;
 
+    case 'CLASS_UPLOADED':
+      htmlBody = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; background: #18181B; color: #F4F4F5; border-radius: 16px; border: 1px solid #27272A;">
+          <div style="border-bottom: 1px solid #27272A; padding-bottom: 16px; margin-bottom: 20px;">
+            <span style="background: #F59E0B; color: #000; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 1px;">
+              ${data.deliveryType === 'ONLINE' ? '🔴 Live Online Class Alert' : '🔔 New Curriculum Session'}
+            </span>
+            <h1 style="color: #FFFFFF; font-size: 20px; font-weight: 700; margin: 12px 0 4px 0;">
+              Day ${data.dayNumber}: ${data.classTitle}
+            </h1>
+            <p style="color: #A1A1AA; font-size: 13px; margin: 0;">
+              Course: <strong style="color: #FBBF24;">${data.courseTitle}</strong> • Duration: ${data.duration || '1 hr 30 mins'}
+            </p>
+          </div>
+
+          <div style="background: #27272A; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+            <p style="color: #E4E4E7; font-size: 14px; margin: 0 0 10px 0; line-height: 1.5;">
+              ${data.deliveryType === 'ONLINE'
+                ? `An interactive live online class has been scheduled by faculty member <strong>${data.instructorName || 'Your Instructor'}</strong>. Please join at the scheduled time.`
+                : `A new learning session has been uploaded by faculty member <strong>${data.instructorName || 'Your Instructor'}</strong> and is now available in your learning dashboard.`}
+            </p>
+            ${data.liveMeetingTime ? `<p style="color: #FBBF24; font-size: 13px; font-weight: 600; margin: 6px 0;">⏰ Scheduled Time: ${data.liveMeetingTime}</p>` : ''}
+            ${data.topics && data.topics.length > 0 ? `<p style="color: #A1A1AA; font-size: 12px; margin: 6px 0;"><strong>Topics Covered:</strong> ${data.topics.join(', ')}</p>` : ''}
+            ${data.hasNotes ? `<p style="color: #34D399; font-size: 12px; margin: 6px 0;">📎 Downloadable PDF/Word notes and study materials attached.</p>` : ''}
+          </div>
+
+          <div style="text-align: center; margin: 24px 0;">
+            <a href="${data.actionUrl || 'http://localhost:5173/student/courses'}" style="display: inline-block; background: #EE2D02; color: #FFFFFF; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 14px rgba(238, 45, 2, 0.4);">
+              ${data.deliveryType === 'ONLINE' ? '🔴 Enter Student Portal & Join Live Class' : '🚀 Open Student Portal & Start Learning'}
+            </a>
+          </div>
+
+          <p style="color: #71717A; font-size: 11px; text-align: center; margin-top: 20px;">
+            Claxic Academic & Engineering Directorate • Learning Management System
+          </p>
+        </div>
+      `;
+      break;
+
     default:
       htmlBody = `<p>${JSON.stringify(data)}</p>`;
   }

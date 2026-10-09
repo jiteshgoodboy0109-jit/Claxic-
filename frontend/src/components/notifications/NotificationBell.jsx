@@ -37,6 +37,7 @@ export const NotificationBell = ({ onNavigate }) => {
   const [devicePermission, setDevicePermission] = useState(() => {
     return typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported';
   });
+  const [selectedNotification, setSelectedNotification] = useState(null);
   const dropdownRef = useRef(null);
   const seenIdsRef = useRef(new Set());
   const isFirstFetchRef = useRef(true);
@@ -179,27 +180,13 @@ export const NotificationBell = ({ onNavigate }) => {
     }
   };
 
-  // Handle card click / navigation
+  // Handle card click / open detailed notification modal
   const handleCardClick = (notif) => {
     if (!notif.isRead) {
       handleMarkAsRead(notif.id);
     }
     setIsOpen(false);
-
-    if (notif.link) {
-      if (onNavigate) {
-        if (notif.link.startsWith('/courses/')) {
-          const slug = notif.link.replace('/courses/', '');
-          onNavigate('course-detail', { slug });
-        } else if (notif.link.startsWith('/student') || notif.link === '/dashboard') {
-          onNavigate('student');
-        } else {
-          window.location.href = notif.link;
-        }
-      } else {
-        window.location.href = notif.link;
-      }
-    }
+    setSelectedNotification(notif);
   };
 
   // Format time relative
@@ -226,10 +213,10 @@ export const NotificationBell = ({ onNavigate }) => {
     if (e) e.stopPropagation();
     const testPayload = {
       id: 'test_alert_' + Date.now(),
-      title: '🎨 Creative Class: Agentic Architectures Live',
-      message: 'New curriculum episode released with interactive coding notebook and video lecture!',
-      type: 'CREATIVE_CLASS',
-      link: '/student/courses',
+      title: 'Curriculum Update: System Architecture Session',
+      message: 'New academic module released with interactive engineering lab and lecture materials.',
+      type: 'ACADEMIC_SESSION',
+      link: '/student',
     };
     triggerInBuildPopNotification(testPayload);
   };
@@ -272,21 +259,21 @@ export const NotificationBell = ({ onNavigate }) => {
           }}
         >
           {/* Header */}
-          <div className="px-5 py-4 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100 flex items-center justify-between">
+          <div className="px-5 py-3.5 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#EE2D02] to-amber-500 flex items-center justify-center text-white shadow-sm shadow-[#EE2D02]/30">
-                <Bell className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-xs">
+                <Bell className="w-4 h-4 text-amber-400" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">Notifications</h3>
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">Notification Center</h3>
                   {unreadCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF1EE] text-[#EE2D02] border border-[#EE2D02]/20">
-                      {unreadCount} new
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FFF1EE] text-[#EE2D02] border border-[#EE2D02]/20">
+                      {unreadCount} unread
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500">Class alerts & Academy announcements</p>
+                <p className="text-[11px] text-slate-500">Official alerts & academic updates</p>
               </div>
             </div>
 
@@ -314,13 +301,12 @@ export const NotificationBell = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Filter Tabs */}
+          {/* Filter Tabs - Creative Classes tab removed */}
           <div className="px-4 py-2.5 bg-slate-50/70 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
             {[
               { id: 'all', label: 'All', count: categoryCounts.all },
-              { id: 'classes', label: 'Creative Classes 🎨', count: categoryCounts.classes },
-              { id: 'launches', label: 'New Launches 🚀', count: categoryCounts.launches },
-              { id: 'academic', label: 'Academic 🎓', count: categoryCounts.academic },
+              { id: 'academic', label: 'Academic', count: categoryCounts.academic },
+              { id: 'launches', label: 'Announcements', count: categoryCounts.launches },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -355,10 +341,10 @@ export const NotificationBell = ({ onNavigate }) => {
                 </div>
                 <h4 className="text-sm font-bold text-slate-800">You're all caught up!</h4>
                 <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                  {activeTab === 'classes'
-                    ? 'No new class session updates for your enrolled courses.'
+                  {activeTab === 'academic'
+                    ? 'No new academic alerts or curriculum updates.'
                     : activeTab === 'launches'
-                    ? 'No new academy course launches right now.'
+                    ? 'No new academy announcements right now.'
                     : 'No notifications in this category right now.'}
                 </p>
               </div>
@@ -382,9 +368,9 @@ export const NotificationBell = ({ onNavigate }) => {
                       <div className="space-y-3">
                         {/* Top Promo Tag */}
                         <div className="flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-orange-500 to-[#EE2D02] text-white shadow-xs shadow-orange-500/30">
-                            <Flame className="w-3 h-3 fill-white" />
-                            {notif.meta?.badge || 'NEW LAUNCH • SPECIAL AD'}
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+                            <Sparkles className="w-3 h-3 text-amber-600" />
+                            {notif.meta?.badge ? notif.meta.badge.replace(/[🎨🚀🔥]/g, '').trim() : 'ACADEMY ANNOUNCEMENT'}
                           </span>
                           <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
@@ -422,12 +408,12 @@ export const NotificationBell = ({ onNavigate }) => {
                         <div className="flex items-center justify-between pt-1 border-t border-slate-100">
                           <div className="flex items-center gap-2">
                             {notif.meta?.price !== undefined && (
-                              <span className="text-sm font-black text-slate-900">
+                              <span className="text-sm font-black text-slate-900 font-mono">
                                 ₹{Number(notif.meta.price).toLocaleString('en-IN')}
                               </span>
                             )}
                             {notif.meta?.originalPrice && Number(notif.meta.originalPrice) > Number(notif.meta.price) && (
-                              <span className="text-xs font-semibold text-slate-400 line-through">
+                              <span className="text-xs font-semibold text-slate-400 line-through font-mono">
                                 ₹{Number(notif.meta.originalPrice).toLocaleString('en-IN')}
                               </span>
                             )}
@@ -440,19 +426,19 @@ export const NotificationBell = ({ onNavigate }) => {
 
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-bold text-[#EE2D02] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                              {notif.meta?.actionLabel || 'Claim Seat'}
+                              {notif.meta?.actionLabel || 'View Details'}
                               <ArrowRight className="w-3.5 h-3.5" />
                             </span>
                           </div>
                         </div>
                       </div>
                     ) : isClass ? (
-                      /* CARD TYPE 2: CREATIVE CLASS ALERT (Enrolled Students) */
+                      /* CARD TYPE 2: CLASS ALERT (Enrolled Students) */
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200">
                             <BookOpen className="w-3 h-3 text-emerald-600" />
-                            {notif.meta?.dayNumber ? `Day ${notif.meta.dayNumber} Live Class` : 'Creative Session'}
+                            {notif.meta?.dayNumber ? `Day ${notif.meta.dayNumber} • Live Class` : 'Academic Session'}
                           </span>
                           <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
@@ -489,7 +475,7 @@ export const NotificationBell = ({ onNavigate }) => {
                             {notif.meta?.courseTitle || 'Enrolled Course'}
                           </span>
                           <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 group-hover:underline">
-                            {notif.meta?.actionLabel || 'Jump to Class'}
+                            {notif.meta?.actionLabel || 'Open Lesson'}
                             <ArrowRight className="w-3.5 h-3.5" />
                           </span>
                         </div>
@@ -498,9 +484,9 @@ export const NotificationBell = ({ onNavigate }) => {
                       /* CARD TYPE 3: ACADEMIC & GENERAL SYSTEM NOTIFICATION */
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-sky-50 text-sky-800 border border-sky-200">
                             <GraduationCap className="w-3 h-3 text-sky-600" />
-                            Academic Alert
+                            Institutional Notice
                           </span>
                           <span className="text-[11px] font-mono text-slate-400">
                             {formatTimeAgo(notif.createdAt)}
@@ -575,6 +561,106 @@ export const NotificationBell = ({ onNavigate }) => {
               <Volume2 className="w-3 h-3 text-[#EE2D02]" />
               <span>Test Pop Alert</span>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Detailed Notification View Modal (Touch / Click to Open) */}
+      {selectedNotification && (
+        <div className="fixed inset-0 bg-stone-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white border border-[#E8E3DC] rounded-[24px] p-6 max-w-lg w-full space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-4 pb-3 border-b border-[#EEEAE4]">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
+                    <Bell className="w-3 h-3 text-[#D97706]" />
+                    {selectedNotification.meta?.badge || (selectedNotification.type === 'urgent' ? 'URGENT NOTICE' : 'SYSTEM NOTIFICATION')}
+                  </span>
+                  <span className="text-[11px] font-mono text-[#6B6258] flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {new Date(selectedNotification.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-[#1F1F1F]">
+                  {selectedNotification.title}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedNotification(null)}
+                className="text-stone-400 hover:text-stone-700 p-1.5 cursor-pointer rounded-lg hover:bg-stone-100 transition-colors shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {selectedNotification.meta?.bannerImage && (
+              <div className="rounded-xl overflow-hidden aspect-video bg-stone-900 border border-stone-200 shadow-xs">
+                <img
+                  src={selectedNotification.meta.bannerImage}
+                  alt={selectedNotification.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            <div className="p-4 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC] text-xs text-[#1F1F1F] leading-relaxed whitespace-pre-wrap font-normal">
+              {selectedNotification.message}
+            </div>
+
+            {selectedNotification.meta?.authorName && (
+              <div className="text-xs text-[#D97706] font-semibold flex items-center gap-1.5 px-1">
+                <span>Dispatched by:</span>
+                <strong className="text-[#1F1F1F]">{selectedNotification.meta.authorName}</strong>
+              </div>
+            )}
+
+            {Array.isArray(selectedNotification.meta?.topics) && selectedNotification.meta.topics.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap px-1">
+                {selectedNotification.meta.topics.map((t, idx) => (
+                  <span key={idx} className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-mono">
+                    #{t}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#EEEAE4]">
+              <button
+                type="button"
+                onClick={() => setSelectedNotification(null)}
+                className="px-4 py-2 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-[#E8E3DC] font-bold text-xs cursor-pointer transition-colors"
+              >
+                Close
+              </button>
+              {selectedNotification.link && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const link = selectedNotification.link;
+                    setSelectedNotification(null);
+                    if (onNavigate) {
+                      if (link.startsWith('/courses/')) {
+                        const slug = link.replace('/courses/', '');
+                        onNavigate('course-detail', { slug });
+                      } else if (link.startsWith('/student') || link === '/dashboard') {
+                        onNavigate('student');
+                      } else if (link.startsWith('/staff')) {
+                        onNavigate('staff');
+                      } else {
+                        window.location.href = link;
+                      }
+                    } else {
+                      window.location.href = link;
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#18181B] hover:bg-stone-900 text-white font-bold text-xs border border-stone-800 hover:border-amber-500/40 cursor-pointer flex items-center gap-1.5 transition-all shadow-xs"
+                >
+                  <span>Open Connected Resource</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

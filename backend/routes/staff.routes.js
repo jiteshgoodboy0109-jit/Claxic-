@@ -1,41 +1,311 @@
 import express from 'express';
 import crypto from 'crypto';
-import { db } from '../db/index.js';
+import path from 'path';
+import fs from 'fs';
+import multer from 'multer';
+import { db, hashPassword, verifyPassword } from '../db/index.js';
 import { requireStaff } from '../middleware/index.js';
+import { destroyAllUserSessions } from '../services/auth.service.js';
+import { sendEmail } from '../services/email.service.js';
 
 const router = express.Router();
 
 // Apply requireStaff to all staff routes
 router.use(requireStaff);
 
-// 1. Staff Executive Overview & Metrics
+// Helper: Check if staff is allotted to manage a course
+export function isStaffAllotted(staffId, courseId, role = 'STAFF') {
+  if (role === 'ADMIN') return true;
+  const course = (db.raw.courses || []).find((c) => c.id === courseId || c.slug === courseId);
+  const targetIds = [courseId, course?.id, course?.slug].filter(Boolean);
+  return (db.raw.staffCourseAllotments || []).some(
+    (a) => a.staffId === staffId && targetIds.includes(a.courseId) && a.status === 'ACTIVE'
+  );
+}
+
+// Helper: Get all enrolled/registered students for a specific course
+export function getEnrolledStudentsForCourse(course, data) {
+  if (!course) return [];
+  const courseId = course.id;
+  const courseSlug = course.slug;
+  const validAppStatuses = ['CONFIRMED', 'APPROVED', 'SUBMITTED', 'ENROLLED', 'PAID', 'ACCEPTED'];
+  const studentUserIds = new Set();
+
+  // 1. Applications matching courseId or courseSlug
+  (data.applications || []).forEach((app) => {
+    if (
+      (app.courseId === courseId || app.courseId === courseSlug || app.courseSlug === courseSlug) &&
+      (!app.status || validAppStatuses.includes(app.status))
+    ) {
+      if (app.userId) studentUserIds.add(app.userId);
+    }
+  });
+
+  // 2. Student progress records
+  (data.studentProgress || []).forEach((sp) => {
+    if (sp.courseId === courseId || sp.courseId === courseSlug) {
+      if (sp.userId) studentUserIds.add(sp.userId);
+    }
+  });
+
+  // 3. Successful payments
+  (data.payments || []).forEach((pay) => {
+    if (
+      (pay.courseId === courseId || pay.courseId === courseSlug) &&
+      (pay.status === 'SUCCESS' || pay.status === 'COMPLETED' || pay.status === 'PAID')
+    ) {
+      if (pay.userId) studentUserIds.add(pay.userId);
+    }
+  });
+
+  // 4. User accounts with explicit enrolled courses
+  (data.users || []).forEach((u) => {
+    if (u.role === 'USER' || u.role === 'STUDENT' || !u.role) {
+      if (
+        (Array.isArray(u.enrolledCourses) && (u.enrolledCourses.includes(courseId) || u.enrolledCourses.includes(courseSlug))) ||
+        u.courseId === courseId ||
+        u.courseId === courseSlug
+      ) {
+        studentUserIds.add(u.id);
+      }
+    }
+  });
+
+  const enrolledStudents = [];
+  studentUserIds.forEach((uid) => {
+    const userObj = (data.users || []).find((u) => u.id === uid);
+    if (userObj) {
+      enrolledStudents.push({
+        id: userObj.id,
+        name: userObj.name || 'Student',
+        email: userObj.email,
+      });
+    } else {
+      const app = (data.applications || []).find((a) => a.userId === uid);
+      enrolledStudents.push({
+        id: uid,
+        name: app?.userName || app?.formData?.fullName || 'Student',
+        email: app?.userEmail || app?.formData?.email || null,
+      });
+    }
+  });
+
+  return enrolledStudents;
+}
+
+// Multer Disk Storage Configuration for Secure Local Video Uploads
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads', 'videos');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+const videoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+    cb(null, UPLOADS_DIR);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || '.mp4';
+    const safeName = 'vid_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex') + ext;
+    cb(null, safeName);
+  },
+});
+
+const uploadVideo = multer({
+  storage: videoStorage,
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB maximum video size
+  fileFilter: (req, file, cb) => {
+    const allowedMime = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-matroska'];
+    const hasValidExt = file.originalname.match(/\.(mp4|webm|mov|mkv|ogg)$/i);
+    if (allowedMime.includes(file.mimetype) || hasValidExt) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid video format. Supported formats: MP4, WebM, MOV, MKV.'));
+    }
+  },
+});
+
+// ===================================================================
+// 0. STAFF PROFILE & CREDENTIAL MANAGEMENT
+// ===================================================================
+
+// Get Staff Member Profile with Allotted Courses
+router.get('/profile', (req, res) => {
+  try {
+    const staffUser = req.user;
+    const user = (db.raw.users || []).find((u) => u.id === staffUser.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User profile not found.' });
+    }
+
+    const { passwordHash: _, salt: __, ...safeProfile } = user;
+
+    // Get courses allotted to this staff member
+    const allotments = (db.raw.staffCourseAllotments || [])
+      .filter((a) => a.staffId === staffUser.id && a.status === 'ACTIVE')
+      .map((a) => {
+        const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
+        return {
+          id: a.id,
+          courseId: a.courseId,
+          courseTitle: course ? course.title : 'Course',
+          courseCategory: course ? course.category : '',
+          assignedAt: a.assignedAt,
+          status: a.status,
+        };
+      });
+
+    return res.json({
+      success: true,
+      profile: {
+        ...safeProfile,
+        allottedCourses: allotments,
+        allottedCourseCount: allotments.length,
+      },
+    });
+  } catch (err) {
+    console.error('Fetch staff profile error:', err);
+    return res.status(500).json({ error: 'Failed to retrieve profile.' });
+  }
+});
+
+// Update Permitted Staff Profile Details (Cannot modify role, email or permissions)
+router.put('/profile', async (req, res) => {
+  try {
+    const staffUser = req.user;
+    const { name, mobile, institution, degree, avatar } = req.body;
+
+    const user = (db.raw.users || []).find((u) => u.id === staffUser.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User profile not found.' });
+    }
+
+    const now = new Date().toISOString();
+    let updatedProfile;
+
+    await db.transaction((data) => {
+      const u = (data.users || []).find((x) => x.id === staffUser.id);
+      if (u) {
+        if (name && name.trim()) u.name = name.trim();
+        if (mobile !== undefined) u.mobile = mobile ? mobile.trim() : '';
+        if (institution !== undefined) u.institution = institution ? institution.trim() : '';
+        if (degree !== undefined) u.degree = degree ? degree.trim() : '';
+        if (avatar !== undefined) u.avatar = avatar ? avatar.trim() : u.avatar;
+        u.updatedAt = now;
+        updatedProfile = u;
+      }
+    });
+
+    const { passwordHash: _, salt: __, ...safeUser } = updatedProfile;
+    return res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      profile: safeUser,
+    });
+  } catch (err) {
+    console.error('Update staff profile error:', err);
+    return res.status(500).json({ error: 'Failed to update profile.' });
+  }
+});
+
+// Secure Staff Password Change
+router.post('/profile/change-password', async (req, res) => {
+  try {
+    const staffUser = req.user;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required.' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+    }
+
+    const user = (db.raw.users || []).find((u) => u.id === staffUser.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User profile not found.' });
+    }
+
+    const isCurrentValid = verifyPassword(currentPassword, user.passwordHash, user.salt);
+    if (!isCurrentValid) {
+      return res.status(401).json({ error: 'Incorrect current password.' });
+    }
+
+    const newSalt = crypto.randomBytes(16).toString('hex');
+    const { hash: newHash } = hashPassword(newPassword, newSalt);
+    const now = new Date().toISOString();
+
+    await db.transaction((data) => {
+      const u = (data.users || []).find((x) => x.id === staffUser.id);
+      if (u) {
+        u.passwordHash = newHash;
+        u.salt = newSalt;
+        u.updatedAt = now;
+      }
+    });
+
+    // Destroy other sessions
+    await destroyAllUserSessions(staffUser.id);
+
+    return res.json({
+      success: true,
+      message: 'Password changed successfully. Please keep your credentials secure.',
+    });
+  } catch (err) {
+    console.error('Staff password change error:', err);
+    return res.status(500).json({ error: 'Failed to update password.' });
+  }
+});
+
+// ===================================================================
+// 1. Staff Executive Overview & Metrics (Filtered to Allotted Courses)
+// ===================================================================
 router.get('/overview', (req, res) => {
   try {
     const staffUser = req.user;
-    const courses = db.raw.courses || [];
+    const allCourses = db.raw.courses || [];
     const applications = db.raw.applications || [];
     const users = db.raw.users || [];
 
-    const enrolledStudents = users.filter((u) => u.role === 'USER' && u.isActive);
-    const pendingReviews = applications.filter((a) => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW');
-    const confirmedAdmissions = applications.filter((a) => a.status === 'CONFIRMED' || a.status === 'APPROVED');
+    // Filter to courses allotted to this staff member
+    const allottedCourseIds = staffUser.role === 'ADMIN'
+      ? null
+      : (db.raw.staffCourseAllotments || [])
+          .filter((a) => a.staffId === staffUser.id && a.status === 'ACTIVE')
+          .map((a) => a.courseId);
 
-    const totalSeatsCapacity = courses.reduce((sum, c) => sum + (c.capacity || 40), 0);
-    const totalFilledSeats = courses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0);
+    const staffCourses = allottedCourseIds === null
+      ? allCourses
+      : allCourses.filter((c) => allottedCourseIds.includes(c.id));
+
+    const staffCourseIdSet = new Set(staffCourses.map((c) => c.id));
+
+    // Filter applications and enrolled students to staff courses
+    const relevantApplications = applications.filter((a) => staffCourseIdSet.has(a.courseId));
+    const enrolledStudents = users.filter((u) => u.role === 'USER' && u.isActive);
+    const pendingReviews = relevantApplications.filter((a) => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW');
+    const confirmedAdmissions = relevantApplications.filter((a) => a.status === 'CONFIRMED' || a.status === 'APPROVED');
+
+    const totalSeatsCapacity = staffCourses.reduce((sum, c) => sum + (c.capacity || 40), 0);
+    const totalFilledSeats = staffCourses.reduce((sum, c) => sum + (c.enrolledCount || 0), 0);
 
     return res.json({
       success: true,
       staff: staffUser,
+      hasAllottedCourses: staffCourses.length > 0,
       metrics: {
-        totalAssignedCourses: courses.length,
+        totalAssignedCourses: staffCourses.length,
         totalEnrolledStudents: enrolledStudents.length,
         pendingEvaluationsCount: pendingReviews.length,
         confirmedAdmissionsCount: confirmedAdmissions.length,
         totalSeatsCapacity,
         totalFilledSeats,
       },
-      assignedCourses: courses.slice(0, 4),
-      recentApplications: applications.slice(0, 5),
+      assignedCourses: staffCourses.slice(0, 4),
+      recentApplications: relevantApplications.slice(0, 5),
     });
   } catch (err) {
     console.error('Staff overview error:', err);
@@ -43,17 +313,33 @@ router.get('/overview', (req, res) => {
   }
 });
 
-// 2. Staff Course List
+// 2. Staff Course List (Strictly Allotted Courses Only)
 router.get('/courses', (req, res) => {
   try {
-    const courses = db.raw.courses || [];
-    return res.json({ success: true, courses });
+    const staffUser = req.user;
+    const allCourses = db.raw.courses || [];
+
+    const allottedCourseIds = staffUser.role === 'ADMIN'
+      ? null
+      : (db.raw.staffCourseAllotments || [])
+          .filter((a) => a.staffId === staffUser.id && a.status === 'ACTIVE')
+          .map((a) => a.courseId);
+
+    const courses = allottedCourseIds === null
+      ? allCourses
+      : allCourses.filter((c) => allottedCourseIds.includes(c.id));
+
+    return res.json({
+      success: true,
+      courses,
+      hasAllottedCourses: courses.length > 0,
+    });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to load courses.' });
   }
 });
 
-// 2a. Create New Course
+// 2a. Create New Course (Auto-allots to creator)
 router.post('/courses', async (req, res) => {
   try {
     const staffUser = req.user;
@@ -102,11 +388,23 @@ router.post('/courses', async (req, res) => {
     await db.transaction((data) => {
       if (!data.courses) data.courses = [];
       data.courses.push(newCourse);
+
+      // Automatically allot created course to this staff member
+      if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
+      data.staffCourseAllotments.push({
+        id: 'allot_' + crypto.randomBytes(6).toString('hex'),
+        staffId: staffUser.id,
+        courseId: newCourse.id,
+        assignedBy: staffUser.id,
+        assignedAt: now,
+        updatedAt: now,
+        status: 'ACTIVE',
+      });
     });
 
     return res.status(201).json({
       success: true,
-      message: 'Course created successfully.',
+      message: 'Course created and allotted to your profile successfully.',
       course: newCourse,
     });
   } catch (err) {
@@ -120,6 +418,11 @@ router.put('/courses/:courseId', async (req, res) => {
   try {
     const staffUser = req.user;
     const { courseId } = req.params;
+
+    if (!isStaffAllotted(staffUser.id, courseId, staffUser.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
     const {
       title,
       category,
@@ -177,6 +480,9 @@ router.put('/courses/:courseId', async (req, res) => {
 router.get('/courses/:courseId/applications', (req, res) => {
   try {
     const { courseId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to view this course.' });
+    }
     const applications = (db.raw.applications || []).filter((a) => a.courseId === courseId);
     const users = db.raw.users || [];
 
@@ -420,19 +726,9 @@ router.post('/announcements', async (req, res) => {
 // 7. Get Cohort Announcements
 router.get('/announcements', (req, res) => {
   try {
-    const announcements = db.raw.announcements || [
-      {
-        id: 'ann_welcome',
-        authorName: 'Dr. Sarah Jenkins (Staff)',
-        authorRole: 'STAFF',
-        title: 'Fall Semester Orientation & Lab Access Setup',
-        content: 'Welcome students! Please review your module curriculum and confirm your Slack channel access for live office hours.',
-        courseId: 'ALL',
-        priority: 'HIGH',
-        createdAt: '2026-08-28T09:00:00.000Z',
-      },
-    ];
-    return res.json({ success: true, announcements });
+    const rawList = db.raw.announcements || [];
+    const sorted = [...rawList].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    return res.json({ success: true, announcements: sorted });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to load announcements.' });
   }
@@ -479,6 +775,10 @@ const getInitialSampleClasses = (courseId) => [
 router.get('/courses/:courseId/classes', async (req, res) => {
   try {
     const { courseId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
     const course = db.raw.courses.find((c) => c.id === courseId || c.slug === courseId);
 
     if (!course) {
@@ -507,6 +807,10 @@ router.get('/courses/:courseId/classes', async (req, res) => {
 router.post('/courses/:courseId/classes', async (req, res) => {
   try {
     const { courseId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
     const {
       classNumber,
       dayNumber,
@@ -520,6 +824,10 @@ router.post('/courses/:courseId/classes', async (req, res) => {
       learningMaterials = [],
       test = null,
       status = 'PUBLISHED',
+      deliveryType = 'UPLOAD',
+      liveMeetingUrl = '',
+      liveMeetingTime = '',
+      liveMeetingInstructions = '',
     } = req.body;
 
     if (!title || !title.trim()) {
@@ -539,6 +847,7 @@ router.post('/courses/:courseId/classes', async (req, res) => {
 
     const now = new Date().toISOString();
     let createdClass;
+    let enrolledStudentsToNotify = [];
 
     await db.transaction((data) => {
       const c = data.courses.find((item) => item.id === course.id);
@@ -559,6 +868,10 @@ router.post('/courses/:courseId/classes', async (req, res) => {
           learningMaterials: Array.isArray(learningMaterials) ? learningMaterials : [],
           test: test && typeof test === 'object' ? test : null,
           status: status === 'DRAFT' ? 'DRAFT' : 'PUBLISHED',
+          deliveryType: deliveryType === 'ONLINE' ? 'ONLINE' : 'UPLOAD',
+          liveMeetingUrl: (liveMeetingUrl || '').trim(),
+          liveMeetingTime: (liveMeetingTime || '').trim(),
+          liveMeetingInstructions: (liveMeetingInstructions || '').trim(),
           uploadedAt: now,
           uploadedBy: req.user.name,
         };
@@ -568,25 +881,24 @@ router.post('/courses/:courseId/classes', async (req, res) => {
 
         // Targeted Notification: Only students enrolled in this specific course
         if (!data.notifications) data.notifications = [];
-        const enrolledUserIds = Array.from(
-          new Set([
-            ...(data.applications || [])
-              .filter((a) => a.courseId === course.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED'))
-              .map((a) => a.userId),
-            ...(data.studentProgress || [])
-              .filter((p) => p.courseId === course.id)
-              .map((p) => p.userId),
-          ])
-        ).filter(Boolean);
+        enrolledStudentsToNotify = getEnrolledStudentsForCourse(course, data);
 
-        for (const studentId of enrolledUserIds) {
+        const isOnline = createdClass.deliveryType === 'ONLINE';
+        const notifTitle = isOnline
+          ? `🔴 Live Class: Day ${nextNum} - ${title.trim()}`
+          : `🎬 New Class Uploaded: Day ${nextNum} - ${title.trim()}`;
+        const notifMsg = isOnline
+          ? `Live class scheduled for "${course.title}" by ${req.user.name || 'Faculty'}.${createdClass.liveMeetingTime ? ` Scheduled at ${createdClass.liveMeetingTime}.` : ''} Join via your Student Portal.`
+          : `Day ${nextNum} class "${title.trim()}" has been uploaded for "${course.title}". Duration: ${duration || '1 hr 30 mins'}. Topics: ${parsedTopics.slice(0, 3).join(', ') || 'Curriculum core'}.`;
+
+        for (const student of enrolledStudentsToNotify) {
           data.notifications.unshift({
-            id: 'notif_class_' + Math.random().toString(36).substring(2, 9),
-            userId: studentId,
-            title: `🎨 Creative Class: Day ${nextNum} - ${title.trim()}`,
-            message: `A new interactive session for "${course.title}" is live! Topics: ${parsedTopics.slice(0, 3).join(', ') || 'Hands-on curriculum'}. Duration: ${duration || '1 hr 30 mins'}.`,
+            id: 'notif_class_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+            userId: student.id,
+            title: notifTitle,
+            message: notifMsg,
             type: 'CREATIVE_CLASS',
-            link: '/student/courses',
+            link: '/student',
             meta: {
               courseId: course.id,
               courseTitle: course.title,
@@ -594,9 +906,15 @@ router.post('/courses/:courseId/classes', async (req, res) => {
               classTitle: title.trim(),
               duration: duration || '1 hr 30 mins',
               topics: parsedTopics,
+              deliveryType: createdClass.deliveryType,
+              liveMeetingUrl: createdClass.liveMeetingUrl,
+              liveMeetingTime: createdClass.liveMeetingTime,
+              liveMeetingInstructions: createdClass.liveMeetingInstructions,
               instructorName: req.user.name,
-              badge: 'LIVE CLASS',
-              actionLabel: 'Jump to Class',
+              authorName: req.user.name,
+              badge: isOnline ? 'LIVE ONLINE CLASS' : 'CLASS LESSON',
+              actionLabel: isOnline ? 'Join Online Class' : 'Watch Class',
+              hasNotes: (createdClass.learningMaterials && createdClass.learningMaterials.length > 0) || !!resourcesUrl,
             },
             isRead: false,
             createdAt: now,
@@ -604,6 +922,41 @@ router.post('/courses/:courseId/classes', async (req, res) => {
         }
       }
     });
+
+    // Send email notifications to all enrolled students asynchronously
+    const isOnline = createdClass.deliveryType === 'ONLINE';
+    const emailSubject = isOnline
+      ? `🔴 Live Class Alert: Day ${createdClass.dayNumber} - ${createdClass.title} (${course.title})`
+      : `🎬 New Class Uploaded: Day ${createdClass.dayNumber} - ${createdClass.title} (${course.title})`;
+
+    for (const student of enrolledStudentsToNotify) {
+      if (student.email) {
+        sendEmail(
+          student.email,
+          emailSubject,
+          'CLASS_UPLOADED',
+          {
+            name: student.name || 'Student',
+            studentName: student.name || 'Student',
+            courseTitle: course.title,
+            courseId: course.id,
+            dayNumber: createdClass.dayNumber,
+            classTitle: createdClass.title,
+            deliveryType: createdClass.deliveryType,
+            duration: createdClass.duration || '1 hr 30 mins',
+            topics: createdClass.topics,
+            instructorName: req.user.name,
+            liveMeetingUrl: createdClass.liveMeetingUrl,
+            liveMeetingTime: createdClass.liveMeetingTime,
+            liveMeetingInstructions: createdClass.liveMeetingInstructions,
+            hasNotes: (createdClass.learningMaterials && createdClass.learningMaterials.length > 0) || !!createdClass.resourcesUrl,
+            actionUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/student`,
+          }
+        ).catch((err) => {
+          console.error(`[Class Upload Email] Failed to notify ${student.email}:`, err.message);
+        });
+      }
+    }
 
     return res.status(201).json({
       success: true,
@@ -620,6 +973,10 @@ router.post('/courses/:courseId/classes', async (req, res) => {
 router.put('/courses/:courseId/classes/:classId', async (req, res) => {
   try {
     const { courseId, classId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
     const {
       classNumber,
       dayNumber,
@@ -633,9 +990,15 @@ router.put('/courses/:courseId/classes/:classId', async (req, res) => {
       learningMaterials,
       test,
       status,
+      deliveryType,
+      liveMeetingUrl,
+      liveMeetingTime,
+      liveMeetingInstructions,
     } = req.body;
 
     let updatedClass;
+    let enrolledStudentsToNotifyOnUpdate = [];
+    let courseTitleForEmail = '';
 
     await db.transaction((data) => {
       const c = data.courses.find((item) => item.id === courseId || item.slug === courseId);
@@ -663,6 +1026,18 @@ router.put('/courses/:courseId/classes/:classId', async (req, res) => {
           if (learningMaterials !== undefined) {
             cls.learningMaterials = Array.isArray(learningMaterials) ? learningMaterials : [];
           }
+          if (deliveryType !== undefined) {
+            cls.deliveryType = deliveryType === 'ONLINE' ? 'ONLINE' : 'UPLOAD';
+          }
+          if (liveMeetingUrl !== undefined) {
+            cls.liveMeetingUrl = liveMeetingUrl.trim();
+          }
+          if (liveMeetingTime !== undefined) {
+            cls.liveMeetingTime = liveMeetingTime.trim();
+          }
+          if (liveMeetingInstructions !== undefined) {
+            cls.liveMeetingInstructions = liveMeetingInstructions.trim();
+          }
           if (test !== undefined) {
             cls.test = test && typeof test === 'object' ? test : null;
           }
@@ -673,12 +1048,82 @@ router.put('/courses/:courseId/classes/:classId', async (req, res) => {
 
           // Re-sort after updating dayNumber
           c.classes.sort((a, b) => (a.dayNumber || a.classNumber || 0) - (b.dayNumber || b.classNumber || 0));
+
+          // Targeted Notification: Notify enrolled students about class updates
+          if (!data.notifications) data.notifications = [];
+          enrolledStudentsToNotifyOnUpdate = getEnrolledStudentsForCourse(c, data);
+          courseTitleForEmail = c.title;
+
+          const isOnline = updatedClass.deliveryType === 'ONLINE';
+          const notifTitle = isOnline
+            ? `🔴 Live Class Update: Day ${updatedClass.dayNumber || updatedClass.classNumber} - ${updatedClass.title}`
+            : `📝 Class Updated: Day ${updatedClass.dayNumber || updatedClass.classNumber} - ${updatedClass.title}`;
+          const notifMsg = `Updates published for Day ${updatedClass.dayNumber || updatedClass.classNumber} of "${c.title}" by ${req.user.name || 'Faculty'}.${updatedClass.liveMeetingTime ? ` Meeting time: ${updatedClass.liveMeetingTime}.` : ''} Check your Student Portal for latest notes and link.`;
+
+          for (const student of enrolledStudentsToNotifyOnUpdate) {
+            data.notifications.unshift({
+              id: 'notif_class_upd_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+              userId: student.id,
+              title: notifTitle,
+              message: notifMsg,
+              type: 'CREATIVE_CLASS',
+              link: '/student',
+              meta: {
+                courseId: c.id,
+                courseTitle: c.title,
+                dayNumber: updatedClass.dayNumber || updatedClass.classNumber,
+                classTitle: updatedClass.title,
+                duration: updatedClass.duration,
+                topics: updatedClass.topics,
+                deliveryType: updatedClass.deliveryType,
+                liveMeetingUrl: updatedClass.liveMeetingUrl,
+                liveMeetingTime: updatedClass.liveMeetingTime,
+                instructorName: req.user.name,
+                authorName: req.user.name,
+                badge: isOnline ? 'LIVE CLASS UPDATED' : 'CLASS UPDATED',
+                actionLabel: isOnline ? 'Join Live Class' : 'Open Lesson',
+                hasNotes: (updatedClass.learningMaterials && updatedClass.learningMaterials.length > 0) || !!updatedClass.resourcesUrl,
+              },
+              isRead: false,
+              createdAt: new Date().toISOString(),
+            });
+          }
         }
       }
     });
 
     if (!updatedClass) {
       return res.status(404).json({ error: 'Class episode not found.' });
+    }
+
+    // Asynchronously dispatch email alerts to enrolled students
+    for (const student of enrolledStudentsToNotifyOnUpdate) {
+      if (student.email) {
+        sendEmail(
+          student.email,
+          `📝 Class Updated: Day ${updatedClass.dayNumber || updatedClass.classNumber} - ${updatedClass.title} (${courseTitleForEmail})`,
+          'CLASS_UPLOADED',
+          {
+            name: student.name || 'Student',
+            studentName: student.name || 'Student',
+            courseTitle: courseTitleForEmail,
+            courseId: courseId,
+            dayNumber: updatedClass.dayNumber || updatedClass.classNumber,
+            classTitle: updatedClass.title,
+            deliveryType: updatedClass.deliveryType,
+            duration: updatedClass.duration || '1 hr 30 mins',
+            topics: updatedClass.topics,
+            instructorName: req.user.name,
+            liveMeetingUrl: updatedClass.liveMeetingUrl,
+            liveMeetingTime: updatedClass.liveMeetingTime,
+            liveMeetingInstructions: updatedClass.liveMeetingInstructions,
+            hasNotes: (updatedClass.learningMaterials && updatedClass.learningMaterials.length > 0) || !!updatedClass.resourcesUrl,
+            actionUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/student`,
+          }
+        ).catch((err) => {
+          console.error(`[Class Update Email] Failed to notify ${student.email}:`, err.message);
+        });
+      }
     }
 
     return res.json({
@@ -692,10 +1137,161 @@ router.put('/courses/:courseId/classes/:classId', async (req, res) => {
   }
 });
 
+// 10b. Local Video Upload for Class Lesson (Multer storage into uploads/videos/)
+router.post('/courses/:courseId/classes/:classId/video', uploadVideo.single('video'), async (req, res) => {
+  try {
+    const { courseId, classId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No video file uploaded. Please select a valid video file (MP4, WebM, MOV, MKV).' });
+    }
+
+    const course = db.raw.courses.find((c) => c.id === courseId || c.slug === courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found.' });
+    }
+
+    const cls = (course.classes || []).find((c) => c.id === classId);
+    if (!cls) {
+      return res.status(404).json({ error: 'Class episode not found.' });
+    }
+
+    const now = new Date().toISOString();
+    const videoId = 'vid_' + crypto.randomBytes(8).toString('hex');
+
+    const videoRecord = {
+      id: videoId,
+      courseId: course.id,
+      classId: cls.id,
+      originalName: req.file.originalname,
+      storedName: req.file.filename,
+      filePath: req.file.path,
+      fileSizeBytes: req.file.size,
+      mimeType: req.file.mimetype,
+      durationSeconds: req.body.durationSeconds ? parseInt(req.body.durationSeconds, 10) : 0,
+      uploadedBy: req.user.id,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    let updatedClass;
+
+    await db.transaction((data) => {
+      if (!data.lessonVideos) data.lessonVideos = [];
+      data.lessonVideos.push(videoRecord);
+
+      const c = data.courses.find((item) => item.id === course.id);
+      if (c && c.classes) {
+        const targetClass = c.classes.find((item) => item.id === classId);
+        if (targetClass) {
+          targetClass.videoId = videoRecord.id;
+          targetClass.videoOriginalName = videoRecord.originalName;
+          targetClass.videoStoredName = videoRecord.storedName;
+          targetClass.videoSizeBytes = videoRecord.fileSizeBytes;
+          targetClass.videoMimeType = videoRecord.mimeType;
+          targetClass.videoPath = `/api/learning/courses/${course.id}/classes/${cls.id}/video-stream`;
+          targetClass.hasLocalVideo = true;
+          // Clear external video URL as per requirements
+          targetClass.videoUrl = '';
+          targetClass.videoUploadedAt = now;
+          targetClass.updatedAt = now;
+          updatedClass = targetClass;
+
+          // Targeted Notification: Video ready for streaming
+          if (!data.notifications) data.notifications = [];
+          const enrolledStudents = getEnrolledStudentsForCourse(course, data);
+          const dayNum = targetClass.dayNumber || targetClass.classNumber || 1;
+
+          for (const student of enrolledStudents) {
+            data.notifications.unshift({
+              id: 'notif_vid_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+              userId: student.id,
+              title: `🎬 Video Ready: Day ${dayNum} - ${targetClass.title}`,
+              message: `High-definition video for "${targetClass.title}" in "${course.title}" has been uploaded and is ready for streaming. Watch it in your Student Portal!`,
+              type: 'CREATIVE_CLASS',
+              link: '/student',
+              meta: {
+                courseId: course.id,
+                courseTitle: course.title,
+                dayNumber: dayNum,
+                classTitle: targetClass.title,
+                instructorName: req.user.name,
+                authorName: req.user.name,
+                badge: 'VIDEO READY',
+                actionLabel: 'Watch Class Video',
+              },
+              isRead: false,
+              createdAt: now,
+            });
+          }
+        }
+      }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Video uploaded and attached to lesson successfully.',
+      video: videoRecord,
+      class: updatedClass,
+    });
+  } catch (err) {
+    console.error('Upload video error:', err);
+    return res.status(500).json({ error: 'Failed to upload video.' });
+  }
+});
+
+// 10c. Remove Video from Class Lesson
+router.delete('/courses/:courseId/classes/:classId/video', async (req, res) => {
+  try {
+    const { courseId, classId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
+    let updatedClass;
+    await db.transaction((data) => {
+      const c = data.courses.find((item) => item.id === courseId || item.slug === courseId);
+      if (c && c.classes) {
+        const cls = c.classes.find((item) => item.id === classId);
+        if (cls) {
+          cls.videoId = null;
+          cls.videoOriginalName = null;
+          cls.videoStoredName = null;
+          cls.videoSizeBytes = null;
+          cls.videoMimeType = null;
+          cls.videoPath = null;
+          cls.hasLocalVideo = false;
+          cls.updatedAt = new Date().toISOString();
+          updatedClass = cls;
+        }
+      }
+    });
+
+    if (!updatedClass) {
+      return res.status(404).json({ error: 'Class not found.' });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Video detached from lesson successfully.',
+      class: updatedClass,
+    });
+  } catch (err) {
+    console.error('Delete video error:', err);
+    return res.status(500).json({ error: 'Failed to detach video.' });
+  }
+});
+
 // 11. Delete Class Episode
 router.delete('/courses/:courseId/classes/:classId', async (req, res) => {
   try {
     const { courseId, classId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
 
     let removed = false;
     await db.transaction((data) => {
@@ -722,6 +1318,9 @@ router.delete('/courses/:courseId/classes/:classId', async (req, res) => {
 router.post('/courses/:courseId/classes/:classId/test', async (req, res) => {
   try {
     const { courseId, classId } = req.params;
+    if (!isStaffAllotted(req.user.id, courseId, req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
     const { title, passingScore = 70, questions = [] } = req.body;
 
     if (!title || !questions || questions.length === 0) {
@@ -982,6 +1581,137 @@ router.patch('/projects/:id/review', async (req, res) => {
   } catch (err) {
     console.error('Project review error:', err);
     return res.status(500).json({ error: 'Failed to record project review.' });
+  }
+});
+
+// 12. Staff Doubts Management: Get All Doubts
+router.get('/doubts', (req, res) => {
+  try {
+    const staffUser = req.user;
+    const { status, courseId } = req.query;
+    let doubts = db.raw.doubts || [];
+
+    // Allotment Guard: Filter to allotted courses if not Admin
+    if (staffUser.role !== 'ADMIN') {
+      const allottedCourseIds = (db.raw.staffCourseAllotments || [])
+        .filter((a) => a.staffId === staffUser.id && a.status === 'ACTIVE')
+        .map((a) => a.courseId);
+      const matchedCourses = (db.raw.courses || []).filter(
+        (c) => allottedCourseIds.includes(c.id) || allottedCourseIds.includes(c.slug)
+      );
+      const expandedCourseIds = new Set([
+        ...allottedCourseIds,
+        ...matchedCourses.map((c) => c.id),
+        ...matchedCourses.map((c) => c.slug),
+      ]);
+      doubts = doubts.filter((d) => expandedCourseIds.has(d.courseId));
+    }
+
+    if (status && status !== 'ALL') {
+      doubts = doubts.filter((d) => d.status === status);
+    }
+    if (courseId) {
+      doubts = doubts.filter((d) => d.courseId === courseId);
+    }
+
+    doubts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return res.json({ success: true, doubts });
+  } catch (err) {
+    console.error('Staff get doubts error:', err);
+    return res.status(500).json({ error: 'Failed to fetch student doubts.' });
+  }
+});
+
+// 13. Staff Reply / Clarify Doubt
+router.post('/doubts/:id/reply', async (req, res) => {
+  try {
+    const staffUser = req.user;
+    const { id } = req.params;
+    const { reply } = req.body;
+
+    if (!reply || !reply.trim()) {
+      return res.status(400).json({ error: 'Clarification reply cannot be empty.' });
+    }
+
+    // Check existing doubt and allotment authorization
+    const existingDoubt = (db.raw.doubts || []).find((d) => d.id === id);
+    if (!existingDoubt) {
+      return res.status(404).json({ error: 'Doubt record not found.' });
+    }
+
+    if (!isStaffAllotted(staffUser.id, existingDoubt.courseId, staffUser.role)) {
+      return res.status(403).json({
+        error: 'Access denied: You are not allotted to manage this course.',
+      });
+    }
+
+    let updatedDoubt = null;
+    const now = new Date().toISOString();
+
+    await db.transaction((data) => {
+      if (!data.doubts) data.doubts = [];
+      const doubt = data.doubts.find((d) => d.id === id);
+      if (!doubt) {
+        throw new Error('Doubt record not found');
+      }
+
+      doubt.reply = reply.trim();
+      doubt.repliedBy = `${staffUser.name || 'Faculty Mentor'} (Lead Faculty)`;
+      doubt.repliedAt = now;
+      doubt.status = 'RESOLVED';
+      doubt.updatedAt = now;
+      updatedDoubt = doubt;
+
+      // Notify the student
+      if (!data.notifications) data.notifications = [];
+      data.notifications.unshift({
+        id: 'notif_' + Math.random().toString(36).substring(2, 9),
+        userId: doubt.studentId,
+        title: `Faculty Answered Your Question: ${doubt.classTitle}`,
+        message: `${staffUser.name} responded: "${reply.trim().slice(0, 80)}..."`,
+        type: 'success',
+        link: '/dashboard',
+        isRead: false,
+        createdAt: now,
+      });
+
+      // Audit Log
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: staffUser.id,
+        adminName: staffUser.name,
+        action: 'DOUBT_RESOLVED',
+        targetType: 'DOUBT',
+        targetId: doubt.id,
+        targetTitle: `Resolved doubt for ${doubt.studentName} (${doubt.classTitle})`,
+        createdAt: now,
+      });
+    });
+
+    return res.json({
+      success: true,
+      message: 'Faculty clarification recorded and student notified.',
+      doubt: updatedDoubt,
+    });
+  } catch (err) {
+    console.error('Staff reply doubt error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to submit clarification.' });
+  }
+});
+
+// 14. Staff Delete / Dismiss Spam Doubt
+router.delete('/doubts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.transaction((data) => {
+      if (!data.doubts) data.doubts = [];
+      data.doubts = data.doubts.filter((d) => d.id !== id);
+    });
+    return res.json({ success: true, message: 'Doubt removed.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to delete doubt.' });
   }
 });
 

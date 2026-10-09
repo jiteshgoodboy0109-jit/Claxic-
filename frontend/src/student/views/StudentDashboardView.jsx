@@ -39,6 +39,9 @@ import {
   GraduationCap,
   Search,
   Filter,
+  MessageSquare,
+  Send,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
@@ -47,29 +50,16 @@ import { ApplicationModal } from '../../components/modals/ApplicationModal.jsx';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 import { DegreeSelect } from '../../components/ui/DegreeSelect.jsx';
 import { NotificationBell } from '../../components/notifications/NotificationBell.jsx';
+import { SecureVideoPlayer } from '../../components/video/SecureVideoPlayer.jsx';
 
-// Clean 3-bar morphing Hamburger-to-Close icon
-const HamburgerIcon = ({ isOpen }) => {
-  return (
-    <div className="w-5 h-4 relative flex flex-col justify-between items-center pointer-events-none">
-      <span
-        className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center ${
-          isOpen ? 'rotate-45 translate-y-[7px]' : ''
-        }`}
-      />
-      <span
-        className={`w-5 h-0.5 bg-current rounded-full transition-all duration-200 ease-in-out ${
-          isOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
-        }`}
-      />
-      <span
-        className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-in-out origin-center ${
-          isOpen ? '-rotate-45 -translate-y-[7px]' : ''
-        }`}
-      />
-    </div>
-  );
-};
+// Clean 3-bar hamburger icon (stays as 3 crisp parallel lines, never transforms to an 'X')
+const HamburgerIcon = ({ className = 'w-5 h-4', barClassName = 'bg-current' }) => (
+  <div className={`relative flex flex-col justify-center items-center gap-[4.5px] pointer-events-none select-none ${className}`} aria-hidden="true">
+    <span className={`w-4.5 h-[2px] ${barClassName} rounded-full transition-all duration-150`} />
+    <span className={`w-4.5 h-[2px] ${barClassName} rounded-full transition-all duration-150`} />
+    <span className={`w-4.5 h-[2px] ${barClassName} rounded-full transition-all duration-150`} />
+  </div>
+);
 
 export const StudentDashboardView = ({
   initialTab = 'courses',
@@ -174,21 +164,85 @@ export const StudentDashboardView = ({
     return () => clearInterval(timer);
   }, [activeClassForVideo]);
 
-  // Final Project Submission Form State
-  const [projectForm, setProjectForm] = useState({
-    projectTitle: '',
-    description: '',
-    githubUrl: '',
-    documentationUrl: '',
-    liveDemoUrl: '',
-  });
-  const [isSubmittingProject, setIsSubmittingProject] = useState(false);
-  const [projectError, setProjectError] = useState(null);
-  const [projectSuccessMsg, setProjectSuccessMsg] = useState(null);
+
+
+  // Class Doubts & Clarifications State
+  const [courseDoubts, setCourseDoubts] = useState([]);
+  const [isLoadingDoubts, setIsLoadingDoubts] = useState(false);
+  const [expandedDoubtClassId, setExpandedDoubtClassId] = useState(null);
+  const [newDoubtTexts, setNewDoubtTexts] = useState({}); // { [classId]: string }
+  const [isSubmittingDoubt, setIsSubmittingDoubt] = useState(false);
+  const [modalDoubtText, setModalDoubtText] = useState('');
 
   const showToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 4000);
+  };
+
+  // Fetch Doubts for the Active Course
+  const fetchCourseDoubts = async (courseId) => {
+    if (!courseId) return;
+    setIsLoadingDoubts(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/learning/doubts?courseId=${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCourseDoubts(data.doubts || []);
+      }
+    } catch (e) {
+      console.error('Error fetching course doubts:', e);
+    } finally {
+      setIsLoadingDoubts(false);
+    }
+  };
+
+  // Auto-fetch doubts when active course changes
+  useEffect(() => {
+    if (selectedLearningCourseId) {
+      fetchCourseDoubts(selectedLearningCourseId);
+    }
+  }, [selectedLearningCourseId]);
+
+  // Submit Doubt for Class
+  const handlePostClassDoubt = async (cls, customQuestion = null) => {
+    const questionText = customQuestion !== null ? customQuestion : (newDoubtTexts[cls.id] || '');
+    if (!questionText.trim()) return;
+
+    setIsSubmittingDoubt(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const targetCourseId = selectedLearningCourseId || (enrolledCourses[0]?.courseId);
+      const res = await fetch('/api/learning/doubts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          courseId: targetCourseId,
+          classId: cls.id,
+          classNumber: cls.dayNumber || cls.classNumber || 1,
+          classTitle: cls.title,
+          question: questionText.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Your doubt has been submitted to your faculty mentor! 💬');
+        setNewDoubtTexts((prev) => ({ ...prev, [cls.id]: '' }));
+        setModalDoubtText('');
+        fetchCourseDoubts(targetCourseId);
+      } else {
+        showToast(data.error || 'Failed to submit doubt');
+      }
+    } catch (e) {
+      showToast('Network error submitting doubt');
+    } finally {
+      setIsSubmittingDoubt(false);
+    }
   };
 
   // Clean to exactly 10 digits
@@ -396,50 +450,7 @@ export const StudentDashboardView = ({
     }
   };
 
-  // Submit final course project
-  const handleSubmitProject = async (e) => {
-    e.preventDefault();
-    setProjectError(null);
-    setProjectSuccessMsg(null);
 
-    if (!projectForm.projectTitle.trim()) {
-      setProjectError('Please provide a project or model title.');
-      return;
-    }
-    if (!projectForm.githubUrl.trim() || !projectForm.githubUrl.includes('github.com')) {
-      setProjectError('Please provide a valid GitHub repository URL (e.g. https://github.com/username/project).');
-      return;
-    }
-
-    setIsSubmittingProject(true);
-    try {
-      const token = localStorage.getItem('claxic_token');
-      const res = await fetch('/api/learning/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          courseId: selectedLearningCourseId,
-          ...projectForm,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setProjectSuccessMsg('Project submitted successfully for faculty review!');
-        showToast('Final project submitted to faculty!');
-        reloadLearningCourses();
-      } else {
-        setProjectError(data.error || 'Failed to submit project.');
-      }
-    } catch (e) {
-      setProjectError('Failed to submit project. Please check your network connection.');
-    } finally {
-      setIsSubmittingProject(false);
-    }
-  };
 
   useEffect(() => {
     fetchData();
@@ -586,15 +597,15 @@ export const StudentDashboardView = ({
   }, [initialTab]);
 
   const handleTabChange = (tab) => {
-    setActiveTab(tab);
+    const targetTab = tab === 'billing' || tab === 'payments' ? 'courses' : tab;
+    setActiveTab(targetTab);
     if (onNavigate) {
-      onNavigate('student', tab);
+      onNavigate('student', targetTab);
     } else {
       let target = '/student/learning';
-      if (tab === 'catalog') target = '/student/catalog';
-      else if (tab === 'applications') target = '/student/applications';
-      else if (tab === 'billing' || tab === 'payments') target = '/student/payments';
-      else if (tab === 'profile') target = '/student/profile';
+      if (targetTab === 'catalog') target = '/student/catalog';
+      else if (targetTab === 'applications') target = '/student/applications';
+      else if (targetTab === 'profile') target = '/student/profile';
       window.history.replaceState(null, '', target);
     }
   };
@@ -699,13 +710,6 @@ export const StudentDashboardView = ({
       action: () => handleTabChange('applications'),
     },
     {
-      id: 'billing',
-      label: 'Invoices & Payments',
-      icon: CreditCard,
-      count: payments.length,
-      action: () => handleTabChange('billing'),
-    },
-    {
       id: 'profile',
       label: 'Student Profile',
       icon: UserIcon,
@@ -727,7 +731,7 @@ export const StudentDashboardView = ({
             className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer transition-colors"
             aria-label="Open Sidebar"
           >
-            <HamburgerIcon isOpen={isMobileSidebarOpen} />
+            <HamburgerIcon className="w-5 h-4 text-slate-700" />
           </button>
           <img src="/logo.png" alt="Claxic" className="h-6 w-auto object-contain" />
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02] bg-[#FFF1EE] px-2.5 py-0.5 rounded-full border border-[#FFD4CC]">
@@ -764,7 +768,7 @@ export const StudentDashboardView = ({
             onClick={() => setIsMobileSidebarOpen(false)}
           />
 
-          <aside className="fixed inset-y-0 left-0 w-[280px] sm:w-72 max-w-[85vw] bg-white border-r border-slate-200 text-slate-900 flex flex-col z-50 shadow-2xl p-5 justify-between animate-in slide-in-from-left duration-200">
+          <aside className="fixed inset-y-0 left-0 w-[280px] sm:w-72 max-w-[85vw] bg-white border-r border-slate-200 text-slate-900 flex flex-col z-50 shadow-2xl p-5 justify-between transform-gpu animate-in slide-in-from-left duration-200">
             <div className="space-y-6 overflow-y-auto no-scrollbar flex-1">
               {/* Mobile Drawer Header */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-200">
@@ -777,10 +781,11 @@ export const StudentDashboardView = ({
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
-                  aria-label="Close Sidebar"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer transition-colors"
+                  aria-label="Toggle Sidebar Menu"
+                  title="Toggle Menu"
                 >
-                  <X className="w-5 h-5" />
+                  <HamburgerIcon className="w-5 h-4 text-slate-700" />
                 </button>
               </div>
 
@@ -874,14 +879,14 @@ export const StudentDashboardView = ({
       {/*    STICKY FULL HEIGHT (top-0 h-screen min-h-screen)       */}
       {/* ========================================================= */}
       <aside
-        className={`hidden lg:flex lg:flex-col bg-white border-r border-slate-200/80 text-slate-900 min-h-screen sticky top-0 h-screen shrink-0 z-30 justify-between select-none shadow-xs transition-[width,padding] duration-300 ease-in-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+        className={`hidden lg:flex lg:flex-col bg-white border-r border-slate-200/80 text-slate-900 min-h-screen sticky top-0 h-screen shrink-0 z-30 justify-between select-none shadow-xs transform-gpu transition-[width] duration-200 ease-out will-change-[width] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
           isSidebarCollapsed ? 'w-20 p-3' : 'w-72 p-5'
         }`}
       >
         <div className="flex-1 overflow-y-auto space-y-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          {/* Top of Sidebar: Logo & Animated Hamburger Button */}
+          {/* Top of Sidebar: Logo & Hamburger Button */}
           <div
-            className={`flex items-center pb-4 border-b border-slate-200 transition-all duration-300 ${
+            className={`flex items-center pb-4 border-b border-slate-200 transition-all duration-200 ${
               isSidebarCollapsed ? 'justify-center' : 'justify-between'
             }`}
           >
@@ -904,22 +909,22 @@ export const StudentDashboardView = ({
                 <button
                   type="button"
                   onClick={() => setIsSidebarCollapsed(true)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors cursor-pointer shrink-0"
+                  className="p-1.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 focus:outline-none transition-colors cursor-pointer shrink-0"
                   title="Collapse Sidebar"
                   aria-label="Collapse Sidebar"
                 >
-                  <HamburgerIcon isOpen={true} />
+                  <HamburgerIcon className="w-5 h-4 text-slate-600" />
                 </button>
               </>
             ) : (
               <button
                 type="button"
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none transition-colors cursor-pointer flex items-center justify-center w-full"
+                className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 focus:outline-none transition-colors cursor-pointer flex items-center justify-center w-full"
                 title="Expand Sidebar"
                 aria-label="Expand Sidebar"
               >
-                <HamburgerIcon isOpen={false} />
+                <HamburgerIcon className="w-5 h-4 text-slate-600" />
               </button>
             )}
           </div>
@@ -1153,19 +1158,19 @@ export const StudentDashboardView = ({
                 </div>
 
                 <div
-                  onClick={() => handleTabChange('billing')}
+                  onClick={() => handleTabChange('applications')}
                   className={`px-5 py-3 rounded-2xl border text-center cursor-pointer transition-all ${
-                    activeTab === 'billing'
+                    activeTab === 'applications'
                       ? 'bg-[#EE2D02] text-white border-[#EE2D02] shadow-xs'
                       : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
-                  title="View Invoices"
+                  title="View My Applications"
                 >
-                  <span className={`text-xl font-bold block ${activeTab === 'billing' ? 'text-white' : 'text-[#EE2D02]'}`}>
-                    {payments.length}
+                  <span className={`text-xl font-bold block ${activeTab === 'applications' ? 'text-white' : 'text-[#EE2D02]'}`}>
+                    {applications.length}
                   </span>
-                  <span className={`text-[11px] font-semibold ${activeTab === 'billing' ? 'text-white/80' : 'text-slate-500'}`}>
-                    Tax Invoices
+                  <span className={`text-[11px] font-semibold ${activeTab === 'applications' ? 'text-white/80' : 'text-slate-500'}`}>
+                    Applications
                   </span>
                 </div>
 
@@ -1448,24 +1453,6 @@ export const StudentDashboardView = ({
                       >
                         Upcoming ({activeCourse.schedule.filter((c) => c.status === 'UPCOMING').length})
                       </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setClassFilter('PROJECT')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                          classFilter === 'PROJECT'
-                            ? 'bg-[#EE2D02] text-white shadow-xs'
-                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-                        }`}
-                      >
-                        <Code2 className="w-3.5 h-3.5" />
-                        <span>Final Capstone Project</span>
-                        {activeCourse.finalProject && (
-                          <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                            ✓
-                          </span>
-                        )}
-                      </button>
                     </div>
 
                     <span className="text-xs text-slate-400 font-mono hidden md:inline shrink-0">
@@ -1474,8 +1461,7 @@ export const StudentDashboardView = ({
                   </div>
 
                   {/* Day-by-Day Schedule Cards */}
-                  {classFilter !== 'PROJECT' && (
-                    <div className="space-y-4">
+                  <div className="space-y-4">
                       {filteredSchedule.length === 0 ? (
                         <div className="p-12 text-center bg-white rounded-[28px] border border-slate-200 space-y-2">
                           <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
@@ -1529,6 +1515,12 @@ export const StudentDashboardView = ({
                                 {!cls.isLocked && !cls.isToday && cls.status === 'AVAILABLE' && (
                                   <span className="px-3 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-mono font-bold">
                                     Recording Ready
+                                  </span>
+                                )}
+                                {(cls.deliveryType === 'ONLINE' || cls.liveMeetingUrl) && (
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-mono font-bold">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                    <span>Live Online Class</span>
                                   </span>
                                 )}
                               </div>
@@ -1586,8 +1578,22 @@ export const StudentDashboardView = ({
                               ) : (
                                 <>
                                   <div className="flex flex-wrap items-center gap-2.5">
-                                    {/* Watch Video button */}
-                                    {cls.videoUrl && (
+                                    {/* Online Live Class Join Button */}
+                                    {(cls.deliveryType === 'ONLINE' || cls.liveMeetingUrl) && cls.liveMeetingUrl && (
+                                      <a
+                                        href={cls.liveMeetingUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-bold transition-all shadow-md cursor-pointer group"
+                                      >
+                                        <Video className="w-3.5 h-3.5" />
+                                        <span>🔴 Join Live Class</span>
+                                        <ExternalLink className="w-3 h-3 opacity-80 group-hover:translate-x-0.5 transition-transform" />
+                                      </a>
+                                    )}
+
+                                    {/* Watch Video button (for recorded lessons) */}
+                                    {cls.videoUrl && cls.deliveryType !== 'ONLINE' && (
                                       <button
                                         type="button"
                                         onClick={() => setActiveClassForVideo(cls)}
@@ -1598,21 +1604,46 @@ export const StudentDashboardView = ({
                                       </button>
                                     )}
 
-                                    {/* Learning Materials */}
+                                    {/* Learning Materials & Notes (PDF / Word Doc / Links) */}
                                     {cls.learningMaterials && cls.learningMaterials.length > 0 ? (
-                                      cls.learningMaterials.map((mat, midx) => (
-                                        <a
-                                          key={midx}
-                                          href={mat.url}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold transition-colors cursor-pointer"
-                                        >
-                                          <FileText className="w-3.5 h-3.5 text-[#EE2D02]" />
-                                          <span>{mat.title || 'Learning Materials'}</span>
-                                          <ExternalLink className="w-3 h-3 text-slate-400" />
-                                        </a>
-                                      ))
+                                      cls.learningMaterials.map((mat, midx) => {
+                                        const isDoc = mat.fileData || mat.fileName;
+                                        const isPdf = mat.fileName?.endsWith('.pdf') || mat.fileType?.includes('pdf');
+                                        const isWord = mat.fileName?.match(/\.(docx?)$/i) || mat.fileType?.includes('word');
+                                        return mat.fileData ? (
+                                          <a
+                                            key={midx}
+                                            href={mat.fileData}
+                                            download={mat.fileName || 'course_notes'}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
+                                              isPdf
+                                                ? 'bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-800'
+                                                : isWord
+                                                ? 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
+                                                : 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-900'
+                                            }`}
+                                            title={`Download ${mat.fileName || 'Notes'}`}
+                                          >
+                                            <Download className="w-3.5 h-3.5" />
+                                            <span>{mat.title || mat.fileName || 'Download Notes'}</span>
+                                            <span className="text-[10px] font-mono font-bold px-1 rounded bg-white/60">
+                                              {isPdf ? 'PDF' : isWord ? 'DOCX' : 'DOC'}
+                                            </span>
+                                          </a>
+                                        ) : (
+                                          <a
+                                            key={midx}
+                                            href={mat.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold transition-colors cursor-pointer"
+                                          >
+                                            <FileText className="w-3.5 h-3.5 text-[#EE2D02]" />
+                                            <span>{mat.title || 'Learning Materials'}</span>
+                                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                                          </a>
+                                        );
+                                      })
                                     ) : cls.resourcesUrl ? (
                                       <a
                                         href={cls.resourcesUrl}
@@ -1665,211 +1696,179 @@ export const StudentDashboardView = ({
                                   ) : (
                                     <button
                                       type="button"
-                                      onClick={() => setActiveClassForVideo(cls)}
+                                      onClick={() => {
+                                        if (cls.deliveryType === 'ONLINE' && cls.liveMeetingUrl) {
+                                          window.open(cls.liveMeetingUrl, '_blank', 'noopener,noreferrer');
+                                        } else {
+                                          setActiveClassForVideo(cls);
+                                        }
+                                      }}
                                       className="px-3.5 py-2 rounded-xl bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] text-[#EE2D02] font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-98"
                                     >
-                                      <PlayCircle className="w-3.5 h-3.5 text-[#EE2D02]" />
-                                      <span>Watch & Verify Attendance</span>
+                                      {cls.deliveryType === 'ONLINE' && cls.liveMeetingUrl ? (
+                                        <>
+                                          <Video className="w-3.5 h-3.5 text-[#EE2D02]" />
+                                          <span>Join Live Session</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <PlayCircle className="w-3.5 h-3.5 text-[#EE2D02]" />
+                                          <span>Watch & Verify Attendance</span>
+                                        </>
+                                      )}
                                     </button>
                                   )}
                                 </>
                               )}
                             </div>
+
+                            {/* Class Doubts & Faculty Clarifications Section for this session */}
+                            {(() => {
+                              const classDoubts = courseDoubts.filter((d) => d.classId === cls.id);
+                              const isExpanded = expandedDoubtClassId === cls.id;
+                              return (
+                                <div className="mt-4 pt-3.5 border-t border-slate-200/90">
+                                  <div className="flex flex-wrap items-center justify-between gap-2 bg-[#FAF7F2] p-2.5 rounded-2xl border border-[#EFE8DD]">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setExpandedDoubtClassId(isExpanded ? null : cls.id)
+                                      }
+                                      className="inline-flex items-center gap-2 text-xs font-bold text-stone-800 hover:text-[#D97706] transition-colors cursor-pointer"
+                                    >
+                                      <div className="w-6 h-6 rounded-lg bg-[#F59E0B]/20 text-[#D97706] flex items-center justify-center">
+                                        <MessageSquare className="w-3.5 h-3.5" />
+                                      </div>
+                                      <span>
+                                        Class Doubts & Faculty Answers ({classDoubts.length})
+                                      </span>
+                                      {classDoubts.some((d) => d.status === 'RESOLVED') && (
+                                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                          ✓ Answered
+                                        </span>
+                                      )}
+                                      <ChevronDown
+                                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                          isExpanded ? 'rotate-180 text-[#D97706]' : 'text-stone-400'
+                                        }`}
+                                      />
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => setExpandedDoubtClassId(cls.id)}
+                                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-900 hover:text-white text-stone-800 text-[11px] font-bold border border-stone-300 hover:border-stone-900 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                                    >
+                                      <Send className="w-3 h-3 text-[#D97706]" />
+                                      <span>Ask Doubt After Class</span>
+                                    </button>
+                                  </div>
+
+                                  {/* Accordion Content */}
+                                  {isExpanded && (
+                                    <div className="mt-3 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                                      {/* Doubt Submission Form */}
+                                      <form
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          handlePostClassDoubt(cls);
+                                        }}
+                                        className="p-3.5 rounded-2xl bg-[#FAFAF7] border border-[#E8E3DC] space-y-2.5"
+                                      >
+                                        <label className="block text-xs font-bold text-stone-900">
+                                          Have a doubt about Day {cls.dayNumber || cls.classNumber}: {cls.title}?
+                                        </label>
+                                        <textarea
+                                          rows={2}
+                                          required
+                                          placeholder="Type your question or concept doubt for your faculty mentor..."
+                                          value={newDoubtTexts[cls.id] || ''}
+                                          onChange={(e) =>
+                                            setNewDoubtTexts({
+                                              ...newDoubtTexts,
+                                              [cls.id]: e.target.value,
+                                            })
+                                          }
+                                          className="w-full px-3.5 py-2.5 bg-white border border-[#E8E3DC] rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706] leading-relaxed shadow-2xs resize-none"
+                                        />
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-[10px] text-stone-400">
+                                            Official faculty reply will appear right here
+                                          </span>
+                                          <button
+                                            type="submit"
+                                            disabled={isSubmittingDoubt || !(newDoubtTexts[cls.id] || '').trim()}
+                                            className="px-4 py-1.5 rounded-xl bg-[#18181B] hover:bg-stone-900 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shadow-2xs border border-stone-800 hover:border-amber-500/40"
+                                          >
+                                            <Send className="w-3 h-3 text-[#F59E0B]" />
+                                            <span>{isSubmittingDoubt ? 'Submitting...' : 'Submit Question'}</span>
+                                          </button>
+                                        </div>
+                                      </form>
+
+                                      {/* Existing Doubts List for this Class */}
+                                      <div className="space-y-2.5">
+                                        {classDoubts.map((d) => (
+                                          <div
+                                            key={d.id}
+                                            className="p-3.5 rounded-xl bg-white border border-slate-200 text-xs space-y-2 shadow-2xs"
+                                          >
+                                            <div className="flex items-center justify-between text-[11px]">
+                                              <div className="flex items-center gap-2">
+                                                <span className="font-bold text-slate-900">{d.studentName}</span>
+                                                <span className="text-slate-400 font-mono text-[10px]">
+                                                  {new Date(d.createdAt).toLocaleDateString()}
+                                                </span>
+                                              </div>
+                                              {d.status === 'RESOLVED' ? (
+                                                <span className="px-2 py-0.5 rounded-full font-bold font-mono text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                                  <span>Clarified</span>
+                                                </span>
+                                              ) : (
+                                                <span className="px-2 py-0.5 rounded-full font-bold font-mono text-[10px] bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                                                  <Clock className="w-3 h-3 text-amber-600" />
+                                                  <span>Pending Faculty Reply</span>
+                                                </span>
+                                              )}
+                                            </div>
+
+                                            <p className="text-slate-700 font-medium leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                              "{d.question}"
+                                            </p>
+
+                                            {d.status === 'RESOLVED' && d.reply && (
+                                              <div className="p-3 rounded-xl bg-emerald-50/90 border border-emerald-200 text-emerald-950 text-xs space-y-1">
+                                                <span className="font-bold text-emerald-900 flex items-center gap-1 text-[11px]">
+                                                  <Award className="w-3.5 h-3.5 text-emerald-600" />
+                                                  <span>Faculty Clarification ({d.repliedBy})</span>
+                                                </span>
+                                                <p className="text-emerald-950 leading-relaxed font-normal">{d.reply}</p>
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
+
+                                        {classDoubts.length === 0 && (
+                                          <p className="text-center py-3 text-[11px] text-slate-400">
+                                            No doubts submitted yet for this session. Have a question? Ask your mentor above!
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </div>
                         ))
                       )}
                     </div>
-                  )}
-
-                  {/* Final Course Project Section */}
-                  {(classFilter === 'ALL' || classFilter === 'PROJECT') && (
-                    <div className="p-6 sm:p-8 rounded-[32px] bg-white border border-slate-200 space-y-6 shadow-xs">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#EE2D02] uppercase">
-                            <Award className="w-4 h-4" />
-                            <span>Final Course Capstone & Graduation Model</span>
-                          </div>
-                          <h3 className="text-lg font-bold text-slate-900">
-                            Final Project: Model Implementation & GitHub Submission
-                          </h3>
-                          <p className="text-xs text-slate-500 max-w-xl leading-relaxed">
-                            To complete the course and receive your accredited certificate, submit your capstone model architecture and source code via a public GitHub repository for faculty evaluation.
-                          </p>
-                        </div>
-
-                        {activeCourse.finalProject && (
-                          <div className="shrink-0">
-                            <span
-                              className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider ${
-                                activeCourse.finalProject.status === 'APPROVED'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : activeCourse.finalProject.status === 'CHANGES_REQUESTED'
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                  : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                              }`}
-                            >
-                              Status: {activeCourse.finalProject.status.replace('_', ' ')}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* If Project is Submitted */}
-                      {activeCourse.finalProject ? (
-                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div>
-                              <h4 className="text-base font-bold text-slate-900">
-                                {activeCourse.finalProject.projectTitle}
-                              </h4>
-                              <p className="text-xs text-slate-500 font-mono mt-0.5">
-                                Submitted on: {new Date(activeCourse.finalProject.submittedAt).toLocaleDateString()}
-                              </p>
-                            </div>
-
-                            <a
-                              href={activeCourse.finalProject.githubUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-mono font-bold transition-all cursor-pointer shrink-0"
-                            >
-                              <Code2 className="w-4 h-4 text-[#EE2D02]" />
-                              <span>Open Submitted GitHub Repo</span>
-                              <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-                            </a>
-                          </div>
-
-                          <p className="text-xs text-slate-700 leading-relaxed">
-                            {activeCourse.finalProject.description}
-                          </p>
-
-                          {/* Faculty Feedback Card */}
-                          {activeCourse.finalProject.staffFeedback ? (
-                            <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs space-y-1.5 shadow-2xs">
-                              <span className="font-bold text-[#EE2D02] block text-[11px] uppercase font-mono">
-                                Faculty Review Remarks & Verification Feedback
-                              </span>
-                              <p className="text-slate-800 leading-relaxed">
-                                {activeCourse.finalProject.staffFeedback}
-                              </p>
-                              {activeCourse.finalProject.reviewedBy && (
-                                <span className="text-[10px] text-slate-400 block pt-1 font-mono">
-                                  Verified by Faculty: {activeCourse.finalProject.reviewedBy} • {new Date(activeCourse.finalProject.reviewedAt || activeCourse.finalProject.updatedAt).toLocaleDateString()}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-100 text-xs text-sky-800 font-medium">
-                              Your project is currently in the faculty verification queue. You will receive feedback here once evaluated.
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        /* Submission Form */
-                        <form onSubmit={handleSubmitProject} className="space-y-4 text-xs">
-                          {projectError && (
-                            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium">
-                              {projectError}
-                            </div>
-                          )}
-                          {projectSuccessMsg && (
-                            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium">
-                              {projectSuccessMsg}
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block font-bold text-slate-700 mb-1">
-                                Project / Model Title *
-                              </label>
-                              <input
-                                type="text"
-                                required
-                                placeholder="e.g. Distributed Consensus Engine with Multi-Raft"
-                                value={projectForm.projectTitle}
-                                onChange={(e) => setProjectForm({ ...projectForm, projectTitle: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none font-semibold transition-all"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block font-bold text-slate-700 mb-1">
-                                GitHub Repository URL * (Public Access)
-                              </label>
-                              <input
-                                type="url"
-                                required
-                                placeholder="https://github.com/your-username/repository"
-                                value={projectForm.githubUrl}
-                                onChange={(e) => setProjectForm({ ...projectForm, githubUrl: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none transition-all"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block font-bold text-slate-700 mb-1">
-                                Documentation URL / README Link
-                              </label>
-                              <input
-                                type="url"
-                                placeholder="https://github.com/.../blob/main/README.md or Notion doc"
-                                value={projectForm.documentationUrl}
-                                onChange={(e) => setProjectForm({ ...projectForm, documentationUrl: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none transition-all"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block font-bold text-slate-700 mb-1">
-                                Live Demo / Deployment URL (Optional)
-                              </label>
-                              <input
-                                type="url"
-                                placeholder="https://my-app.vercel.app or demo endpoint"
-                                value={projectForm.liveDemoUrl}
-                                onChange={(e) => setProjectForm({ ...projectForm, liveDemoUrl: e.target.value })}
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none transition-all"
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block font-bold text-slate-700 mb-1">
-                              Model Architecture & Implementation Summary *
-                            </label>
-                            <textarea
-                              rows={3}
-                              required
-                              placeholder="Describe your model architecture, algorithms implemented, testing methodology, and instructions for faculty review..."
-                              value={projectForm.description}
-                              onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 outline-none leading-relaxed transition-all"
-                            />
-                          </div>
-
-                          <div className="pt-2 flex justify-end">
-                            <button
-                              type="submit"
-                              disabled={isSubmittingProject}
-                              className="px-6 py-3 rounded-full bg-[#EE2D02] hover:bg-[#D02600] text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 active:scale-98"
-                            >
-                              <Award className="w-4 h-4" />
-                              <span>{isSubmittingProject ? 'Submitting...' : 'Submit Project for Faculty Review'}</span>
-                            </button>
-                          </div>
-                        </form>
-                      )}
-                    </div>
-                  )}
 
                   {/* Video Player Modal */}
                   {activeClassForVideo && (
                     <div className="fixed inset-0 bg-[#0B0E14]/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-                      <div className="bg-white border border-slate-200 rounded-[28px] p-6 max-w-2xl w-full space-y-4 shadow-2xl">
+                      <div className="bg-white border border-slate-200 rounded-[28px] p-6 max-w-2xl w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
                         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                           <div>
                             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02]">
@@ -1888,32 +1887,58 @@ export const StudentDashboardView = ({
                           </button>
                         </div>
 
-                        {/* Video Player Frame */}
-                        <div className="aspect-video bg-black rounded-2xl overflow-hidden flex items-center justify-center relative shadow-inner">
-                          {activeClassForVideo.videoUrl && (activeClassForVideo.videoUrl.includes('youtube.com') || activeClassForVideo.videoUrl.includes('youtu.be') || activeClassForVideo.videoUrl.includes('youtube-nocookie.com')) ? (
-                            <iframe
-                              src={getYouTubeEmbedUrl(activeClassForVideo.videoUrl)}
-                              title={activeClassForVideo.title}
-                              className="w-full h-full border-0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          ) : (
-                            <div className="p-8 text-center text-white space-y-3">
-                              <Film className="w-12 h-12 text-[#EE2D02] mx-auto" />
-                              <h5 className="text-sm font-bold">{activeClassForVideo.title}</h5>
+                        {/* If Online Live Class: Show Live Meeting Joining Portal */}
+                        {activeClassForVideo.deliveryType === 'ONLINE' || activeClassForVideo.liveMeetingUrl ? (
+                          <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 text-center space-y-3.5">
+                            <div className="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center mx-auto shadow-md">
+                              <Video className="w-6 h-6 animate-pulse" />
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+                                🔴 Interactive Live Classroom Session
+                              </span>
+                              <h5 className="text-base font-bold text-slate-900 mt-2">
+                                {activeClassForVideo.title}
+                              </h5>
+                              {activeClassForVideo.liveMeetingTime && (
+                                <p className="text-xs text-amber-900 font-semibold mt-1 flex items-center justify-center gap-1.5">
+                                  <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                  <span>{activeClassForVideo.liveMeetingTime}</span>
+                                </p>
+                              )}
+                              {activeClassForVideo.liveMeetingInstructions && (
+                                <p className="text-xs text-slate-600 mt-2 max-w-md mx-auto leading-relaxed bg-white/70 p-3 rounded-xl border border-amber-100">
+                                  {activeClassForVideo.liveMeetingInstructions}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="pt-2">
                               <a
-                                href={activeClassForVideo.videoUrl}
+                                href={activeClassForVideo.liveMeetingUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] text-white text-xs font-bold transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all cursor-pointer"
                               >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                                <span>Launch Video Stream</span>
+                                <Video className="w-4 h-4" />
+                                <span>🚀 Launch Meeting & Join Now</span>
+                                <ExternalLink className="w-4 h-4" />
                               </a>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          /* Secure Video Learning Player with 75% Watch Completion & Restricted Skip */
+                          <div className="w-full">
+                            <SecureVideoPlayer
+                              courseId={selectedLearningCourseId || (enrolledCourses[0]?.courseId)}
+                              classItem={activeClassForVideo}
+                              onPlaybackCompleted={() => {
+                                fetchData();
+                                showToast('🎉 Lesson 75% engagement threshold verified! Class marked complete.');
+                              }}
+                            />
+                          </div>
+                        )}
 
                         {/* Post-Class Summary in Modal */}
                         {activeClassForVideo.summary && (
@@ -1925,52 +1950,94 @@ export const StudentDashboardView = ({
                           </div>
                         )}
 
-                        {/* Anti-Skip Live Engagement & Watch Verification Meter */}
-                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                              {watchSeconds >= WATCH_REQUIREMENT_SECONDS ? (
-                                <>
-                                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                  <span className="text-emerald-800 font-bold">Lecture Engagement Verified</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Clock className="w-4 h-4 text-[#EE2D02] animate-pulse" />
-                                  <span className="text-[#EE2D02]">Engagement Verification in Progress</span>
-                                </>
+                        {/* Instant Doubt / Question Section in Video Modal */}
+                        {(() => {
+                          const modalDoubts = courseDoubts.filter((d) => d.classId === activeClassForVideo.id);
+                          return (
+                            <div className="p-4 rounded-2xl bg-[#FAFAF7] border border-[#E8E3DC] space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                                  <MessageSquare className="w-4 h-4 text-[#D97706]" />
+                                  <span>Have a Doubt About This Lesson?</span>
+                                </span>
+                                <span className="text-[10px] font-mono font-bold text-stone-600 bg-white border border-[#E8E3DC] px-2.5 py-0.5 rounded-full">
+                                  {modalDoubts.length} Question{modalDoubts.length === 1 ? '' : 's'}
+                                </span>
+                              </div>
+
+                              {/* Quick Ask Input */}
+                              <form
+                                onSubmit={(e) => {
+                                  e.preventDefault();
+                                  handlePostClassDoubt(activeClassForVideo, modalDoubtText);
+                                }}
+                                className="space-y-2"
+                              >
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={modalDoubtText}
+                                    onChange={(e) => setModalDoubtText(e.target.value)}
+                                    placeholder="Type your question or concept doubt for the faculty mentor..."
+                                    className="flex-1 px-3.5 py-2.5 bg-white border border-[#E8E3DC] rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706]"
+                                  />
+                                  <button
+                                    type="submit"
+                                    disabled={isSubmittingDoubt || !modalDoubtText.trim()}
+                                    className="px-4 py-2.5 rounded-xl bg-[#18181B] hover:bg-stone-900 disabled:bg-stone-200 disabled:text-stone-400 text-white text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs border border-stone-800 hover:border-amber-500/40"
+                                  >
+                                    <Send className="w-3.5 h-3.5 text-[#F59E0B]" />
+                                    <span>Ask Mentor</span>
+                                  </button>
+                                </div>
+                              </form>
+
+                              {/* Previous Doubts for this class */}
+                              {modalDoubts.length > 0 && (
+                                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                  {modalDoubts.map((doubt) => (
+                                    <div
+                                      key={doubt.id}
+                                      className="p-3 bg-white border border-slate-200 rounded-xl text-xs space-y-1.5 shadow-2xs"
+                                    >
+                                      <div className="flex items-center justify-between text-[11px]">
+                                        <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                                          <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
+                                          <span>You asked:</span>
+                                        </span>
+                                        <span
+                                          className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                                            doubt.status === 'RESOLVED'
+                                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                          }`}
+                                        >
+                                          {doubt.status === 'RESOLVED' ? '✓ Answered' : 'Awaiting Faculty'}
+                                        </span>
+                                      </div>
+                                      <p className="text-slate-700 leading-relaxed pl-5 font-medium">{doubt.question}</p>
+
+                                      {/* Faculty Reply */}
+                                      {doubt.reply && (
+                                        <div className="mt-2 p-2.5 bg-emerald-50/70 border border-emerald-200/80 rounded-lg text-[11px] text-emerald-950 space-y-1 ml-5">
+                                          <div className="flex items-center justify-between font-bold text-emerald-800">
+                                            <span>Faculty Answer ({doubt.repliedBy || 'Instructor'}):</span>
+                                            {doubt.repliedAt && (
+                                              <span className="text-[10px] font-mono font-normal text-emerald-600">
+                                                {new Date(doubt.repliedAt).toLocaleDateString()}
+                                              </span>
+                                            )}
+                                          </div>
+                                          <p className="leading-relaxed">{doubt.reply}</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
                               )}
-                            </span>
-                            <span className="font-mono font-bold text-xs text-slate-600">
-                              {Math.min(watchSeconds, WATCH_REQUIREMENT_SECONDS)}s / {WATCH_REQUIREMENT_SECONDS}s
-                            </span>
-                          </div>
-
-                          {/* Progress Bar */}
-                          <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                            <div
-                              className={`h-full transition-all duration-300 ${
-                                watchSeconds >= WATCH_REQUIREMENT_SECONDS
-                                  ? 'bg-emerald-500'
-                                  : 'bg-[#EE2D02]'
-                              }`}
-                              style={{
-                                width: `${Math.min(100, Math.round((watchSeconds / WATCH_REQUIREMENT_SECONDS) * 100))}%`,
-                              }}
-                            />
-                          </div>
-
-                          <div className="text-[11px] text-slate-500 flex items-center justify-between">
-                            <span>
-                              {watchSeconds >= WATCH_REQUIREMENT_SECONDS
-                                ? '✓ Minimum lecture requirement fulfilled. You may now confirm attendance.'
-                                : `Watch lecture for at least ${WATCH_REQUIREMENT_SECONDS - watchSeconds} more seconds to unlock attendance verification.`}
-                            </span>
-                            <span className="font-mono text-slate-400 shrink-0 ml-2">
-                              {Math.min(100, Math.round((watchSeconds / WATCH_REQUIREMENT_SECONDS) * 100))}%
-                            </span>
-                          </div>
-                        </div>
+                            </div>
+                          );
+                        })()}
 
                         <div className="flex items-center justify-between pt-2">
                           <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
@@ -2479,50 +2546,7 @@ export const StudentDashboardView = ({
         </div>
       )}
 
-      {/* Tab 3: Billing & Invoices */}
-      {activeTab === 'billing' && (
-        <div className="space-y-6">
-          <div className="border border-slate-200 rounded-[28px] overflow-hidden bg-white shadow-xs">
-            <div className="overflow-x-auto [scrollbar-width:thin]">
-              <table className="w-full text-left text-xs min-w-[640px]">
-                <thead className="bg-slate-50 font-mono text-slate-700 uppercase text-[11px] border-b border-slate-200">
-                  <tr>
-                    <th className="p-4">Receipt #</th>
-                    <th className="p-4">Course Program</th>
-                    <th className="p-4">Date</th>
-                    <th className="p-4">Payment Method</th>
-                    <th className="p-4 text-right">Amount</th>
-                    <th className="p-4 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-800">
-                  {payments.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-4 font-mono font-bold text-slate-900">{p.receiptNumber}</td>
-                      <td className="p-4 font-semibold text-slate-900">{p.courseTitle}</td>
-                      <td className="p-4 font-mono text-slate-600">
-                        {new Date(p.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-4 text-slate-600">{p.paymentMethod || 'Razorpay Gateway'}</td>
-                      <td className="p-4 text-right font-mono font-bold text-[#EE2D02]">
-                        ₹{p.amount.toLocaleString('en-IN')}
-                      </td>
-                      <td className="p-4 text-center">
-                        <button
-                          onClick={() => onViewReceipt(p.receiptNumber)}
-                          className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#EE2D02] bg-[#FFF1EE] hover:bg-[#FFE5E0] border border-[#FFD4CC] transition-colors cursor-pointer"
-                        >
-                          View Tax Invoice
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Tab 4: Profile Settings & Photo Upload */}
       {activeTab === 'profile' && (

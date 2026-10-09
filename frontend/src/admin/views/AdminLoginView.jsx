@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck,
+  Shield,
   Lock,
   Mail,
   Eye,
@@ -283,6 +284,35 @@ export const AdminLoginView = ({ onNavigate }) => {
           50% { opacity: 0.7; transform: scale(1.05); }
           100% { opacity: 0.3; transform: scale(0.9); }
         }
+        @keyframes adminOrbit {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes adminCounterOrbit {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+        @keyframes adminCoreGlow {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 12px 32px -4px rgba(245, 158, 11, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+          }
+          50% {
+            transform: scale(1.04);
+            box-shadow: 0 18px 45px -4px rgba(245, 158, 11, 0.45), 0 0 24px rgba(245, 158, 11, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.45) inset;
+          }
+        }
+        @keyframes adminScanline {
+          0% { top: 12%; opacity: 0; }
+          25% { opacity: 0.9; }
+          75% { opacity: 0.9; }
+          100% { top: 86%; opacity: 0; }
+        }
+        @keyframes adminRadarPulse {
+          0% { transform: scale(0.85); opacity: 0.55; }
+          50% { transform: scale(1.18); opacity: 0.2; }
+          100% { transform: scale(0.85); opacity: 0.55; }
+        }
         /* Mobile form card: lifted with shadow */
         @media (max-width: 1023px) {
           .admin-login-form-card {
@@ -363,59 +393,94 @@ export const AdminLoginView = ({ onNavigate }) => {
         }}
       >
         
-        {/* LEFT COLUMN: BRANDING (Executive Dark Panel with Original White Logo) */}
+        {/* LEFT COLUMN: BRANDING (Executive Dark Panel with Animated Security Enclave) */}
         <div 
-          className="lg:col-span-5 p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-[#27272A] flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[260px] sm:min-h-[300px] lg:min-h-[480px] rounded-t-2xl sm:rounded-t-3xl lg:rounded-none"
+          className="lg:col-span-5 p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-[#27272A] flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[300px] sm:min-h-[340px] lg:min-h-[480px] rounded-t-2xl sm:rounded-t-3xl lg:rounded-none select-none"
           style={{
-            background: 'linear-gradient(145deg, #18181B 0%, #1c1917 50%, #0C0A09 100%)',
+            background: 'linear-gradient(150deg, #18181B 0%, #151419 45%, #0B0A0C 100%)',
           }}
         >
-          {/* Subtle Ambient Amber Glow */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-[#F59E0B]/10 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#D97706]/10 rounded-full blur-2xl pointer-events-none" />
+          {/* Subtle Ambient Radial Cones */}
+          <div className="absolute top-0 right-0 w-52 h-52 bg-[#F59E0B]/12 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-52 h-52 bg-[#D97706]/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Top-Right Clean Dot Grid Motif */}
-          <div className="absolute top-7 right-7 pointer-events-none opacity-50">
-            <svg width="64" height="72" viewBox="0 0 64 72" fill="none">
-              <pattern id="ref-dot-pattern" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                <circle cx="3" cy="3" r="1.75" fill="#F59E0B" opacity="0.6" />
-              </pattern>
-              <rect width="64" height="72" fill="url(#ref-dot-pattern)" />
-            </svg>
-          </div>
+          {/* Precision Dot Tech Mesh Pattern */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-[0.12]"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(245, 158, 11, 0.45) 1px, transparent 1px)',
+              backgroundSize: '20px 20px',
+            }}
+          />
 
-          {/* Central Content Stack */}
-          <div className="relative z-10 flex flex-col items-center space-y-6 sm:space-y-8 my-auto">
-            {/* Logo & Spaced Subtitle with White Logo */}
-            <div className="space-y-2.5 text-center">
+          {/* Central Content Stack - Perfectly Aligned */}
+          <div className="relative z-10 flex flex-col items-center justify-center space-y-7 sm:space-y-9 my-auto w-full">
+            {/* Logo & Admin Console Title */}
+            <div className="space-y-2 text-center flex flex-col items-center">
               <div
-                className="inline-flex items-center justify-center transition-transform hover:scale-105 mx-auto select-none"
+                className="inline-flex items-center justify-center transition-transform hover:scale-105 mx-auto"
                 title="Claxic Admin Console"
               >
                 <img
                   src="/logo.png"
                   alt="Claxic"
-                  className="h-10 sm:h-11 w-auto object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+                  className="h-10 sm:h-11 w-auto object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]"
                 />
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <p className="text-[11px] sm:text-xs font-bold text-[#F59E0B] uppercase tracking-[0.25em] font-mono">
-                  Admin Console
-                </p>
-                <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">
-                  Direct Access Control
-                </span>
-              </div>
+              <span className="text-xs sm:text-sm font-bold text-[#F59E0B] uppercase tracking-[0.28em] font-mono">
+                Admin Console
+              </span>
             </div>
 
-            {/* Elevated Lock Card on Dark Glass */}
-            <div
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white/[0.08] backdrop-blur-md border border-white/15 shadow-xl flex items-center justify-center relative"
-              style={{
-                animation: 'adminLockPulse 3s ease-in-out infinite',
-              }}
-            >
-              <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-[#F59E0B] stroke-[1.8] drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
+            {/* Creative Animated Security Enclave Core */}
+            <div className="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center mx-auto">
+              {/* Soft Ambient Core Aura */}
+              <div 
+                className="absolute inset-2 rounded-full bg-gradient-to-tr from-[#F59E0B]/25 via-[#D97706]/15 to-transparent blur-xl pointer-events-none"
+                style={{ animation: 'adminRadarPulse 4s ease-in-out infinite' }}
+              />
+
+              {/* Outer Clockwise Radar / Orbital Ring */}
+              <div 
+                className="absolute inset-0 rounded-full border border-dashed border-[#F59E0B]/35 pointer-events-none"
+                style={{ animation: 'adminOrbit 22s linear infinite' }}
+              >
+                {/* Orbiting Satellite Particle 1 */}
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#F59E0B] shadow-[0_0_8px_#F59E0B]" />
+                {/* Orbiting Satellite Particle 2 */}
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-amber-200 shadow-[0_0_6px_#F59E0B]" />
+              </div>
+
+              {/* Middle Counter-Clockwise Precision Calibration Ring */}
+              <div 
+                className="absolute inset-3 sm:inset-3.5 rounded-full border border-white/10 pointer-events-none"
+                style={{ animation: 'adminCounterOrbit 16s linear infinite' }}
+              >
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-1.5 bg-white/30" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-1.5 bg-white/30" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-0.5 bg-white/30" />
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-0.5 bg-white/30" />
+              </div>
+
+              {/* Central Elevated Glassmorphic Enclave Pod */}
+              <div
+                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/[0.14] via-white/[0.06] to-transparent backdrop-blur-xl border border-white/20 flex items-center justify-center relative cursor-default transition-all duration-300"
+                style={{
+                  animation: 'adminCoreGlow 3.6s ease-in-out infinite',
+                }}
+              >
+                {/* Animated Laser Scanning Line */}
+                <div 
+                  className="absolute inset-x-2.5 h-[1.5px] bg-gradient-to-r from-transparent via-[#F59E0B] to-transparent pointer-events-none rounded-full"
+                  style={{ animation: 'adminScanline 3s ease-in-out infinite' }}
+                />
+
+                {/* Overlaid Shield + Lock Visual */}
+                <div className="relative flex items-center justify-center">
+                  <Shield className="w-10 h-10 sm:w-11 sm:h-11 text-amber-500/25 stroke-[1.2] absolute pointer-events-none" />
+                  <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-[#F59E0B] stroke-[2] drop-shadow-[0_0_12px_rgba(245,158,11,0.65)] relative z-10 transition-transform hover:scale-110" />
+                </div>
+              </div>
             </div>
           </div>
         </div>

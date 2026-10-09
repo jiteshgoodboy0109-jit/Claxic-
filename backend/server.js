@@ -155,3 +155,4 @@ process.on('uncaughtException', (err) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Claxic Node.js Express Backend running on http://localhost:${PORT}`);
 });
+// Database synced with clean courses

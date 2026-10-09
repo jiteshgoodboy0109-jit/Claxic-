@@ -65,6 +65,11 @@ export const HomeView = ({
     setMobile(digits);
   };
 
+  const cleanCourseTitle = (title) => {
+    if (!title) return '';
+    return title.replace(/\s*(?:-\s*Batch\s*)?\d{10,14}/g, '').trim();
+  };
+
   const selectedCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
 
   const handleInlineApplySubmit = async (e) => {
@@ -165,23 +170,10 @@ export const HomeView = ({
       {/* 2. DIRECT ADMISSIONS REGISTRATION FORM CARD */}
       <section className="max-w-4xl mx-auto px-3 sm:px-6 -mt-16 sm:-mt-20 relative z-20">
         <div className="bg-white border border-slate-200/90 rounded-[24px] sm:rounded-[36px] p-4 sm:p-8 lg:p-10 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.12),0_12px_30px_-5px_rgba(0,0,0,0.06)] space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div>
-              <span className="text-xs font-semibold text-[#EE2D02] uppercase tracking-wider block">
-                Direct Candidate Admissions
-              </span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5">
-                Student Registration Form
-              </h2>
-            </div>
-            {selectedCourse && (
-              <div className="bg-[#FFF1EE] px-4 py-2 rounded-2xl border border-[#FFD4CC] text-left sm:text-right">
-                <span className="text-[10px] text-slate-500 block uppercase font-medium">Program Tuition</span>
-                <span className="text-lg font-bold text-[#EE2D02]">
-                  ₹{selectedCourse.price.toLocaleString('en-IN')}
-                </span>
-              </div>
-            )}
+          <div className="border-b border-slate-100 pb-5">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              Student Registration Form
+            </h2>
           </div>
 
           {/* Alert Messages */}
@@ -218,7 +210,7 @@ export const HomeView = ({
               >
                 {publishedCourses.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.title} — ₹{c.price.toLocaleString('en-IN')} ({c.duration})
+                    {cleanCourseTitle(c.title)}{c.duration ? ` (${c.duration})` : ''}
                   </option>
                 ))}
               </select>

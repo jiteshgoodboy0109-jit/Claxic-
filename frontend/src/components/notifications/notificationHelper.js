@@ -47,7 +47,7 @@ export const requestDeviceNotificationPermission = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
-      showDeviceNotification('🔔 Claxic Notifications Active', {
+      showDeviceNotification('Claxic Notifications Active', {
         body: 'Device notifications successfully enabled! You will receive live class alerts and announcements.',
         tag: 'claxic-permission-granted',
       });

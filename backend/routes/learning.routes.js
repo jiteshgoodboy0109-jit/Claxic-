@@ -1,5 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import { db } from '../db/index.js';
 import { requireAuth } from '../middleware/index.js';
 
@@ -577,6 +579,380 @@ router.post('/projects', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Project submission error:', err);
     return res.status(500).json({ error: 'Failed to submit final project.' });
+  }
+});
+
+// 10. Get Doubts for Course / Class
+router.get('/doubts', requireAuth, (req, res) => {
+  try {
+    const { courseId, classId } = req.query;
+    let doubts = db.raw.doubts || [];
+
+    if (courseId) {
+      doubts = doubts.filter((d) => d.courseId === courseId);
+    }
+    if (classId) {
+      doubts = doubts.filter((d) => d.classId === classId);
+    }
+
+    doubts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return res.json({ success: true, doubts });
+  } catch (err) {
+    console.error('Fetch doubts error:', err);
+    return res.status(500).json({ error: 'Failed to fetch class doubts.' });
+  }
+});
+
+// 11. Submit a Class Doubt
+router.post('/doubts', requireAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const { courseId, classId, classNumber, classTitle, question } = req.body;
+
+    if (!courseId || !classId) {
+      return res.status(400).json({ error: 'Course and class identifiers are required.' });
+    }
+    if (!question || !question.trim()) {
+      return res.status(400).json({ error: 'Please enter your doubt or question.' });
+    }
+
+    const course = (db.raw.courses || []).find((c) => c.id === courseId);
+    const courseTitle = course ? course.title : 'Course';
+
+    const now = new Date().toISOString();
+    const doubtId = 'dbt_' + crypto.randomBytes(6).toString('hex');
+
+    const newDoubt = {
+      id: doubtId,
+      studentId: user.id,
+      studentName: user.name,
+      studentEmail: user.email,
+      courseId,
+      courseTitle,
+      classId,
+      classNumber: Number(classNumber) || 1,
+      classTitle: (classTitle || `Day ${classNumber || 1}`).trim(),
+      question: question.trim(),
+      reply: '',
+      repliedBy: '',
+      repliedAt: null,
+      status: 'OPEN',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.transaction((data) => {
+      if (!data.doubts) data.doubts = [];
+      data.doubts.unshift(newDoubt);
+
+      // Notify allotted faculty or all staff members
+      if (!data.notifications) data.notifications = [];
+      const allottedStaffIds = (data.staffCourseAllotments || [])
+        .filter((a) => (a.courseId === courseId || a.courseId === course?.slug) && a.status === 'ACTIVE')
+        .map((a) => a.staffId);
+
+      const targetStaff = (data.users || []).filter((u) => 
+        (u.role === 'STAFF' || u.role === 'ADMIN') &&
+        (allottedStaffIds.length === 0 || allottedStaffIds.includes(u.id))
+      );
+
+      const staffToNotify = targetStaff.length > 0
+        ? targetStaff
+        : (data.users || []).filter((u) => u.role === 'STAFF');
+
+      for (const staff of staffToNotify) {
+        data.notifications.unshift({
+          id: 'notif_dbt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+          userId: staff.id,
+          title: `❓ Student Doubt: Day ${newDoubt.classNumber} - ${newDoubt.classTitle}`,
+          message: `${user.name} asked: "${question.trim().slice(0, 80)}" in "${courseTitle}". Click to answer in Staff Portal.`,
+          type: 'DOUBT_ALERT',
+          link: '/staff/doubts',
+          tab: 'doubts',
+          meta: {
+            doubtId: newDoubt.id,
+            studentName: user.name,
+            studentEmail: user.email,
+            courseTitle: courseTitle,
+            courseId: courseId,
+            classTitle: newDoubt.classTitle,
+            question: question.trim(),
+            badge: 'STUDENT DOUBT',
+            actionLabel: 'Answer Doubt',
+          },
+          isRead: false,
+          createdAt: now,
+        });
+      }
+
+      // Audit Log
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: user.id,
+        adminName: user.name,
+        action: 'DOUBT_ASKED',
+        targetType: 'DOUBT',
+        targetId: doubtId,
+        targetTitle: `${newDoubt.classTitle} - ${question.trim().slice(0, 40)}`,
+        createdAt: now,
+      });
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Your doubt has been submitted to your faculty mentor.',
+      doubt: newDoubt,
+    });
+  } catch (err) {
+    console.error('Post doubt error:', err);
+    return res.status(500).json({ error: 'Failed to submit doubt.' });
+  }
+});
+
+// ===================================================================
+// Video Streaming & Controlled Playback
+// ===================================================================
+
+// Stream Class Lesson Video with HTTP Range (206) Support
+router.get('/courses/:courseId/classes/:classId/video-stream', requireAuth, async (req, res) => {
+  try {
+    const { courseId, classId } = req.params;
+    const user = req.user;
+
+    const course = (db.raw.courses || []).find((c) => c.id === courseId || c.slug === courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found.' });
+    }
+
+    const cls = (course.classes || []).find((c) => c.id === classId);
+    if (!cls) {
+      return res.status(404).json({ error: 'Class not found.' });
+    }
+
+    // Role check: USER role must be enrolled in course
+    if (user.role === 'USER') {
+      const isEnrolled = (db.raw.applications || []).some(
+        (a) => a.userId === user.id && a.courseId === course.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED' || a.status === 'SUBMITTED')
+      );
+      if (!isEnrolled) {
+        return res.status(403).json({ error: 'Access denied. You are not enrolled in this course.' });
+      }
+    }
+
+    // Locate video record
+    const videoRecord = (db.raw.lessonVideos || []).find(
+      (v) => (cls.videoId && v.id === cls.videoId) || (v.courseId === course.id && v.classId === cls.id)
+    );
+
+    if (!videoRecord || !videoRecord.filePath || !fs.existsSync(videoRecord.filePath)) {
+      return res.status(404).json({ error: 'Video file not found or has been removed.' });
+    }
+
+    const filePath = videoRecord.filePath;
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+    const mimeType = videoRecord.mimeType || 'video/mp4';
+
+    // Anti-download headers & inline playback
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+      if (start >= fileSize || end >= fileSize) {
+        res.setHeader('Content-Range', `bytes */${fileSize}`);
+        return res.status(416).send('Requested range not satisfiable');
+      }
+
+      const chunksize = end - start + 1;
+      const fileStream = fs.createReadStream(filePath, { start, end });
+
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': mimeType,
+      });
+
+      fileStream.pipe(res);
+    } else {
+      res.writeHead(200, {
+        'Content-Length': fileSize,
+        'Content-Type': mimeType,
+        'Accept-Ranges': 'bytes',
+      });
+      fs.createReadStream(filePath).pipe(res);
+    }
+  } catch (err) {
+    console.error('Video streaming error:', err);
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Error streaming video.' });
+    }
+  }
+});
+
+// Get Video Playback Progress for Student
+router.get('/courses/:courseId/classes/:classId/progress', requireAuth, (req, res) => {
+  try {
+    const { courseId, classId } = req.params;
+    const user = req.user;
+
+    const record = (db.raw.lessonPlaybackProgress || []).find(
+      (p) => p.userId === user.id && (p.courseId === courseId || p.courseId === p.courseId) && p.classId === classId
+    );
+
+    const sp = (db.raw.studentProgress || []).find((s) => s.userId === user.id && s.courseId === courseId);
+    const isCompletedInCourse = sp && Array.isArray(sp.completedClasses) && sp.completedClasses.includes(classId);
+
+    const watchedSeconds = record ? (record.watchedSeconds || 0) : 0;
+    const totalDurationSeconds = record ? (record.totalDurationSeconds || 0) : 0;
+    const furthestPosition = record ? (record.furthestPositionSeconds || record.lastPlaybackPosition || 0) : 0;
+    const completionRatio = record ? (record.completionRatio || 0) : (isCompletedInCourse ? 1.0 : 0);
+    const completed = Boolean((record && record.completed) || isCompletedInCourse || completionRatio >= 0.75);
+    const canSkipForward = Boolean((record && record.canSkipForward) || completed);
+
+    return res.json({
+      success: true,
+      progress: {
+        watchedSeconds,
+        totalDurationSeconds,
+        furthestPosition,
+        completionRatio,
+        completed,
+        canSkipForward,
+        lastPosition: record ? (record.lastPlaybackPosition || 0) : 0,
+      },
+    });
+  } catch (err) {
+    console.error('Fetch progress error:', err);
+    return res.status(500).json({ error: 'Failed to retrieve lesson progress.' });
+  }
+});
+
+// Update Video Playback Progress (Enforces 75% watched threshold & unlocks 5s skip)
+router.post('/courses/:courseId/classes/:classId/progress', requireAuth, async (req, res) => {
+  try {
+    const { courseId, classId } = req.params;
+    const user = req.user;
+    const {
+      currentTime = 0,
+      duration = 0,
+      watchedIncrement = 0,
+    } = req.body;
+
+    const curTime = Math.max(0, Number(currentTime) || 0);
+    const dur = Math.max(0, Number(duration) || 0);
+    const validIncrement = Math.min(15, Math.max(0, Number(watchedIncrement) || 0));
+
+    const now = new Date().toISOString();
+    let updatedProgress;
+    let becameCompleted = false;
+
+    await db.transaction((data) => {
+      if (!data.lessonPlaybackProgress) data.lessonPlaybackProgress = [];
+      let prog = data.lessonPlaybackProgress.find(
+        (p) => p.userId === user.id && p.courseId === courseId && p.classId === classId
+      );
+
+      if (!prog) {
+        prog = {
+          id: 'prog_' + crypto.randomBytes(8).toString('hex'),
+          userId: user.id,
+          courseId,
+          classId,
+          watchedSeconds: 0,
+          totalDurationSeconds: dur,
+          furthestPositionSeconds: curTime,
+          completionRatio: 0,
+          completed: false,
+          completedAt: null,
+          canSkipForward: false,
+          lastPlaybackPosition: curTime,
+          createdAt: now,
+          updatedAt: now,
+        };
+        data.lessonPlaybackProgress.push(prog);
+      }
+
+      if (dur > 0) {
+        prog.totalDurationSeconds = dur;
+      }
+      prog.watchedSeconds = (prog.watchedSeconds || 0) + validIncrement;
+      prog.lastPlaybackPosition = curTime;
+      if (curTime > (prog.furthestPositionSeconds || 0)) {
+        prog.furthestPositionSeconds = curTime;
+      }
+
+      const effectiveDuration = prog.totalDurationSeconds || dur || 1;
+      const ratio = Math.min(1.0, prog.watchedSeconds / effectiveDuration);
+      prog.completionRatio = Number(ratio.toFixed(4));
+
+      // 75% threshold rule:
+      if (prog.completionRatio >= 0.75 || (dur > 0 && prog.watchedSeconds >= dur * 0.75)) {
+        if (!prog.completed) {
+          becameCompleted = true;
+          prog.completed = true;
+          prog.completedAt = now;
+        }
+        prog.canSkipForward = true;
+      }
+
+      prog.updatedAt = now;
+      updatedProgress = prog;
+
+      if (!data.studentProgress) data.studentProgress = [];
+      let studentProg = data.studentProgress.find((sp) => sp.userId === user.id && sp.courseId === courseId);
+      if (!studentProg) {
+        studentProg = {
+          id: 'sp_' + crypto.randomBytes(6).toString('hex'),
+          userId: user.id,
+          courseId,
+          completedClasses: [],
+          testResults: [],
+          attendance: [],
+          progressPercent: 0,
+          createdAt: now,
+          updatedAt: now,
+        };
+        data.studentProgress.push(studentProg);
+      }
+
+      if (prog.completed && !studentProg.completedClasses.includes(classId)) {
+        studentProg.completedClasses.push(classId);
+
+        if (!studentProg.attendance.some((att) => att.classId === classId)) {
+          studentProg.attendance.push({
+            classId,
+            date: now.split('T')[0],
+            status: 'PRESENT',
+            verifiedAt: now,
+          });
+        }
+
+        const course = (data.courses || []).find((c) => c.id === courseId || c.slug === courseId);
+        const totalClassesCount = (course && course.classes && course.classes.length > 0) ? course.classes.length : 10;
+        studentProg.progressPercent = Math.min(100, Math.round((studentProg.completedClasses.length / totalClassesCount) * 100));
+        studentProg.updatedAt = now;
+      }
+    });
+
+    return res.json({
+      success: true,
+      progress: updatedProgress,
+      becameCompleted,
+    });
+  } catch (err) {
+    console.error('Save progress error:', err);
+    return res.status(500).json({ error: 'Failed to save playback progress.' });
   }
 });
 
