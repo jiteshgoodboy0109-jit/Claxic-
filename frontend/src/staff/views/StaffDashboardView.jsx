@@ -50,45 +50,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
 import { NotificationBell } from '../../components/notifications/NotificationBell.jsx';
 
-// Curated Executive Faculty Avatars for Staff
-const PROFESSIONAL_FACULTY_AVATARS = [
-  {
-    id: 'exec_1',
-    name: 'Executive Lead',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    role: 'Lead Systems Architect'
-  },
-  {
-    id: 'exec_2',
-    name: 'Academic Director',
-    url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-    role: 'AI & Data Science Director'
-  },
-  {
-    id: 'exec_3',
-    name: 'Faculty Lead',
-    url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
-    role: 'Director of Engineering'
-  },
-  {
-    id: 'exec_4',
-    name: 'Research Chair',
-    url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
-    role: 'Curriculum & Systems Chair'
-  },
-  {
-    id: 'exec_5',
-    name: 'Senior Professor',
-    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    role: 'Senior Software Engineering Faculty'
-  },
-  {
-    id: 'exec_6',
-    name: 'Executive Fellow',
-    url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=400&q=80',
-    role: 'Cloud & Infrastructure Lead'
-  },
-];
+
 
 // Clean 3-bar hamburger icon (stays as 3 crisp parallel lines, never transforms to an 'X')
 const HamburgerIcon = ({ className = 'w-5 h-5', barClassName = 'bg-current' }) => (
@@ -143,6 +105,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const handleTabChange = (tabId) => {
     const target = tabId === 'projects' ? 'overview' : tabId;
     setActiveTab(target);
+    setIsMobileSidebarOpen(false);
+    setIsSidebarCollapsed(true);
     if (onNavigate) {
       onNavigate(`staff/${target}`);
     } else {
@@ -213,7 +177,6 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileFeedback, setProfileFeedback] = useState(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-  const [customPhotoInput, setCustomPhotoInput] = useState('');
   const [selectedNoticeModal, setSelectedNoticeModal] = useState(null);
 
   const [passwordForm, setPasswordForm] = useState({
@@ -700,6 +663,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       duration: '10 Days',
       dailyReleaseTime: '09:00',
       shortDescription: '',
+      isFree: false,
       price: 0,
       capacity: 40,
       instructor: user?.name || 'Claxic Faculty',
@@ -711,13 +675,15 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const handleOpenEditCourseModal = (course) => {
     if (!course) return;
     setCourseToEdit(course);
+    const courseIsFree = Boolean(course.isFree || Number(course.price) === 0);
     setCourseForm({
       title: course.title || '',
       category: course.category || 'Engineering',
       duration: course.duration || '10 Days',
       dailyReleaseTime: course.dailyReleaseTime || '09:00',
       shortDescription: course.shortDescription || course.description || '',
-      price: course.price || 0,
+      isFree: courseIsFree,
+      price: courseIsFree ? 0 : (course.price || 0),
       capacity: course.capacity || 40,
       instructor: typeof course.instructor === 'object' ? course.instructor?.name : (course.instructor || user?.name || ''),
     });
@@ -1237,7 +1203,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                     type="button"
                     onClick={() => {
                       handleTabChange(item.id);
-                      if (window.innerWidth < 1024) setIsMobileSidebarOpen(false);
+                      setIsMobileSidebarOpen(false);
+                      setIsSidebarCollapsed(true);
                     }}
                     className={`rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer relative group flex items-center ${
                       isSidebarCollapsed
@@ -1569,41 +1536,6 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
 
               {/* Upcoming Lecture & Quick Actions */}
               <div className="lg:col-span-7 space-y-6">
-                {/* Today's Live Class Banner with Charcoal & Amber Brand Palette */}
-                <div className="bg-[#18181B] text-white border border-[#F59E0B]/35 rounded-2xl p-6 relative overflow-hidden shadow-lg">
-                  <div className="flex items-center gap-2 text-[#FBBF24] text-xs font-mono font-bold mb-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>TODAY'S SCHEDULED LIVE LECTURE</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white tracking-tight">
-                    Distributed Systems: Raft Consensus & Event-Driven Architecture
-                  </h3>
-                  <p className="text-xs text-stone-300 mt-1.5 max-w-xl leading-relaxed">
-                    Applied GenAI & Full-Stack System Architecture Cohort 2026. Live interactive lab and breakout rooms.
-                  </p>
-
-                  <div className="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                    <a
-                      href="https://meet.google.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-black text-xs font-bold shadow-md transition-all cursor-pointer active:scale-[0.99]"
-                    >
-                      <Video className="w-3.5 h-3.5" />
-                      <span>Launch Faculty Meeting Room</span>
-                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-                    </a>
-
-                    <button
-                      type="button"
-                      onClick={() => handleTabChange('classes')}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-white text-xs font-semibold border border-stone-700 cursor-pointer transition-all"
-                    >
-                      <Film className="w-3.5 h-3.5 text-[#FBBF24]" />
-                      <span>Manage Course Classes ({classesList.length})</span>
-                    </button>
-                  </div>
-                </div>
 
                 {/* Student Doubts & Clarifications Hub */}
                 <div className="bg-[#FFFFFF] border border-[#E8E3DC] rounded-2xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
@@ -3875,13 +3807,33 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-[#1F1F1F] mb-1">Tuition Fee (₹)</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="font-bold text-[#1F1F1F]">Tuition Fee (₹)</label>
+                        <label className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(courseForm.isFree)}
+                            onChange={(e) =>
+                              setCourseForm({
+                                ...courseForm,
+                                isFree: e.target.checked,
+                                price: e.target.checked ? 0 : (courseForm.price || 9999),
+                              })
+                            }
+                            className="rounded border-emerald-400 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                          />
+                          <span>Free Course</span>
+                        </label>
+                      </div>
                       <input
                         type="number"
                         min="0"
-                        value={courseForm.price}
+                        disabled={courseForm.isFree}
+                        value={courseForm.isFree ? 0 : courseForm.price}
                         onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
-                        className="w-full px-3 py-2 bg-[#FAFAF7] border border-[#E8E3DC] rounded-xl text-[#1F1F1F] font-mono outline-none"
+                        className={`w-full px-3 py-2 border rounded-xl text-[#1F1F1F] font-mono outline-none ${
+                          courseForm.isFree ? 'bg-emerald-50 text-emerald-800 font-bold border-emerald-300' : 'bg-[#FAFAF7] border-[#E8E3DC]'
+                        }`}
                       />
                     </div>
                     <div>
@@ -4136,9 +4088,9 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                   </div>
                 </div>
 
-                {/* Option 1: Upload from Device */}
+                {/* Upload from Device */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-[#1F1F1F]">Option 1: Upload Custom Photo from Device</label>
+                  <label className="block text-xs font-bold text-[#1F1F1F]">Upload Custom Photo from Device</label>
                   <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-[#E8E3DC] hover:border-[#F59E0B] rounded-2xl cursor-pointer bg-[#FAFAF7] hover:bg-amber-50/30 transition-colors">
                     <div className="flex flex-col items-center justify-center text-center">
                       <Upload className="w-6 h-6 text-[#D97706] mb-1.5" />
@@ -4152,71 +4104,6 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       className="hidden"
                     />
                   </label>
-                </div>
-
-                {/* Option 2: Choose Curated Professional Faculty Avatars */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-[#1F1F1F]">Option 2: Executive Faculty Portraits</label>
-                    <span className="text-[10px] font-mono text-[#D97706] font-semibold">Curated Professional Avatars</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {PROFESSIONAL_FACULTY_AVATARS.map((item) => {
-                      const isSelected = profileForm.avatar === item.url;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => {
-                            setProfileForm((prev) => ({ ...prev, avatar: item.url }));
-                            showToast(`Selected ${item.name}`);
-                          }}
-                          className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-center text-center gap-2 group ${
-                            isSelected
-                              ? 'border-[#F59E0B] bg-amber-50/50 shadow-xs ring-2 ring-[#F59E0B]/30'
-                              : 'border-[#E8E3DC] hover:border-stone-400 bg-white hover:bg-[#FAFAF7]'
-                          }`}
-                        >
-                          <div className="w-14 h-14 rounded-xl overflow-hidden border border-stone-200 group-hover:scale-105 transition-transform shadow-xs">
-                            <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
-                          </div>
-                          <div className="w-full min-w-0">
-                            <span className="block text-xs font-bold text-[#1F1F1F] truncate">{item.name}</span>
-                            <span className="block text-[10px] text-[#6B6258] truncate">{item.role}</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Option 3: Custom Image URL */}
-                <div className="space-y-1.5 pt-1">
-                  <label className="block text-xs font-bold text-[#1F1F1F]">Option 3: External Image URL</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="url"
-                      placeholder="https://example.com/my-photo.jpg"
-                      value={customPhotoInput}
-                      onChange={(e) => setCustomPhotoInput(e.target.value)}
-                      className="flex-1 px-3.5 py-2 bg-[#FAFAF7] border border-[#E8E3DC] rounded-xl text-xs text-[#1F1F1F] outline-none focus:border-[#F59E0B]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (customPhotoInput && customPhotoInput.startsWith('http')) {
-                          setProfileForm((prev) => ({ ...prev, avatar: customPhotoInput }));
-                          setCustomPhotoInput('');
-                          showToast('Photo URL applied.');
-                        } else {
-                          showToast('Please enter a valid https:// image URL.');
-                        }
-                      }}
-                      className="px-3.5 py-2 rounded-xl bg-[#18181B] text-white font-bold text-xs hover:bg-stone-900 cursor-pointer"
-                    >
-                      Apply URL
-                    </button>
-                  </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-3 border-t border-[#EEEAE4]">

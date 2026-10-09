@@ -209,7 +209,8 @@ router.post('/courses', async (req, res) => {
     const admin = req.user;
     const courseData = req.body;
 
-    if (!courseData.title || !courseData.price || !courseData.capacity) {
+    const isFree = Boolean(courseData.isFree || Number(courseData.price) === 0);
+    if (!courseData.title || (!isFree && (courseData.price === undefined || courseData.price === null || isNaN(courseData.price))) || !courseData.capacity) {
       return res.status(400).json({ error: 'Title, price, and capacity are required fields.' });
     }
 
@@ -230,8 +231,9 @@ router.post('/courses', async (req, res) => {
       startDate: courseData.startDate || '2026-10-01',
       endDate: courseData.endDate || '2026-12-15',
       registrationDeadline: courseData.registrationDeadline || '2026-09-25',
-      price: Number(courseData.price) || 9999,
-      originalPrice: Number(courseData.originalPrice) || Number(courseData.price) * 1.5,
+      isFree,
+      price: isFree ? 0 : (Number(courseData.price) || 0),
+      originalPrice: isFree ? (Number(courseData.originalPrice) || 0) : (Number(courseData.originalPrice) || Number(courseData.price) * 1.5),
       capacity: Number(courseData.capacity) || 40,
       enrolledCount: 0,
       status: courseData.status || 'PUBLISHED',
@@ -327,11 +329,19 @@ router.put('/courses/:id', async (req, res) => {
 
     let updatedCourse;
     await db.transaction((data) => {
+      const isFree =
+        updates.isFree !== undefined
+          ? Boolean(updates.isFree)
+          : updates.price !== undefined
+          ? Number(updates.price) === 0
+          : data.courses[courseIndex].isFree;
+
       data.courses[courseIndex] = {
         ...data.courses[courseIndex],
         ...updates,
-        price: updates.price !== undefined && updates.price !== '' ? Number(updates.price) : data.courses[courseIndex].price,
-        originalPrice: updates.originalPrice !== undefined && updates.originalPrice !== '' ? Number(updates.originalPrice) : data.courses[courseIndex].originalPrice,
+        isFree: Boolean(isFree),
+        price: isFree ? 0 : (updates.price !== undefined && updates.price !== '' ? Number(updates.price) : data.courses[courseIndex].price),
+        originalPrice: isFree ? 0 : (updates.originalPrice !== undefined && updates.originalPrice !== '' ? Number(updates.originalPrice) : data.courses[courseIndex].originalPrice),
         capacity: updates.capacity !== undefined && updates.capacity !== '' ? Number(updates.capacity) : data.courses[courseIndex].capacity,
         featured: updates.featured !== undefined ? Boolean(updates.featured) : data.courses[courseIndex].featured,
         status: updates.status !== undefined ? updates.status : data.courses[courseIndex].status,
@@ -1075,6 +1085,23 @@ router.post('/staff', async (req, res) => {
       updatedAt: now,
     };
 
+    // Verify that none of the assigned courses are already allotted to another staff member
+    if (Array.isArray(assignedCourseIds) && assignedCourseIds.length > 0) {
+      for (const cid of assignedCourseIds) {
+        const conflicting = (db.raw.staffCourseAllotments || []).find(
+          (a) => a.courseId === cid && a.status === 'ACTIVE'
+        );
+        if (conflicting) {
+          const otherStaff = (db.raw.users || []).find((u) => u.id === conflicting.staffId);
+          const course = (db.raw.courses || []).find((c) => c.id === cid);
+          const otherName = otherStaff ? otherStaff.name : 'another faculty member';
+          return res.status(409).json({
+            error: `Course "${course ? course.title : cid}" is already allotted to ${otherName}. Each course can only be allotted to one staff member.`,
+          });
+        }
+      }
+    }
+
     let createdAllotments = [];
 
     await db.transaction((data) => {
@@ -1135,12 +1162,12 @@ router.post('/staff', async (req, res) => {
   }
 });
 
-// Update Staff Member Details
+// Update Staff Member Details & Permanent Credentials
 router.put('/staff/:id', async (req, res) => {
   try {
     const admin = req.user;
     const { id } = req.params;
-    const { name, email, mobile, institution, degree, avatar, isActive } = req.body;
+    const { name, email, password, mobile, institution, degree, avatar, isActive } = req.body;
 
     const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
     if (!staff) {
@@ -1162,6 +1189,7 @@ router.put('/staff/:id', async (req, res) => {
 
     const now = new Date().toISOString();
     let updatedStaff;
+    let passwordChanged = false;
 
     await db.transaction((data) => {
       const u = (data.users || []).find((x) => x.id === id);
@@ -1173,6 +1201,19 @@ router.put('/staff/:id', async (req, res) => {
         if (degree !== undefined) u.degree = degree ? degree.trim() : '';
         if (avatar !== undefined) u.avatar = avatar ? avatar.trim() : u.avatar;
         if (isActive !== undefined) u.isActive = Boolean(isActive);
+
+        if (password && password.trim()) {
+          const pass = password.trim();
+          if (pass.length < 6) {
+            throw new Error('Permanent password must be at least 6 characters long.');
+          }
+          const salt = crypto.randomBytes(16).toString('hex');
+          const { hash } = hashPassword(pass, salt);
+          u.passwordHash = hash;
+          u.salt = salt;
+          passwordChanged = true;
+        }
+
         u.updatedAt = now;
         updatedStaff = u;
       }
@@ -1182,19 +1223,80 @@ router.put('/staff/:id', async (req, res) => {
         id: 'audit_' + Math.random().toString(36).substring(2, 9),
         adminId: admin.id,
         adminName: admin.name,
-        action: 'STAFF_PROFILE_UPDATED_BY_ADMIN',
+        action: passwordChanged ? 'STAFF_CREDENTIALS_AND_PROFILE_UPDATED' : 'STAFF_PROFILE_UPDATED_BY_ADMIN',
         targetType: 'STAFF',
         targetId: staff.id,
-        targetTitle: `Updated ${staff.name} (${staff.email})`,
+        targetTitle: `Updated ${staff.name} (${staff.email})${passwordChanged ? ' (Password changed)' : ''}`,
         createdAt: now,
       });
     });
 
+    if (passwordChanged) {
+      await destroyAllUserSessions(id);
+    }
+
     const { passwordHash: _, salt: __, ...safeStaff } = updatedStaff;
-    return res.json({ success: true, message: 'Staff details updated successfully.', staff: safeStaff });
+    return res.json({
+      success: true,
+      message: `Staff details and credentials updated successfully.${passwordChanged ? ' Active login sessions terminated.' : ''}`,
+      staff: safeStaff,
+    });
   } catch (err) {
     console.error('Update staff error:', err);
-    return res.status(500).json({ error: 'Failed to update staff member.' });
+    return res.status(err.message?.includes('password') ? 400 : 500).json({ error: err.message || 'Failed to update staff member.' });
+  }
+});
+
+// Direct Password / Permanent Credentials Reset for Staff
+router.post('/staff/:id/password', async (req, res) => {
+  try {
+    const admin = req.user;
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.trim().length < 6) {
+      return res.status(400).json({ error: 'Permanent password must be at least 6 characters long.' });
+    }
+
+    const staff = (db.raw.users || []).find((u) => u.id === id && u.role === 'STAFF');
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff member record not found.' });
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const { hash } = hashPassword(password.trim(), salt);
+    const now = new Date().toISOString();
+
+    await db.transaction((data) => {
+      const u = (data.users || []).find((x) => x.id === id);
+      if (u) {
+        u.passwordHash = hash;
+        u.salt = salt;
+        u.updatedAt = now;
+      }
+
+      if (!data.auditLogs) data.auditLogs = [];
+      data.auditLogs.unshift({
+        id: 'audit_' + Math.random().toString(36).substring(2, 9),
+        adminId: admin.id,
+        adminName: admin.name,
+        action: 'STAFF_PASSWORD_CHANGED_BY_ADMIN',
+        targetType: 'STAFF',
+        targetId: staff.id,
+        targetTitle: `Admin set permanent password for ${staff.name} (${staff.email})`,
+        createdAt: now,
+      });
+    });
+
+    await destroyAllUserSessions(id);
+
+    return res.json({
+      success: true,
+      message: `Permanent password for ${staff.name} has been set. Previous sessions terminated.`,
+    });
+  } catch (err) {
+    console.error('Change staff password error:', err);
+    return res.status(500).json({ error: 'Failed to update staff password.' });
   }
 });
 
@@ -1368,6 +1470,23 @@ router.post('/staff/:id/allotments', async (req, res) => {
 
     // Validate courseIds exist
     const validCourseIds = courseIds.filter((cid) => (db.raw.courses || []).some((c) => c.id === cid));
+    const uniqueCids = [...new Set(validCourseIds)];
+
+    // Enforce 1-to-1 exclusivity: check if any of these courses is already actively allotted to another staff member
+    for (const cid of uniqueCids) {
+      const conflicting = (db.raw.staffCourseAllotments || []).find(
+        (a) => a.courseId === cid && a.staffId !== id && a.status === 'ACTIVE'
+      );
+      if (conflicting) {
+        const otherStaff = (db.raw.users || []).find((u) => u.id === conflicting.staffId);
+        const course = (db.raw.courses || []).find((c) => c.id === cid);
+        const otherName = otherStaff ? otherStaff.name : 'another faculty member';
+        return res.status(409).json({
+          error: `Course "${course ? course.title : cid}" is already allotted to ${otherName}. Each course can only be allotted to one staff member.`,
+        });
+      }
+    }
+
     const now = new Date().toISOString();
     let updatedAllotments = [];
 
@@ -1378,7 +1497,6 @@ router.post('/staff/:id/allotments', async (req, res) => {
       data.staffCourseAllotments = data.staffCourseAllotments.filter((a) => a.staffId !== id);
 
       // Insert new unique allotments
-      const uniqueCids = [...new Set(validCourseIds)];
       for (const cid of uniqueCids) {
         const allotment = {
           id: 'allot_' + crypto.randomBytes(6).toString('hex'),

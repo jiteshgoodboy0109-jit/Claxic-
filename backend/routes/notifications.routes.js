@@ -17,7 +17,11 @@ router.get('/', (req, res) => {
     const user = req.user;
     const { type, unreadOnly, limit = 50 } = req.query;
 
-    const allUserNotifs = (db.raw.notifications || []).filter((n) => n.userId === user.id);
+    const userEmailLower = user.email?.toLowerCase();
+    const isUserNotif = (n) =>
+      n.userId === user.id || (userEmailLower && n.userEmail && n.userEmail.toLowerCase() === userEmailLower);
+
+    const allUserNotifs = (db.raw.notifications || []).filter(isUserNotif);
 
     // Calculate unread count
     const unreadCount = allUserNotifs.filter((n) => !n.isRead).length;
@@ -94,8 +98,12 @@ router.patch('/:id/read', async (req, res) => {
 
     let targetNotif = null;
 
+    const userEmailLower = user.email?.toLowerCase();
+    const isUserNotif = (n) =>
+      n.userId === user.id || (userEmailLower && n.userEmail && n.userEmail.toLowerCase() === userEmailLower);
+
     await db.transaction((data) => {
-      const notif = (data.notifications || []).find((n) => n.id === id && n.userId === user.id);
+      const notif = (data.notifications || []).find((n) => n.id === id && isUserNotif(n));
       if (notif) {
         notif.isRead = true;
         targetNotif = notif;
@@ -106,7 +114,7 @@ router.patch('/:id/read', async (req, res) => {
       return res.status(404).json({ error: 'Notification not found.' });
     }
 
-    const unreadCount = (db.raw.notifications || []).filter((n) => n.userId === user.id && !n.isRead).length;
+    const unreadCount = (db.raw.notifications || []).filter((n) => isUserNotif(n) && !n.isRead).length;
 
     return res.json({
       success: true,
@@ -127,12 +135,15 @@ router.patch('/:id/read', async (req, res) => {
 router.patch('/read-all', async (req, res) => {
   try {
     const user = req.user;
+    const userEmailLower = user.email?.toLowerCase();
+    const isUserNotif = (n) =>
+      n.userId === user.id || (userEmailLower && n.userEmail && n.userEmail.toLowerCase() === userEmailLower);
     let updatedCount = 0;
 
     await db.transaction((data) => {
       if (data.notifications) {
         for (const notif of data.notifications) {
-          if (notif.userId === user.id && !notif.isRead) {
+          if (isUserNotif(notif) && !notif.isRead) {
             notif.isRead = true;
             updatedCount++;
           }
@@ -159,6 +170,9 @@ router.patch('/read-all', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const user = req.user;
+    const userEmailLower = user.email?.toLowerCase();
+    const isUserNotif = (n) =>
+      n.userId === user.id || (userEmailLower && n.userEmail && n.userEmail.toLowerCase() === userEmailLower);
     const { id } = req.params;
 
     let deleted = false;
@@ -166,7 +180,7 @@ router.delete('/:id', async (req, res) => {
     await db.transaction((data) => {
       if (data.notifications) {
         const initialLen = data.notifications.length;
-        data.notifications = data.notifications.filter((n) => !(n.id === id && n.userId === user.id));
+        data.notifications = data.notifications.filter((n) => !(n.id === id && isUserNotif(n)));
         if (data.notifications.length < initialLen) {
           deleted = true;
         }
@@ -177,7 +191,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Notification not found or already removed.' });
     }
 
-    const unreadCount = (db.raw.notifications || []).filter((n) => n.userId === user.id && !n.isRead).length;
+    const unreadCount = (db.raw.notifications || []).filter((n) => isUserNotif(n) && !n.isRead).length;
 
     return res.json({
       success: true,

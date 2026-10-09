@@ -13,6 +13,7 @@ import {
   Check,
   X,
   Users,
+  Lock,
 } from 'lucide-react';
 
 export const ManageAllotmentsModal = ({
@@ -20,6 +21,8 @@ export const ManageAllotmentsModal = ({
   onClose,
   staffMember,
   allCourses = [],
+  allStaff = [],
+  allotmentsList = [],
   onAllotmentsSaved,
 }) => {
   const [selectedCourseIds, setSelectedCourseIds] = useState([]);
@@ -40,17 +43,43 @@ export const ManageAllotmentsModal = ({
 
   if (!staffMember) return null;
 
-  const toggleCourse = (courseId) => {
+  // Check if a course is already allotted to another faculty member
+  const getOtherStaffAllotment = (courseId) => {
+    const matchFromAllotments = (allotmentsList || []).find(
+      (a) => a.courseId === courseId && a.staffId !== staffMember.id && a.status === 'ACTIVE'
+    );
+    if (matchFromAllotments) {
+      return matchFromAllotments.staffName || 'Another Faculty Member';
+    }
+
+    const other = (allStaff || []).find(
+      (s) =>
+        s.id !== staffMember.id &&
+        (s.allottedCourses || []).some((ac) =>
+          typeof ac === 'string' ? ac === courseId : ac.id === courseId
+        )
+    );
+    return other ? other.name : null;
+  };
+
+  const toggleCourse = (courseId, otherStaffName) => {
+    if (otherStaffName) {
+      setError(`This course is already allotted to ${otherStaffName}. A course can only be allotted to one staff member.`);
+      return;
+    }
+    setError(null);
     setSelectedCourseIds((prev) =>
       prev.includes(courseId) ? prev.filter((id) => id !== courseId) : [...prev, courseId]
     );
   };
 
   const handleSelectAll = () => {
-    if (selectedCourseIds.length === allCourses.length) {
+    // Only select courses that are either unassigned or already assigned to this staff member
+    const availableCourses = allCourses.filter((c) => !getOtherStaffAllotment(c.id));
+    if (selectedCourseIds.length === availableCourses.length) {
       setSelectedCourseIds([]);
     } else {
-      setSelectedCourseIds(allCourses.map((c) => c.id));
+      setSelectedCourseIds(availableCourses.map((c) => c.id));
     }
   };
 
@@ -167,30 +196,57 @@ export const ManageAllotmentsModal = ({
         <div className="max-h-72 overflow-y-auto space-y-2 pr-1 [scrollbar-width:thin]">
           {filteredCourses.length > 0 ? (
             filteredCourses.map((c) => {
+              const otherStaff = getOtherStaffAllotment(c.id);
               const isSelected = selectedCourseIds.includes(c.id);
+              const isBlocked = Boolean(otherStaff);
+
               return (
                 <div
                   key={c.id}
-                  onClick={() => toggleCourse(c.id)}
-                  className={`p-3.5 rounded-xl border text-xs transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                    isSelected
-                      ? 'bg-[#FFF9EF] border-[#FEDDAA] shadow-2xs'
-                      : 'bg-white border-[#E8E3DC] hover:border-stone-400'
+                  onClick={() => toggleCourse(c.id, otherStaff)}
+                  title={
+                    isBlocked
+                      ? `Already allotted to ${otherStaff}. A course can only be allotted to one faculty member.`
+                      : isSelected
+                      ? 'Click to remove allotment'
+                      : 'Click to allot this course'
+                  }
+                  className={`p-3.5 rounded-xl border text-xs transition-all flex items-center justify-between gap-3 ${
+                    isBlocked
+                      ? 'bg-stone-50/80 border-stone-200/90 text-stone-400 cursor-not-allowed select-none'
+                      : isSelected
+                      ? 'bg-[#FFF9EF] border-[#FEDDAA] shadow-2xs cursor-pointer'
+                      : 'bg-white border-[#E8E3DC] hover:border-stone-400 cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                        isSelected
+                        isBlocked
+                          ? 'bg-stone-200 border-stone-300 text-stone-500'
+                          : isSelected
                           ? 'bg-[#D97706] border-[#D97706] text-white'
                           : 'bg-white border-stone-300'
                       }`}
                     >
-                      {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      {isBlocked ? (
+                        <Lock className="w-3 h-3 text-stone-600" />
+                      ) : isSelected ? (
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      ) : null}
                     </div>
 
                     <div className="min-w-0">
-                      <span className="font-bold text-[#1F1F1F] block truncate">{c.title}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold block truncate ${isBlocked ? 'text-stone-600 line-through' : 'text-[#1F1F1F]'}`}>
+                          {c.title}
+                        </span>
+                        {isBlocked && (
+                          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+                            Locked
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 text-[10px] text-[#6B6258] font-mono mt-0.5">
                         <span>{c.category}</span>
                         <span>•</span>
@@ -202,13 +258,15 @@ export const ManageAllotmentsModal = ({
                   </div>
 
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase shrink-0 ${
-                      isSelected
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase shrink-0 ${
+                      isBlocked
+                        ? 'bg-stone-100 text-stone-600 border border-stone-200'
+                        : isSelected
                         ? 'bg-[#FEDDAA] text-[#B45309]'
-                        : 'bg-stone-100 text-stone-500'
+                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                     }`}
                   >
-                    {isSelected ? 'Allotted' : 'Unassigned'}
+                    {isBlocked ? `Allotted to ${otherStaff}` : isSelected ? 'Allotted' : 'Available'}
                   </span>
                 </div>
               );

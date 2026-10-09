@@ -341,12 +341,16 @@ router.post('/google', authLimiter, async (req, res) => {
     const cleanEmail = targetEmail.trim().toLowerCase();
     let user = db.raw.users.find((u) => u.email.toLowerCase() === cleanEmail);
 
+    // Disallow Google Authentication for Staff Accounts
+    if (targetRole === 'STAFF' || (user && user.role === 'STAFF')) {
+      return res.status(403).json({
+        error: 'Google Authentication is disabled for Staff. Please sign in using your permanent staff credentials (email & password) assigned by the Administrator.',
+      });
+    }
+
     // If User Already Exists -> Verify Role Match
     if (user) {
-      // Allow Platform Administrators to access Staff Portal
-      const isAllowedRole =
-        user.role === targetRole ||
-        (targetRole === 'STAFF' && user.role === 'ADMIN');
+      const isAllowedRole = user.role === targetRole;
 
       if (!isAllowedRole) {
         const roleLabels = { ADMIN: 'Administrator', STAFF: 'Staff/Faculty', USER: 'Student' };

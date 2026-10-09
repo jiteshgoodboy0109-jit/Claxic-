@@ -17,7 +17,6 @@ import {
   Filter,
   Eye,
   Receipt,
-  RotateCcw,
   KeyRound,
   CreditCard,
   LayoutDashboard,
@@ -63,7 +62,7 @@ import { NotificationBell } from '../../components/notifications/NotificationBel
 import { UserEditModal } from '../modals/UserEditModal.jsx';
 import { AppointStaffModal } from '../modals/AppointStaffModal.jsx';
 import { ManageAllotmentsModal } from '../modals/ManageAllotmentsModal.jsx';
-import { ResetStaffModal } from '../modals/ResetStaffModal.jsx';
+import { ChangeStaffCredentialsModal } from '../modals/ChangeStaffCredentialsModal.jsx';
 import {
   exportApplicationsPDF,
   exportApplicationDossierPDF,
@@ -108,7 +107,8 @@ export const AdminDashboardView = ({
   const [isAppointStaffModalOpen, setIsAppointStaffModalOpen] = useState(false);
   const [isManageAllotmentsModalOpen, setIsManageAllotmentsModalOpen] = useState(false);
   const [selectedStaffForAllotment, setSelectedStaffForAllotment] = useState(null);
-  const [isResetStaffModalOpen, setIsResetStaffModalOpen] = useState(false);
+  const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
+  const [selectedStaffForCredentials, setSelectedStaffForCredentials] = useState(null);
   const [selectedUserToEdit, setSelectedUserToEdit] = useState(null);
   const [activeUserMenuId, setActiveUserMenuId] = useState(null);
 
@@ -168,6 +168,8 @@ export const AdminDashboardView = ({
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    setIsMobileSidebarOpen(false);
+    setIsSidebarCollapsed(true);
     const semanticTab = tab === 'financials' ? 'payments' : tab;
     if (onNavigate) {
       onNavigate(`admin/${semanticTab}`);
@@ -655,7 +657,11 @@ export const AdminDashboardView = ({
   };
 
   const filteredApplications = applications.filter((a) => {
-    const matchesStatus = statusFilter === 'ALL' || a.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      (statusFilter === 'APPROVED'
+        ? a.status === 'APPROVED' || a.status === 'CONFIRMED'
+        : a.status === statusFilter);
     const matchesSearch =
       (a.userName || '').toLowerCase().includes(appSearch.toLowerCase()) ||
       (a.userEmail || '').toLowerCase().includes(appSearch.toLowerCase()) ||
@@ -975,7 +981,10 @@ export const AdminDashboardView = ({
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => handleTabChange(item.id)}
+                      onClick={() => {
+                        handleTabChange(item.id);
+                        setIsSidebarCollapsed(true);
+                      }}
                       title={isSidebarCollapsed ? `${item.label} (${item.count !== undefined ? item.count : ''})` : undefined}
                       className={`w-full flex items-center transition-all cursor-pointer ${
                         isSidebarCollapsed
@@ -1251,7 +1260,7 @@ export const AdminDashboardView = ({
                 <div className="mt-2.5 flex items-center justify-between text-xs text-[#6B6258] font-medium pt-2 border-t border-[#F0EBE3]">
                   <div className="flex items-center gap-2 text-xs text-[#6B6258]">
                     <span className="font-semibold text-[#D97706]">
-                      {applications.filter((a) => a.status === 'CONFIRMED').length} Confirmed
+                      {applications.filter((a) => a.status === 'CONFIRMED' || a.status === 'APPROVED').length} Approved
                     </span>
                     <span>•</span>
                     <span>{applications.filter((a) => a.status === 'SUBMITTED').length} In Review</span>
@@ -1521,14 +1530,17 @@ export const AdminDashboardView = ({
                         <td className="py-3.5 text-[#1F1F1F]">{app.courseTitle}</td>
                         <td className="py-3.5">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${app.status === 'CONFIRMED'
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                              app.status === 'CONFIRMED' || app.status === 'APPROVED'
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : app.status === 'SUBMITTED'
-                                  ? 'bg-[#FFF7E6] text-[#D97706] border-[#FEDDAA]'
-                                  : app.status === 'UNDER_REVIEW'
-                                    ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                    : 'bg-[#FAFAF7] text-[#6B6258] border-[#E8E3DC]'
-                              }`}
+                                : app.status === 'REJECTED'
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : app.status === 'SUBMITTED'
+                                    ? 'bg-[#FFF7E6] text-[#D97706] border-[#FEDDAA]'
+                                    : app.status === 'UNDER_REVIEW'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                      : 'bg-[#FAFAF7] text-[#6B6258] border-[#E8E3DC]'
+                            }`}
                           >
                             {app.status}
                           </span>
@@ -1583,7 +1595,7 @@ export const AdminDashboardView = ({
               {/* Status Filter Tabs & CSV Export */}
               <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto">
                 <div className="flex items-center bg-[#FAFAF7] border border-[#E8E3DC] p-1 rounded-xl text-xs font-semibold">
-                  {['ALL', 'CONFIRMED', 'SUBMITTED', 'UNDER_REVIEW'].map((st) => (
+                  {['ALL', 'APPROVED', 'REJECTED', 'SUBMITTED', 'UNDER_REVIEW'].map((st) => (
                     <button
                       key={st}
                       type="button"
@@ -1657,14 +1669,17 @@ export const AdminDashboardView = ({
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${app.status === 'CONFIRMED'
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                                app.status === 'CONFIRMED' || app.status === 'APPROVED'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  : app.status === 'SUBMITTED'
-                                    ? 'bg-[#FFF7E6] text-[#D97706] border-[#FEDDAA]'
-                                    : app.status === 'UNDER_REVIEW'
-                                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                      : 'bg-[#FAFAF7] text-[#6B6258] border-[#E8E3DC]'
-                                }`}
+                                  : app.status === 'REJECTED'
+                                    ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                    : app.status === 'SUBMITTED'
+                                      ? 'bg-[#FFF7E6] text-[#D97706] border-[#FEDDAA]'
+                                      : app.status === 'UNDER_REVIEW'
+                                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                        : 'bg-[#FAFAF7] text-[#6B6258] border-[#E8E3DC]'
+                              }`}
                             >
                               {app.status}
                             </span>
@@ -1799,7 +1814,14 @@ export const AdminDashboardView = ({
                   {/* Footer & Actions */}
                   <div className="px-5 py-3.5 bg-[#FAFAF7] border-t border-[#E8E3DC] flex items-center justify-between">
                     <div className="font-mono font-bold text-sm text-[#1F1F1F]">
-                      ₹{(c.price || 0).toLocaleString('en-IN')}
+                      {c.isFree || c.price === 0 ? (
+                        <span className="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 text-xs font-bold inline-flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          FREE
+                        </span>
+                      ) : (
+                        `₹${(c.price || 0).toLocaleString('en-IN')}`
+                      )}
                     </div>
 
                     <div className="flex items-center gap-1.5">
@@ -1846,16 +1868,7 @@ export const AdminDashboardView = ({
                 />
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => setIsResetStaffModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
-                  title="Audited system operation to clear all staff accounts and allotments"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset Staff Data</span>
-                </button>
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end flex-wrap">
                 <button
                   type="button"
                   onClick={() => setIsAppointStaffModalOpen(true)}
@@ -1958,6 +1971,19 @@ export const AdminDashboardView = ({
                           </td>
 
                           <td className="py-3.5 px-4 text-right space-x-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedStaffForCredentials(s);
+                                setIsCredentialsModalOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-semibold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                              title="Create or change permanent username & password"
+                            >
+                              <KeyRound className="w-3.5 h-3.5 text-[#D97706]" />
+                              <span>Password</span>
+                            </button>
+
                             <button
                               type="button"
                               onClick={() => handleOpenAllotmentsForStaff(s)}
@@ -2718,8 +2744,8 @@ export const AdminDashboardView = ({
                   type="button"
                   disabled={isUpdatingAppStatus}
                   onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'APPROVED')}
-                  className={`px-3.5 py-1.5 rounded-xl font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
-                    selectedAppDetail.status === 'APPROVED'
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
+                    selectedAppDetail.status === 'APPROVED' || selectedAppDetail.status === 'CONFIRMED'
                       ? 'bg-emerald-700 ring-2 ring-emerald-400'
                       : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -2727,28 +2753,13 @@ export const AdminDashboardView = ({
                   {isUpdatingAppStatus && (
                     <LoadingSpinner size="xs" variant="white" inline className="mr-1.5" />
                   )}
-                  {selectedAppDetail.status === 'APPROVED' ? '✓ Approved' : 'Approve Application'}
-                </button>
-                <button
-                  type="button"
-                  disabled={isUpdatingAppStatus}
-                  onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'CONFIRMED')}
-                  className={`px-3.5 py-1.5 rounded-xl font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
-                    selectedAppDetail.status === 'CONFIRMED'
-                      ? 'bg-[#D97706] ring-2 ring-[#F59E0B]'
-                      : 'bg-[#F59E0B] hover:bg-[#D97706] active:scale-95'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {isUpdatingAppStatus && (
-                    <LoadingSpinner size="xs" variant="white" inline className="mr-1.5" />
-                  )}
-                  {selectedAppDetail.status === 'CONFIRMED' ? '✓ Enrolled' : 'Mark Enrolled'}
+                  {selectedAppDetail.status === 'APPROVED' || selectedAppDetail.status === 'CONFIRMED' ? '✓ Approved' : 'Approve Application'}
                 </button>
                 <button
                   type="button"
                   disabled={isUpdatingAppStatus}
                   onClick={() => handleUpdateAppStatus(selectedAppDetail.id, 'REJECTED')}
-                  className={`px-3.5 py-1.5 rounded-xl font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-xs cursor-pointer transition-all flex items-center gap-1.5 text-white ${
                     selectedAppDetail.status === 'REJECTED'
                       ? 'bg-rose-700 ring-2 ring-rose-400'
                       : 'bg-rose-600 hover:bg-rose-700 active:scale-95'
@@ -2807,6 +2818,8 @@ export const AdminDashboardView = ({
           }}
           staffMember={selectedStaffForAllotment}
           allCourses={courses}
+          allStaff={staffList}
+          allotmentsList={allotmentsList}
           onAllotmentsSaved={(updatedAllotments) => {
             setIsManageAllotmentsModalOpen(false);
             setSelectedStaffForAllotment(null);
@@ -2816,17 +2829,23 @@ export const AdminDashboardView = ({
         />
       )}
 
-      {/* Reset Staff System Modal */}
-      <ResetStaffModal
-        isOpen={isResetStaffModalOpen}
-        onClose={() => setIsResetStaffModalOpen(false)}
-        onStaffResetSuccess={() => {
-          setIsResetStaffModalOpen(false);
-          fetchAdminData();
-          setStatusToast('Staff data reset completed successfully.');
-        }}
-      />
-
+      {/* Change Staff Permanent Credentials Modal */}
+      {selectedStaffForCredentials && (
+        <ChangeStaffCredentialsModal
+          isOpen={isCredentialsModalOpen}
+          onClose={() => {
+            setIsCredentialsModalOpen(false);
+            setSelectedStaffForCredentials(null);
+          }}
+          staffMember={selectedStaffForCredentials}
+          onCredentialsUpdated={(updatedStaff) => {
+            setIsCredentialsModalOpen(false);
+            setSelectedStaffForCredentials(null);
+            fetchAdminData();
+            setStatusToast(`Permanent credentials updated for ${updatedStaff?.name || 'faculty member'}.`);
+          }}
+        />
+      )}
 
       </div>
     </div>

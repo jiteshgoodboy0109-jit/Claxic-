@@ -28,16 +28,46 @@ export function getEnrolledStudentsForCourse(course, data) {
   if (!course) return [];
   const courseId = course.id;
   const courseSlug = course.slug;
+  const normCourseTitle = course.title?.toLowerCase().trim();
   const validAppStatuses = ['CONFIRMED', 'APPROVED', 'SUBMITTED', 'ENROLLED', 'PAID', 'ACCEPTED'];
   const studentUserIds = new Set();
+  const studentsMap = new Map();
 
-  // 1. Applications matching courseId or courseSlug
+  const addStudent = (uid, name, email) => {
+    if (!uid && !email) return;
+    const key = (email || uid).toLowerCase();
+    if (!studentsMap.has(key)) {
+      studentsMap.set(key, {
+        id: uid || `usr_${key.replace(/[^a-zA-Z0-9]/g, '_')}`,
+        name: name || 'Student',
+        email: email || null,
+      });
+    }
+  };
+
+  // 1. Applications matching courseId, courseSlug, or courseTitle
   (data.applications || []).forEach((app) => {
-    if (
-      (app.courseId === courseId || app.courseId === courseSlug || app.courseSlug === courseSlug) &&
-      (!app.status || validAppStatuses.includes(app.status))
-    ) {
+    const appTitle = (app.courseTitle || app.programTitle || app.title)?.toLowerCase().trim();
+    const matchesCourse =
+      app.courseId === courseId ||
+      app.courseId === courseSlug ||
+      app.courseSlug === courseSlug ||
+      (normCourseTitle && appTitle && normCourseTitle === appTitle);
+
+    const statusValid = !app.status || validAppStatuses.includes(String(app.status).toUpperCase());
+
+    if (matchesCourse && statusValid) {
       if (app.userId) studentUserIds.add(app.userId);
+      const email = app.userEmail || app.formData?.email || app.email;
+      const name = app.userName || app.formData?.fullName || app.formData?.name || app.name;
+      if (email) {
+        const userObj = (data.users || []).find((u) => u.email && u.email.toLowerCase() === email.toLowerCase());
+        if (userObj) {
+          studentUserIds.add(userObj.id);
+        } else {
+          addStudent(app.userId, name, email);
+        }
+      }
     }
   });
 
@@ -55,6 +85,10 @@ export function getEnrolledStudentsForCourse(course, data) {
       (pay.status === 'SUCCESS' || pay.status === 'COMPLETED' || pay.status === 'PAID')
     ) {
       if (pay.userId) studentUserIds.add(pay.userId);
+      if (pay.userEmail) {
+        const userObj = (data.users || []).find((u) => u.email && u.email.toLowerCase() === pay.userEmail.toLowerCase());
+        if (userObj) studentUserIds.add(userObj.id);
+      }
     }
   });
 
@@ -63,6 +97,7 @@ export function getEnrolledStudentsForCourse(course, data) {
     if (u.role === 'USER' || u.role === 'STUDENT' || !u.role) {
       if (
         (Array.isArray(u.enrolledCourses) && (u.enrolledCourses.includes(courseId) || u.enrolledCourses.includes(courseSlug))) ||
+        (Array.isArray(u.purchasedCourses) && (u.purchasedCourses.includes(courseId) || u.purchasedCourses.includes(courseSlug))) ||
         u.courseId === courseId ||
         u.courseId === courseSlug
       ) {
@@ -71,26 +106,24 @@ export function getEnrolledStudentsForCourse(course, data) {
     }
   });
 
-  const enrolledStudents = [];
+  // Resolve user IDs to student objects
   studentUserIds.forEach((uid) => {
     const userObj = (data.users || []).find((u) => u.id === uid);
     if (userObj) {
-      enrolledStudents.push({
-        id: userObj.id,
-        name: userObj.name || 'Student',
-        email: userObj.email,
-      });
+      addStudent(userObj.id, userObj.name, userObj.email);
     } else {
       const app = (data.applications || []).find((a) => a.userId === uid);
-      enrolledStudents.push({
-        id: uid,
-        name: app?.userName || app?.formData?.fullName || 'Student',
-        email: app?.userEmail || app?.formData?.email || null,
-      });
+      if (app) {
+        addStudent(
+          uid,
+          app.userName || app.formData?.fullName || 'Student',
+          app.userEmail || app.formData?.email || null
+        );
+      }
     }
   });
 
-  return enrolledStudents;
+  return Array.from(studentsMap.values());
 }
 
 // Multer Disk Storage Configuration for Secure Local Video Uploads
@@ -372,7 +405,8 @@ router.post('/courses', async (req, res) => {
       dailyReleaseTime: (dailyReleaseTime || '09:00').trim(),
       shortDescription: (shortDescription || '').trim(),
       description: (shortDescription || '').trim(),
-      price: Number(price) || 0,
+      isFree: Boolean(req.body.isFree || Number(price) === 0),
+      price: req.body.isFree || Number(price) === 0 ? 0 : (Number(price) || 0),
       capacity: Number(capacity) || 40,
       enrolledCount: 0,
       instructor: (instructor || staffUser.name || 'Claxic Faculty').trim(),
@@ -450,7 +484,10 @@ router.put('/courses/:courseId', async (req, res) => {
           c.shortDescription = shortDescription.trim();
           c.description = shortDescription.trim();
         }
-        if (price !== undefined) c.price = Number(price) || 0;
+        if (req.body.isFree !== undefined) c.isFree = Boolean(req.body.isFree);
+        else if (price !== undefined) c.isFree = Number(price) === 0;
+        if (c.isFree) c.price = 0;
+        else if (price !== undefined) c.price = Number(price) || 0;
         if (capacity !== undefined) c.capacity = Number(capacity) || 40;
         if (instructor !== undefined) c.instructor = instructor.trim();
         if (bannerImage !== undefined) c.bannerImage = bannerImage.trim();
@@ -895,6 +932,7 @@ router.post('/courses/:courseId/classes', async (req, res) => {
           data.notifications.unshift({
             id: 'notif_class_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
             userId: student.id,
+            userEmail: student.email,
             title: notifTitle,
             message: notifMsg,
             type: 'CREATIVE_CLASS',
@@ -1064,6 +1102,7 @@ router.put('/courses/:courseId/classes/:classId', async (req, res) => {
             data.notifications.unshift({
               id: 'notif_class_upd_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
               userId: student.id,
+              userEmail: student.email,
               title: notifTitle,
               message: notifMsg,
               type: 'CREATIVE_CLASS',
@@ -1209,6 +1248,7 @@ router.post('/courses/:courseId/classes/:classId/video', uploadVideo.single('vid
             data.notifications.unshift({
               id: 'notif_vid_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
               userId: student.id,
+              userEmail: student.email,
               title: `🎬 Video Ready: Day ${dayNum} - ${targetClass.title}`,
               message: `High-definition video for "${targetClass.title}" in "${course.title}" has been uploaded and is ready for streaming. Watch it in your Student Portal!`,
               type: 'CREATIVE_CLASS',
@@ -1230,6 +1270,35 @@ router.post('/courses/:courseId/classes/:classId/video', uploadVideo.single('vid
         }
       }
     });
+
+    // Send email notifications to all enrolled students for video upload
+    if (updatedClass) {
+      const dayNum = updatedClass.dayNumber || updatedClass.classNumber || 1;
+      const enrolledStudentsToNotify = getEnrolledStudentsForCourse(course, db.raw);
+      const emailSubject = `🎬 New Video Lecture Available: Day ${dayNum} - ${updatedClass.title} (${course.title})`;
+
+      for (const student of enrolledStudentsToNotify) {
+        if (student.email) {
+          sendEmail(
+            student.email,
+            emailSubject,
+            'VIDEO_UPLOADED',
+            {
+              name: student.name || 'Student',
+              studentName: student.name || 'Student',
+              courseTitle: course.title,
+              courseId: course.id,
+              dayNumber: dayNum,
+              classTitle: updatedClass.title,
+              instructorName: req.user.name,
+              actionUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/student`,
+            }
+          ).catch((err) => {
+            console.error(`[Video Upload Email] Failed to notify ${student.email}:`, err.message);
+          });
+        }
+      }
+    }
 
     return res.json({
       success: true,

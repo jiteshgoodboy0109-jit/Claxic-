@@ -29,6 +29,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
   const [duration, setDuration] = useState('10 Weeks');
   const [startDate, setStartDate] = useState('2026-10-01');
   const [registrationDeadline, setRegistrationDeadline] = useState('2026-09-25');
+  const [isFree, setIsFree] = useState(false);
   const [price, setPrice] = useState(14999);
   const [originalPrice, setOriginalPrice] = useState(24999);
   const [capacity, setCapacity] = useState(40);
@@ -81,7 +82,9 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
       setDuration(courseToEdit.duration || '10 Weeks');
       setStartDate(courseToEdit.startDate || '2026-10-01');
       setRegistrationDeadline(courseToEdit.registrationDeadline || '2026-09-25');
-      setPrice(courseToEdit.price || 14999);
+      const courseIsFree = Boolean(courseToEdit.isFree || Number(courseToEdit.price) === 0);
+      setIsFree(courseIsFree);
+      setPrice(courseIsFree ? 0 : (courseToEdit.price || 14999));
       setOriginalPrice(courseToEdit.originalPrice || 24999);
       setCapacity(courseToEdit.capacity || 40);
       setShortDescription(courseToEdit.shortDescription || '');
@@ -118,6 +121,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
       setDuration('10 Weeks');
       setStartDate('2026-10-01');
       setRegistrationDeadline('2026-09-25');
+      setIsFree(false);
       setPrice(14999);
       setOriginalPrice(24999);
       setCapacity(40);
@@ -255,8 +259,9 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
         duration: duration.trim(),
         startDate,
         registrationDeadline,
-        price: Number(price),
-        originalPrice: Number(originalPrice),
+        isFree: Boolean(isFree),
+        price: isFree ? 0 : Number(price),
+        originalPrice: isFree ? 0 : Number(originalPrice),
         capacity: Number(capacity),
         shortDescription: shortDescription.trim(),
         fullDescription: fullDescription.trim(),
@@ -469,118 +474,95 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
               </div>
             </div>
 
-            {/* Category, Level, Mode */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 outline-none font-medium"
-                >
-                  <option value="AI & Full Stack">AI & Full Stack</option>
-                  <option value="Cloud & DevOps">Cloud & DevOps</option>
-                  <option value="System Architecture">System Architecture</option>
-                  <option value="Cyber Security">Cyber Security</option>
-                  <option value="Product & Design">Product & Design</option>
-                  <option value="Data & ML">Data & ML</option>
-                </select>
+            {/* Pricing Model Selection */}
+            <div className="space-y-3 p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Course Tuition Model</span>
+                    {isFree && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-2xs">
+                        100% FREE
+                      </span>
+                    )}
+                  </label>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Choose whether this course requires paid tuition or is offered completely free for students.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsFree(false);
+                      if (price === 0) setPrice(14999);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      !isFree
+                        ? 'bg-amber-500 text-white shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-900'
+                    }`}
+                  >
+                    Paid Program
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsFree(true);
+                      setPrice(0);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      isFree
+                        ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-900'
+                    }`}
+                  >
+                    Free Course
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Level
-                </label>
-                <select
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 outline-none font-medium"
-                >
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="All Levels">All Levels</option>
-                </select>
-              </div>
+              {isFree ? (
+                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-bold">Free Course Active: </span>
+                    <span>Students can enroll directly without payment gateway checkout. Tuition is ₹0.</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                      Tuition (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      required={!isFree}
+                      value={price}
+                      onChange={(e) => setPrice(Number(e.target.value))}
+                      className="w-full bg-white border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 font-mono outline-none"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Delivery Mode
-                </label>
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 outline-none font-medium"
-                >
-                  <option value="Live Interactive">Live Interactive</option>
-                  <option value="Bootcamp">Bootcamp</option>
-                  <option value="Hybrid Workshop">Hybrid Workshop</option>
-                  <option value="Self-Paced">Self-Paced</option>
-                </select>
-              </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                      Original (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={originalPrice}
+                      onChange={(e) => setOriginalPrice(Number(e.target.value))}
+                      className="w-full bg-white border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 font-mono outline-none"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Pricing, Capacity, Dates */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Tuition (₹) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 font-mono outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Original (₹)
-                </label>
-                <input
-                  type="number"
-                  value={originalPrice}
-                  onChange={(e) => setOriginalPrice(Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 font-mono outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Seat Capacity
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={capacity}
-                  onChange={(e) => setCapacity(Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 font-mono outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Status
-                </label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 outline-none font-medium"
-                >
-                  <option value="PUBLISHED">PUBLISHED</option>
-                  <option value="FULL">FULL</option>
-                  <option value="DRAFT">DRAFT</option>
-                  <option value="ARCHIVED">ARCHIVED</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Cohort Dates & Tags */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Cohort Dates */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
                   Cohort Start Date
@@ -601,19 +583,6 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
                   type="date"
                   value={registrationDeadline}
                   onChange={(e) => setRegistrationDeadline(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Search Tags (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="AI, FullStack, React"
                   className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none"
                 />
               </div>

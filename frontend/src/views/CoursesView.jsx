@@ -17,6 +17,7 @@ export const CoursesView = ({
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All');
   const [selectedMode, setSelectedMode] = useState('All');
+  const [selectedPricing, setSelectedPricing] = useState('All');
   const [sortBy, setSortBy] = useState('featured');
 
   const categories = useMemo(() => {
@@ -43,7 +44,11 @@ export const CoursesView = ({
         const matchesMode =
           selectedMode === 'All' || c.mode.toLowerCase() === selectedMode.toLowerCase();
 
-        return matchesSearch && matchesCategory && matchesLevel && matchesMode;
+        const matchesPricing =
+          selectedPricing === 'All' ||
+          (selectedPricing === 'Free' ? (c.isFree || c.price === 0) : (!c.isFree && c.price > 0));
+
+        return matchesSearch && matchesCategory && matchesLevel && matchesMode && matchesPricing;
       })
       .sort((a, b) => {
         if (sortBy === 'price_asc') return a.price - b.price;
@@ -52,13 +57,14 @@ export const CoursesView = ({
         if (sortBy === 'popularity') return b.enrolledCount - a.enrolledCount;
         return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
       });
-  }, [courses, searchTerm, selectedCategory, selectedLevel, selectedMode, sortBy]);
+  }, [courses, searchTerm, selectedCategory, selectedLevel, selectedMode, selectedPricing, sortBy]);
 
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedCategory('All');
     setSelectedLevel('All');
     setSelectedMode('All');
+    setSelectedPricing('All');
     setSortBy('featured');
   };
 
@@ -118,7 +124,7 @@ export const CoursesView = ({
         </div>
 
         {/* Filter Pills */}
-        <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div>
             <label className="block text-slate-700 font-semibold mb-1.5">Specialization Category</label>
             <select
@@ -160,6 +166,19 @@ export const CoursesView = ({
               <option value="Bootcamp">Bootcamp</option>
               <option value="Hybrid Workshop">Hybrid Workshop</option>
               <option value="Self-Paced">Self-Paced</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-slate-700 font-semibold mb-1.5">Tuition Model</label>
+            <select
+              value={selectedPricing}
+              onChange={(e) => setSelectedPricing(e.target.value)}
+              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white border border-slate-200 rounded-full px-4 py-2.5 text-slate-900 focus:outline-none focus:border-[#EE2D02] focus:ring-2 focus:ring-[#EE2D02]/15 cursor-pointer font-medium"
+            >
+              <option value="All">All Tuition Models</option>
+              <option value="Free">Free Courses (₹0)</option>
+              <option value="Paid">Paid Programs</option>
             </select>
           </div>
         </div>

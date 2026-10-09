@@ -29,6 +29,33 @@ export async function createPaymentOrder(req, res) {
       return res.status(400).json({ error: 'Course capacity has been reached.' });
     }
 
+    if (course.isFree || course.price === 0) {
+      // Auto-confirm free course enrollment without payment gateway
+      await db.transaction((data) => {
+        const app = data.applications.find((a) => a.id === applicationId);
+        if (app) {
+          app.status = 'APPROVED';
+          app.updatedAt = new Date().toISOString();
+        }
+        const c = data.courses.find((item) => item.id === course.id);
+        if (c && (c.enrolledCount || 0) < (c.capacity || 40)) {
+          c.enrolledCount = (c.enrolledCount || 0) + 1;
+        }
+      });
+
+      return res.json({
+        isFree: true,
+        success: true,
+        orderId: 'free_' + crypto.randomBytes(6).toString('hex'),
+        amount: 0,
+        currency: 'INR',
+        courseTitle: course.title,
+        userName: user.name,
+        userEmail: user.email,
+        applicationNumber: application.applicationNumber,
+      });
+    }
+
     // Generate Razorpay Order simulation payload
     const orderId = 'order_clx_' + crypto.randomBytes(8).toString('hex');
     const amountInPaisa = course.price * 100;

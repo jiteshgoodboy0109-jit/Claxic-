@@ -208,6 +208,14 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
 
       setSubmittedApp(data.application);
 
+      // Free Course: Bypass payment gateway and grant instant enrollment!
+      if (course.isFree || course.price === 0) {
+        confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 } });
+        setStep('free_success');
+        if (onSuccess) onSuccess(data.application?.applicationNumber || 'FREE_ENROLLMENT');
+        return;
+      }
+
       // Create Razorpay Order
       const orderRes = await fetch('/api/payments/create-order', {
         method: 'POST',
@@ -345,12 +353,25 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono text-[#EE2D02]">
-                  ₹{course.price.toLocaleString('en-IN')}
-                </div>
-                <span className="text-[10px] font-mono text-[#EE2D02] uppercase font-semibold">
-                  Inclusive of 18% GST & Tax Invoice
-                </span>
+                {course.isFree || course.price === 0 ? (
+                  <>
+                    <div className="text-2xl font-extrabold font-mono text-emerald-600">
+                      FREE
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-700 uppercase font-bold">
+                      100% Free Tuition • No Payment
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold font-mono text-[#EE2D02]">
+                      ₹{course.price.toLocaleString('en-IN')}
+                    </div>
+                    <span className="text-[10px] font-mono text-[#EE2D02] uppercase font-semibold">
+                      Inclusive of 18% GST & Tax Invoice
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -557,13 +578,52 @@ export const ApplicationModal = ({ isOpen, onClose, course, onSuccess }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-6 sm:px-8 bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000] text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className={`w-full py-3.5 px-6 sm:px-8 ${
+                  course.isFree || course.price === 0
+                    ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+                    : 'bg-[#EE2D02] hover:bg-[#D02600] active:bg-[#B52000]'
+                } text-white font-bold text-sm rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50`}
               >
-                <span>Proceed to Razorpay Secure Payment</span>
+                <span>
+                  {course.isFree || course.price === 0
+                    ? 'Complete Free Enrollment 🎉'
+                    : 'Proceed to Razorpay Secure Payment'}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </form>
+        ) : step === 'free_success' ? (
+          /* Step: Free Course Enrollment Success */
+          <div className="p-6 sm:p-10 rounded-[28px] bg-white border border-emerald-200 text-center space-y-4 shadow-sm animate-in fade-in duration-200">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-300 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div>
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Enrollment Confirmed: #{submittedApp?.applicationNumber || 'APPROVED'}
+              </span>
+              <h3 className="text-2xl font-bold text-slate-900 mt-3 font-display">
+                You're In! Welcome to {course.title}
+              </h3>
+              <p className="text-xs text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
+                Your 100% free enrollment has been confirmed. You now have full access to learning materials, schedule, and coursework.
+              </p>
+            </div>
+
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  window.location.href = '/dashboard';
+                }}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+              >
+                Go to Student Learning Dashboard
+              </button>
+            </div>
+          </div>
         ) : (
           /* Step 2: Payment Checkout Overview */
           <div className="space-y-6">

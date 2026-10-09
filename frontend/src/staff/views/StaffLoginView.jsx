@@ -87,107 +87,6 @@ export const StaffLoginView = ({ onNavigate }) => {
     }
   };
 
-  // Google OAuth for Staff
-  const handleGoogleStaffLogin = async (payload) => {
-    if (!payload) return;
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...payload,
-          portalRole: 'STAFF',
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.status === 403 || !res.ok) {
-        throw new Error(
-          data.error || 'Access denied. This account is not registered as Staff.'
-        );
-      }
-
-      if (!data.user || (data.user.role !== 'STAFF' && data.user.role !== 'ADMIN')) {
-        throw new Error('Access denied. This account is not registered as Staff.');
-      }
-
-      login(data.token, data.user);
-      if (onNavigate) onNavigate('staff');
-    } catch (err) {
-      setError(err.message || 'Access denied. This account is not registered as Staff.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Trigger Google SSO Prompt
-  const handleGoogleButtonClick = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-    // 1. Google OAuth2 Popup flow
-    if (clientId && clientId.trim() && window.google?.accounts?.oauth2) {
-      try {
-        const tokenClient = window.google.accounts.oauth2.initTokenClient({
-          client_id: clientId.trim(),
-          scope: 'email profile openid',
-          callback: async (tokenResponse) => {
-            if (tokenResponse && tokenResponse.access_token) {
-              let userProfile = {};
-              try {
-                const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-                });
-                if (profileRes.ok) {
-                  userProfile = await profileRes.json();
-                }
-              } catch (e) {
-                console.warn('Browser userinfo fetch notice:', e);
-              }
-
-              await handleGoogleStaffLogin({
-                accessToken: tokenResponse.access_token,
-                email: userProfile.email,
-                name: userProfile.name,
-                avatar: userProfile.picture,
-              });
-            } else if (tokenResponse && tokenResponse.error) {
-              setError(`Google Sign-In error: ${tokenResponse.error}`);
-            }
-          },
-        });
-        tokenClient.requestAccessToken({ prompt: 'select_account' });
-        return;
-      } catch (err) {
-        console.warn('OAuth2 popup error, attempting OneTap fallback:', err);
-      }
-    }
-
-    // 2. Google OneTap fallback
-    if (clientId && clientId.trim() && window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: clientId.trim(),
-          callback: (res) => handleGoogleStaffLogin({ credential: res.credential }),
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
-        window.google.accounts.id.prompt();
-        return;
-      } catch (err) {
-        console.warn('OneTap prompt error:', err);
-      }
-    }
-
-    // 3. Fallback demo token
-    handleGoogleStaffLogin({
-      credential: 'demo_staff_google_sso_token_' + Math.random().toString(36).substring(2, 10),
-    });
-  };
-
   return (
     <div className="min-h-screen w-full bg-[#FAF7F2] flex items-center justify-center p-3 sm:p-5 lg:p-6 font-sans antialiased selection:bg-[#FFF7E6] selection:text-[#D97706]">
       
@@ -423,30 +322,11 @@ export const StaffLoginView = ({ onNavigate }) => {
               </div>
             </form>
 
-            {/* Social Authentication: Google OAuth SSO for Staff */}
-            <div className="space-y-3 pt-0.5">
-              <div className="flex items-center gap-3">
-                <div className="h-px bg-[#E8E3DC] flex-1" />
-                <span className="text-xs text-[#6B6258] whitespace-nowrap font-medium select-none">
-                  Or sign in with
-                </span>
-                <div className="h-px bg-[#E8E3DC] flex-1" />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGoogleButtonClick}
-                disabled={isLoading}
-                className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAFAF7] text-[#1F1F1F] border border-[#E8E3DC] hover:border-[#D0C7BC] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2.5 transition-all duration-150 shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
-              >
-                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
-                  <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
-                  <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.5s.7 4.8 1.9 7.2l3.7-2.9z" />
-                  <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z" />
-                </svg>
-                <span className="whitespace-nowrap font-medium">Continue with Google</span>
-              </button>
+            {/* Permanent Credentials Notice */}
+            <div className="pt-2 text-center">
+              <p className="text-[11px] text-[#6B6258] leading-relaxed">
+                Faculty credentials are permanently provisioned by the Administrator Console.
+              </p>
             </div>
 
           </div>

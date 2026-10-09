@@ -138,16 +138,16 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
 
   const handleCopyCredentials = () => {
     if (!successData) return;
-    const loginUrl = `${window.location.origin}${successData.user.role === 'ADMIN' ? '/admin/login' : '/staff/login'}`;
+    const loginUrl = `${window.location.origin}${successData.user.role === 'ADMIN' ? '/admin-login' : '/staff-login'}`;
     const credText = `Claxic Academic Faculty Portal Access\n` +
       `------------------------------------\n` +
       `Name: ${successData.user.name}\n` +
       `Role: ${successData.user.role}\n` +
-      `Email: ${successData.user.email}\n` +
-      `Temporary Password: ${successData.tempPassword}\n` +
+      `Email (Username): ${successData.user.email}\n` +
+      `Permanent Password: ${successData.tempPassword}\n` +
       `Portal Login: ${loginUrl}\n` +
       `------------------------------------\n` +
-      `Please log in and update your password upon first entry.`;
+      `Please use these permanent credentials to sign in.`;
 
     navigator.clipboard.writeText(credText);
     setCopied(true);
@@ -343,7 +343,7 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-[#6B6258]">
-                    Temporary Password <span className="text-rose-500">*</span>
+                    Permanent Password <span className="text-rose-500">*</span>
                   </label>
                   <button
                     type="button"

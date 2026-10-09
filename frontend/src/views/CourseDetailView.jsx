@@ -103,17 +103,27 @@ export const CourseDetailView = ({
               <div className="space-y-1">
                 <span className="text-xs text-slate-500 uppercase block font-semibold">Tuition Fee</span>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-extrabold text-slate-900">
-                    ₹{course.price.toLocaleString('en-IN')}
-                  </span>
-                  {course.originalPrice && (
-                    <span className="text-sm text-slate-400 line-through">
-                      ₹{course.originalPrice.toLocaleString('en-IN')}
+                  {course.isFree || course.price === 0 ? (
+                    <span className="text-3xl font-extrabold text-emerald-600">
+                      FREE
                     </span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-extrabold text-slate-900">
+                        ₹{(course.price || 0).toLocaleString('en-IN')}
+                      </span>
+                      {course.originalPrice && (
+                        <span className="text-sm text-slate-400 line-through">
+                          ₹{course.originalPrice.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
-                <span className="text-xs text-[#EE2D02] block pt-1 font-semibold">
-                  Includes 18% GST Tax Receipt & Lifetime Materials Access
+                <span className={`text-xs block pt-1 font-semibold ${course.isFree || course.price === 0 ? 'text-emerald-700 font-bold' : 'text-[#EE2D02]'}`}>
+                  {course.isFree || course.price === 0
+                    ? '🎉 100% Free Course • Lifetime Full Curriculum Access'
+                    : 'Includes 18% GST Tax Receipt & Lifetime Materials Access'}
                 </span>
               </div>
 
@@ -121,12 +131,22 @@ export const CourseDetailView = ({
                 <button
                   disabled={course.status === 'FULL'}
                   onClick={() => onApply(course)}
-                  className="w-full py-3.5 px-6 rounded-full bg-[#EE2D02] hover:bg-[#D42700] text-white font-bold text-sm shadow-md hover:shadow-lg shadow-[#EE2D02]/25 disabled:opacity-50 transition-all cursor-pointer"
+                  className={`w-full py-3.5 px-6 rounded-full ${
+                    course.isFree || course.price === 0
+                      ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25'
+                      : 'bg-[#EE2D02] hover:bg-[#D42700] shadow-[#EE2D02]/25'
+                  } text-white font-bold text-sm shadow-md hover:shadow-lg disabled:opacity-50 transition-all cursor-pointer`}
                 >
-                  {course.status === 'FULL' ? 'Cohort Capacity Reached' : 'Apply & Reserve Seat'}
+                  {course.status === 'FULL'
+                    ? 'Cohort Capacity Reached'
+                    : course.isFree || course.price === 0
+                    ? 'Enroll in Free Course 🎉'
+                    : 'Apply & Reserve Seat'}
                 </button>
                 <p className="text-xs text-center text-slate-500">
-                  Protected by 7-Day Unconditional Money-Back Guarantee
+                  {course.isFree || course.price === 0
+                    ? 'Instant Enrollment Confirmation • No Credit Card Needed'
+                    : 'Protected by 7-Day Unconditional Money-Back Guarantee'}
                 </p>
               </div>
 

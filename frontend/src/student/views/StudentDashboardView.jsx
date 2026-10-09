@@ -599,6 +599,8 @@ export const StudentDashboardView = ({
   const handleTabChange = (tab) => {
     const targetTab = tab === 'billing' || tab === 'payments' ? 'courses' : tab;
     setActiveTab(targetTab);
+    setIsMobileSidebarOpen(false);
+    setIsSidebarCollapsed(true);
     if (onNavigate) {
       onNavigate('student', targetTab);
     } else {
@@ -610,7 +612,7 @@ export const StudentDashboardView = ({
     }
   };
 
-  const confirmedApps = applications.filter((a) => a.status === 'CONFIRMED');
+  const confirmedApps = applications.filter((a) => a.status === 'CONFIRMED' || a.status === 'APPROVED');
 
   // Available courses filtered for students (excluding archived, draft, closed)
   const studentAvailableCourses = availableCourses.filter((c) => {
@@ -642,7 +644,7 @@ export const StudentDashboardView = ({
       applications.some(
         (a) =>
           (a.courseId === c.id || a.course?.id === c.id || a.courseSlug === c.slug) &&
-          a.status === 'CONFIRMED'
+          (a.status === 'CONFIRMED' || a.status === 'APPROVED')
       );
 
     if (isEnrolled) return { type: 'ENROLLED', label: 'Enrolled & Active' };
@@ -945,7 +947,10 @@ export const StudentDashboardView = ({
                   <button
                     key={item.id}
                     type="button"
-                    onClick={item.action}
+                    onClick={() => {
+                      item.action();
+                      setIsSidebarCollapsed(true);
+                    }}
                     title={isSidebarCollapsed ? `${item.label}${item.count !== undefined && item.count > 0 ? ` (${item.count})` : ''}` : undefined}
                     className={`w-full flex items-center transition-all duration-150 cursor-pointer group relative ${
                       isSidebarCollapsed
@@ -2523,8 +2528,10 @@ export const StudentDashboardView = ({
                       <td className="p-4">
                         <Badge
                           variant={
-                            app.status === 'CONFIRMED'
+                            app.status === 'CONFIRMED' || app.status === 'APPROVED'
                               ? 'success'
+                              : app.status === 'REJECTED'
+                              ? 'danger'
                               : app.status === 'DRAFT'
                               ? 'neutral'
                               : 'warning'

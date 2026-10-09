@@ -60,9 +60,16 @@ export const CourseCard = ({
             <span className={`px-3 py-1 rounded-full text-[11px] font-bold border backdrop-blur-md shadow-2xs ${getCategoryStyles(course.category)}`}>
               {course.category}
             </span>
-            <span className="px-3 py-1 rounded-full bg-[#0B0E14]/90 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-2xs">
-              {course.mode}
-            </span>
+            <div className="flex items-center gap-1.5">
+              {(course.isFree || course.price === 0) && (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold shadow-sm flex items-center gap-1 border border-emerald-400">
+                  FREE
+                </span>
+              )}
+              <span className="px-3 py-1 rounded-full bg-[#0B0E14]/90 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-2xs">
+                {course.mode}
+              </span>
+            </div>
           </div>
 
           {course.status === 'FULL' && (
@@ -144,17 +151,25 @@ export const CourseCard = ({
       <div className="p-6 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
         <div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-lg font-bold text-slate-900">
-              ₹{course.price.toLocaleString('en-IN')}
-            </span>
-            {course.originalPrice && (
-              <span className="text-xs text-slate-400 line-through">
-                ₹{course.originalPrice.toLocaleString('en-IN')}
+            {course.isFree || course.price === 0 ? (
+              <span className="text-xl font-extrabold text-emerald-600 flex items-center gap-1">
+                FREE
               </span>
+            ) : (
+              <>
+                <span className="text-lg font-bold text-slate-900">
+                  ₹{(course.price || 0).toLocaleString('en-IN')}
+                </span>
+                {course.originalPrice && (
+                  <span className="text-xs text-slate-400 line-through">
+                    ₹{course.originalPrice.toLocaleString('en-IN')}
+                  </span>
+                )}
+              </>
             )}
           </div>
           <span className="text-[10px] text-slate-400 block -mt-0.5">
-            Inclusive of 18% GST
+            {course.isFree || course.price === 0 ? '100% Free Access • No Fees' : 'Inclusive of 18% GST'}
           </span>
         </div>
 
@@ -172,9 +187,13 @@ export const CourseCard = ({
                 e.stopPropagation();
                 if (onApply) onApply(course);
               }}
-              className="px-4 py-2 rounded-full text-xs font-bold text-white bg-[#EE2D02] hover:bg-[#D42700] disabled:opacity-50 transition-all shadow-xs hover:shadow flex items-center gap-1 cursor-pointer"
+              className={`px-4 py-2 rounded-full text-xs font-bold text-white ${
+                course.isFree || course.price === 0
+                  ? 'bg-emerald-600 hover:bg-emerald-700'
+                  : 'bg-[#EE2D02] hover:bg-[#D42700]'
+              } disabled:opacity-50 transition-all shadow-xs hover:shadow flex items-center gap-1 cursor-pointer`}
             >
-              <span>{course.status === 'FULL' ? 'Full' : 'Apply'}</span>
+              <span>{course.status === 'FULL' ? 'Full' : (course.isFree || course.price === 0 ? 'Enroll Free' : 'Apply')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}

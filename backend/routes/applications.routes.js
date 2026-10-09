@@ -115,14 +115,17 @@ router.post('/', requireAuth, async (req, res) => {
       (a) => a.userId === user.id && a.courseId === courseId && a.status === 'DRAFT'
     );
 
+    const isFree = Boolean(course.isFree || course.price === 0);
+    const initialStatus = isFree ? 'APPROVED' : 'SUBMITTED';
+
     await db.transaction((data) => {
       if (application) {
         const target = data.applications.find((a) => a.id === application.id);
         if (target) {
-          target.status = 'SUBMITTED';
+          target.status = initialStatus;
           target.formData = mergedFormData;
           target.updatedAt = now;
-          target.amount = course.price;
+          target.amount = isFree ? 0 : course.price;
         }
       } else {
         application = {
@@ -133,14 +136,25 @@ router.post('/', requireAuth, async (req, res) => {
           userEmail: user.email,
           courseId: course.id,
           courseTitle: course.title,
-          status: 'SUBMITTED',
+          status: initialStatus,
           currentStep: 4,
           formData: mergedFormData,
-          amount: course.price,
+          amount: isFree ? 0 : course.price,
+          isFree,
           createdAt: now,
           updatedAt: now,
         };
         data.applications.push(application);
+      }
+
+      if (isFree) {
+        const c = data.courses.find((item) => item.id === course.id);
+        if (c) {
+          c.enrolledCount = (c.enrolledCount || 0) + 1;
+          if (c.enrolledCount >= c.capacity) {
+            c.status = 'FULL';
+          }
+        }
       }
 
       // Add user notification
@@ -148,9 +162,11 @@ router.post('/', requireAuth, async (req, res) => {
       data.notifications.unshift({
         id: 'notif_' + Math.random().toString(36).substring(2, 9),
         userId: user.id,
-        title: 'Application Received: ' + course.title,
-        message: `Your application #${application.applicationNumber || appNumber} has been received for review.`,
-        type: 'info',
+        title: isFree ? '🎉 Free Enrollment Confirmed: ' + course.title : 'Application Received: ' + course.title,
+        message: isFree
+          ? `You have been instantly enrolled in free course "${course.title}". Start learning now!`
+          : `Your application #${application.applicationNumber || appNumber} has been received for review.`,
+        type: isFree ? 'success' : 'info',
         link: '/dashboard',
         isRead: false,
         createdAt: now,
@@ -162,7 +178,7 @@ router.post('/', requireAuth, async (req, res) => {
         id: 'audit_' + Math.random().toString(36).substring(2, 9),
         adminId: user.id,
         adminName: user.name,
-        action: 'APPLICATION_SUBMITTED',
+        action: isFree ? 'FREE_COURSE_ENROLLED' : 'APPLICATION_SUBMITTED',
         targetType: 'APPLICATION',
         targetId: application.id,
         targetTitle: `${course.title} (${application.applicationNumber || appNumber})`,
