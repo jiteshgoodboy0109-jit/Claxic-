@@ -145,23 +145,26 @@ export const StudentDashboardView = ({
   const [isMarkingComplete, setIsMarkingComplete] = useState(false);
   const [toastMsg, setToastMsg] = useState(null);
 
-  // Anti-skip lecture watch time verification state
-  const [watchSeconds, setWatchSeconds] = useState(0);
-  const WATCH_REQUIREMENT_SECONDS = 30; // 30s minimum engagement requirement to unlock attendance
+  // Live video engagement state (synchronizes strictly with SecureVideoPlayer active playback)
+  const [videoProgress, setVideoProgress] = useState({
+    watchedSeconds: 0,
+    duration: 0,
+    watchRatio: 0,
+    isPlaying: false,
+    isCompleted: false,
+    canSkipForward: false,
+  });
 
-  // Track video lecture watch time when active
+  // Reset video progress when modal opens or closes (never ticks automatically)
   useEffect(() => {
-    if (!activeClassForVideo) {
-      setWatchSeconds(0);
-      return;
-    }
-
-    setWatchSeconds(0);
-    const timer = setInterval(() => {
-      setWatchSeconds((prev) => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
+    setVideoProgress({
+      watchedSeconds: 0,
+      duration: 0,
+      watchRatio: 0,
+      isPlaying: false,
+      isCompleted: false,
+      canSkipForward: false,
+    });
   }, [activeClassForVideo]);
 
 
@@ -1581,7 +1584,7 @@ export const StudentDashboardView = ({
                                     )}
 
                                     {/* Watch Video button (for recorded lessons) */}
-                                    {cls.videoUrl && cls.deliveryType !== 'ONLINE' && (
+                                    {(cls.videoUrl || cls.videoPath || cls.hasLocalVideo || cls.videoId) && cls.deliveryType !== 'ONLINE' && (
                                       <button
                                         type="button"
                                         onClick={() => setActiveClassForVideo(cls)}
@@ -1855,21 +1858,21 @@ export const StudentDashboardView = ({
 
                   {/* Video Player Modal */}
                   {activeClassForVideo && (
-                    <div className="fixed inset-0 bg-[#0B0E14]/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-                      <div className="bg-white border border-slate-200 rounded-[28px] p-6 max-w-2xl w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div className="fixed inset-0 bg-[#0B0E14]/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150">
+                      <div className="bg-white border border-[#E8E3DC] rounded-[24px] sm:rounded-[28px] p-4 sm:p-6 max-w-3xl w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+                        <div className="flex items-center justify-between pb-3.5 border-b border-[#E8E3DC]">
                           <div>
-                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02]">
-                              DAY {activeClassForVideo.dayNumber} • {activeCourse.courseTitle}
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#EE2D02] bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-100">
+                              DAY {activeClassForVideo.dayNumber || activeClassForVideo.classNumber || 1} • {activeCourse.courseTitle}
                             </span>
-                            <h4 className="text-base font-bold text-slate-900 mt-0.5">
+                            <h4 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
                               {activeClassForVideo.title}
                             </h4>
                           </div>
                           <button
                             type="button"
                             onClick={() => setActiveClassForVideo(null)}
-                            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                            className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -1918,8 +1921,11 @@ export const StudentDashboardView = ({
                           /* Secure Video Learning Player with 75% Watch Completion & Restricted Skip */
                           <div className="w-full">
                             <SecureVideoPlayer
-                              courseId={selectedLearningCourseId || (enrolledCourses[0]?.courseId)}
+                              courseId={selectedLearningCourseId || enrolledCourses[0]?.courseId}
                               classItem={activeClassForVideo}
+                              onProgressUpdate={(prog) => {
+                                setVideoProgress(prog);
+                              }}
                               onPlaybackCompleted={() => {
                                 fetchData();
                                 showToast('🎉 Lesson 75% engagement threshold verified! Class marked complete.');
@@ -2027,32 +2033,50 @@ export const StudentDashboardView = ({
                           );
                         })()}
 
-                        <div className="flex items-center justify-between pt-2">
-                          <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            <span>Duration: {activeClassForVideo.duration}</span>
-                          </span>
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#E8E3DC]">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 w-full sm:w-auto">
+                            <span className="flex items-center gap-1.5 font-mono">
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Duration: {activeClassForVideo.duration || `${Math.round(videoProgress.duration || 0)}s`}</span>
+                            </span>
+                            <span className="text-slate-300">•</span>
+                            <span className="font-mono font-bold text-slate-800">
+                              {videoProgress.watchRatio}% Watched ({videoProgress.watchedSeconds}s)
+                            </span>
+                            {videoProgress.isPlaying ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Playing
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-stone-500 font-semibold bg-stone-100 px-2 py-0.5 rounded-full border border-stone-200">
+                                <Pause className="w-2.5 h-2.5 text-amber-500" />
+                                Paused
+                              </span>
+                            )}
+                          </div>
+
                           <button
                             type="button"
-                            disabled={isMarkingComplete || watchSeconds < WATCH_REQUIREMENT_SECONDS}
+                            disabled={isMarkingComplete || (videoProgress.watchRatio < 75 && !videoProgress.isCompleted)}
                             onClick={() => {
-                              handleCompleteClass(activeCourse.courseId, activeClassForVideo.id, watchSeconds);
+                              handleCompleteClass(activeCourse.courseId, activeClassForVideo.id, videoProgress.watchedSeconds);
                               setActiveClassForVideo(null);
                             }}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                              watchSeconds >= WATCH_REQUIREMENT_SECONDS
-                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
-                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                              videoProgress.watchRatio >= 75 || videoProgress.isCompleted
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
+                                : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                             }`}
                           >
-                            {watchSeconds < WATCH_REQUIREMENT_SECONDS ? (
+                            {videoProgress.watchRatio < 75 && !videoProgress.isCompleted ? (
                               <>
-                                <Lock className="w-3.5 h-3.5" />
-                                <span>Watch Required ({WATCH_REQUIREMENT_SECONDS - watchSeconds}s remaining)</span>
+                                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Watch Required (75% needed • {Math.max(0, 75 - videoProgress.watchRatio)}% remaining)</span>
                               </>
                             ) : (
                               <>
-                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                 <span>Confirm Watched & Attended</span>
                               </>
                             )}

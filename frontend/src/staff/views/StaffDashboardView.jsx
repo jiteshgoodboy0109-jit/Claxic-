@@ -45,6 +45,7 @@ import {
   KeyRound,
   Phone,
   Camera,
+  RotateCw,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner.jsx';
@@ -254,6 +255,11 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   const [doubtFilterStatus, setDoubtFilterStatus] = useState('ALL'); // 'ALL' | 'OPEN' | 'RESOLVED'
   const [doubtSearchTerm, setDoubtSearchTerm] = useState('');
   const [doubtCourseFilter, setDoubtCourseFilter] = useState('ALL');
+  const [highlightedDoubtId, setHighlightedDoubtId] = useState(null);
+  const [inlineReplyDoubtId, setInlineReplyDoubtId] = useState(null);
+  const [inlineReplyTexts, setInlineReplyTexts] = useState({});
+  const [submittingInlineId, setSubmittingInlineId] = useState(null);
+  const [lastDoubtsSynced, setLastDoubtsSynced] = useState(null);
 
   const formatReleaseTime = (timeStr) => {
     if (!timeStr) return '9:00 AM';
@@ -434,8 +440,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
   };
 
   // Fetch All Student Doubts
-  const fetchDoubts = async () => {
-    setIsLoadingDoubts(true);
+  const fetchDoubts = async (quiet = false) => {
+    if (!quiet) setIsLoadingDoubts(true);
     try {
       const token = localStorage.getItem('claxic_token');
       const res = await fetch('/api/staff/doubts', {
@@ -443,16 +449,20 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setDoubts(data.doubts || []);
+        const incoming = data.doubts || [];
+        setDoubts(incoming);
+        setLastDoubtsSynced(new Date());
+        return incoming;
       }
     } catch (err) {
       console.error('Fetch doubts error:', err);
     } finally {
-      setIsLoadingDoubts(false);
+      if (!quiet) setIsLoadingDoubts(false);
     }
+    return [];
   };
 
-  // Reply / Clarify Student Doubt
+  // Reply / Clarify Student Doubt (Modal)
   const handleReplyDoubt = async (e) => {
     e?.preventDefault();
     if (!selectedDoubtForReply || !doubtReplyText.trim()) return;
@@ -472,7 +482,8 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
         showToast('Clarification sent to student successfully! 🎉');
         setSelectedDoubtForReply(null);
         setDoubtReplyText('');
-        fetchDoubts();
+        await fetchDoubts();
+        window.dispatchEvent(new CustomEvent('claxic_notifications_updated'));
       } else {
         showToast(data.error || 'Failed to submit clarification');
       }
@@ -480,6 +491,40 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       showToast('Network error submitting clarification');
     } finally {
       setIsSubmittingDoubtReply(false);
+    }
+  };
+
+  // Reply / Clarify Student Doubt (Inline Quick Reply)
+  const handleReplyInlineDoubt = async (doubtId) => {
+    const text = (inlineReplyTexts[doubtId] || '').trim();
+    if (!text) {
+      showToast('Please type a clarification reply for the student.');
+      return;
+    }
+    setSubmittingInlineId(doubtId);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/staff/doubts/${doubtId}/reply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reply: text }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Clarification sent to student successfully! 🎉');
+        setInlineReplyDoubtId(null);
+        await fetchDoubts();
+        window.dispatchEvent(new CustomEvent('claxic_notifications_updated'));
+      } else {
+        showToast(data.error || 'Failed to submit clarification');
+      }
+    } catch (err) {
+      showToast('Network error submitting clarification');
+    } finally {
+      setSubmittingInlineId(null);
     }
   };
 
@@ -495,6 +540,7 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       if (res.ok) {
         showToast('Doubt removed');
         fetchDoubts();
+        window.dispatchEvent(new CustomEvent('claxic_notifications_updated'));
       }
     } catch (err) {
       showToast('Failed to delete doubt');
@@ -633,6 +679,63 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
       fetchStudentProgress(selectedCourseId);
     }
   }, [activeTab]);
+
+  // Live Doubts Synchronizer (Auto-Refresh on Doubts Tab)
+  useEffect(() => {
+    if (activeTab === 'doubts') {
+      fetchDoubts();
+      const interval = setInterval(() => {
+        fetchDoubts(true);
+      }, 7000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
+  // Live Notification Auto-Update Listener
+  useEffect(() => {
+    const handleNotifUpdate = () => {
+      if (activeTab === 'doubts') {
+        fetchDoubts(true);
+      }
+    };
+    window.addEventListener('claxic_notifications_updated', handleNotifUpdate);
+    return () => window.removeEventListener('claxic_notifications_updated', handleNotifUpdate);
+  }, [activeTab]);
+
+  // Handle claxic_open_doubt Event: Direct Touch Navigation & Focus
+  useEffect(() => {
+    const handleOpenDoubtEvent = async (e) => {
+      const { doubtId, courseId } = e.detail || {};
+      setActiveTab('doubts');
+      setDoubtFilterStatus('ALL');
+      setDoubtCourseFilter('ALL');
+      const latestDoubts = await fetchDoubts();
+      if (doubtId) {
+        setHighlightedDoubtId(doubtId);
+        setInlineReplyDoubtId(doubtId);
+        const target = latestDoubts.find((d) => d.id === doubtId);
+        if (target) {
+          setInlineReplyTexts((prev) => ({
+            ...prev,
+            [doubtId]: prev[doubtId] || target.reply || '',
+          }));
+        }
+        setTimeout(() => {
+          const el = document.getElementById(`doubt-card-${doubtId}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('ring-4', 'ring-[#F59E0B]', 'scale-[1.01]');
+            setTimeout(() => {
+              el.classList.remove('scale-[1.01]');
+            }, 600);
+          }
+        }, 250);
+      }
+    };
+
+    window.addEventListener('claxic_open_doubt', handleOpenDoubtEvent);
+    return () => window.removeEventListener('claxic_open_doubt', handleOpenDoubtEvent);
+  }, []);
 
   // Fetch Students Applied for Selected Course
   const fetchCourseApplications = async (courseId) => {
@@ -3161,20 +3264,36 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
               {/* Header & Controls */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-lg font-bold text-[#1F1F1F]">Student Doubts & Questions Center</h3>
                     {doubts.filter((d) => d.status === 'OPEN').length > 0 && (
                       <span className="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA]">
                         {doubts.filter((d) => d.status === 'OPEN').length} Pending
                       </span>
                     )}
+                    <span className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Live Sync Active</span>
+                    </span>
                   </div>
                   <p className="text-xs text-[#6B6258] mt-0.5">
-                    Resolve conceptual questions, code issues, and lecture doubts submitted by students.
+                    Resolve conceptual questions, code issues, and lecture doubts submitted by students in real time.
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                  {/* Manual Sync Button */}
+                  <button
+                    type="button"
+                    onClick={() => fetchDoubts()}
+                    disabled={isLoadingDoubts}
+                    title="Refresh student questions"
+                    className="px-3 py-2 bg-white border border-[#E8E3DC] hover:border-amber-400 rounded-xl text-xs font-bold text-stone-700 hover:text-stone-900 flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
+                  >
+                    <RotateCw className={`w-3.5 h-3.5 text-[#D97706] ${isLoadingDoubts ? 'animate-spin' : ''}`} />
+                    <span>Sync Doubts</span>
+                  </button>
+
                   {/* Course Dropdown */}
                   <select
                     value={doubtCourseFilter}
@@ -3251,7 +3370,11 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                     return true;
                   })
                   .filter((d) => {
-                    if (doubtCourseFilter !== 'ALL' && d.courseId !== doubtCourseFilter) return false;
+                    if (doubtCourseFilter !== 'ALL') {
+                      const matched = courses.find((c) => c.id === doubtCourseFilter || c.slug === doubtCourseFilter);
+                      const validIds = [doubtCourseFilter, matched?.id, matched?.slug].filter(Boolean);
+                      if (!validIds.includes(d.courseId)) return false;
+                    }
                     if (!doubtSearchTerm.trim()) return true;
                     const term = doubtSearchTerm.toLowerCase();
                     return (
@@ -3262,99 +3385,179 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                       (d.courseTitle || '').toLowerCase().includes(term)
                     );
                   })
-                  .map((d) => (
-                    <div
-                      key={d.id}
-                      className="bg-white border border-[#E8E3DC] rounded-[22px] p-5 sm:p-6 space-y-4 shadow-xs hover:border-[#D97706]/40 transition-all"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E8E3DC]/60">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-black text-sm font-bold flex items-center justify-center shrink-0 shadow-xs">
-                            {(d.studentName || 'S')[0].toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-bold text-sm text-[#1F1F1F]">{d.studentName}</span>
-                              <span className="text-[11px] text-[#6B6258] font-mono">({d.studentEmail})</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-[11px] text-[#82684D] font-mono mt-0.5 flex-wrap">
-                              <span className="font-bold text-[#D97706]">{d.courseTitle}</span>
-                              <span>•</span>
-                              <span>Day {d.classNumber}: {d.classTitle}</span>
-                              <span>•</span>
-                              <span>{new Date(d.createdAt).toLocaleString()}</span>
-                            </div>
-                          </div>
-                        </div>
+                  .map((d) => {
+                    const isHighlighted = highlightedDoubtId === d.id;
+                    const isInlineOpen = inlineReplyDoubtId === d.id;
 
-                        <div className="flex items-center gap-2 self-start sm:self-center">
-                          {d.status === 'OPEN' ? (
-                            <span className="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5">
-                              <Clock className="w-3.5 h-3.5" />
-                              <span>Pending Reply</span>
+                    return (
+                      <div
+                        key={d.id}
+                        id={`doubt-card-${d.id}`}
+                        className={`bg-white border rounded-[22px] p-5 sm:p-6 space-y-4 shadow-xs transition-all duration-300 ${
+                          isHighlighted
+                            ? 'border-[#F59E0B] ring-2 ring-[#F59E0B]/50 bg-amber-50/15 shadow-md'
+                            : 'border-[#E8E3DC] hover:border-[#D97706]/40'
+                        }`}
+                      >
+                        {/* Highlighted Notice if focused from notification */}
+                        {isHighlighted && (
+                          <div className="flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-amber-100/80 border border-amber-300 text-xs font-bold text-amber-950 animate-in fade-in duration-200">
+                            <span className="flex items-center gap-1.5">
+                              <Sparkles className="w-4 h-4 text-[#D97706]" />
+                              <span>Targeted Doubt from Notification — Ready for Faculty Review</span>
                             </span>
-                          ) : (
-                            <span className="px-3 py-1 rounded-full text-xs font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>Resolved</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                            <button
+                              type="button"
+                              onClick={() => setHighlightedDoubtId(null)}
+                              className="text-amber-700 hover:text-amber-950 p-0.5 rounded cursor-pointer"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
 
-                      {/* Question Content */}
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#D97706]">
-                          Student Question
-                        </span>
-                        <div className="p-4 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC] text-xs text-stone-800 leading-relaxed font-medium">
-                          {d.question}
-                        </div>
-                      </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E8E3DC]/60">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-black text-sm font-bold flex items-center justify-center shrink-0 shadow-xs">
+                              {(d.studentName || 'S')[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-sm text-[#1F1F1F]">{d.studentName}</span>
+                                <span className="text-[11px] text-[#6B6258] font-mono">({d.studentEmail})</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-[11px] text-[#82684D] font-mono mt-0.5 flex-wrap">
+                                <span className="font-bold text-[#D97706]">{d.courseTitle}</span>
+                                <span>•</span>
+                                <span>Day {d.classNumber}: {d.classTitle}</span>
+                                <span>•</span>
+                                <span>{new Date(d.createdAt).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
 
-                      {/* Answer Content (If Resolved) */}
-                      {d.status === 'RESOLVED' && d.reply && (
-                        <div className="p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs space-y-1">
-                          <span className="font-bold text-emerald-900 flex items-center gap-1 text-[11px]">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Faculty Clarification by {d.repliedBy}</span>
-                            {d.repliedAt && (
-                              <span className="text-[10px] font-mono text-emerald-700 font-normal ml-1">
-                                • {new Date(d.repliedAt).toLocaleDateString()}
+                          <div className="flex items-center gap-2 self-start sm:self-center">
+                            {d.status === 'OPEN' ? (
+                              <span className="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>Pending Reply</span>
+                              </span>
+                            ) : (
+                              <span className="px-3 py-1 rounded-full text-xs font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Resolved</span>
                               </span>
                             )}
-                          </span>
-                          <p className="text-emerald-950 leading-relaxed font-normal">{d.reply}</p>
+                          </div>
                         </div>
-                      )}
 
-                      {/* Action Bar */}
-                      <div className="flex items-center justify-end gap-2.5 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteDoubt(d.id)}
-                          className="px-3 py-2 rounded-xl text-xs font-semibold text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                        >
-                          Dismiss
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedDoubtForReply(d);
-                            setDoubtReplyText(d.reply || '');
-                          }}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                            d.status === 'OPEN'
-                              ? 'bg-[#18181B] hover:bg-stone-900 text-white shadow-xs'
-                              : 'bg-white text-stone-800 border border-stone-300 hover:bg-stone-100'
-                          }`}
-                        >
-                          <Send className="w-3.5 h-3.5 text-[#FBBF24]" />
-                          <span>{d.status === 'OPEN' ? 'Provide Clarification' : 'Edit Faculty Reply'}</span>
-                        </button>
+                        {/* Question Content */}
+                        <div className="space-y-1.5">
+                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#D97706]">
+                            Student Question
+                          </span>
+                          <div className="p-4 rounded-xl bg-[#FAFAF7] border border-[#E8E3DC] text-xs text-stone-800 leading-relaxed font-medium">
+                            {d.question}
+                          </div>
+                        </div>
+
+                        {/* Answer Content (If Resolved) */}
+                        {d.status === 'RESOLVED' && d.reply && (
+                          <div className="p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs space-y-1">
+                            <span className="font-bold text-emerald-900 flex items-center gap-1 text-[11px]">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Faculty Clarification by {d.repliedBy}</span>
+                              {d.repliedAt && (
+                                <span className="text-[10px] font-mono text-emerald-700 font-normal ml-1">
+                                  • {new Date(d.repliedAt).toLocaleDateString()}
+                                </span>
+                              )}
+                            </span>
+                            <p className="text-emerald-950 leading-relaxed font-normal">{d.reply}</p>
+                          </div>
+                        )}
+
+                        {/* Inline Clarification Composer OR Action Bar */}
+                        {isInlineOpen ? (
+                          <div className="pt-3 border-t border-[#E8E3DC] space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-[#1F1F1F] flex items-center gap-1.5">
+                                <Send className="w-3.5 h-3.5 text-[#D97706]" />
+                                <span>Faculty Clarification & Explanation for {d.studentName}</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDoubtForReply(d);
+                                  setDoubtReplyText(inlineReplyTexts[d.id] !== undefined ? inlineReplyTexts[d.id] : (d.reply || ''));
+                                }}
+                                className="text-[11px] text-[#D97706] hover:underline font-semibold cursor-pointer"
+                              >
+                                Open in Pop-up Modal
+                              </button>
+                            </div>
+
+                            <textarea
+                              rows={4}
+                              autoFocus
+                              value={inlineReplyTexts[d.id] !== undefined ? inlineReplyTexts[d.id] : (d.reply || '')}
+                              onChange={(e) => setInlineReplyTexts((prev) => ({ ...prev, [d.id]: e.target.value }))}
+                              placeholder="Type clear conceptual guidance, code solution, or architectural advice for the student..."
+                              className="w-full px-3.5 py-2.5 bg-white border border-[#E8E3DC] rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none leading-relaxed"
+                            />
+
+                            <div className="flex items-center justify-end gap-2.5">
+                              <button
+                                type="button"
+                                onClick={() => setInlineReplyDoubtId(null)}
+                                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                disabled={submittingInlineId === d.id || !(inlineReplyTexts[d.id] !== undefined ? inlineReplyTexts[d.id] : (d.reply || '')).trim()}
+                                onClick={() => handleReplyInlineDoubt(d.id)}
+                                className="px-5 py-2 rounded-xl text-xs font-bold bg-[#18181B] hover:bg-stone-900 text-white border border-stone-800 hover:border-amber-500/40 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-xs transition-all"
+                              >
+                                <Send className="w-3.5 h-3.5 text-[#FBBF24]" />
+                                <span>{submittingInlineId === d.id ? 'Sending Clarification...' : 'Send Clarification to Student'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Action Bar */
+                          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-[#E8E3DC]/60">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteDoubt(d.id)}
+                              className="px-3 py-2 rounded-xl text-xs font-semibold text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            >
+                              Dismiss
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInlineReplyDoubtId(d.id);
+                                setInlineReplyTexts((prev) => ({
+                                  ...prev,
+                                  [d.id]: prev[d.id] !== undefined ? prev[d.id] : (d.reply || ''),
+                                }));
+                              }}
+                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                                d.status === 'OPEN'
+                                  ? 'bg-[#18181B] hover:bg-stone-900 text-white shadow-xs'
+                                  : 'bg-white text-stone-800 border border-stone-300 hover:bg-stone-100'
+                              }`}
+                            >
+                              <Send className="w-3.5 h-3.5 text-[#FBBF24]" />
+                              <span>{d.status === 'OPEN' ? 'Provide Clarification' : 'Edit Faculty Reply'}</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                 {doubts.length === 0 && (
                   <div className="p-12 text-center bg-white rounded-[22px] border border-[#E8E3DC] space-y-2">

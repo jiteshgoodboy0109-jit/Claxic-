@@ -205,6 +205,23 @@ export const AdminDashboardView = ({
       }
 
       if (ovRes.status === 403 || usrRes.status === 403) {
+        try {
+          const meRes = await fetch('/api/auth/me', { headers });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            if (meData.user?.role === 'STAFF') {
+              if (onNavigate) {
+                onNavigate('staff');
+                return;
+              }
+            } else if (meData.user?.role === 'USER') {
+              if (onNavigate) {
+                onNavigate('student');
+                return;
+              }
+            }
+          }
+        } catch (e) {}
         setError('Access forbidden: Administrator privileges required.');
         return;
       }
@@ -1147,14 +1164,34 @@ export const AdminDashboardView = ({
 
         {/* Error Alert */}
         {error && (
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between font-medium">
+          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex flex-wrap items-center justify-between gap-3 font-medium">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{error}</span>
             </div>
-            <button onClick={fetchAdminData} className="underline hover:text-rose-950 font-bold cursor-pointer">
-              Retry
-            </button>
+            <div className="flex items-center gap-2.5">
+              {error.includes('Administrator privileges') && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate && onNavigate('admin-login')}
+                    className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors cursor-pointer"
+                  >
+                    Admin Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate && onNavigate(user?.role === 'STAFF' ? 'staff' : 'student')}
+                    className="px-3 py-1.5 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-900 font-bold text-xs transition-colors cursor-pointer"
+                  >
+                    Go to {user?.role === 'STAFF' ? 'Faculty Portal' : 'Student Portal'}
+                  </button>
+                </>
+              )}
+              <button onClick={fetchAdminData} className="underline hover:text-rose-950 font-bold cursor-pointer">
+                Retry
+              </button>
+            </div>
           </div>
         )}
 

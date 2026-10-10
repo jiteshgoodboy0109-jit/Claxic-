@@ -1684,10 +1684,10 @@ class SQLiteDatabase {
           v.courseId || '',
           v.classId || v.lessonId || '',
           v.originalName || '',
-          v.filename || '',
-          v.storagePath || '',
+          v.filename || v.storedName || '',
+          v.storagePath || v.filePath || '',
           v.mimeType || 'video/mp4',
-          v.sizeBytes || 0,
+          v.sizeBytes || v.fileSizeBytes || 0,
           v.durationSeconds || v.durationSec || 0,
           v.uploadedBy || 'staff',
           v.uploadedAt || new Date().toISOString()
@@ -1848,7 +1848,12 @@ class SQLiteDatabase {
     // Query lesson videos
     let lessonVideos = [];
     try {
-      lessonVideos = this.sqlite.prepare('SELECT * FROM lesson_videos').all();
+      lessonVideos = this.sqlite.prepare('SELECT * FROM lesson_videos').all().map((v) => ({
+        ...v,
+        filePath: v.storagePath || v.filePath || '',
+        storedName: v.filename || v.storedName || '',
+        fileSizeBytes: v.sizeBytes || v.fileSizeBytes || 0,
+      }));
     } catch (e) {
       lessonVideos = [];
     }

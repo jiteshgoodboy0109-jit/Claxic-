@@ -174,7 +174,13 @@ router.get('/:id/classes', (req, res) => {
       return res.status(404).json({ error: 'Course offering not found.' });
     }
 
-    const publishedClasses = (course.classes || []).filter((cls) => cls.status === 'PUBLISHED');
+    const publishedClasses = (course.classes || [])
+      .filter((cls) => cls.status === 'PUBLISHED')
+      .map((cls) => ({
+        ...cls,
+        videoUrl: cls.videoUrl || cls.videoPath || (cls.hasLocalVideo ? `/api/learning/courses/${course.id}/classes/${cls.id}/video-stream` : ''),
+        videoPath: cls.videoPath || (cls.hasLocalVideo ? `/api/learning/courses/${course.id}/classes/${cls.id}/video-stream` : ''),
+      }));
     return res.json({ success: true, courseId: course.id, classes: publishedClasses });
   } catch (err) {
     console.error('Course classes error:', err);

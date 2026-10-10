@@ -18,6 +18,7 @@ import {
   Volume2,
   Smartphone,
   ShieldCheck,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import {
@@ -180,12 +181,48 @@ export const NotificationBell = ({ onNavigate }) => {
     }
   };
 
-  // Handle card click / open detailed notification modal
+  // Handle card click / open detailed notification modal or navigate
   const handleCardClick = (notif) => {
     if (!notif.isRead) {
       handleMarkAsRead(notif.id);
     }
     setIsOpen(false);
+
+    // If it's a student doubt alert for faculty: touch navigates directly to doubts page & focuses this doubt!
+    const isDoubtAlert =
+      notif.type === 'DOUBT_ALERT' ||
+      notif.tab === 'doubts' ||
+      (notif.link && notif.link.includes('/staff/doubts'));
+
+    if (isDoubtAlert) {
+      if (onNavigate) {
+        onNavigate('staff', 'doubts');
+      } else {
+        window.location.href = '/staff/doubts';
+      }
+      setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent('claxic_open_doubt', {
+            detail: {
+              doubtId: notif.meta?.doubtId,
+              courseId: notif.meta?.courseId,
+            },
+          })
+        );
+      }, 80);
+      return;
+    }
+
+    // If it's a doubt reply for student: touch navigates directly to student class learning!
+    if (notif.type === 'DOUBT_REPLY') {
+      if (onNavigate) {
+        onNavigate('student', 'courses');
+      } else {
+        window.location.href = '/student/learning';
+      }
+      return;
+    }
+
     setSelectedNotification(notif);
   };
 
@@ -354,6 +391,8 @@ export const NotificationBell = ({ onNavigate }) => {
                   notif.type === 'CREATIVE_CLASS' || notif.type === 'class_alert' || notif.type?.includes('CLASS');
                 const isLaunch =
                   notif.type === 'COURSE_LAUNCH_AD' || notif.type === 'course_launch' || notif.type?.includes('LAUNCH');
+                const isDoubt =
+                  notif.type === 'DOUBT_ALERT' || notif.type === 'DOUBT_REPLY' || notif.tab === 'doubts' || notif.type?.includes('DOUBT');
 
                 return (
                   <div
@@ -476,6 +515,46 @@ export const NotificationBell = ({ onNavigate }) => {
                           </span>
                           <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 group-hover:underline">
                             {notif.meta?.actionLabel || 'Open Lesson'}
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      </div>
+                    ) : isDoubt ? (
+                      /* CARD TYPE 3: STUDENT DOUBT ALERT (Faculty Clarifications) */
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+                            <HelpCircle className="w-3 h-3 text-[#D97706]" />
+                            {notif.meta?.badge || (notif.type === 'DOUBT_REPLY' ? 'DOUBT ANSWERED' : 'STUDENT DOUBT')}
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTimeAgo(notif.createdAt)}
+                          </span>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-1.5 text-[11px] text-[#D97706] font-mono font-bold">
+                            <span>{notif.meta?.studentName || (notif.type === 'DOUBT_REPLY' ? notif.meta?.authorName : 'Student')}</span>
+                            <span>•</span>
+                            <span>{notif.meta?.courseTitle || 'Curriculum'}</span>
+                            {notif.meta?.classNumber && <span>(Day {notif.meta.classNumber})</span>}
+                          </div>
+                          <h4 className="text-sm font-bold text-slate-900 group-hover:text-[#D97706] transition-colors mt-0.5">
+                            {notif.title}
+                          </h4>
+                          <p className="text-xs text-slate-700 mt-1 leading-relaxed bg-[#FAFAF7] p-2.5 rounded-xl border border-slate-200/80">
+                            "{notif.meta?.question || notif.message}"
+                          </p>
+                        </div>
+
+                        {/* Action Link */}
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {notif.meta?.classTitle || 'Lesson Doubt'}
+                          </span>
+                          <span className="text-xs font-bold text-[#D97706] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                            <span>{notif.meta?.actionLabel || (notif.type === 'DOUBT_REPLY' ? 'View Explanation' : 'Open & Answer Doubt')}</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                           </span>
                         </div>
@@ -638,15 +717,31 @@ export const NotificationBell = ({ onNavigate }) => {
                   type="button"
                   onClick={() => {
                     const link = selectedNotification.link;
+                    const doubtId = selectedNotification.meta?.doubtId;
+                    const isDoubt =
+                      selectedNotification.type === 'DOUBT_ALERT' ||
+                      selectedNotification.tab === 'doubts' ||
+                      link.includes('/staff/doubts');
+
                     setSelectedNotification(null);
                     if (onNavigate) {
-                      if (link.startsWith('/courses/')) {
+                      if (isDoubt) {
+                        onNavigate('staff', 'doubts');
+                        if (doubtId) {
+                          setTimeout(() => {
+                            window.dispatchEvent(
+                              new CustomEvent('claxic_open_doubt', { detail: { doubtId } })
+                            );
+                          }, 80);
+                        }
+                      } else if (link.startsWith('/courses/')) {
                         const slug = link.replace('/courses/', '');
                         onNavigate('course-detail', { slug });
                       } else if (link.startsWith('/student') || link === '/dashboard') {
                         onNavigate('student');
                       } else if (link.startsWith('/staff')) {
-                        onNavigate('staff');
+                        const seg = link.replace(/^\/staff\/?/, '');
+                        onNavigate('staff', seg || 'overview');
                       } else {
                         window.location.href = link;
                       }
@@ -656,7 +751,9 @@ export const NotificationBell = ({ onNavigate }) => {
                   }}
                   className="px-4 py-2 rounded-xl bg-[#18181B] hover:bg-stone-900 text-white font-bold text-xs border border-stone-800 hover:border-amber-500/40 cursor-pointer flex items-center gap-1.5 transition-all shadow-xs"
                 >
-                  <span>Open Connected Resource</span>
+                  <span>
+                    {selectedNotification.type === 'DOUBT_ALERT' ? 'Open & Reply to Doubt' : 'Open Connected Resource'}
+                  </span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               )}

@@ -10,6 +10,7 @@ import {
   GraduationCap,
   CheckCheck,
   BookOpen,
+  HelpCircle,
 } from 'lucide-react';
 
 export const NotificationPopupManager = ({ onNavigate }) => {
@@ -56,13 +57,23 @@ export const NotificationPopupManager = ({ onNavigate }) => {
 
     if (pop.link) {
       if (onNavigate) {
-        if (pop.link.startsWith('/courses/')) {
+        if (pop.link.startsWith('/staff/doubts') || pop.tab === 'doubts' || pop.type === 'DOUBT_ALERT') {
+          onNavigate('staff', 'doubts');
+          if (pop.meta?.doubtId) {
+            setTimeout(() => {
+              window.dispatchEvent(
+                new CustomEvent('claxic_open_doubt', { detail: { doubtId: pop.meta.doubtId } })
+              );
+            }, 80);
+          }
+        } else if (pop.link.startsWith('/courses/')) {
           const slug = pop.link.replace('/courses/', '');
           onNavigate('course-detail', { slug });
         } else if (pop.link.startsWith('/student') || pop.link === '/dashboard') {
           onNavigate('student');
         } else if (pop.link.startsWith('/staff')) {
-          onNavigate('staff');
+          const seg = pop.link.replace(/^\/staff\/?/, '');
+          onNavigate('staff', seg || 'overview');
         } else {
           window.location.href = pop.link;
         }
@@ -89,9 +100,12 @@ export const NotificationPopupManager = ({ onNavigate }) => {
           pop.type === 'COURSE_LAUNCH_AD' ||
           pop.type === 'course_launch' ||
           pop.type?.includes('LAUNCH');
-        const isDoubt =
-          pop.type === 'DOUBT_REPLY' ||
-          pop.type?.includes('DOUBT');
+        const isDoubtAlert =
+          pop.type === 'DOUBT_ALERT' ||
+          pop.tab === 'doubts' ||
+          pop.link?.includes('/staff/doubts');
+        const isDoubtReply =
+          pop.type === 'DOUBT_REPLY';
 
         let config = {
           badgeBg: 'bg-sky-500/10 text-sky-300 border-sky-500/25',
@@ -129,15 +143,27 @@ export const NotificationPopupManager = ({ onNavigate }) => {
             IconComp: Sparkles,
             actionLabel: 'Explore Announcement',
           };
-        } else if (isDoubt) {
+        } else if (isDoubtAlert) {
           config = {
-            badgeBg: 'bg-violet-500/10 text-violet-300 border-violet-500/25',
+            badgeBg: 'bg-amber-500/15 text-amber-300 border-amber-500/35',
+            badgeText: pop.meta?.badge || 'STUDENT DOUBT ALERT',
+            iconBg: 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.25)]',
+            accentGradient: 'from-amber-500 via-orange-400 to-transparent',
+            progressBarGradient: 'from-amber-400 to-orange-500',
+            ctaPill: 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/35 group-hover:border-amber-500/50',
+            pulseColor: 'bg-amber-400',
+            IconComp: HelpCircle,
+            actionLabel: pop.meta?.actionLabel || 'Answer Question',
+          };
+        } else if (isDoubtReply) {
+          config = {
+            badgeBg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
             badgeText: 'FACULTY CLARIFICATION',
-            iconBg: 'bg-violet-500/15 text-violet-400 border-violet-500/30 shadow-[0_0_15px_rgba(139,92,246,0.15)]',
-            accentGradient: 'from-violet-500 via-purple-400 to-transparent',
-            progressBarGradient: 'from-violet-400 to-purple-500',
-            ctaPill: 'bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 border-violet-500/30 group-hover:border-violet-500/40',
-            pulseColor: 'bg-violet-400',
+            iconBg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/35 shadow-[0_0_15px_rgba(16,185,129,0.2)]',
+            accentGradient: 'from-emerald-500 via-teal-400 to-transparent',
+            progressBarGradient: 'from-emerald-400 to-teal-500',
+            ctaPill: 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-emerald-500/30 group-hover:border-emerald-500/40',
+            pulseColor: 'bg-emerald-400',
             IconComp: GraduationCap,
             actionLabel: 'Read Faculty Answer',
           };

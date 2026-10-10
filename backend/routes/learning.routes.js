@@ -2,9 +2,13 @@ import express from 'express';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { db } from '../db/index.js';
 import { requireAuth } from '../middleware/index.js';
 import { enrichCourseWithRealStaff } from './courses.routes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -179,11 +183,16 @@ router.get('/my-courses', requireAuth, (req, res) => {
           };
         }
 
+        const hasLocalVid = Boolean(cls.hasLocalVideo || cls.videoId || cls.videoStoredName);
+        const resolvedVideoPath = cls.videoPath || (hasLocalVid ? `/api/learning/courses/${course.id}/classes/${cls.id}/video-stream` : '');
+        const resolvedVideoUrl = cls.videoUrl || resolvedVideoPath;
+
         return {
           id: cls.id,
           classNumber: cls.classNumber || idx + 1,
           dayNumber: cls.dayNumber || idx + 1,
           title: cls.title,
+          description: cls.description || '',
           scheduledDate,
           formattedDate: formatFriendlyDate(scheduledDate),
           isToday,
@@ -194,7 +203,18 @@ router.get('/my-courses', requireAuth, (req, res) => {
           lockMessage,
           status: classStatus,
           duration: cls.duration || '1 hr 30 mins',
-          videoUrl: isLocked ? null : (cls.videoUrl || ''),
+          deliveryType: cls.deliveryType || (hasLocalVid ? 'UPLOAD' : 'RECORDED'),
+          videoUrl: isLocked ? null : resolvedVideoUrl,
+          videoPath: isLocked ? null : resolvedVideoPath,
+          hasLocalVideo: isLocked ? false : hasLocalVid,
+          videoId: isLocked ? null : cls.videoId,
+          videoOriginalName: isLocked ? null : cls.videoOriginalName,
+          videoStoredName: isLocked ? null : cls.videoStoredName,
+          videoSizeBytes: isLocked ? 0 : (cls.videoSizeBytes || 0),
+          videoMimeType: isLocked ? null : cls.videoMimeType,
+          liveMeetingUrl: isLocked ? null : (cls.liveMeetingUrl || ''),
+          liveMeetingTime: cls.liveMeetingTime || '',
+          liveMeetingInstructions: cls.liveMeetingInstructions || '',
           topics: cls.topics || [],
           summary: cls.summary || '',
           learningMaterials: isLocked ? [] : (cls.learningMaterials || []),
@@ -219,6 +239,7 @@ router.get('/my-courses', requireAuth, (req, res) => {
         id: course.id,
         courseId: course.id,
         courseTitle: course.title,
+        title: course.title,
         bannerImage: course.bannerImage || '',
         category: course.category,
         duration: course.duration,
@@ -732,7 +753,56 @@ router.post('/doubts', requireAuth, async (req, res) => {
 // Video Streaming & Controlled Playback
 // ===================================================================
 
-// Stream Class Lesson Video with HTTP Range (206) Support
+// Helper function to resolve video file on disk across root/backend uploads
+function resolveVideoDiskPath(cls, videoRecord) {
+  const candidateNames = [
+    cls?.videoStoredName,
+    videoRecord?.storedName,
+    videoRecord?.filename,
+    cls?.videoOriginalName,
+    videoRecord?.originalName,
+  ].filter(Boolean);
+
+  const directPaths = [
+    videoRecord?.filePath,
+    videoRecord?.storagePath,
+  ].filter(Boolean);
+
+  for (const p of directPaths) {
+    if (fs.existsSync(p)) return p;
+  }
+
+  const baseDirs = [
+    path.join(process.cwd(), 'uploads', 'videos'),
+    path.join(process.cwd(), 'backend', 'uploads', 'videos'),
+    path.resolve(__dirname, '..', 'uploads', 'videos'),
+    path.resolve(__dirname, '..', '..', 'backend', 'uploads', 'videos'),
+    path.resolve(process.cwd(), '..', 'backend', 'uploads', 'videos'),
+  ];
+
+  for (const dir of baseDirs) {
+    if (!fs.existsSync(dir)) continue;
+    for (const name of candidateNames) {
+      const fullPath = path.join(dir, name);
+      if (fs.existsSync(fullPath)) return fullPath;
+    }
+  }
+
+  for (const dir of baseDirs) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      const files = fs.readdirSync(dir);
+      for (const f of files) {
+        if (cls?.videoId && f.includes(cls.videoId)) return path.join(dir, f);
+        if (videoRecord?.id && f.includes(videoRecord.id)) return path.join(dir, f);
+      }
+    } catch (e) {}
+  }
+
+  return null;
+}
+
+// Stream Class Lesson Video with High Performance HTTP Range (206) Support (Zero Lag, Fast Seek)
 router.get('/courses/:courseId/classes/:classId/video-stream', requireAuth, async (req, res) => {
   try {
     const { courseId, classId } = req.params;
@@ -748,10 +818,14 @@ router.get('/courses/:courseId/classes/:classId/video-stream', requireAuth, asyn
       return res.status(404).json({ error: 'Class not found.' });
     }
 
-    // Role check: USER role must be enrolled in course
+    // Role check: USER role must be enrolled in course (allow ADMIN and STAFF automatically)
     if (user.role === 'USER') {
       const isEnrolled = (db.raw.applications || []).some(
-        (a) => a.userId === user.id && a.courseId === course.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED')
+        (a) => (a.userId === user.id || a.userEmail === user.email || a.formData?.email === user.email) &&
+          (a.courseId === course.id || a.courseId === course.slug) &&
+          (a.status === 'CONFIRMED' || a.status === 'APPROVED' || a.status === 'ENROLLED' || a.status === 'PAID' || a.status === 'ACCEPTED')
+      ) || (db.raw.enrollments || []).some(
+        (e) => (e.userId === user.id) && (e.courseId === course.id || e.courseId === course.slug)
       );
       if (!isEnrolled) {
         return res.status(403).json({ error: 'Access denied. You are not enrolled in this course.' });
@@ -763,41 +837,64 @@ router.get('/courses/:courseId/classes/:classId/video-stream', requireAuth, asyn
       (v) => (cls.videoId && v.id === cls.videoId) || (v.courseId === course.id && v.classId === cls.id)
     );
 
-    if (!videoRecord || !videoRecord.filePath || !fs.existsSync(videoRecord.filePath)) {
+    const filePath = resolveVideoDiskPath(cls, videoRecord);
+
+    if (!filePath || !fs.existsSync(filePath)) {
+      if (cls.videoUrl && (cls.videoUrl.startsWith('http://') || cls.videoUrl.startsWith('https://'))) {
+        return res.redirect(cls.videoUrl);
+      }
       return res.status(404).json({ error: 'Video file not found or has been removed.' });
     }
 
-    const filePath = videoRecord.filePath;
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;
     const range = req.headers.range;
-    const mimeType = videoRecord.mimeType || 'video/mp4';
 
-    // Anti-download headers & inline playback
+    let mimeType = videoRecord?.mimeType || cls.videoMimeType;
+    if (!mimeType || mimeType === 'application/octet-stream') {
+      const ext = path.extname(filePath).toLowerCase();
+      if (ext === '.mp4') mimeType = 'video/mp4';
+      else if (ext === '.webm') mimeType = 'video/webm';
+      else if (ext === '.mov') mimeType = 'video/quicktime';
+      else if (ext === '.mkv') mimeType = 'video/x-matroska';
+      else if (ext === '.ogg' || ext === '.ogv') mimeType = 'video/ogg';
+      else mimeType = 'video/mp4';
+    }
+
+    // High performance video headers for lag-free streaming & seek support
     res.setHeader('Content-Disposition', 'inline');
-    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Accept-Ranges', 'bytes');
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
-      if (start >= fileSize || end >= fileSize) {
+      // Serve in 2MB chunks for instant startup, smooth buffering, and zero lag
+      const CHUNK_SIZE = 2 * 1024 * 1024;
+      let end = parts[1] ? parseInt(parts[1], 10) : Math.min(start + CHUNK_SIZE - 1, fileSize - 1);
+
+      if (start >= fileSize) {
         res.setHeader('Content-Range', `bytes */${fileSize}`);
         return res.status(416).send('Requested range not satisfiable');
       }
 
+      if (end >= fileSize) {
+        end = fileSize - 1;
+      }
+
       const chunksize = end - start + 1;
-      const fileStream = fs.createReadStream(filePath, { start, end });
+      const fileStream = fs.createReadStream(filePath, { start, end, highWaterMark: 64 * 1024 });
 
       res.writeHead(206, {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
         'Content-Length': chunksize,
         'Content-Type': mimeType,
+      });
+
+      req.on('close', () => {
+        fileStream.destroy();
       });
 
       fileStream.pipe(res);
@@ -805,9 +902,8 @@ router.get('/courses/:courseId/classes/:classId/video-stream', requireAuth, asyn
       res.writeHead(200, {
         'Content-Length': fileSize,
         'Content-Type': mimeType,
-        'Accept-Ranges': 'bytes',
       });
-      fs.createReadStream(filePath).pipe(res);
+      fs.createReadStream(filePath, { highWaterMark: 64 * 1024 }).pipe(res);
     }
   } catch (err) {
     console.error('Video streaming error:', err);

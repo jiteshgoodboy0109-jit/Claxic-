@@ -1193,8 +1193,11 @@ router.post('/courses/:courseId/classes/:classId/video', uploadVideo.single('vid
       courseId: course.id,
       classId: cls.id,
       originalName: req.file.originalname,
+      filename: req.file.filename,
       storedName: req.file.filename,
+      storagePath: req.file.path,
       filePath: req.file.path,
+      sizeBytes: req.file.size,
       fileSizeBytes: req.file.size,
       mimeType: req.file.mimetype,
       durationSeconds: req.body.durationSeconds ? parseInt(req.body.durationSeconds, 10) : 0,
@@ -1220,8 +1223,8 @@ router.post('/courses/:courseId/classes/:classId/video', uploadVideo.single('vid
           targetClass.videoMimeType = videoRecord.mimeType;
           targetClass.videoPath = `/api/learning/courses/${course.id}/classes/${cls.id}/video-stream`;
           targetClass.hasLocalVideo = true;
-          // Clear external video URL as per requirements
-          targetClass.videoUrl = '';
+          targetClass.deliveryType = 'UPLOAD';
+          targetClass.videoUrl = targetClass.videoPath;
           targetClass.videoUploadedAt = now;
           targetClass.updatedAt = now;
           updatedClass = targetClass;
@@ -1660,14 +1663,22 @@ router.get('/doubts', (req, res) => {
         ...matchedCourses.map((c) => c.id),
         ...matchedCourses.map((c) => c.slug),
       ]);
-      doubts = doubts.filter((d) => expandedCourseIds.has(d.courseId));
+      if (expandedCourseIds.size > 0) {
+        doubts = doubts.filter((d) => {
+          if (expandedCourseIds.has(d.courseId)) return true;
+          const course = (db.raw.courses || []).find((c) => c.id === d.courseId || c.slug === d.courseId);
+          return course && (expandedCourseIds.has(course.id) || expandedCourseIds.has(course.slug));
+        });
+      }
     }
 
     if (status && status !== 'ALL') {
       doubts = doubts.filter((d) => d.status === status);
     }
-    if (courseId) {
-      doubts = doubts.filter((d) => d.courseId === courseId);
+    if (courseId && courseId !== 'ALL') {
+      const matchedCourse = (db.raw.courses || []).find((c) => c.id === courseId || c.slug === courseId);
+      const validFilterIds = new Set([courseId, matchedCourse?.id, matchedCourse?.slug].filter(Boolean));
+      doubts = doubts.filter((d) => validFilterIds.has(d.courseId));
     }
 
     doubts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1697,9 +1708,14 @@ router.post('/doubts/:id/reply', async (req, res) => {
     }
 
     if (!isStaffAllotted(staffUser.id, existingDoubt.courseId, staffUser.role)) {
-      return res.status(403).json({
-        error: 'Access denied: You are not allotted to manage this course.',
-      });
+      const hasSpecificAllotments = (db.raw.staffCourseAllotments || []).some(
+        (a) => a.staffId === staffUser.id && a.status === 'ACTIVE'
+      );
+      if (hasSpecificAllotments) {
+        return res.status(403).json({
+          error: 'Access denied: You are not allotted to manage this course.',
+        });
+      }
     }
 
     let updatedDoubt = null;

@@ -48,11 +48,29 @@
       "degree": "BCA , MCA , phd",
       "yearOfStudy": "2023",
       "isActive": true,
-      "passwordHash": "a8472c0bd3c4b35747dceec0e3dfb5617562f89c84acb28677a12507b4878b081ef7243f7a1d6462a2cf7ef895a140845022c3d2022adaf83fad1986638fc881",
-      "salt": "1956dc9469d9047603e919f36880c0cd",
+      "passwordHash": "634878a2e488610ab0285fbdbce265722cb8d0a4c795f3af9796a06efc6535d26c2c65844516c629ef7b09889c592f769cef3f966b756370ae8f33a1a694bdbf",
+      "salt": "b99d0c041bb266012c9dfb3587e9005d",
       "createdAt": "2026-09-03T20:08:47.702Z",
-      "updatedAt": "2026-10-10T15:52:40.955Z",
-      "currentPassword": "jet@123"
+      "updatedAt": "2026-10-10T16:36:04.352Z",
+      "currentPassword": "Staff@2026"
+    },
+    {
+      "id": "usr_admin_system",
+      "name": "Claxic System Admin",
+      "email": "admin@claxic.edu",
+      "mobile": "+91 82209 45226",
+      "role": "ADMIN",
+      "isVerified": true,
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      "institution": "Claxic Academic Directorate",
+      "degree": "System Administration",
+      "yearOfStudy": "Faculty Lead",
+      "isActive": true,
+      "passwordHash": "a7a08807775ad909fc38d3ed361ec0b45cde4af0d16d0bd6ea393f69ec3b4dd30d8379296e0c974558059326ac7695e2c4a157b0ef8ac356f7ac35d9e3bd7a40",
+      "salt": "claxic_salt_admin_2026",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-08-30T10:00:00.000Z",
+      "currentPassword": "Admin@123456"
     }
   ],
   "courses": [
@@ -66,7 +84,7 @@
       "category": "AI & Full Stack",
       "level": "Intermediate",
       "mode": "Live Interactive",
-      "duration": "10 Weeks",
+      "duration": "1 week",
       "startDate": "2026-10-01",
       "endDate": "2026-12-15",
       "registrationDeadline": "2026-09-25",
@@ -114,8 +132,41 @@
         }
       ],
       "createdAt": "2026-10-09T14:43:39.398Z",
-      "updatedAt": "2026-10-09T14:43:39.398Z",
-      "classes": []
+      "updatedAt": "2026-10-10T16:52:41.534Z",
+      "classes": [
+        {
+          "id": "cls_crs_e4f24ee662e73f92_1791650229110",
+          "classNumber": 1,
+          "dayNumber": 1,
+          "title": "Day 1:",
+          "description": "",
+          "videoUrl": "",
+          "duration": "30 sec",
+          "resourcesUrl": "",
+          "topics": [
+            "Intorduction"
+          ],
+          "summary": "",
+          "learningMaterials": [],
+          "test": null,
+          "status": "PUBLISHED",
+          "deliveryType": "UPLOAD",
+          "liveMeetingUrl": "",
+          "liveMeetingTime": "",
+          "liveMeetingInstructions": "",
+          "uploadedAt": "2026-10-10T16:37:09.108Z",
+          "uploadedBy": "Mrs.Dr. Marie",
+          "videoId": "vid_644263665df87f85",
+          "videoOriginalName": "gemini_generated_video_b223b617.mp4",
+          "videoStoredName": "vid_1791650231086_b168417f.mp4",
+          "videoSizeBytes": 8930533,
+          "videoMimeType": "video/mp4",
+          "videoPath": "/api/learning/courses/crs_e4f24ee662e73f92/classes/cls_crs_e4f24ee662e73f92_1791650229110/video-stream",
+          "hasLocalVideo": true,
+          "videoUploadedAt": "2026-10-10T16:37:12.253Z",
+          "updatedAt": "2026-10-10T16:37:12.253Z"
+        }
+      ]
     }
   ],
   "applications": [
@@ -465,9 +516,17 @@
       "userId": "usr_admin_jitesh",
       "expiresAt": "2026-10-17T06:40:31.961Z"
     },
-    "stk_1bfa363bb947b74c81af655bf42f22b5e27f816ef6b8f5b18ec294fd5b3b0a94": {
+    "stk_198c9554d68f3bbf51f12453e56215a65f363e8fc93750b286bf1dbd8aeb8c8f": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-10-17T16:35:38.546Z"
+    },
+    "stk_018a6f626facddd8a8eb7e970a0827de546c128a4b42c41d1522ee36916bacf5": {
       "userId": "usr_f36cfcf1d5c8cae9",
-      "expiresAt": "2026-10-17T15:53:13.721Z"
+      "expiresAt": "2026-10-17T16:52:25.830Z"
+    },
+    "stk_1036dffe37df9831fe6157c40d8998f4f20e158f6450feef4807f688e2a4058b": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-10-17T19:16:50.284Z"
     }
   },
   "verificationTokens": [
@@ -497,13 +556,105 @@
   ],
   "notifications": [
     {
+      "id": "notif_qvfi8wb",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "Faculty Answered Your Question: Day 1:",
+      "message": "Mrs.Dr. Marie responded: \"what is your dout pa ?...\"",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-10T19:15:32.171Z",
+      "meta": null
+    },
+    {
+      "id": "notif_00ulo6n",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "Faculty Answered Your Question: Day 1:",
+      "message": "Mrs.Dr. Marie responded: \"what is your dout pa ?...\"",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": true,
+      "createdAt": "2026-10-10T17:37:13.253Z",
+      "meta": null
+    },
+    {
+      "id": "notif_dbt_1791650288467_s0wuyq",
+      "userId": "usr_f36cfcf1d5c8cae9",
+      "title": "❓ Student Doubt: Day 1 - Day 1:",
+      "message": "Jitesh asked: \"i have an dout\" in \"Ai Essential\". Click to answer in Staff Portal.",
+      "type": "DOUBT_ALERT",
+      "link": "/staff/doubts",
+      "isRead": true,
+      "createdAt": "2026-10-10T16:38:08.465Z",
+      "meta": {
+        "doubtId": "dbt_4e03bc493d2c",
+        "studentName": "Jitesh",
+        "studentEmail": "jitesh.genkit@gmail.com",
+        "courseTitle": "Ai Essential",
+        "courseId": "crs_e4f24ee662e73f92",
+        "classTitle": "Day 1:",
+        "question": "i have an dout",
+        "badge": "STUDENT DOUBT",
+        "actionLabel": "Answer Doubt"
+      }
+    },
+    {
+      "id": "notif_vid_1791650232259_vpckq0",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "🎬 Video Ready: Day 1 - Day 1:",
+      "message": "High-definition video for \"Day 1:\" in \"Ai Essential\" has been uploaded and is ready for streaming. Watch it in your Student Portal!",
+      "type": "CREATIVE_CLASS",
+      "link": "/student",
+      "isRead": true,
+      "createdAt": "2026-10-10T16:37:12.253Z",
+      "meta": {
+        "courseId": "crs_e4f24ee662e73f92",
+        "courseTitle": "Ai Essential",
+        "dayNumber": 1,
+        "classTitle": "Day 1:",
+        "instructorName": "Mrs.Dr. Marie",
+        "authorName": "Mrs.Dr. Marie",
+        "badge": "VIDEO READY",
+        "actionLabel": "Watch Class Video"
+      }
+    },
+    {
+      "id": "notif_class_1791650229111_9rzfmz",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "🎬 New Class Uploaded: Day 1 - Day 1:",
+      "message": "Day 1 class \"Day 1:\" has been uploaded for \"Ai Essential\". Duration: 30 sec. Topics: Intorduction.",
+      "type": "CREATIVE_CLASS",
+      "link": "/student",
+      "isRead": true,
+      "createdAt": "2026-10-10T16:37:09.108Z",
+      "meta": {
+        "courseId": "crs_e4f24ee662e73f92",
+        "courseTitle": "Ai Essential",
+        "dayNumber": 1,
+        "classTitle": "Day 1:",
+        "duration": "30 sec",
+        "topics": [
+          "Intorduction"
+        ],
+        "deliveryType": "UPLOAD",
+        "liveMeetingUrl": "",
+        "liveMeetingTime": "",
+        "liveMeetingInstructions": "",
+        "instructorName": "Mrs.Dr. Marie",
+        "authorName": "Mrs.Dr. Marie",
+        "badge": "CLASS LESSON",
+        "actionLabel": "Watch Class",
+        "hasNotes": false
+      }
+    },
+    {
       "id": "notif_5qbh7o7",
       "userId": "usr_admin_jitesh_genkit",
       "title": "Application Approved: Ai Essential",
       "message": "Congratulations! Your application #APP-2026-1241 for \"Ai Essential\" has been approved by the Administrator. Access your coursework in the Student Portal!",
       "type": "success",
       "link": "/dashboard",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2026-10-10T06:55:34.670Z",
       "meta": null
     },
@@ -525,7 +676,7 @@
       "message": "Your application #APP-2026-1241 for \"Ai Essential\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
       "type": "info",
       "link": "/student/applications",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2026-10-09T15:50:14.419Z",
       "meta": null
     },
@@ -632,6 +783,46 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit_gad4xmn",
+      "adminId": "usr_f36cfcf1d5c8cae9",
+      "adminName": "Mrs.Dr. Marie",
+      "action": "DOUBT_RESOLVED",
+      "targetType": "DOUBT",
+      "targetId": "dbt_4e03bc493d2c",
+      "targetTitle": "Resolved doubt for Jitesh (Day 1:)",
+      "createdAt": "2026-10-10T19:15:32.171Z"
+    },
+    {
+      "id": "audit_sbj804y",
+      "adminId": "usr_f36cfcf1d5c8cae9",
+      "adminName": "Mrs.Dr. Marie",
+      "action": "DOUBT_RESOLVED",
+      "targetType": "DOUBT",
+      "targetId": "dbt_4e03bc493d2c",
+      "targetTitle": "Resolved doubt for Jitesh (Day 1:)",
+      "createdAt": "2026-10-10T17:37:13.253Z"
+    },
+    {
+      "id": "audit_z1brqd3",
+      "adminId": "usr_admin_jitesh_genkit",
+      "adminName": "Jitesh",
+      "action": "DOUBT_ASKED",
+      "targetType": "DOUBT",
+      "targetId": "dbt_4e03bc493d2c",
+      "targetTitle": "Day 1: - i have an dout",
+      "createdAt": "2026-10-10T16:38:08.465Z"
+    },
+    {
+      "id": "audit_huood6a",
+      "adminId": "usr_admin_jitesh",
+      "adminName": "Jitesh (Admin)",
+      "action": "STAFF_CREDENTIALS_AND_PROFILE_UPDATED",
+      "targetType": "STAFF",
+      "targetId": "usr_f36cfcf1d5c8cae9",
+      "targetTitle": "Updated Mrs.Dr. Marie (marie.claxic@gmail.com) (Password changed)",
+      "createdAt": "2026-10-10T16:36:04.352Z"
+    },
     {
       "id": "audit_7yhdbfl",
       "adminId": "usr_admin_jitesh",
@@ -7925,6 +8116,20 @@
   ],
   "emailRecords": [
     {
+      "id": "eml_6ea9xau",
+      "toEmail": "jitesh.genkit@gmail.com",
+      "subject": "🎬 New Video Lecture Available: Day 1 - Day 1: (Ai Essential)",
+      "previewText": "\n        \n          \n            \n              🎬 Video Lecture Ready\n            \n            \n              Day 1: Da",
+      "timestamp": "2026-10-10T16:37:14.348Z"
+    },
+    {
+      "id": "eml_95skyqb",
+      "toEmail": "jitesh.genkit@gmail.com",
+      "subject": "🎬 New Class Uploaded: Day 1 - Day 1: (Ai Essential)",
+      "previewText": "\n        \n          \n            \n              🔔 New Curriculum Session\n            \n            \n              Day 1:",
+      "timestamp": "2026-10-10T16:37:09.940Z"
+    },
+    {
       "id": "eml_fmp1tsf",
       "toEmail": "student.audit.1791627069529@gmail.com",
       "subject": "Application Received — Ai Essential",
@@ -8357,13 +8562,37 @@
           "classId": "cls_crs_e4f24ee662e73f92_3",
           "date": "2026-10-10",
           "attended": false
+        },
+        {
+          "classId": "cls_crs_e4f24ee662e73f92_1791650229110",
+          "date": "2026-10-10",
+          "attended": true
         }
       ],
       "progressPercent": 0,
-      "updatedAt": "2026-10-10T15:53:42.439Z"
+      "updatedAt": "2026-10-10T17:14:28.011Z"
     }
   ],
-  "doubts": [],
+  "doubts": [
+    {
+      "id": "dbt_4e03bc493d2c",
+      "studentId": "usr_admin_jitesh_genkit",
+      "studentName": "Jitesh",
+      "studentEmail": "jitesh.genkit@gmail.com",
+      "courseId": "crs_e4f24ee662e73f92",
+      "courseTitle": "Ai Essential",
+      "classId": "cls_crs_e4f24ee662e73f92_1791650229110",
+      "classNumber": 1,
+      "classTitle": "Day 1:",
+      "question": "i have an dout",
+      "reply": "what is your dout pa ?",
+      "repliedBy": "Mrs.Dr. Marie (Lead Faculty)",
+      "repliedAt": "2026-10-10T19:15:32.171Z",
+      "status": "RESOLVED",
+      "createdAt": "2026-10-10T16:38:08.465Z",
+      "updatedAt": "2026-10-10T19:15:32.171Z"
+    }
+  ],
   "staffCourseAllotments": [
     {
       "id": "allot_d2afc5c1079a",
@@ -8375,6 +8604,23 @@
       "status": "ACTIVE"
     }
   ],
-  "lessonVideos": [],
+  "lessonVideos": [
+    {
+      "id": "vid_644263665df87f85",
+      "courseId": "crs_e4f24ee662e73f92",
+      "classId": "cls_crs_e4f24ee662e73f92_1791650229110",
+      "originalName": "gemini_generated_video_b223b617.mp4",
+      "filename": "vid_1791650231086_b168417f.mp4",
+      "storagePath": "D:\\claxic\\backend\\uploads\\videos\\vid_1791650231086_b168417f.mp4",
+      "mimeType": "video/mp4",
+      "sizeBytes": 8930533,
+      "durationSeconds": 0,
+      "uploadedBy": "usr_f36cfcf1d5c8cae9",
+      "uploadedAt": "2026-10-10T16:37:12.793Z",
+      "filePath": "D:\\claxic\\backend\\uploads\\videos\\vid_1791650231086_b168417f.mp4",
+      "storedName": "vid_1791650231086_b168417f.mp4",
+      "fileSizeBytes": 8930533
+    }
+  ],
   "lessonPlaybackProgress": []
 }
