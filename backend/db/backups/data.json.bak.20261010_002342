@@ -48,14 +48,290 @@
       "degree": "BCA , MCA , phd",
       "yearOfStudy": "2023",
       "isActive": true,
-      "passwordHash": "a8472c0bd3c4b35747dceec0e3dfb5617562f89c84acb28677a12507b4878b081ef7243f7a1d6462a2cf7ef895a140845022c3d2022adaf83fad1986638fc881",
-      "salt": "1956dc9469d9047603e919f36880c0cd",
+      "passwordHash": "7c224602465430e68bfc44283ca3da9850f45b851b1e2ad1ce4ce2404a9a13541e76a251113ae855900f8b8c06ab87ed632a4fe5ab9f94d01a11152c687e6083",
+      "salt": "14b8a1ed8b60938c4d9aa48470b0797c",
       "createdAt": "2026-09-03T20:08:47.702Z",
-      "updatedAt": "2026-10-10T15:52:40.955Z",
-      "currentPassword": "jet@123"
+      "updatedAt": "2026-10-09T14:38:35.822Z",
+      "currentPassword": "Staff@2026"
+    },
+    {
+      "id": "usr_admin_system",
+      "name": "Claxic System Admin",
+      "email": "admin@claxic.edu",
+      "mobile": "+91 82209 45226",
+      "role": "ADMIN",
+      "isVerified": true,
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      "institution": "Claxic Academic Directorate",
+      "degree": "System Administration",
+      "yearOfStudy": "Faculty Lead",
+      "isActive": true,
+      "passwordHash": "a7a08807775ad909fc38d3ed361ec0b45cde4af0d16d0bd6ea393f69ec3b4dd30d8379296e0c974558059326ac7695e2c4a157b0ef8ac356f7ac35d9e3bd7a40",
+      "salt": "claxic_salt_admin_2026",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-08-30T10:00:00.000Z",
+      "currentPassword": "Admin@123456"
+    },
+    {
+      "id": "usr_987bfa2c298a0ce4",
+      "name": "Audit Student",
+      "email": "student.audit.1791562895514@gmail.com",
+      "mobile": "9876543210",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "",
+      "degree": "",
+      "yearOfStudy": "",
+      "isActive": true,
+      "passwordHash": "5371871838df0a4d07a754aa704236fbb19f81252d1d0a6873340b57cf82cc8f694968f12c0fb5d3b70cbf07c5a0770d88ab5835331116197369315fec33cd1b",
+      "salt": "fc91f088ffa65f403ce4c26d849b4dd6",
+      "createdAt": "2026-10-09T16:21:35.548Z",
+      "updatedAt": "2026-10-09T16:21:35.548Z",
+      "currentPassword": ""
+    },
+    {
+      "id": "usr_92939b1f374825ad",
+      "name": "Audit Student",
+      "email": "student.audit.1791570325643@gmail.com",
+      "mobile": "9876543210",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Audit%20Student",
+      "institution": "",
+      "degree": "",
+      "yearOfStudy": "",
+      "isActive": true,
+      "passwordHash": "1e803390daf84474c05ac1a1c6addc64ee6bab6b7cb8536d7806e5bc606bc0b0f25aac13cd7c51fea1d49bf666702873ae515ee4e37f4c990ae4bfd96cb81a9a",
+      "salt": "d9fb5ed933c7448e7a6dc0b40c45c553",
+      "createdAt": "2026-10-09T18:25:25.658Z",
+      "updatedAt": "2026-10-09T18:25:25.658Z",
+      "currentPassword": ""
+    },
+    {
+      "id": "usr_ebb78ed57552d55b",
+      "name": "John Doe Candidate",
+      "email": "student.e2e.1791570549715@gmail.com",
+      "mobile": "+91 9876543210",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=John%20Doe%20Candidate",
+      "institution": "",
+      "degree": "",
+      "yearOfStudy": "",
+      "isActive": true,
+      "passwordHash": "38c6e32bb0a2dc1419d5ed45aff125380f9f25f5915dc7e109462d4e9d751f2fe5f42a869bcb27be908406c2612a273c87d85834890ebd9ff7dcd3ec2259b0c0",
+      "salt": "dd51091f7cd57f7e8beccf88bf3ced8b",
+      "createdAt": "2026-10-09T18:29:10.384Z",
+      "updatedAt": "2026-10-09T18:29:10.384Z",
+      "currentPassword": ""
+    },
+    {
+      "id": "usr_65f55950ceb0d772",
+      "name": "John Doe Candidate",
+      "email": "student.e2e.1791570613515@gmail.com",
+      "mobile": "+91 9876543210",
+      "role": "USER",
+      "isVerified": false,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=John%20Doe%20Candidate",
+      "institution": "",
+      "degree": "",
+      "yearOfStudy": "",
+      "isActive": true,
+      "passwordHash": "126d348b7299d630f30a26c779052d28474ab2fc5db3618befd85a84ee0131ffa9845e9191a49cb20251bd1eff18a50d57440231a67fac34fd9beadb2167944d",
+      "salt": "5fd3de76e1c6f3ecc49654ac140ec7bc",
+      "createdAt": "2026-10-09T18:30:14.310Z",
+      "updatedAt": "2026-10-09T18:30:14.310Z",
+      "currentPassword": ""
+    },
+    {
+      "id": "usr_8fa1a0b48af1406d",
+      "name": "Professor Alan Turing",
+      "email": "faculty.promote.1791570616400@gmail.com",
+      "mobile": "",
+      "role": "STAFF",
+      "isVerified": true,
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Professor%20Alan%20Turing",
+      "institution": "Department of Advanced Computing",
+      "degree": "Chair Professor",
+      "yearOfStudy": "Faculty Member",
+      "isActive": true,
+      "passwordHash": "1da059e3ddcae711d9bc993c7d7a2530ce342770edd29ba869f0983102e7221470c627f94324928e9e9e0ea2fce961109c7afb6ca5d29f341f1be4e8208630b2",
+      "salt": "1ce9719961ecb43ee689903802b193b9",
+      "createdAt": "2026-10-09T18:30:16.408Z",
+      "updatedAt": "2026-10-09T18:30:16.965Z",
+      "currentPassword": "StaffPermanent@123"
     }
   ],
   "courses": [
+    {
+      "id": "crs_ebba73e49c3775ff",
+      "slug": "e2e-automated-course-2-1791570614080",
+      "title": "E2E Automated Course 2 - 1791570614080",
+      "shortDescription": "",
+      "fullDescription": "",
+      "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+      "category": "Engineering & Computing",
+      "level": "Intermediate",
+      "mode": "Live Interactive",
+      "duration": "8 Weeks",
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-15",
+      "registrationDeadline": "2026-09-25",
+      "price": 0,
+      "originalPrice": 0,
+      "capacity": 50,
+      "enrolledCount": 0,
+      "status": "PUBLISHED",
+      "featured": false,
+      "rating": 5,
+      "reviewsCount": 0,
+      "tags": [
+        "Engineering",
+        "Claxic"
+      ],
+      "instructor": {
+        "id": "usr_8fa1a0b48af1406d",
+        "name": "Professor Alan Turing",
+        "email": "faculty.promote.1791570616400@gmail.com",
+        "title": "Chair Professor",
+        "company": "Department of Advanced Computing",
+        "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Professor%20Alan%20Turing",
+        "bio": "Professor Alan Turing is a designated faculty mentor and instructor at Claxic."
+      },
+      "modules": [],
+      "learningOutcomes": [],
+      "requirements": [],
+      "faq": [],
+      "createdAt": "2026-10-09T18:30:14.100Z",
+      "updatedAt": "2026-10-09T18:30:14.100Z",
+      "classes": []
+    },
+    {
+      "id": "crs_ec6dfb3499405d94",
+      "slug": "e2e-automated-course-1-1791570613849",
+      "title": "E2E Automated Course 1 - 1791570613849",
+      "shortDescription": "",
+      "fullDescription": "",
+      "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+      "category": "Engineering & Computing",
+      "level": "Intermediate",
+      "mode": "Live Interactive",
+      "duration": "8 Weeks",
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-15",
+      "registrationDeadline": "2026-09-25",
+      "price": 0,
+      "originalPrice": 0,
+      "capacity": 50,
+      "enrolledCount": 1,
+      "status": "PUBLISHED",
+      "featured": false,
+      "rating": 5,
+      "reviewsCount": 0,
+      "tags": [
+        "Engineering",
+        "Claxic"
+      ],
+      "instructor": {
+        "id": "usr_8fa1a0b48af1406d",
+        "name": "Professor Alan Turing",
+        "email": "faculty.promote.1791570616400@gmail.com",
+        "title": "Chair Professor",
+        "company": "Department of Advanced Computing",
+        "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Professor%20Alan%20Turing",
+        "bio": "Professor Alan Turing is a designated faculty mentor and instructor at Claxic."
+      },
+      "modules": [],
+      "learningOutcomes": [],
+      "requirements": [],
+      "faq": [],
+      "createdAt": "2026-10-09T18:30:13.878Z",
+      "updatedAt": "2026-10-09T18:30:13.878Z",
+      "classes": []
+    },
+    {
+      "id": "crs_b5e7efb39e497c1b",
+      "slug": "e2e-automated-course-2-1791570550176",
+      "title": "E2E Automated Course 2 - 1791570550176",
+      "shortDescription": "",
+      "fullDescription": "",
+      "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+      "category": "Engineering & Computing",
+      "level": "Intermediate",
+      "mode": "Live Interactive",
+      "duration": "8 Weeks",
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-15",
+      "registrationDeadline": "2026-09-25",
+      "price": 0,
+      "originalPrice": 0,
+      "capacity": 50,
+      "enrolledCount": 0,
+      "status": "PUBLISHED",
+      "featured": false,
+      "rating": 5,
+      "reviewsCount": 0,
+      "tags": [
+        "Engineering",
+        "Claxic"
+      ],
+      "instructor": {
+        "name": "Claxic Academic Faculty",
+        "title": "Faculty Lead",
+        "company": "Claxic Directorate",
+        "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Claxic",
+        "bio": "Accredited curriculum managed by the Claxic Academic Directorate."
+      },
+      "modules": [],
+      "learningOutcomes": [],
+      "requirements": [],
+      "faq": [],
+      "createdAt": "2026-10-09T18:29:10.185Z",
+      "updatedAt": "2026-10-09T18:29:10.185Z",
+      "classes": []
+    },
+    {
+      "id": "crs_7f2baa99354410c1",
+      "slug": "e2e-automated-course-1-1791570549996",
+      "title": "E2E Automated Course 1 - 1791570549996",
+      "shortDescription": "",
+      "fullDescription": "",
+      "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+      "category": "Engineering & Computing",
+      "level": "Intermediate",
+      "mode": "Live Interactive",
+      "duration": "8 Weeks",
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-15",
+      "registrationDeadline": "2026-09-25",
+      "price": 0,
+      "originalPrice": 0,
+      "capacity": 50,
+      "enrolledCount": 1,
+      "status": "PUBLISHED",
+      "featured": false,
+      "rating": 5,
+      "reviewsCount": 0,
+      "tags": [
+        "Engineering",
+        "Claxic"
+      ],
+      "instructor": {
+        "name": "Claxic Academic Faculty",
+        "title": "Faculty Lead",
+        "company": "Claxic Directorate",
+        "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Claxic",
+        "bio": "Accredited curriculum managed by the Claxic Academic Directorate."
+      },
+      "modules": [],
+      "learningOutcomes": [],
+      "requirements": [],
+      "faq": [],
+      "createdAt": "2026-10-09T18:29:10.007Z",
+      "updatedAt": "2026-10-09T18:29:10.007Z",
+      "classes": []
+    },
     {
       "id": "crs_e4f24ee662e73f92",
       "slug": "ai-essential",
@@ -73,7 +349,7 @@
       "price": 500,
       "originalPrice": 1299,
       "capacity": 40,
-      "enrolledCount": 8,
+      "enrolledCount": 4,
       "status": "PUBLISHED",
       "featured": true,
       "rating": 5,
@@ -115,7 +391,41 @@
       ],
       "createdAt": "2026-10-09T14:43:39.398Z",
       "updatedAt": "2026-10-09T14:43:39.398Z",
-      "classes": []
+      "classes": [
+        {
+          "id": "cls_crs_e4f24ee662e73f92_1",
+          "classNumber": 1,
+          "title": "Class 1: Course Overview, Prerequisites & Workspace Setup",
+          "description": "Welcome and full architectural overview. Walkthrough of dev environment setup, Docker configuration, and initial codebase walkthrough.",
+          "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "duration": "1 hr 15 mins",
+          "resourcesUrl": "https://github.com/claxic-academy/lecture-notes-class-1",
+          "status": "PUBLISHED",
+          "uploadedAt": "2026-08-25T10:00:00.000Z"
+        },
+        {
+          "id": "cls_crs_e4f24ee662e73f92_2",
+          "classNumber": 2,
+          "title": "Class 2: Deep Dive into Distributed Systems & State Contracts",
+          "description": "Comprehensive analysis of state consistency, RPC models, database indexing, and event queues in production microservices.",
+          "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "duration": "1 hr 30 mins",
+          "resourcesUrl": "https://github.com/claxic-academy/lecture-notes-class-2",
+          "status": "PUBLISHED",
+          "uploadedAt": "2026-08-28T10:00:00.000Z"
+        },
+        {
+          "id": "cls_crs_e4f24ee662e73f92_3",
+          "classNumber": 3,
+          "title": "Class 3: Advanced Real-Time Protocols & Production Deployment",
+          "description": "Hands-on lab: building WebSocket synchronization, error handling, rate limiting, and zero-downtime CI/CD container pipelines.",
+          "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "duration": "1 hr 45 mins",
+          "resourcesUrl": "https://github.com/claxic-academy/lecture-notes-class-3",
+          "status": "PUBLISHED",
+          "uploadedAt": "2026-09-01T10:00:00.000Z"
+        }
+      ]
     }
   ],
   "applications": [
@@ -129,7 +439,7 @@
       "courseId": "crs_e4f24ee662e73f92",
       "courseTitle": "Ai Essential",
       "coursePrice": 0,
-      "status": "APPROVED",
+      "status": "CONFIRMED",
       "formData": {
         "fullName": "Jitesh",
         "email": "jitesh.genkit@gmail.com",
@@ -149,9 +459,125 @@
         "scholarshipRequested": false
       },
       "createdAt": "2026-10-09T15:50:14.419Z",
-      "updatedAt": "2026-10-10T06:55:34.670Z",
+      "updatedAt": "2026-10-09T15:50:24.078Z",
       "reviewNotes": "",
       "adminNotes": ""
+    },
+    {
+      "id": "app_6795bfd0a92a885d",
+      "applicationNumber": "APP-2026-8107",
+      "userId": "usr_ebb78ed57552d55b",
+      "userEmail": "student.e2e.1791570549715@gmail.com",
+      "userName": "John Doe Candidate",
+      "userMobile": "",
+      "courseId": "crs_7f2baa99354410c1",
+      "courseTitle": "E2E Automated Course 1 - 1791570549996",
+      "coursePrice": 0,
+      "status": "APPROVED",
+      "formData": {
+        "startDate": "",
+        "fullName": "John Doe Candidate",
+        "email": "student.e2e.1791570549715@gmail.com",
+        "mobile": "+91 9876543210",
+        "institution": "",
+        "degree": "",
+        "yearOfStudy": "",
+        "essay": "",
+        "trackPreference": "Standard",
+        "resumeUrl": "",
+        "scholarshipRequested": false
+      },
+      "createdAt": "2026-10-09T18:29:10.903Z",
+      "updatedAt": "2026-10-09T18:29:11.819Z",
+      "reviewNotes": "Candidate meets all institutional criteria. Enrollment confirmed.",
+      "adminNotes": "Candidate meets all institutional criteria. Enrollment confirmed."
+    },
+    {
+      "id": "app_ee32fd16671d09b5",
+      "applicationNumber": "APP-2026-1902",
+      "userId": "usr_ebb78ed57552d55b",
+      "userEmail": "student.e2e.1791570549715@gmail.com",
+      "userName": "John Doe Candidate",
+      "userMobile": "",
+      "courseId": "crs_b5e7efb39e497c1b",
+      "courseTitle": "E2E Automated Course 2 - 1791570550176",
+      "coursePrice": 0,
+      "status": "SUBMITTED",
+      "formData": {
+        "startDate": "",
+        "fullName": "John Doe Candidate",
+        "email": "student.e2e.1791570549715@gmail.com",
+        "mobile": "+91 9876543210",
+        "institution": "",
+        "degree": "",
+        "yearOfStudy": "",
+        "essay": "",
+        "trackPreference": "Standard",
+        "resumeUrl": "",
+        "scholarshipRequested": false
+      },
+      "createdAt": "2026-10-09T18:29:11.271Z",
+      "updatedAt": "2026-10-09T18:29:11.271Z",
+      "reviewNotes": "",
+      "adminNotes": ""
+    },
+    {
+      "id": "app_ac3daa21ef68519b",
+      "applicationNumber": "APP-2026-3503",
+      "userId": "usr_65f55950ceb0d772",
+      "userEmail": "student.e2e.1791570613515@gmail.com",
+      "userName": "John Doe Candidate",
+      "userMobile": "",
+      "courseId": "crs_ec6dfb3499405d94",
+      "courseTitle": "E2E Automated Course 1 - 1791570613849",
+      "coursePrice": 0,
+      "status": "APPROVED",
+      "formData": {
+        "startDate": "",
+        "fullName": "John Doe Candidate",
+        "email": "student.e2e.1791570613515@gmail.com",
+        "mobile": "+91 9876543210",
+        "institution": "",
+        "degree": "",
+        "yearOfStudy": "",
+        "essay": "",
+        "trackPreference": "Standard",
+        "resumeUrl": "",
+        "scholarshipRequested": false
+      },
+      "createdAt": "2026-10-09T18:30:14.945Z",
+      "updatedAt": "2026-10-09T18:30:15.987Z",
+      "reviewNotes": "Candidate meets all institutional criteria. Enrollment confirmed.",
+      "adminNotes": "Candidate meets all institutional criteria. Enrollment confirmed."
+    },
+    {
+      "id": "app_19466b901a66acce",
+      "applicationNumber": "APP-2026-2167",
+      "userId": "usr_65f55950ceb0d772",
+      "userEmail": "student.e2e.1791570613515@gmail.com",
+      "userName": "John Doe Candidate",
+      "userMobile": "",
+      "courseId": "crs_ebba73e49c3775ff",
+      "courseTitle": "E2E Automated Course 2 - 1791570614080",
+      "coursePrice": 0,
+      "status": "REJECTED",
+      "formData": {
+        "startDate": "",
+        "fullName": "John Doe Candidate",
+        "email": "student.e2e.1791570613515@gmail.com",
+        "mobile": "+91 9876543210",
+        "institution": "",
+        "degree": "",
+        "yearOfStudy": "",
+        "essay": "",
+        "trackPreference": "Standard",
+        "resumeUrl": "",
+        "scholarshipRequested": false
+      },
+      "createdAt": "2026-10-09T18:30:15.366Z",
+      "updatedAt": "2026-10-09T18:30:16.201Z",
+      "reviewNotes": "Application prerequisites not fulfilled.",
+      "adminNotes": "Application prerequisites not fulfilled."
     }
   ],
   "enrollments": [
@@ -176,6 +602,16 @@
       "updatedAt": "2026-10-09T18:29:11.819Z"
     },
     {
+      "id": "enr_fc7c3430f742e62d",
+      "userId": "usr_65f55950ceb0d772",
+      "courseId": "crs_ec6dfb3499405d94",
+      "applicationId": "app_ac3daa21ef68519b",
+      "status": "ACTIVE",
+      "paymentStatus": "FREE",
+      "enrolledAt": "2026-10-09T18:30:15.768Z",
+      "updatedAt": "2026-10-09T18:30:15.987Z"
+    },
+    {
       "id": "enr_b3695a76577d06a3",
       "userId": "usr_352f09ae5ad0ecf3",
       "courseId": "crs_e77b491a25c1a204",
@@ -184,116 +620,6 @@
       "paymentStatus": "FREE",
       "enrolledAt": "2026-10-09T18:30:49.425Z",
       "updatedAt": "2026-10-09T18:30:49.646Z"
-    },
-    {
-      "id": "enr_790667537246aefd",
-      "userId": "usr_ba7d2b9f4d1ce6e1",
-      "courseId": "crs_9e362937b4dfa267",
-      "applicationId": "app_88fa410504aeef89",
-      "status": "ACTIVE",
-      "paymentStatus": "FREE",
-      "enrolledAt": "2026-10-09T18:59:24.010Z",
-      "updatedAt": "2026-10-09T18:59:24.371Z"
-    },
-    {
-      "id": "enr_a4aefa0f66f60a5c",
-      "userId": "usr_a6807696f5cb475e",
-      "courseId": "crs_e4f24ee662e73f92",
-      "applicationId": "app_4bcfb3b74a22d022",
-      "status": "ACTIVE",
-      "paymentStatus": "PENDING",
-      "enrolledAt": "2026-10-09T19:01:04.246Z",
-      "updatedAt": "2026-10-09T19:01:04.246Z"
-    },
-    {
-      "id": "enr_ad66b25000d3be1e",
-      "userId": "usr_2fcfb7ccca6451a3",
-      "courseId": "crs_2f7aec148ab2e283",
-      "applicationId": "app_ef06b9f6be6cee6a",
-      "status": "ACTIVE",
-      "paymentStatus": "FREE",
-      "enrolledAt": "2026-10-10T06:29:07.812Z",
-      "updatedAt": "2026-10-10T06:29:08.184Z"
-    },
-    {
-      "id": "enr_2ab2352ccbe0f756",
-      "userId": "usr_7b19ec99247b61c9",
-      "courseId": "crs_e4f24ee662e73f92",
-      "applicationId": "app_8f7b85d1a27893d7",
-      "status": "ACTIVE",
-      "paymentStatus": "PENDING",
-      "enrolledAt": "2026-10-10T06:29:53.637Z",
-      "updatedAt": "2026-10-10T06:29:53.637Z"
-    },
-    {
-      "id": "enr_b1f65d4f842b1546",
-      "userId": "usr_65f55950ceb0d772",
-      "courseId": "crs_ec6dfb3499405d94",
-      "applicationId": "app_ac3daa21ef68519b",
-      "status": "ACTIVE",
-      "paymentStatus": "FREE",
-      "enrolledAt": "2026-10-10T06:44:45.450Z",
-      "updatedAt": "2026-10-10T06:44:45.450Z"
-    },
-    {
-      "id": "enr_fa5017578a215876",
-      "userId": "usr_ebb78ed57552d55b",
-      "courseId": "crs_b5e7efb39e497c1b",
-      "applicationId": "app_ee32fd16671d09b5",
-      "status": "ACTIVE",
-      "paymentStatus": "FREE",
-      "enrolledAt": "2026-10-10T06:44:48.570Z",
-      "updatedAt": "2026-10-10T06:44:48.570Z"
-    },
-    {
-      "id": "enr_ef0c39713afa759b",
-      "userId": "usr_f145ad050ee5f037",
-      "courseId": "crs_d763221aaffb9e5b",
-      "applicationId": "app_683c0d4af0117003",
-      "status": "ACTIVE",
-      "paymentStatus": "FREE",
-      "enrolledAt": "2026-10-10T06:49:25.822Z",
-      "updatedAt": "2026-10-10T06:49:26.155Z"
-    },
-    {
-      "id": "enr_a9194b4d4f75f1be",
-      "userId": "usr_74f2c386dee63a38",
-      "courseId": "crs_e4f24ee662e73f92",
-      "applicationId": "app_9f73dae31ae4e47b",
-      "status": "ACTIVE",
-      "paymentStatus": "PENDING",
-      "enrolledAt": "2026-10-10T06:50:24.899Z",
-      "updatedAt": "2026-10-10T06:50:24.899Z"
-    },
-    {
-      "id": "enr_3111cafa2640c634",
-      "userId": "usr_admin_jitesh_genkit",
-      "courseId": "crs_e4f24ee662e73f92",
-      "applicationId": "app_a0c935bbb0a3fc34",
-      "status": "ACTIVE",
-      "paymentStatus": "PAID",
-      "enrolledAt": "2026-10-10T06:55:34.670Z",
-      "updatedAt": "2026-10-10T06:55:34.670Z"
-    },
-    {
-      "id": "enr_bed15b5585c7cab9",
-      "userId": "usr_91a818ca1503f1b6",
-      "courseId": "crs_1c8f4d70de7aa3b8",
-      "applicationId": "app_3a0fc314b8728eb8",
-      "status": "ACTIVE",
-      "paymentStatus": "FREE",
-      "enrolledAt": "2026-10-10T07:16:48.861Z",
-      "updatedAt": "2026-10-10T07:16:49.183Z"
-    },
-    {
-      "id": "enr_cbb1ffad8106fab6",
-      "userId": "usr_b71cf8b531e85ead",
-      "courseId": "crs_e4f24ee662e73f92",
-      "applicationId": "app_921ea21b5a894806",
-      "status": "ACTIVE",
-      "paymentStatus": "PENDING",
-      "enrolledAt": "2026-10-10T10:11:16.399Z",
-      "updatedAt": "2026-10-10T10:11:16.399Z"
     }
   ],
   "payments": [
@@ -457,17 +783,93 @@
       "userId": "usr_admin_jitesh",
       "expiresAt": "2026-10-16T12:50:38.639Z"
     },
+    "stk_dd13aecd38c4b9408955113a61bdfff04d5811f3521ec8e12bdd4e754f1b5b22": {
+      "userId": "usr_f36cfcf1d5c8cae9",
+      "expiresAt": "2026-10-16T14:41:36.551Z"
+    },
+    "stk_f6df7dcfc4e7ace33f6120c37e8242d3282751bbc14825f68ca29053e0beb6e1": {
+      "userId": "usr_f36cfcf1d5c8cae9",
+      "expiresAt": "2026-10-16T15:41:01.454Z"
+    },
+    "stk_a618f2d4f7377e6fbb6289c9a84897cfcfa98e151ca5c299a76adb69198666d9": {
+      "userId": "usr_admin_jitesh",
+      "expiresAt": "2026-10-16T15:45:22.894Z"
+    },
+    "stk_2a3a9f5981ca0380a9fac4108511751037ffb75616f0668a47b2bcfc33c88692": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T16:19:46.174Z"
+    },
     "stk_93129f1980f4b14e9a91d4e2c315b9ca82d0cc9d8ab62c341145200edf748a35": {
       "userId": "usr_staff_aaff8f004f8f",
       "expiresAt": "2026-10-16T16:19:48.326Z"
     },
-    "stk_f7805da30f917fb78776be022065bd8f05ad2027b6735a4a8027aaad1f5401ff": {
-      "userId": "usr_admin_jitesh",
-      "expiresAt": "2026-10-17T06:40:31.961Z"
+    "stk_9d5cd0447dd9cfbe182af44e32badf52dcde730b76e8ea0a7d334eafd2e41129": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T16:20:50.996Z"
     },
-    "stk_1bfa363bb947b74c81af655bf42f22b5e27f816ef6b8f5b18ec294fd5b3b0a94": {
-      "userId": "usr_f36cfcf1d5c8cae9",
-      "expiresAt": "2026-10-17T15:53:13.721Z"
+    "stk_0241b11eea41befd3ff98e2c0c1dcf534595634b778822072935821116287e6d": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T16:21:35.058Z"
+    },
+    "stk_43c96689882875d4b0b54f72329c27f801c0ebd9917dfc4c2db4321c133c58c6": {
+      "userId": "usr_987bfa2c298a0ce4",
+      "expiresAt": "2026-10-16T16:21:35.970Z"
+    },
+    "stk_a59bcc394c8d8bba3a9cf4084732d7a3932a2267845f736430804f18c261b18b": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T16:48:04.770Z"
+    },
+    "stk_7c72248c00254ecdfdf6ee95042fd84b39811cd269eddd716c904ca5f4b8f718": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T16:51:51.293Z"
+    },
+    "stk_71a4190573301af228924abb56e4a85ccdc6317a4675366f8163909ffdf26b1d": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T16:53:52.386Z"
+    },
+    "stk_4333018b36ca3785ddb51ae37c7a1e13919cafa42e95a07ac7fb5e5d4b8a526b": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T18:25:25.386Z"
+    },
+    "stk_584cff65309e1f843d9ccace1924cd211dac32ccd3710e73d80205d09013851b": {
+      "userId": "usr_92939b1f374825ad",
+      "expiresAt": "2026-10-16T18:25:25.851Z"
+    },
+    "stk_478977b84dbae880d655c2e24191399cc85193bdb7fc5e158b8bbb1131578d8b": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T18:25:35.048Z"
+    },
+    "stk_ec35ee897fed634160c83509e57d6a3e37547f32c4e93fb62c451e15263d6dcf": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T18:28:42.661Z"
+    },
+    "stk_edd71449197403a613f43a5c0664ecdda48fd0bc6ab64c57a253346bb0848c37": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T18:29:09.797Z"
+    },
+    "stk_2f79b7a99a5ebc70f783307c6bf89179ad7cdcc420bc72cc9167637812536a3b": {
+      "userId": "usr_ebb78ed57552d55b",
+      "expiresAt": "2026-10-16T18:29:10.567Z"
+    },
+    "stk_00458a6540242a4560de2e71e13929bba6949e9f3f1f08a3242cf0125e779a4e": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T18:30:13.616Z"
+    },
+    "stk_875b21c04ce7c81e167573d7844fad067493754003ccb9018c4e9327a42567ec": {
+      "userId": "usr_65f55950ceb0d772",
+      "expiresAt": "2026-10-16T18:30:14.535Z"
+    },
+    "stk_08f4b9fcf40ceab384c0baed195c1095e87972f3a0d1da2a77e456407ac5602c": {
+      "userId": "usr_8fa1a0b48af1406d",
+      "expiresAt": "2026-10-16T18:30:16.592Z"
+    },
+    "stk_9303a821405b9e982c1286566fcf7390f82b06794846b124ac186b1db6c172c8": {
+      "userId": "usr_8fa1a0b48af1406d",
+      "expiresAt": "2026-10-16T18:30:17.218Z"
+    },
+    "stk_49aba5fcaee98c47f11b5867a97fa90ae35fd7b532726cce4985835f67198d32": {
+      "userId": "usr_admin_system",
+      "expiresAt": "2026-10-16T18:30:47.401Z"
     }
   },
   "verificationTokens": [
@@ -476,6 +878,41 @@
       "email": "final_student_a_1791043426117@claxic.edu",
       "expiresAt": "2026-10-04T16:03:46.135Z",
       "userId": "usr_24aa133eb88ca3f7",
+      "used": false
+    },
+    {
+      "token": "879326",
+      "email": "student.audit.1791562895514@gmail.com",
+      "expiresAt": "2026-10-10T16:21:35.548Z",
+      "userId": "usr_987bfa2c298a0ce4",
+      "used": false
+    },
+    {
+      "token": "235381",
+      "email": "student.audit.1791570325643@gmail.com",
+      "expiresAt": "2026-10-10T18:25:25.659Z",
+      "userId": "usr_92939b1f374825ad",
+      "used": false
+    },
+    {
+      "token": "882664",
+      "email": "student.e2e.1791570549715@gmail.com",
+      "expiresAt": "2026-10-10T18:29:10.384Z",
+      "userId": "usr_ebb78ed57552d55b",
+      "used": false
+    },
+    {
+      "token": "989760",
+      "email": "student.e2e.1791570613515@gmail.com",
+      "expiresAt": "2026-10-10T18:30:14.310Z",
+      "userId": "usr_65f55950ceb0d772",
+      "used": false
+    },
+    {
+      "token": "824134",
+      "email": "faculty.promote.1791570616400@gmail.com",
+      "expiresAt": "2026-10-10T18:30:16.408Z",
+      "userId": "usr_8fa1a0b48af1406d",
       "used": false
     }
   ],
@@ -497,14 +934,482 @@
   ],
   "notifications": [
     {
-      "id": "notif_5qbh7o7",
-      "userId": "usr_admin_jitesh_genkit",
-      "title": "Application Approved: Ai Essential",
-      "message": "Congratulations! Your application #APP-2026-1241 for \"Ai Essential\" has been approved by the Administrator. Access your coursework in the Student Portal!",
+      "id": "notif_suf2exk",
+      "userId": "usr_65f55950ceb0d772",
+      "title": "Application Not Accepted: E2E Automated Course 2 - 1791570614080",
+      "message": "Your application #APP-2026-2167 for \"E2E Automated Course 2 - 1791570614080\" was not accepted at this time. Reason: Application prerequisites not fulfilled.",
+      "type": "error",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:16.201Z",
+      "meta": null
+    },
+    {
+      "id": "notif_nacwhjd",
+      "userId": "usr_65f55950ceb0d772",
+      "title": "Application Approved: E2E Automated Course 1 - 1791570613849",
+      "message": "Congratulations! Your application #APP-2026-3503 for \"E2E Automated Course 1 - 1791570613849\" has been approved by the Administrator. Access your coursework in the Student Portal!",
       "type": "success",
       "link": "/dashboard",
       "isRead": false,
-      "createdAt": "2026-10-10T06:55:34.670Z",
+      "createdAt": "2026-10-09T18:30:15.987Z",
+      "meta": null
+    },
+    {
+      "id": "notif_amcyial",
+      "userId": "usr_65f55950ceb0d772",
+      "title": "Application Approved: E2E Automated Course 1 - 1791570613849",
+      "message": "Congratulations! Your application #APP-2026-3503 for \"E2E Automated Course 1 - 1791570613849\" has been approved by the Administrator. Access your coursework in the Student Portal!",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:15.768Z",
+      "meta": null
+    },
+    {
+      "id": "notif_g881l00",
+      "userId": "usr_65f55950ceb0d772",
+      "title": "Application Received: E2E Automated Course 2 - 1791570614080",
+      "message": "Your application #APP-2026-2167 for \"E2E Automated Course 2 - 1791570614080\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
+      "type": "info",
+      "link": "/student/applications",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:15.366Z",
+      "meta": null
+    },
+    {
+      "id": "notif_mdg95sr",
+      "userId": "usr_65f55950ceb0d772",
+      "title": "Application Received: E2E Automated Course 1 - 1791570613849",
+      "message": "Your application #APP-2026-3503 for \"E2E Automated Course 1 - 1791570613849\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
+      "type": "info",
+      "link": "/student/applications",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:14.945Z",
+      "meta": null
+    },
+    {
+      "id": "notif_launch_knej870",
+      "userId": "usr_ebb78ed57552d55b",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570614080",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570614080",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:14.091Z",
+      "meta": {
+        "courseId": "crs_ebba73e49c3775ff",
+        "slug": "e2e-automated-course-2-1791570614080",
+        "courseTitle": "E2E Automated Course 2 - 1791570614080",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_kbuxtze",
+      "userId": "usr_92939b1f374825ad",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570614080",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570614080",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:14.091Z",
+      "meta": {
+        "courseId": "crs_ebba73e49c3775ff",
+        "slug": "e2e-automated-course-2-1791570614080",
+        "courseTitle": "E2E Automated Course 2 - 1791570614080",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_vfznukt",
+      "userId": "usr_987bfa2c298a0ce4",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570614080",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570614080",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:14.091Z",
+      "meta": {
+        "courseId": "crs_ebba73e49c3775ff",
+        "slug": "e2e-automated-course-2-1791570614080",
+        "courseTitle": "E2E Automated Course 2 - 1791570614080",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_1k04jdp",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570614080",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570614080",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:14.091Z",
+      "meta": {
+        "courseId": "crs_ebba73e49c3775ff",
+        "slug": "e2e-automated-course-2-1791570614080",
+        "courseTitle": "E2E Automated Course 2 - 1791570614080",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_bbtrgme",
+      "userId": "usr_ebb78ed57552d55b",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570613849",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570613849",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:13.869Z",
+      "meta": {
+        "courseId": "crs_ec6dfb3499405d94",
+        "slug": "e2e-automated-course-1-1791570613849",
+        "courseTitle": "E2E Automated Course 1 - 1791570613849",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_xtrmstm",
+      "userId": "usr_92939b1f374825ad",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570613849",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570613849",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:13.869Z",
+      "meta": {
+        "courseId": "crs_ec6dfb3499405d94",
+        "slug": "e2e-automated-course-1-1791570613849",
+        "courseTitle": "E2E Automated Course 1 - 1791570613849",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_0v4jb3b",
+      "userId": "usr_987bfa2c298a0ce4",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570613849",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570613849",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:13.869Z",
+      "meta": {
+        "courseId": "crs_ec6dfb3499405d94",
+        "slug": "e2e-automated-course-1-1791570613849",
+        "courseTitle": "E2E Automated Course 1 - 1791570613849",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_6s096kq",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570613849",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570613849",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:30:13.869Z",
+      "meta": {
+        "courseId": "crs_ec6dfb3499405d94",
+        "slug": "e2e-automated-course-1-1791570613849",
+        "courseTitle": "E2E Automated Course 1 - 1791570613849",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_983kxof",
+      "userId": "usr_ebb78ed57552d55b",
+      "title": "Application Approved: E2E Automated Course 1 - 1791570549996",
+      "message": "Congratulations! Your application #APP-2026-8107 for \"E2E Automated Course 1 - 1791570549996\" has been approved by the Administrator. Access your coursework in the Student Portal!",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:11.819Z",
+      "meta": null
+    },
+    {
+      "id": "notif_h1llva2",
+      "userId": "usr_ebb78ed57552d55b",
+      "title": "Application Approved: E2E Automated Course 1 - 1791570549996",
+      "message": "Congratulations! Your application #APP-2026-8107 for \"E2E Automated Course 1 - 1791570549996\" has been approved by the Administrator. Access your coursework in the Student Portal!",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:11.634Z",
+      "meta": null
+    },
+    {
+      "id": "notif_373wszl",
+      "userId": "usr_ebb78ed57552d55b",
+      "title": "Application Received: E2E Automated Course 2 - 1791570550176",
+      "message": "Your application #APP-2026-1902 for \"E2E Automated Course 2 - 1791570550176\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
+      "type": "info",
+      "link": "/student/applications",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:11.271Z",
+      "meta": null
+    },
+    {
+      "id": "notif_wwdmq9e",
+      "userId": "usr_ebb78ed57552d55b",
+      "title": "Application Received: E2E Automated Course 1 - 1791570549996",
+      "message": "Your application #APP-2026-8107 for \"E2E Automated Course 1 - 1791570549996\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
+      "type": "info",
+      "link": "/student/applications",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:10.903Z",
+      "meta": null
+    },
+    {
+      "id": "notif_launch_jwpb3eh",
+      "userId": "usr_92939b1f374825ad",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570550176",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570550176",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:10.179Z",
+      "meta": {
+        "courseId": "crs_b5e7efb39e497c1b",
+        "slug": "e2e-automated-course-2-1791570550176",
+        "courseTitle": "E2E Automated Course 2 - 1791570550176",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_zi4yock",
+      "userId": "usr_987bfa2c298a0ce4",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570550176",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570550176",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:10.179Z",
+      "meta": {
+        "courseId": "crs_b5e7efb39e497c1b",
+        "slug": "e2e-automated-course-2-1791570550176",
+        "courseTitle": "E2E Automated Course 2 - 1791570550176",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_5spucno",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 2 - 1791570550176",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-2-1791570550176",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:10.179Z",
+      "meta": {
+        "courseId": "crs_b5e7efb39e497c1b",
+        "slug": "e2e-automated-course-2-1791570550176",
+        "courseTitle": "E2E Automated Course 2 - 1791570550176",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_9awy6ia",
+      "userId": "usr_92939b1f374825ad",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570549996",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570549996",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:09.999Z",
+      "meta": {
+        "courseId": "crs_7f2baa99354410c1",
+        "slug": "e2e-automated-course-1-1791570549996",
+        "courseTitle": "E2E Automated Course 1 - 1791570549996",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_d9jpmw1",
+      "userId": "usr_987bfa2c298a0ce4",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570549996",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570549996",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:09.999Z",
+      "meta": {
+        "courseId": "crs_7f2baa99354410c1",
+        "slug": "e2e-automated-course-1-1791570549996",
+        "courseTitle": "E2E Automated Course 1 - 1791570549996",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_launch_8jib3iv",
+      "userId": "usr_admin_jitesh_genkit",
+      "title": "🚀 NEW LAUNCH: E2E Automated Course 1 - 1791570549996",
+      "message": "Special Launch Cohort Open! Master industry-grade skills with live mentor support. Limited capacity of 50 seats. Enroll today!",
+      "type": "COURSE_LAUNCH_AD",
+      "link": "/courses/e2e-automated-course-1-1791570549996",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:29:09.999Z",
+      "meta": {
+        "courseId": "crs_7f2baa99354410c1",
+        "slug": "e2e-automated-course-1-1791570549996",
+        "courseTitle": "E2E Automated Course 1 - 1791570549996",
+        "bannerImage": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+        "price": 0,
+        "originalPrice": 0,
+        "discountPercent": null,
+        "category": "Engineering & Computing",
+        "duration": "8 Weeks",
+        "level": "Intermediate",
+        "badge": "NEW LAUNCH • AD",
+        "actionLabel": "Explore & Claim Seat"
+      }
+    },
+    {
+      "id": "notif_svvmz69",
+      "userId": "usr_92939b1f374825ad",
+      "title": "Application Approved: Ai Essential",
+      "message": "Congratulations! Your application #APP-2026-7068 for \"Ai Essential\" has been approved by the Administrator. Access your coursework in the Student Portal!",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:25:26.658Z",
+      "meta": null
+    },
+    {
+      "id": "notif_eto0gqe",
+      "userId": "usr_92939b1f374825ad",
+      "title": "Application Received: Ai Essential",
+      "message": "Your application #APP-2026-7068 for \"Ai Essential\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
+      "type": "info",
+      "link": "/student/applications",
+      "isRead": false,
+      "createdAt": "2026-10-09T18:25:26.230Z",
+      "meta": null
+    },
+    {
+      "id": "notif_j4i5ghn",
+      "userId": "usr_987bfa2c298a0ce4",
+      "title": "Application Status Updated: APPROVED",
+      "message": "Your application #APP-2026-2882 status changed to APPROVED.",
+      "type": "success",
+      "link": "/dashboard",
+      "isRead": false,
+      "createdAt": "2026-10-09T16:21:37.839Z",
+      "meta": null
+    },
+    {
+      "id": "notif_meiqrmp",
+      "userId": "usr_987bfa2c298a0ce4",
+      "title": "Application Received: Ai Essential",
+      "message": "Your application #APP-2026-2882 for \"Ai Essential\" has been submitted successfully and is awaiting review and acceptance by the Administrator.",
+      "type": "info",
+      "link": "/student/applications",
+      "isRead": false,
+      "createdAt": "2026-10-09T16:21:36.920Z",
       "meta": null
     },
     {
@@ -632,906 +1537,6 @@
     }
   ],
   "auditLogs": [
-    {
-      "id": "audit_7yhdbfl",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "STAFF_CREDENTIALS_AND_PROFILE_UPDATED",
-      "targetType": "STAFF",
-      "targetId": "usr_f36cfcf1d5c8cae9",
-      "targetTitle": "Updated Mrs.Dr. Marie (marie.claxic@gmail.com) (Password changed)",
-      "createdAt": "2026-10-10T15:52:40.955Z"
-    },
-    {
-      "id": "audit_5707h0p",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_b71cf8b531e85ead",
-      "targetTitle": "Audit Student (student.audit.1791627069529@gmail.com)",
-      "createdAt": "2026-10-10T15:51:13.982Z"
-    },
-    {
-      "id": "audit_u59lhsf",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_admin_system",
-      "targetTitle": "Claxic System Admin (admin@claxic.edu)",
-      "createdAt": "2026-10-10T15:51:09.470Z"
-    },
-    {
-      "id": "audit_eurdyrq",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_921ea21b5a894806",
-      "targetTitle": "Removed #APP-2026-3177 (Audit Student)",
-      "createdAt": "2026-10-10T10:11:18.154Z"
-    },
-    {
-      "id": "audit_3r0q1vv",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_921ea21b5a894806",
-      "targetTitle": "#APP-2026-3177 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T10:11:16.399Z"
-    },
-    {
-      "id": "audit_p0s0918",
-      "adminId": "usr_b71cf8b531e85ead",
-      "adminName": "Audit Student",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_921ea21b5a894806",
-      "targetTitle": "Ai Essential (APP-2026-3177)",
-      "createdAt": "2026-10-10T10:11:13.795Z"
-    },
-    {
-      "id": "audit_lgyqrx5",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_91a818ca1503f1b6",
-      "targetTitle": "John Doe Candidate (student.e2e.1791616604374@gmail.com)",
-      "createdAt": "2026-10-10T07:16:56.046Z"
-    },
-    {
-      "id": "audit_bha72ux",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_7b7f2c04284b4b6c",
-      "targetTitle": "Professor Alan Turing (faculty.promote.1791616610231@gmail.com)",
-      "createdAt": "2026-10-10T07:16:55.645Z"
-    },
-    {
-      "id": "audit_9mif6hv",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_7b7f2c04284b4b6c",
-      "targetTitle": "Revoked access to \"E2E Automated Course 2 - 1791616605651\" for Professor Alan Turing",
-      "createdAt": "2026-10-10T07:16:52.185Z"
-    },
-    {
-      "id": "audit_t13j8si",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "EXISTING_USER_PROMOTED_TO_STAFF",
-      "targetType": "STAFF",
-      "targetId": "usr_7b7f2c04284b4b6c",
-      "targetTitle": "Appointed Professor Alan Turing (faculty.promote.1791616610231@gmail.com) with 2 assigned courses.",
-      "createdAt": "2026-10-10T07:16:51.410Z"
-    },
-    {
-      "id": "audit_mlyjs6b",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_92c95b6ca173a374",
-      "targetTitle": "#APP-2026-2114 -> REJECTED by Claxic System Admin",
-      "createdAt": "2026-10-10T07:16:49.746Z"
-    },
-    {
-      "id": "audit_v3zlu43",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_3a0fc314b8728eb8",
-      "targetTitle": "#APP-2026-7857 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T07:16:49.183Z"
-    },
-    {
-      "id": "audit_o0ivl5i",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_3a0fc314b8728eb8",
-      "targetTitle": "#APP-2026-7857 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T07:16:48.861Z"
-    },
-    {
-      "id": "audit_8jnhjhl",
-      "adminId": "usr_91a818ca1503f1b6",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_92c95b6ca173a374",
-      "targetTitle": "E2E Automated Course 2 - 1791616605651 (APP-2026-2114)",
-      "createdAt": "2026-10-10T07:16:48.123Z"
-    },
-    {
-      "id": "audit_hz491oh",
-      "adminId": "usr_91a818ca1503f1b6",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_3a0fc314b8728eb8",
-      "targetTitle": "E2E Automated Course 1 - 1791616605129 (APP-2026-7857)",
-      "createdAt": "2026-10-10T07:16:47.310Z"
-    },
-    {
-      "id": "audit_qbpmw7f",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_2c22993d5b8a714a",
-      "targetTitle": "E2E Automated Course 2 - 1791616605651",
-      "createdAt": "2026-10-10T07:16:45.674Z"
-    },
-    {
-      "id": "audit_ogi80sy",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_1c8f4d70de7aa3b8",
-      "targetTitle": "E2E Automated Course 1 - 1791616605129",
-      "createdAt": "2026-10-10T07:16:45.131Z"
-    },
-    {
-      "id": "audit_8kttiv6",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_a0c935bbb0a3fc34",
-      "targetTitle": "#APP-2026-1241 -> APPROVED by Jitesh (Admin)",
-      "createdAt": "2026-10-10T06:55:34.670Z"
-    },
-    {
-      "id": "audit_kxt9b60",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_admin_system",
-      "targetTitle": "Claxic System Admin (admin@claxic.edu)",
-      "createdAt": "2026-10-10T06:54:44.447Z"
-    },
-    {
-      "id": "audit_lvk6hwt",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_987bfa2c298a0ce4",
-      "targetTitle": "Audit Student (student.audit.1791562895514@gmail.com)",
-      "createdAt": "2026-10-10T06:54:40.053Z"
-    },
-    {
-      "id": "audit_8ct5k8l",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_92939b1f374825ad",
-      "targetTitle": "Audit Student (student.audit.1791570325643@gmail.com)",
-      "createdAt": "2026-10-10T06:54:36.850Z"
-    },
-    {
-      "id": "audit_v679kxa",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_ebb78ed57552d55b",
-      "targetTitle": "John Doe Candidate (student.e2e.1791570549715@gmail.com)",
-      "createdAt": "2026-10-10T06:54:30.857Z"
-    },
-    {
-      "id": "audit_nyo2hjw",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_65f55950ceb0d772",
-      "targetTitle": "John Doe Candidate (student.e2e.1791570613515@gmail.com)",
-      "createdAt": "2026-10-10T06:54:27.726Z"
-    },
-    {
-      "id": "audit_bzvr0pl",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_8fa1a0b48af1406d",
-      "targetTitle": "Professor Alan Turing (faculty.promote.1791570616400@gmail.com)",
-      "createdAt": "2026-10-10T06:54:24.626Z"
-    },
-    {
-      "id": "audit_hydvrlq",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_a6807696f5cb475e",
-      "targetTitle": "Audit Student (student.audit.1791572462101@gmail.com)",
-      "createdAt": "2026-10-10T06:54:20.364Z"
-    },
-    {
-      "id": "audit_jfjez8l",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_74f2c386dee63a38",
-      "targetTitle": "Audit Student (student.audit.1791615022563@gmail.com)",
-      "createdAt": "2026-10-10T06:54:16.265Z"
-    },
-    {
-      "id": "audit_bvqi3ro",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_7b19ec99247b61c9",
-      "targetTitle": "Audit Student (student.audit.1791613791681@gmail.com)",
-      "createdAt": "2026-10-10T06:54:12.395Z"
-    },
-    {
-      "id": "audit_wohzgep",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_9f73dae31ae4e47b",
-      "targetTitle": "Removed #APP-2026-2886 (Audit Student)",
-      "createdAt": "2026-10-10T06:50:25.261Z"
-    },
-    {
-      "id": "audit_wdummfn",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_9f73dae31ae4e47b",
-      "targetTitle": "#APP-2026-2886 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:50:24.899Z"
-    },
-    {
-      "id": "audit_ic9al1q",
-      "adminId": "usr_74f2c386dee63a38",
-      "adminName": "Audit Student",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_9f73dae31ae4e47b",
-      "targetTitle": "Ai Essential (APP-2026-2886)",
-      "createdAt": "2026-10-10T06:50:24.130Z"
-    },
-    {
-      "id": "audit_346ib3z",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_APPOINTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_b362d029079f",
-      "targetTitle": "Revoked appointment for Dr. Test Professor (faculty.test.1791614997274@claxic.edu) and removed all course allotments.",
-      "createdAt": "2026-10-10T06:49:59.954Z"
-    },
-    {
-      "id": "audit_h08f8vk",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_UPDATED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_b362d029079f",
-      "targetTitle": "Allotted 1 courses to Dr. Test Professor",
-      "createdAt": "2026-10-10T06:49:59.494Z"
-    },
-    {
-      "id": "audit_sctbq6w",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_PASSWORD_CHANGED_BY_ADMIN",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_b362d029079f",
-      "targetTitle": "Admin set permanent password for Dr. Test Professor (faculty.test.1791614997274@claxic.edu)",
-      "createdAt": "2026-10-10T06:49:58.154Z"
-    },
-    {
-      "id": "audit_2oh8h30",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_APPOINTED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_b362d029079f",
-      "targetTitle": "Appointed Dr. Test Professor (faculty.test.1791614997274@claxic.edu) with 0 assigned courses.",
-      "createdAt": "2026-10-10T06:49:57.299Z"
-    },
-    {
-      "id": "audit_0l5954n",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_f145ad050ee5f037",
-      "targetTitle": "John Doe Candidate (student.e2e.1791614961708@gmail.com)",
-      "createdAt": "2026-10-10T06:49:32.704Z"
-    },
-    {
-      "id": "audit_5td2pbo",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_74cd453cac9f1abc",
-      "targetTitle": "Professor Alan Turing (faculty.promote.1791614966795@gmail.com)",
-      "createdAt": "2026-10-10T06:49:32.386Z"
-    },
-    {
-      "id": "audit_11vcy3h",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_74cd453cac9f1abc",
-      "targetTitle": "Revoked access to \"E2E Automated Course 2 - 1791614962744\" for Professor Alan Turing",
-      "createdAt": "2026-10-10T06:49:28.997Z"
-    },
-    {
-      "id": "audit_giirs2n",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "EXISTING_USER_PROMOTED_TO_STAFF",
-      "targetType": "STAFF",
-      "targetId": "usr_74cd453cac9f1abc",
-      "targetTitle": "Appointed Professor Alan Turing (faculty.promote.1791614966795@gmail.com) with 2 assigned courses.",
-      "createdAt": "2026-10-10T06:49:28.106Z"
-    },
-    {
-      "id": "audit_rytkgus",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_f5d2cafd7466da36",
-      "targetTitle": "#APP-2026-6107 -> REJECTED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:49:26.441Z"
-    },
-    {
-      "id": "audit_w54f6lk",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_683c0d4af0117003",
-      "targetTitle": "#APP-2026-9885 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:49:26.155Z"
-    },
-    {
-      "id": "audit_lweaf5r",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_683c0d4af0117003",
-      "targetTitle": "#APP-2026-9885 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:49:25.822Z"
-    },
-    {
-      "id": "audit_98z3wn3",
-      "adminId": "usr_f145ad050ee5f037",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_f5d2cafd7466da36",
-      "targetTitle": "E2E Automated Course 2 - 1791614962744 (APP-2026-6107)",
-      "createdAt": "2026-10-10T06:49:25.060Z"
-    },
-    {
-      "id": "audit_0abxlv2",
-      "adminId": "usr_f145ad050ee5f037",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_683c0d4af0117003",
-      "targetTitle": "E2E Automated Course 1 - 1791614962358 (APP-2026-9885)",
-      "createdAt": "2026-10-10T06:49:24.346Z"
-    },
-    {
-      "id": "audit_m1rsy4s",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_51508f549fad78ef",
-      "targetTitle": "E2E Automated Course 2 - 1791614962744",
-      "createdAt": "2026-10-10T06:49:22.761Z"
-    },
-    {
-      "id": "audit_hi76xmr",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_d763221aaffb9e5b",
-      "targetTitle": "E2E Automated Course 1 - 1791614962358",
-      "createdAt": "2026-10-10T06:49:22.366Z"
-    },
-    {
-      "id": "audit_no4yeal",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ee32fd16671d09b5",
-      "targetTitle": "Removed #APP-2026-1902 (John Doe Candidate)",
-      "createdAt": "2026-10-10T06:45:45.426Z"
-    },
-    {
-      "id": "audit_29c570a",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_19466b901a66acce",
-      "targetTitle": "Removed #APP-2026-2167 (John Doe Candidate)",
-      "createdAt": "2026-10-10T06:45:40.911Z"
-    },
-    {
-      "id": "audit_qht50k3",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_6795bfd0a92a885d",
-      "targetTitle": "Removed #APP-2026-8107 (John Doe Candidate)",
-      "createdAt": "2026-10-10T06:45:36.451Z"
-    },
-    {
-      "id": "audit_6j92x75",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ac3daa21ef68519b",
-      "targetTitle": "Removed #APP-2026-3503 (John Doe Candidate)",
-      "createdAt": "2026-10-10T06:44:59.332Z"
-    },
-    {
-      "id": "audit_kwteelj",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ee32fd16671d09b5",
-      "targetTitle": "#APP-2026-1902 -> APPROVED by Jitesh (Admin)",
-      "createdAt": "2026-10-10T06:44:48.570Z"
-    },
-    {
-      "id": "audit_wif3296",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ac3daa21ef68519b",
-      "targetTitle": "#APP-2026-3503 -> APPROVED by Jitesh (Admin)",
-      "createdAt": "2026-10-10T06:44:45.450Z"
-    },
-    {
-      "id": "audit_qnsryhz",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ac3daa21ef68519b",
-      "targetTitle": "#APP-2026-3503 -> REJECTED by Jitesh (Admin)",
-      "createdAt": "2026-10-10T06:44:40.385Z"
-    },
-    {
-      "id": "audit_miat2ct",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ac3daa21ef68519b",
-      "targetTitle": "#APP-2026-3503 -> APPROVED by Jitesh (Admin)",
-      "createdAt": "2026-10-10T06:44:34.664Z"
-    },
-    {
-      "id": "audit_bat0v24",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ac3daa21ef68519b",
-      "targetTitle": "#APP-2026-3503 -> REJECTED by Jitesh (Admin)",
-      "createdAt": "2026-10-10T06:44:31.030Z"
-    },
-    {
-      "id": "audit_9i2zito",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_8f7b85d1a27893d7",
-      "targetTitle": "Removed #APP-2026-2420 (Audit Student)",
-      "createdAt": "2026-10-10T06:29:54.107Z"
-    },
-    {
-      "id": "audit_9zvqk6h",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_8f7b85d1a27893d7",
-      "targetTitle": "#APP-2026-2420 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:29:53.637Z"
-    },
-    {
-      "id": "audit_wkwigae",
-      "adminId": "usr_7b19ec99247b61c9",
-      "adminName": "Audit Student",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_8f7b85d1a27893d7",
-      "targetTitle": "Ai Essential (APP-2026-2420)",
-      "createdAt": "2026-10-10T06:29:52.907Z"
-    },
-    {
-      "id": "audit_1ha1ptf",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_APPOINTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_0246a70c96f1",
-      "targetTitle": "Revoked appointment for Dr. Test Professor (faculty.test.1791613768137@claxic.edu) and removed all course allotments.",
-      "createdAt": "2026-10-10T06:29:30.542Z"
-    },
-    {
-      "id": "audit_58zt0p4",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_UPDATED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_0246a70c96f1",
-      "targetTitle": "Allotted 1 courses to Dr. Test Professor",
-      "createdAt": "2026-10-10T06:29:30.229Z"
-    },
-    {
-      "id": "audit_4gxuuv1",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_PASSWORD_CHANGED_BY_ADMIN",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_0246a70c96f1",
-      "targetTitle": "Admin set permanent password for Dr. Test Professor (faculty.test.1791613768137@claxic.edu)",
-      "createdAt": "2026-10-10T06:29:29.009Z"
-    },
-    {
-      "id": "audit_yqrmvxm",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_APPOINTED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_0246a70c96f1",
-      "targetTitle": "Appointed Dr. Test Professor (faculty.test.1791613768137@claxic.edu) with 0 assigned courses.",
-      "createdAt": "2026-10-10T06:29:28.159Z"
-    },
-    {
-      "id": "audit_xo2r4v6",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_2fcfb7ccca6451a3",
-      "targetTitle": "John Doe Candidate (student.e2e.1791613743273@gmail.com)",
-      "createdAt": "2026-10-10T06:29:15.056Z"
-    },
-    {
-      "id": "audit_46vb7b9",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_2cd340840167a3f2",
-      "targetTitle": "Professor Alan Turing (faculty.promote.1791613748933@gmail.com)",
-      "createdAt": "2026-10-10T06:29:14.607Z"
-    },
-    {
-      "id": "audit_yx0ooxv",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_2cd340840167a3f2",
-      "targetTitle": "Revoked access to \"E2E Automated Course 2 - 1791613744942\" for Professor Alan Turing",
-      "createdAt": "2026-10-10T06:29:10.806Z"
-    },
-    {
-      "id": "audit_q2a7fkh",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "EXISTING_USER_PROMOTED_TO_STAFF",
-      "targetType": "STAFF",
-      "targetId": "usr_2cd340840167a3f2",
-      "targetTitle": "Appointed Professor Alan Turing (faculty.promote.1791613748933@gmail.com) with 2 assigned courses.",
-      "createdAt": "2026-10-10T06:29:09.969Z"
-    },
-    {
-      "id": "audit_68k08fc",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_6ba5547a623fe6fb",
-      "targetTitle": "#APP-2026-2577 -> REJECTED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:29:08.560Z"
-    },
-    {
-      "id": "audit_hg5ntts",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ef06b9f6be6cee6a",
-      "targetTitle": "#APP-2026-5678 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:29:08.184Z"
-    },
-    {
-      "id": "audit_ldix0pk",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ef06b9f6be6cee6a",
-      "targetTitle": "#APP-2026-5678 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-10T06:29:07.812Z"
-    },
-    {
-      "id": "audit_q7apigc",
-      "adminId": "usr_2fcfb7ccca6451a3",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_6ba5547a623fe6fb",
-      "targetTitle": "E2E Automated Course 2 - 1791613744942 (APP-2026-2577)",
-      "createdAt": "2026-10-10T06:29:07.107Z"
-    },
-    {
-      "id": "audit_n6ku33m",
-      "adminId": "usr_2fcfb7ccca6451a3",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_ef06b9f6be6cee6a",
-      "targetTitle": "E2E Automated Course 1 - 1791613744518 (APP-2026-5678)",
-      "createdAt": "2026-10-10T06:29:06.362Z"
-    },
-    {
-      "id": "audit_bzu4lm2",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_0e6184c157fae6e4",
-      "targetTitle": "E2E Automated Course 2 - 1791613744942",
-      "createdAt": "2026-10-10T06:29:04.946Z"
-    },
-    {
-      "id": "audit_zvwgb1x",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_2f7aec148ab2e283",
-      "targetTitle": "E2E Automated Course 1 - 1791613744518",
-      "createdAt": "2026-10-10T06:29:04.535Z"
-    },
-    {
-      "id": "audit_2ifp8pf",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_DELETED",
-      "targetType": "APPLICATION",
-      "targetId": "app_4bcfb3b74a22d022",
-      "targetTitle": "Removed #APP-2026-2064 (Audit Student)",
-      "createdAt": "2026-10-09T19:01:04.665Z"
-    },
-    {
-      "id": "audit_a9742uq",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_4bcfb3b74a22d022",
-      "targetTitle": "#APP-2026-2064 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-09T19:01:04.246Z"
-    },
-    {
-      "id": "audit_vljvzuo",
-      "adminId": "usr_a6807696f5cb475e",
-      "adminName": "Audit Student",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_4bcfb3b74a22d022",
-      "targetTitle": "Ai Essential (APP-2026-2064)",
-      "createdAt": "2026-10-09T19:01:03.602Z"
-    },
-    {
-      "id": "audit_118yh4v",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_APPOINTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_01eae1abaf06",
-      "targetTitle": "Revoked appointment for Dr. Test Professor (faculty.test.1791572434686@claxic.edu) and removed all course allotments.",
-      "createdAt": "2026-10-09T19:00:37.125Z"
-    },
-    {
-      "id": "audit_g4tdk2i",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_UPDATED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_01eae1abaf06",
-      "targetTitle": "Allotted 1 courses to Dr. Test Professor",
-      "createdAt": "2026-10-09T19:00:36.738Z"
-    },
-    {
-      "id": "audit_bigtu34",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_PASSWORD_CHANGED_BY_ADMIN",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_01eae1abaf06",
-      "targetTitle": "Admin set permanent password for Dr. Test Professor (faculty.test.1791572434686@claxic.edu)",
-      "createdAt": "2026-10-09T19:00:35.490Z"
-    },
-    {
-      "id": "audit_xalia2o",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_APPOINTED",
-      "targetType": "STAFF",
-      "targetId": "usr_staff_01eae1abaf06",
-      "targetTitle": "Appointed Dr. Test Professor (faculty.test.1791572434686@claxic.edu) with 0 assigned courses.",
-      "createdAt": "2026-10-09T19:00:34.707Z"
-    },
-    {
-      "id": "audit_9yugldq",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_ba7d2b9f4d1ce6e1",
-      "targetTitle": "John Doe Candidate (student.e2e.1791572359094@gmail.com)",
-      "createdAt": "2026-10-09T18:59:32.131Z"
-    },
-    {
-      "id": "audit_xfjp311",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "USER_DELETED",
-      "targetType": "USER",
-      "targetId": "usr_222669d1daab1f97",
-      "targetTitle": "Professor Alan Turing (faculty.promote.1791572365568@gmail.com)",
-      "createdAt": "2026-10-09T18:59:31.454Z"
-    },
-    {
-      "id": "audit_vrup8y3",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "STAFF_COURSE_ALLOTMENT_REVOKED",
-      "targetType": "STAFF",
-      "targetId": "usr_222669d1daab1f97",
-      "targetTitle": "Revoked access to \"E2E Automated Course 2 - 1791572360192\" for Professor Alan Turing",
-      "createdAt": "2026-10-09T18:59:27.694Z"
-    },
-    {
-      "id": "audit_68t722v",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "EXISTING_USER_PROMOTED_TO_STAFF",
-      "targetType": "STAFF",
-      "targetId": "usr_222669d1daab1f97",
-      "targetTitle": "Appointed Professor Alan Turing (faculty.promote.1791572365568@gmail.com) with 2 assigned courses.",
-      "createdAt": "2026-10-09T18:59:26.690Z"
-    },
-    {
-      "id": "audit_a24sv6o",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_2abc79c25b7902dd",
-      "targetTitle": "#APP-2026-3816 -> REJECTED by Claxic System Admin",
-      "createdAt": "2026-10-09T18:59:25.149Z"
-    },
-    {
-      "id": "audit_7ahtrpr",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_88fa410504aeef89",
-      "targetTitle": "#APP-2026-8475 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-09T18:59:24.371Z"
-    },
-    {
-      "id": "audit_xg2hv1w",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "APPLICATION_STATUS_UPDATED",
-      "targetType": "APPLICATION",
-      "targetId": "app_88fa410504aeef89",
-      "targetTitle": "#APP-2026-8475 -> APPROVED by Claxic System Admin",
-      "createdAt": "2026-10-09T18:59:24.010Z"
-    },
-    {
-      "id": "audit_22kt13g",
-      "adminId": "usr_ba7d2b9f4d1ce6e1",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_2abc79c25b7902dd",
-      "targetTitle": "E2E Automated Course 2 - 1791572360192 (APP-2026-3816)",
-      "createdAt": "2026-10-09T18:59:22.934Z"
-    },
-    {
-      "id": "audit_pmf47an",
-      "adminId": "usr_ba7d2b9f4d1ce6e1",
-      "adminName": "John Doe Candidate",
-      "action": "APPLICATION_SUBMITTED",
-      "targetType": "APPLICATION",
-      "targetId": "app_88fa410504aeef89",
-      "targetTitle": "E2E Automated Course 1 - 1791572359797 (APP-2026-8475)",
-      "createdAt": "2026-10-09T18:59:21.877Z"
-    },
-    {
-      "id": "audit_5ikdvvs",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_b10c5cafe41981b5",
-      "targetTitle": "E2E Automated Course 2 - 1791572360192",
-      "createdAt": "2026-10-09T18:59:20.204Z"
-    },
-    {
-      "id": "audit_xamw9cj",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_CREATED",
-      "targetType": "COURSE",
-      "targetId": "crs_9e362937b4dfa267",
-      "targetTitle": "E2E Automated Course 1 - 1791572359797",
-      "createdAt": "2026-10-09T18:59:19.807Z"
-    },
     {
       "id": "audit_e5yqpwc",
       "adminId": "usr_admin_system",
@@ -7801,297 +7806,9 @@
       "targetId": "crs_22cd35de6d111616",
       "targetTitle": "Course \"E2E Automated Course 2 - 1791570647821\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
       "createdAt": "2026-10-09T18:30:52.827Z"
-    },
-    {
-      "id": "audit_6b8ed56fa7ef",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_9e362937b4dfa267",
-      "targetTitle": "Course \"E2E Automated Course 1 - 1791572359797\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-09T18:59:30.549Z"
-    },
-    {
-      "id": "audit_8bb4d2196eb3",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_b10c5cafe41981b5",
-      "targetTitle": "Course \"E2E Automated Course 2 - 1791572360192\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-09T18:59:31.022Z"
-    },
-    {
-      "id": "audit_4f14e322fbb2",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_2f7aec148ab2e283",
-      "targetTitle": "Course \"E2E Automated Course 1 - 1791613744518\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:29:13.668Z"
-    },
-    {
-      "id": "audit_4b6e9dea83ee",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_0e6184c157fae6e4",
-      "targetTitle": "Course \"E2E Automated Course 2 - 1791613744942\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:29:14.100Z"
-    },
-    {
-      "id": "audit_fc3795e9bd25",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_d763221aaffb9e5b",
-      "targetTitle": "Course \"E2E Automated Course 1 - 1791614962358\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:49:31.651Z"
-    },
-    {
-      "id": "audit_a0d8c567e9c7",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_51508f549fad78ef",
-      "targetTitle": "Course \"E2E Automated Course 2 - 1791614962744\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:49:32.039Z"
-    },
-    {
-      "id": "audit_05ac0bfda8a0",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_7f2baa99354410c1",
-      "targetTitle": "Course \"E2E Automated Course 1 - 1791570549996\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:55:15.294Z"
-    },
-    {
-      "id": "audit_c10699872f07",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_ebba73e49c3775ff",
-      "targetTitle": "Course \"E2E Automated Course 2 - 1791570614080\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:55:17.484Z"
-    },
-    {
-      "id": "audit_bf0c0f8e0288",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_b5e7efb39e497c1b",
-      "targetTitle": "Course \"E2E Automated Course 2 - 1791570550176\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:55:19.017Z"
-    },
-    {
-      "id": "audit_27d16dcf293a",
-      "adminId": "usr_admin_jitesh",
-      "adminName": "Jitesh (Admin)",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_ec6dfb3499405d94",
-      "targetTitle": "Course \"E2E Automated Course 1 - 1791570613849\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T06:55:21.299Z"
-    },
-    {
-      "id": "audit_709df9adfcc9",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_1c8f4d70de7aa3b8",
-      "targetTitle": "Course \"E2E Automated Course 1 - 1791616605129\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T07:16:54.849Z"
-    },
-    {
-      "id": "audit_95e305e689da",
-      "adminId": "usr_admin_system",
-      "adminName": "Claxic System Admin",
-      "action": "COURSE_PERMANENTLY_DELETED",
-      "targetType": "COURSE",
-      "targetId": "crs_2c22993d5b8a714a",
-      "targetTitle": "Course \"E2E Automated Course 2 - 1791616605651\" and all related allotments, curriculum, videos, submissions, and enrollments completely deleted.",
-      "createdAt": "2026-10-10T07:16:55.269Z"
     }
   ],
   "emailRecords": [
-    {
-      "id": "eml_fmp1tsf",
-      "toEmail": "student.audit.1791627069529@gmail.com",
-      "subject": "Application Received — Ai Essential",
-      "previewText": "\n        \n          Application Received: Ai Essential\n          Application #: APP-2026-3177\n          Fee Amount: ₹500",
-      "timestamp": "2026-10-10T10:11:15.244Z"
-    },
-    {
-      "id": "eml_5907178",
-      "toEmail": "student.audit.1791627069529@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            517668\n",
-      "timestamp": "2026-10-10T10:11:11.323Z"
-    },
-    {
-      "id": "eml_tzuys3x",
-      "toEmail": "faculty.promote.1791616610231@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            895392\n",
-      "timestamp": "2026-10-10T07:16:50.619Z"
-    },
-    {
-      "id": "eml_rodf7tg",
-      "toEmail": "student.e2e.1791616604374@gmail.com",
-      "subject": "Application Received — E2E Automated Course 2 - 1791616605651",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 2 - 1791616605651\n          Application #: APP-2026-2114\n",
-      "timestamp": "2026-10-10T07:16:48.498Z"
-    },
-    {
-      "id": "eml_h9ivprf",
-      "toEmail": "student.e2e.1791616604374@gmail.com",
-      "subject": "Application Received — E2E Automated Course 1 - 1791616605129",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 1 - 1791616605129\n          Application #: APP-2026-7857\n",
-      "timestamp": "2026-10-10T07:16:47.729Z"
-    },
-    {
-      "id": "eml_093xcb3",
-      "toEmail": "student.e2e.1791616604374@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            799089\n",
-      "timestamp": "2026-10-10T07:16:46.518Z"
-    },
-    {
-      "id": "eml_34gshkk",
-      "toEmail": "student.audit.1791615022563@gmail.com",
-      "subject": "Application Received — Ai Essential",
-      "previewText": "\n        \n          Application Received: Ai Essential\n          Application #: APP-2026-2886\n          Fee Amount: ₹500",
-      "timestamp": "2026-10-10T06:50:24.528Z"
-    },
-    {
-      "id": "eml_ym7bux2",
-      "toEmail": "student.audit.1791615022563@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            877009\n",
-      "timestamp": "2026-10-10T06:50:23.129Z"
-    },
-    {
-      "id": "eml_i5fpfp1",
-      "toEmail": "faculty.promote.1791614966795@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            287208\n",
-      "timestamp": "2026-10-10T06:49:27.293Z"
-    },
-    {
-      "id": "eml_ljoqtpg",
-      "toEmail": "student.e2e.1791614961708@gmail.com",
-      "subject": "Application Received — E2E Automated Course 2 - 1791614962744",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 2 - 1791614962744\n          Application #: APP-2026-6107\n",
-      "timestamp": "2026-10-10T06:49:25.431Z"
-    },
-    {
-      "id": "eml_9p188q9",
-      "toEmail": "student.e2e.1791614961708@gmail.com",
-      "subject": "Application Received — E2E Automated Course 1 - 1791614962358",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 1 - 1791614962358\n          Application #: APP-2026-9885\n",
-      "timestamp": "2026-10-10T06:49:24.683Z"
-    },
-    {
-      "id": "eml_mighw1h",
-      "toEmail": "student.e2e.1791614961708@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            381301\n",
-      "timestamp": "2026-10-10T06:49:23.646Z"
-    },
-    {
-      "id": "eml_qu83nhq",
-      "toEmail": "student.audit.1791613791681@gmail.com",
-      "subject": "Application Received — Ai Essential",
-      "previewText": "\n        \n          Application Received: Ai Essential\n          Application #: APP-2026-2420\n          Fee Amount: ₹500",
-      "timestamp": "2026-10-10T06:29:53.261Z"
-    },
-    {
-      "id": "eml_70r2mih",
-      "toEmail": "student.audit.1791613791681@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            891784\n",
-      "timestamp": "2026-10-10T06:29:52.051Z"
-    },
-    {
-      "id": "eml_45hublu",
-      "toEmail": "faculty.promote.1791613748933@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            273430\n",
-      "timestamp": "2026-10-10T06:29:09.293Z"
-    },
-    {
-      "id": "eml_naugxum",
-      "toEmail": "student.e2e.1791613743273@gmail.com",
-      "subject": "Application Received — E2E Automated Course 2 - 1791613744942",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 2 - 1791613744942\n          Application #: APP-2026-2577\n",
-      "timestamp": "2026-10-10T06:29:07.426Z"
-    },
-    {
-      "id": "eml_h73ild7",
-      "toEmail": "student.e2e.1791613743273@gmail.com",
-      "subject": "Application Received — E2E Automated Course 1 - 1791613744518",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 1 - 1791613744518\n          Application #: APP-2026-5678\n",
-      "timestamp": "2026-10-10T06:29:06.721Z"
-    },
-    {
-      "id": "eml_i4o1ub5",
-      "toEmail": "student.e2e.1791613743273@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            443985\n",
-      "timestamp": "2026-10-10T06:29:05.625Z"
-    },
-    {
-      "id": "eml_8xms63i",
-      "toEmail": "student.audit.1791572462101@gmail.com",
-      "subject": "Application Received — Ai Essential",
-      "previewText": "\n        \n          Application Received: Ai Essential\n          Application #: APP-2026-2064\n          Fee Amount: ₹500",
-      "timestamp": "2026-10-09T19:01:03.896Z"
-    },
-    {
-      "id": "eml_fycwkyf",
-      "toEmail": "student.audit.1791572462101@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            407560\n",
-      "timestamp": "2026-10-09T19:01:02.604Z"
-    },
-    {
-      "id": "eml_yqc64a0",
-      "toEmail": "faculty.promote.1791572365568@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            899301\n",
-      "timestamp": "2026-10-09T18:59:25.894Z"
-    },
-    {
-      "id": "eml_jap0tfo",
-      "toEmail": "student.e2e.1791572359094@gmail.com",
-      "subject": "Application Received — E2E Automated Course 2 - 1791572360192",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 2 - 1791572360192\n          Application #: APP-2026-3816\n",
-      "timestamp": "2026-10-09T18:59:23.461Z"
-    },
-    {
-      "id": "eml_1y0hvw1",
-      "toEmail": "student.e2e.1791572359094@gmail.com",
-      "subject": "Application Received — E2E Automated Course 1 - 1791572359797",
-      "previewText": "\n        \n          Application Received: E2E Automated Course 1 - 1791572359797\n          Application #: APP-2026-8475\n",
-      "timestamp": "2026-10-09T18:59:22.335Z"
-    },
-    {
-      "id": "eml_9dqs5kx",
-      "toEmail": "student.e2e.1791572359094@gmail.com",
-      "subject": "Verify Your Claxic Account",
-      "previewText": "\n        \n          Verify Your Claxic Email\n          Your 6-digit verification code is:\n          \n            425224\n",
-      "timestamp": "2026-10-09T18:59:20.899Z"
-    },
     {
       "id": "eml_9uz2xa7",
       "toEmail": "faculty.promote.1791570650085@gmail.com",
@@ -8332,37 +8049,7 @@
     }
   ],
   "projectSubmissions": [],
-  "studentProgress": [
-    {
-      "id": "prog_fa834926c9f3da6f",
-      "userId": "usr_admin_jitesh_genkit",
-      "courseId": "crs_e4f24ee662e73f92",
-      "startDate": "2026-10-10",
-      "completedClasses": [
-        "cls_crs_e4f24ee662e73f92_1"
-      ],
-      "testResults": [],
-      "attendance": [
-        {
-          "classId": "cls_crs_e4f24ee662e73f92_1",
-          "date": "2026-10-10",
-          "attended": false
-        },
-        {
-          "classId": "cls_crs_e4f24ee662e73f92_2",
-          "date": "2026-10-10",
-          "attended": false
-        },
-        {
-          "classId": "cls_crs_e4f24ee662e73f92_3",
-          "date": "2026-10-10",
-          "attended": false
-        }
-      ],
-      "progressPercent": 0,
-      "updatedAt": "2026-10-10T15:53:42.439Z"
-    }
-  ],
+  "studentProgress": [],
   "doubts": [],
   "staffCourseAllotments": [
     {
@@ -8372,6 +8059,24 @@
       "assignedBy": "usr_admin_jitesh",
       "assignedAt": "2026-10-09T14:44:05.606Z",
       "updatedAt": "2026-10-09T14:44:05.606Z",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "allot_a936556d513b",
+      "staffId": "usr_8fa1a0b48af1406d",
+      "courseId": "crs_ec6dfb3499405d94",
+      "assignedBy": "usr_admin_system",
+      "assignedAt": "2026-10-09T18:30:16.965Z",
+      "updatedAt": "2026-10-09T18:30:16.965Z",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "allot_bced3a2493e4",
+      "staffId": "usr_8fa1a0b48af1406d",
+      "courseId": "crs_ebba73e49c3775ff",
+      "assignedBy": "usr_admin_system",
+      "assignedAt": "2026-10-09T18:30:16.965Z",
+      "updatedAt": "2026-10-09T18:30:16.965Z",
       "status": "ACTIVE"
     }
   ],

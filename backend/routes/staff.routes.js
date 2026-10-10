@@ -29,7 +29,7 @@ export function getEnrolledStudentsForCourse(course, data) {
   const courseId = course.id;
   const courseSlug = course.slug;
   const normCourseTitle = course.title?.toLowerCase().trim();
-  const validAppStatuses = ['CONFIRMED', 'APPROVED', 'SUBMITTED', 'ENROLLED', 'PAID', 'ACCEPTED'];
+  const validAppStatuses = ['CONFIRMED', 'APPROVED', 'ENROLLED', 'PAID', 'ACCEPTED'];
   const studentUserIds = new Set();
   const studentsMap = new Map();
 
@@ -197,6 +197,8 @@ router.get('/profile', (req, res) => {
         allottedCourses: allotments,
         allottedCourseCount: allotments.length,
       },
+      allottedCourses: allotments,
+      allottedCourseCount: allotments.length,
     });
   } catch (err) {
     console.error('Fetch staff profile error:', err);
@@ -513,7 +515,38 @@ router.put('/courses/:courseId', async (req, res) => {
   }
 });
 
-// 2c. Get Students Applied for Specific Course
+// 2c. Delete Course (Faculty / Staff with Full Cascade Removal)
+router.delete('/courses/:courseId', async (req, res) => {
+  try {
+    const staffUser = req.user;
+    const { courseId } = req.params;
+
+    if (!isStaffAllotted(staffUser.id, courseId, staffUser.role)) {
+      return res.status(403).json({ error: 'Access denied. You are not allotted to manage this course.' });
+    }
+
+    const result = db.deleteCourse(courseId, {
+      id: staffUser.id,
+      name: staffUser.name,
+      role: staffUser.role,
+    });
+
+    if (!result.found) {
+      return res.status(404).json({ error: 'Course not found.' });
+    }
+
+    return res.json({
+      success: true,
+      message: `Course "${result.title}" and all related materials have been completely deleted.`,
+      course: result.course,
+    });
+  } catch (err) {
+    console.error('Staff delete course error:', err);
+    return res.status(500).json({ error: 'Failed to delete course.' });
+  }
+});
+
+// 2d. Get Students Applied for Specific Course
 router.get('/courses/:courseId/applications', (req, res) => {
   try {
     const { courseId } = req.params;
@@ -771,43 +804,6 @@ router.get('/announcements', (req, res) => {
   }
 });
 
-// Helper: Seed sample classes if empty
-const getInitialSampleClasses = (courseId) => [
-  {
-    id: `cls_${courseId}_1`,
-    classNumber: 1,
-    title: 'Class 1: Course Overview, Prerequisites & Workspace Setup',
-    description: 'Welcome and full architectural overview. Walkthrough of dev environment setup, Docker configuration, and initial codebase walkthrough.',
-    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '1 hr 15 mins',
-    resourcesUrl: 'https://github.com/claxic-academy/lecture-notes-class-1',
-    status: 'PUBLISHED',
-    uploadedAt: '2026-08-25T10:00:00.000Z',
-  },
-  {
-    id: `cls_${courseId}_2`,
-    classNumber: 2,
-    title: 'Class 2: Deep Dive into Distributed Systems & State Contracts',
-    description: 'Comprehensive analysis of state consistency, RPC models, database indexing, and event queues in production microservices.',
-    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '1 hr 30 mins',
-    resourcesUrl: 'https://github.com/claxic-academy/lecture-notes-class-2',
-    status: 'PUBLISHED',
-    uploadedAt: '2026-08-28T10:00:00.000Z',
-  },
-  {
-    id: `cls_${courseId}_3`,
-    classNumber: 3,
-    title: 'Class 3: Advanced Real-Time Protocols & Production Deployment',
-    description: 'Hands-on lab: building WebSocket synchronization, error handling, rate limiting, and zero-downtime CI/CD container pipelines.',
-    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '1 hr 45 mins',
-    resourcesUrl: 'https://github.com/claxic-academy/lecture-notes-class-3',
-    status: 'PUBLISHED',
-    uploadedAt: '2026-09-01T10:00:00.000Z',
-  },
-];
-
 // 8. Get Classes / Episodes for Course
 router.get('/courses/:courseId/classes', async (req, res) => {
   try {
@@ -822,18 +818,9 @@ router.get('/courses/:courseId/classes', async (req, res) => {
       return res.status(404).json({ error: 'Course not found.' });
     }
 
-    if (!course.classes || course.classes.length === 0) {
-      const initialClasses = getInitialSampleClasses(course.id);
-      await db.transaction((data) => {
-        const c = data.courses.find((item) => item.id === course.id);
-        if (c) {
-          c.classes = initialClasses;
-        }
-      });
-      return res.json({ success: true, courseId: course.id, classes: initialClasses });
-    }
-
-    return res.json({ success: true, courseId: course.id, classes: course.classes });
+    // Return actual uploaded classes (empty array if no classes have been added yet)
+    const classes = Array.isArray(course.classes) ? course.classes : [];
+    return res.json({ success: true, courseId: course.id, classes });
   } catch (err) {
     console.error('Fetch classes error:', err);
     return res.status(500).json({ error: 'Failed to retrieve course classes.' });

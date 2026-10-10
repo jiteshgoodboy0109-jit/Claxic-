@@ -18,6 +18,10 @@ import {
   ShieldCheck,
   Clock,
   Save,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) => {
@@ -49,9 +53,14 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
   const [isActive, setIsActive] = useState(true);
   const [isVerified, setIsVerified] = useState(true);
 
-  // Direct Password Reset Sub-panel
-  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  // Password State & Visibility
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [copiedCurrent, setCopiedCurrent] = useState(false);
+
+  const [showPasswordReset, setShowPasswordReset] = useState(true);
   const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(null);
 
@@ -72,6 +81,23 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
     setMobile(digits);
   };
 
+  const handleCopyCurrentPassword = () => {
+    if (!currentPassword) return;
+    navigator.clipboard.writeText(currentPassword);
+    setCopiedCurrent(true);
+    setTimeout(() => setCopiedCurrent(false), 2000);
+  };
+
+  const handleGeneratePassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*';
+    let generated = 'Clx@';
+    for (let i = 0; i < 8; i++) {
+      generated += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setNewPassword(generated);
+    setShowNewPassword(true);
+  };
+
   useEffect(() => {
     if (targetUser) {
       setName(targetUser.name || '');
@@ -83,11 +109,15 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
       setRole(targetUser.role || 'USER');
       setIsActive(targetUser.isActive !== false);
       setIsVerified(Boolean(targetUser.isVerified));
+      setCurrentPassword(targetUser.currentPassword || '');
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setCopiedCurrent(false);
       setNewPassword('');
       setError(null);
       setSuccessMsg(null);
       setResetSuccess(null);
-      setShowPasswordReset(false);
+      setShowPasswordReset(true);
     }
   }, [targetUser, isOpen]);
 
@@ -162,8 +192,13 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to reset password.');
 
-      setResetSuccess(`Password successfully reset for ${targetUser.name}. Previous sessions revoked.`);
+      const finalPass = data.currentPassword || newPassword;
+      setCurrentPassword(finalPass);
+      if (targetUser) targetUser.currentPassword = finalPass;
+      setResetSuccess(`Password successfully updated! "${finalPass}" is now saved as the permanent final password.`);
       setNewPassword('');
+      window.dispatchEvent(new CustomEvent('claxic_user_updated'));
+      if (onSaved) onSaved();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -406,12 +441,12 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
             </div>
           </div>
 
-          {/* Section 4: Direct Admin Password Override */}
-          <div className="p-4 rounded-2xl bg-[#FFF7E6]/70 border border-[#FEDDAA] space-y-2.5">
+          {/* Section 4: Admin Password Override & Credentials */}
+          <div className="p-4 rounded-2xl bg-[#FFF7E6]/70 border border-[#FEDDAA] space-y-3.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#D97706]">
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>Admin Password Override</span>
+              <div className="flex items-center gap-2 text-xs font-bold text-[#D97706]">
+                <KeyRound className="w-4 h-4 text-[#D97706]" />
+                <span className="text-sm font-bold">Admin Password Override</span>
               </div>
 
               <button
@@ -419,35 +454,139 @@ export const UserEditModal = ({ isOpen, onClose, user, userToEdit, onSaved }) =>
                 onClick={() => setShowPasswordReset(!showPasswordReset)}
                 className="text-xs font-semibold text-[#D97706] hover:text-[#B45309] underline underline-offset-2 cursor-pointer"
               >
-                {showPasswordReset ? 'Hide Password Reset' : 'Change User Password'}
+                {showPasswordReset ? 'Hide Password Settings' : 'Manage Password'}
               </button>
             </div>
 
             {showPasswordReset && (
-              <div className="pt-2 space-y-2 animate-in fade-in">
-                <p className="text-[11px] text-[#6B6258]">
-                  Setting a new password will immediately revoke all current active login sessions for this account.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center gap-2">
-                  <div className="relative w-full">
-                    <Lock className="w-3.5 h-3.5 text-[#82684D] absolute left-3 top-2.5" />
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new 8+ char password..."
-                      className="w-full bg-white border border-[#E8E3DC] focus:border-[#F59E0B] rounded-xl pl-8 pr-3 py-2 text-xs text-[#1F1F1F] font-mono outline-none"
-                    />
+              <div className="space-y-3 pt-1 animate-in fade-in">
+                {/* 1. CURRENT ACTIVE PASSWORD (VISIBLE WITH EYE TOGGLE & QUICK COPY) */}
+                <div className="bg-white/95 border border-[#FEDDAA] rounded-xl p-3.5 space-y-1.5 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#82684D] flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-[#D97706]" />
+                      <span>Current Active Password</span>
+                    </label>
+                    <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Live Password
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleAdminResetPassword}
-                    disabled={isResettingPassword || newPassword.length < 8}
-                    className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-bold shadow-xs cursor-pointer disabled:opacity-50 whitespace-nowrap transition-colors"
-                  >
-                    {isResettingPassword ? 'Updating...' : 'Set Password'}
-                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        value={currentPassword || '••••••••'}
+                        readOnly
+                        className="w-full bg-[#FAFAF7] border border-[#E8E3DC] rounded-xl pl-3.5 pr-10 py-2 text-xs font-mono font-bold text-[#1F1F1F] outline-none select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1 cursor-pointer transition-colors"
+                        title={showCurrentPassword ? 'Hide Current Password' : 'Show Current Password'}
+                        aria-label={showCurrentPassword ? 'Hide Current Password' : 'Show Current Password'}
+                      >
+                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyCurrentPassword}
+                      disabled={!currentPassword}
+                      className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FFF7E6] border border-[#E8E3DC] hover:border-[#FEDDAA] text-[#1F1F1F] hover:text-[#D97706] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 shrink-0 shadow-2xs"
+                      title="Copy Current Password"
+                    >
+                      {copiedCurrent ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-700 font-bold">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-[#82684D]">
+                    This is the student/user's currently active password. Click the eye icon to view or unmask it.
+                  </p>
                 </div>
+
+                {/* 2. SET NEW FINAL PASSWORD */}
+                <div className="bg-white/95 border border-[#FEDDAA] rounded-xl p-3.5 space-y-2.5 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#82684D] flex items-center gap-1.5">
+                      <KeyRound className="w-3.5 h-3.5 text-[#D97706]" />
+                      <span>Set New Final Password</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={handleGeneratePassword}
+                      className="text-[11px] font-bold text-[#D97706] hover:text-[#B45309] flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Sparkles className="w-3 h-3 text-[#F59E0B]" />
+                      <span>Generate Strong</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div className="relative flex-1">
+                      <Lock className="w-3.5 h-3.5 text-[#82684D] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new 8+ char password..."
+                        className="w-full bg-[#FAFAF7] focus:bg-white border border-[#E8E3DC] focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/15 rounded-xl pl-8.5 pr-10 py-2 text-xs text-[#1F1F1F] font-mono outline-none transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1 cursor-pointer transition-colors"
+                        title={showNewPassword ? 'Hide New Password' : 'Show New Password'}
+                        aria-label={showNewPassword ? 'Hide New Password' : 'Show New Password'}
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleAdminResetPassword}
+                      disabled={isResettingPassword || newPassword.length < 8}
+                      className="px-4 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-bold shadow-xs cursor-pointer disabled:opacity-50 whitespace-nowrap transition-colors flex items-center justify-center gap-1.5 active:scale-[0.99]"
+                    >
+                      {isResettingPassword ? (
+                        <>
+                          <LoadingSpinner size="xs" variant="white" inline />
+                          <span>Updating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Set Final Password</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] text-[#6B6258] leading-relaxed">
+                    Setting a new password will revoke previous active sessions. This new password will become their permanent final password for future logins.
+                  </p>
+                </div>
+
+                {/* Success Banner */}
+                {resetSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 animate-in fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{resetSuccess}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

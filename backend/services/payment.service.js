@@ -30,16 +30,36 @@ export async function createPaymentOrder(req, res) {
     }
 
     if (course.isFree || course.price === 0) {
-      // Auto-confirm free course enrollment without payment gateway
+      const now = new Date().toISOString();
       await db.transaction((data) => {
         const app = data.applications.find((a) => a.id === applicationId);
         if (app) {
           app.status = 'APPROVED';
-          app.updatedAt = new Date().toISOString();
+          app.updatedAt = now;
         }
         const c = data.courses.find((item) => item.id === course.id);
         if (c && (c.enrolledCount || 0) < (c.capacity || 40)) {
           c.enrolledCount = (c.enrolledCount || 0) + 1;
+        }
+
+        if (!data.enrollments) data.enrollments = [];
+        let enr = data.enrollments.find((e) => e.userId === user.id && e.courseId === course.id);
+        if (!enr) {
+          data.enrollments.push({
+            id: 'enr_' + crypto.randomBytes(8).toString('hex'),
+            userId: user.id,
+            courseId: course.id,
+            applicationId,
+            status: 'ACTIVE',
+            paymentStatus: 'FREE',
+            enrolledAt: now,
+            updatedAt: now,
+          });
+        } else {
+          enr.status = 'ACTIVE';
+          enr.paymentStatus = 'FREE';
+          enr.applicationId = applicationId;
+          enr.updatedAt = now;
         }
       });
 
@@ -97,7 +117,23 @@ export async function verifyPayment(req, res) {
 
     // Cryptographic Razorpay Signature Verification
     const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
-    if (razorpaySecret && signature && !signature.startsWith('sig_sim_')) {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (isProduction) {
+      if (!razorpaySecret) {
+        return res.status(503).json({ error: 'Payment gateway configuration error: RAZORPAY_KEY_SECRET is not configured in production.' });
+      }
+      if (!signature || signature.startsWith('sig_sim_')) {
+        return res.status(400).json({ error: 'Simulated payments are strictly disabled in production.' });
+      }
+      const generatedSignature = crypto
+        .createHmac('sha256', razorpaySecret)
+        .update(`${orderId}|${paymentId}`)
+        .digest('hex');
+      if (generatedSignature !== signature) {
+        return res.status(400).json({ error: 'Cryptographic Razorpay payment signature verification failed.' });
+      }
+    } else if (razorpaySecret && signature && !signature.startsWith('sig_sim_')) {
       const generatedSignature = crypto
         .createHmac('sha256', razorpaySecret)
         .update(`${orderId}|${paymentId}`)
@@ -137,6 +173,27 @@ export async function verifyPayment(req, res) {
       course.enrolledCount += 1;
       if (course.enrolledCount >= course.capacity) {
         course.status = 'FULL';
+      }
+
+      // Synchronously create / activate enrollment in enrollments table
+      if (!data.enrollments) data.enrollments = [];
+      let enr = data.enrollments.find((e) => e.userId === user.id && e.courseId === course.id);
+      if (!enr) {
+        data.enrollments.push({
+          id: 'enr_' + crypto.randomBytes(8).toString('hex'),
+          userId: user.id,
+          courseId: course.id,
+          applicationId: application.id,
+          status: 'ACTIVE',
+          paymentStatus: 'PAID',
+          enrolledAt: now,
+          updatedAt: now,
+        });
+      } else {
+        enr.status = 'ACTIVE';
+        enr.paymentStatus = 'PAID';
+        enr.applicationId = application.id;
+        enr.updatedAt = now;
       }
 
       // Record payment
@@ -215,10 +272,21 @@ export async function verifyPayment(req, res) {
 
 export async function handleWebhook(req, res) {
   try {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const webhookSignature = req.headers['x-razorpay-signature'];
+    if (webhookSecret && webhookSignature) {
+      const expectedSignature = crypto
+        .createHmac('sha256', webhookSecret)
+        .update(JSON.stringify(req.body))
+        .digest('hex');
+      if (expectedSignature !== webhookSignature) {
+        return res.status(400).json({ error: 'Invalid webhook signature.' });
+      }
+    }
     const event = req.body;
     console.log('Razorpay Webhook event received:', event?.event);
     return res.json({ status: 'received' });
   } catch (e) {
-    return res.status(500).json({ error: 'Webhook processing failed' });
+    return res.status(500).json({ error: 'Webhook processing failed.' });
   }
 }

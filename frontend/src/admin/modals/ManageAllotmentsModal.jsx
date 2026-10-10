@@ -34,12 +34,20 @@ export const ManageAllotmentsModal = ({
   // Sync initial allotments when staffMember changes
   useEffect(() => {
     if (staffMember) {
-      const initialIds = (staffMember.allottedCourses || []).map((c) => (typeof c === 'string' ? c : c.id));
-      setSelectedCourseIds(initialIds);
+      const fromAllotmentsList = (allotmentsList || [])
+        .filter((a) => a.staffId === staffMember.id && (a.status === 'ACTIVE' || !a.status))
+        .map((a) => a.courseId);
+
+      const fromStaffRecord = (staffMember.allottedCourses || []).map((c) =>
+        typeof c === 'string' ? c : (c.courseId || c.id)
+      );
+
+      const combinedIds = [...new Set([...fromAllotmentsList, ...fromStaffRecord])];
+      setSelectedCourseIds(combinedIds);
       setError(null);
       setSearchTerm('');
     }
-  }, [staffMember, isOpen]);
+  }, [staffMember, isOpen, allotmentsList]);
 
   if (!staffMember) return null;
 
@@ -56,7 +64,7 @@ export const ManageAllotmentsModal = ({
       (s) =>
         s.id !== staffMember.id &&
         (s.allottedCourses || []).some((ac) =>
-          typeof ac === 'string' ? ac === courseId : ac.id === courseId
+          typeof ac === 'string' ? ac === courseId : (ac.courseId === courseId || ac.id === courseId)
         )
     );
     return other ? other.name : null;
@@ -109,7 +117,7 @@ export const ManageAllotmentsModal = ({
       if (onAllotmentsSaved) {
         onAllotmentsSaved({
           staffId: staffMember.id,
-          allottedCourses: data.allottedCourses,
+          allottedCourses: data.allottedCourses || data.allotments || [],
           allotmentsCount: selectedCourseIds.length,
         });
       }

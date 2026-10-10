@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { db } from '../db/index.js';
 import { requireAuth } from '../middleware/index.js';
+import { enrichCourseWithRealStaff } from './courses.routes.js';
 
 const router = express.Router();
 
@@ -93,25 +94,40 @@ router.get('/my-courses', requireAuth, (req, res) => {
   try {
     const user = req.user;
     const applications = (db.raw.applications || []).filter(
-      (a) => a.userId === user.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED' || a.status === 'SUBMITTED')
+      (a) => a.userId === user.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED')
     );
+    const activeEnrollments = (db.raw.enrollments || []).filter(
+      (e) => e.userId === user.id && e.status === 'ACTIVE'
+    );
+
+    // Merge unique courses accessible to this student
+    const accessibleCoursesMap = new Map();
+    for (const app of applications) {
+      if (app.courseId) accessibleCoursesMap.set(app.courseId, app);
+    }
+    for (const enr of activeEnrollments) {
+      if (enr.courseId && !accessibleCoursesMap.has(enr.courseId)) {
+        accessibleCoursesMap.set(enr.courseId, {
+          courseId: enr.courseId,
+          createdAt: enr.enrolledAt,
+          formData: {},
+        });
+      }
+    }
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    const enrolledCourses = applications.map((app) => {
-      const course = db.raw.courses.find((c) => c.id === app.courseId) || {
-        id: app.courseId,
-        title: app.courseTitle,
-        category: 'Engineering',
-        duration: '12 Weeks',
-        dailyReleaseTime: '09:00',
-        classes: [],
-      };
+    const enrolledCourses = Array.from(accessibleCoursesMap.values())
+      .map((app) => {
+        const course = (db.raw.courses || []).find((c) => c.id === app.courseId || c.slug === app.courseId);
+        if (!course) {
+          return null;
+        }
 
-      // Selected / registered start date
-      const startDate = app.formData?.startDate || app.createdAt?.split('T')[0] || course.startDate || todayStr;
+        // Selected / registered start date
+        const startDate = app.formData?.startDate || app.createdAt?.split('T')[0] || course.startDate || todayStr;
 
-      // Student progress record
+        // Student progress record
       const progress = (db.raw.studentProgress || []).find(
         (sp) => sp.userId === user.id && sp.courseId === course.id
       ) || {
@@ -200,12 +216,13 @@ router.get('/my-courses', requireAuth, (req, res) => {
       ) || null;
 
       return {
+        id: course.id,
         courseId: course.id,
         courseTitle: course.title,
         bannerImage: course.bannerImage || '',
         category: course.category,
         duration: course.duration,
-        instructor: course.instructor,
+        instructor: enrichCourseWithRealStaff(course).instructor,
         startDate,
         formattedStartDate: formatFriendlyDate(startDate),
         applicationNumber: app.applicationNumber,
@@ -216,7 +233,7 @@ router.get('/my-courses', requireAuth, (req, res) => {
         schedule,
         finalProject,
       };
-    });
+    }).filter(Boolean);
 
     return res.json({ success: true, courses: enrolledCourses });
   } catch (err) {
@@ -238,7 +255,7 @@ router.post('/courses/:courseId/classes/:classId/complete', requireAuth, async (
 
     // Verify enrollment
     const app = (db.raw.applications || []).find(
-      (a) => a.userId === user.id && a.courseId === courseId && (a.status === 'CONFIRMED' || a.status === 'APPROVED' || a.status === 'SUBMITTED')
+      (a) => a.userId === user.id && a.courseId === courseId && (a.status === 'CONFIRMED' || a.status === 'APPROVED')
     );
     if (!app) {
       return res.status(403).json({ error: 'You are not enrolled in this course.' });
@@ -335,7 +352,7 @@ router.post('/courses/:courseId/classes/:classId/quiz', requireAuth, async (req,
 
     // Verify enrollment
     const app = (db.raw.applications || []).find(
-      (a) => a.userId === user.id && a.courseId === courseId && (a.status === 'CONFIRMED' || a.status === 'APPROVED' || a.status === 'SUBMITTED')
+      (a) => a.userId === user.id && a.courseId === courseId && (a.status === 'CONFIRMED' || a.status === 'APPROVED')
     );
     if (!app) {
       return res.status(403).json({ error: 'You are not enrolled in this course.' });
@@ -734,7 +751,7 @@ router.get('/courses/:courseId/classes/:classId/video-stream', requireAuth, asyn
     // Role check: USER role must be enrolled in course
     if (user.role === 'USER') {
       const isEnrolled = (db.raw.applications || []).some(
-        (a) => a.userId === user.id && a.courseId === course.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED' || a.status === 'SUBMITTED')
+        (a) => a.userId === user.id && a.courseId === course.id && (a.status === 'CONFIRMED' || a.status === 'APPROVED')
       );
       if (!isEnrolled) {
         return res.status(403).json({ error: 'Access denied. You are not enrolled in this course.' });

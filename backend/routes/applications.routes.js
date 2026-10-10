@@ -116,7 +116,7 @@ router.post('/', requireAuth, async (req, res) => {
     );
 
     const isFree = Boolean(course.isFree || course.price === 0);
-    const initialStatus = isFree ? 'APPROVED' : 'SUBMITTED';
+    const initialStatus = 'SUBMITTED';
 
     await db.transaction((data) => {
       if (application) {
@@ -147,27 +147,15 @@ router.post('/', requireAuth, async (req, res) => {
         data.applications.push(application);
       }
 
-      if (isFree) {
-        const c = data.courses.find((item) => item.id === course.id);
-        if (c) {
-          c.enrolledCount = (c.enrolledCount || 0) + 1;
-          if (c.enrolledCount >= c.capacity) {
-            c.status = 'FULL';
-          }
-        }
-      }
-
       // Add user notification
       if (!data.notifications) data.notifications = [];
       data.notifications.unshift({
         id: 'notif_' + Math.random().toString(36).substring(2, 9),
         userId: user.id,
-        title: isFree ? '🎉 Free Enrollment Confirmed: ' + course.title : 'Application Received: ' + course.title,
-        message: isFree
-          ? `You have been instantly enrolled in free course "${course.title}". Start learning now!`
-          : `Your application #${application.applicationNumber || appNumber} has been received for review.`,
-        type: isFree ? 'success' : 'info',
-        link: '/dashboard',
+        title: 'Application Received: ' + course.title,
+        message: `Your application #${application.applicationNumber || appNumber} for "${course.title}" has been submitted successfully and is awaiting review and acceptance by the Administrator.`,
+        type: 'info',
+        link: '/student/applications',
         isRead: false,
         createdAt: now,
       });
@@ -178,7 +166,7 @@ router.post('/', requireAuth, async (req, res) => {
         id: 'audit_' + Math.random().toString(36).substring(2, 9),
         adminId: user.id,
         adminName: user.name,
-        action: isFree ? 'FREE_COURSE_ENROLLED' : 'APPLICATION_SUBMITTED',
+        action: 'APPLICATION_SUBMITTED',
         targetType: 'APPLICATION',
         targetId: application.id,
         targetTitle: `${course.title} (${application.applicationNumber || appNumber})`,

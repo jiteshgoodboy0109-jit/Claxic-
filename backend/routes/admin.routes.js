@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { db, hashPassword } from '../db/index.js';
 import { extractToken, getUserByToken, requireAdmin } from '../middleware/index.js';
 import { destroyAllUserSessions } from '../services/auth.service.js';
+import { enrichCourseWithRealStaff } from './courses.routes.js';
 
 const router = express.Router();
 
@@ -197,7 +198,8 @@ router.get('/analytics', (req, res) => {
 // Get All Courses (Admin View)
 router.get('/courses', (req, res) => {
   try {
-    res.json({ courses: db.raw.courses || [] });
+    const courses = (db.raw.courses || []).map(enrichCourseWithRealStaff);
+    res.json({ courses });
   } catch (err) {
     res.status(500).json({ error: 'Failed to load courses.' });
   }
@@ -216,6 +218,37 @@ router.post('/courses', async (req, res) => {
 
     const courseId = 'crs_' + crypto.randomBytes(8).toString('hex');
     const slug = courseData.slug || courseData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    let resolvedInstructor = {
+      name: 'Claxic Academic Faculty',
+      title: 'Faculty Lead',
+      company: 'Claxic Directorate',
+      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Claxic',
+      bio: 'Accredited curriculum managed by the Claxic Academic Directorate.',
+    };
+
+    let targetStaff = null;
+    if (courseData.staffId) {
+      targetStaff = (db.raw.users || []).find((u) => u.id === courseData.staffId && u.role === 'STAFF');
+    } else if (courseData.instructor?.id) {
+      targetStaff = (db.raw.users || []).find((u) => u.id === courseData.instructor.id && u.role === 'STAFF');
+    } else if (courseData.instructor?.name) {
+      targetStaff = (db.raw.users || []).find(
+        (u) => u.role === 'STAFF' && u.name.trim().toLowerCase() === courseData.instructor.name.trim().toLowerCase()
+      );
+    }
+
+    if (targetStaff) {
+      resolvedInstructor = {
+        id: targetStaff.id,
+        name: targetStaff.name,
+        email: targetStaff.email,
+        title: targetStaff.degree || courseData.instructor?.title || 'Faculty Member',
+        company: targetStaff.institution || courseData.instructor?.company || 'Claxic Academic Faculty',
+        avatar: targetStaff.avatar || courseData.instructor?.avatar,
+        bio: courseData.instructor?.bio || `${targetStaff.name} is a designated faculty mentor and instructor at Claxic.`,
+      };
+    }
 
     const newCourse = {
       id: courseId,
@@ -241,14 +274,7 @@ router.post('/courses', async (req, res) => {
       rating: 5.0,
       reviewsCount: 0,
       tags: Array.isArray(courseData.tags) ? courseData.tags : ['Engineering', 'Claxic'],
-      instructor: courseData.instructor || {
-        id: 'inst_' + Math.random().toString(36).substring(2, 7),
-        name: admin.name,
-        title: 'Senior Faculty Member',
-        company: 'Claxic Academic Directorate',
-        avatar: admin.avatar,
-        bio: 'Distinguished researcher and course director.',
-      },
+      instructor: resolvedInstructor,
       modules: courseData.modules || [],
       learningOutcomes: courseData.learningOutcomes || [],
       requirements: courseData.requirements || [],
@@ -259,6 +285,18 @@ router.post('/courses', async (req, res) => {
 
     await db.transaction((data) => {
       data.courses.unshift(newCourse);
+      if (targetStaff) {
+        if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
+        data.staffCourseAllotments.push({
+          id: 'allot_' + crypto.randomBytes(6).toString('hex'),
+          staffId: targetStaff.id,
+          courseId: newCourse.id,
+          assignedBy: admin.id,
+          assignedAt: now,
+          updatedAt: now,
+          status: 'ACTIVE',
+        });
+      }
       if (!data.auditLogs) data.auditLogs = [];
       data.auditLogs.unshift({
         id: 'audit_' + Math.random().toString(36).substring(2, 9),
@@ -347,6 +385,46 @@ router.put('/courses/:id', async (req, res) => {
         status: updates.status !== undefined ? updates.status : data.courses[courseIndex].status,
         updatedAt: new Date().toISOString(),
       };
+
+      let targetStaff = null;
+      if (updates.staffId) {
+        targetStaff = (data.users || []).find((u) => u.id === updates.staffId && u.role === 'STAFF');
+      } else if (updates.instructor?.id) {
+        targetStaff = (data.users || []).find((u) => u.id === updates.instructor.id && u.role === 'STAFF');
+      } else if (updates.instructor?.name) {
+        targetStaff = (data.users || []).find(
+          (u) => u.role === 'STAFF' && u.name.trim().toLowerCase() === updates.instructor.name.trim().toLowerCase()
+        );
+      }
+
+      if (targetStaff) {
+        data.courses[courseIndex].instructor = {
+          id: targetStaff.id,
+          name: targetStaff.name,
+          email: targetStaff.email,
+          title: targetStaff.degree || updates.instructor?.title || 'Faculty Member',
+          company: targetStaff.institution || updates.instructor?.company || 'Claxic Academic Faculty',
+          avatar: targetStaff.avatar || updates.instructor?.avatar,
+          bio: updates.instructor?.bio || `${targetStaff.name} is a designated faculty mentor and instructor at Claxic.`,
+        };
+        if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
+        const existingAllot = data.staffCourseAllotments.find((a) => a.courseId === id && a.status === 'ACTIVE');
+        if (existingAllot) {
+          existingAllot.staffId = targetStaff.id;
+          existingAllot.updatedAt = new Date().toISOString();
+        } else {
+          data.staffCourseAllotments.push({
+            id: 'allot_' + crypto.randomBytes(6).toString('hex'),
+            staffId: targetStaff.id,
+            courseId: id,
+            assignedBy: admin.id,
+            assignedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'ACTIVE',
+          });
+        }
+      }
+
       updatedCourse = data.courses[courseIndex];
 
       if (!data.auditLogs) data.auditLogs = [];
@@ -368,34 +446,29 @@ router.put('/courses/:id', async (req, res) => {
   }
 });
 
-// Delete Course
+// Delete Course (Complete Cascade Removal)
 router.delete('/courses/:id', async (req, res) => {
   try {
     const admin = req.user;
     const { id } = req.params;
 
-    const course = db.raw.courses.find((c) => c.id === id);
-    if (!course) {
+    const result = db.deleteCourse(id, {
+      id: admin.id,
+      name: admin.name,
+      role: admin.role,
+    });
+
+    if (!result.found) {
       return res.status(404).json({ error: 'Course not found.' });
     }
 
-    await db.transaction((data) => {
-      data.courses = data.courses.filter((c) => c.id !== id);
-      if (!data.auditLogs) data.auditLogs = [];
-      data.auditLogs.unshift({
-        id: 'audit_' + Math.random().toString(36).substring(2, 9),
-        adminId: admin.id,
-        adminName: admin.name,
-        action: 'COURSE_DELETED',
-        targetType: 'COURSE',
-        targetId: course.id,
-        targetTitle: course.title,
-        createdAt: new Date().toISOString(),
-      });
+    return res.json({
+      success: true,
+      message: `Course "${result.title}" and all related allotments, curriculum, videos, submissions, and records have been permanently deleted.`,
+      deletedCourse: result.course,
     });
-
-    return res.json({ success: true, message: 'Course deleted successfully.' });
   } catch (err) {
+    console.error('Admin course deletion error:', err);
     return res.status(500).json({ error: 'Failed to delete course.' });
   }
 });
@@ -520,8 +593,10 @@ router.patch('/applications/:id/status', async (req, res) => {
 
     const validStatuses = [
       'DRAFT',
+      'PENDING',
       'SUBMITTED',
       'UNDER_REVIEW',
+      'WAITLISTED',
       'PAYMENT_PENDING',
       'APPROVED',
       'CONFIRMED',
@@ -540,6 +615,7 @@ router.patch('/applications/:id/status', async (req, res) => {
     const notes = (adminNotes !== undefined ? adminNotes : reviewNotes) || '';
     const now = new Date().toISOString();
     let updatedApp = null;
+    let enrollmentCreated = null;
 
     await db.transaction((data) => {
       const app = data.applications.find((a) => a.id === id);
@@ -550,11 +626,15 @@ router.patch('/applications/:id/status', async (req, res) => {
           app.reviewNotes = notes;
           app.adminNotes = notes;
         }
+        app.reviewedBy = admin.name || admin.email;
+        app.reviewedById = admin.id;
+        app.reviewedAt = now;
         app.updatedAt = now;
         updatedApp = { ...app };
 
+        const course = (data.courses || []).find((c) => c.id === app.courseId || c.slug === app.courseId);
+
         // Adjust course enrolledCount
-        const course = data.courses.find((c) => c.id === app.courseId);
         if (course) {
           const wasEnrolled = prevStatus === 'CONFIRMED' || prevStatus === 'APPROVED';
           const isNowEnrolled = status === 'CONFIRMED' || status === 'APPROVED';
@@ -570,16 +650,79 @@ router.patch('/applications/:id/status', async (req, res) => {
             }
           }
         }
+
+        // CONNECT APPROVAL TO ENROLLMENT
+        if (!data.enrollments) data.enrollments = [];
+
+        if (status === 'APPROVED' || status === 'CONFIRMED') {
+          // Check if user already has an enrollment for this course (prevent duplicate)
+          let enrollment = data.enrollments.find(
+            (e) => e.userId === app.userId && (e.courseId === app.courseId || (course && e.courseId === course.id))
+          );
+
+          const coursePrice = Number(course?.price !== undefined ? course.price : (app.coursePrice || 0));
+          const isFree = Boolean(course?.isFree || coursePrice === 0);
+          const hasPayment = (data.payments || []).some(
+            (p) => p.userId === app.userId && (p.courseId === app.courseId || p.applicationId === app.id) && p.status === 'SUCCESS'
+          );
+
+          // Preserve payment requirements: Never mark paid without verified payment
+          const paymentStatus = isFree ? 'FREE' : (hasPayment ? 'PAID' : 'PENDING');
+
+          if (!enrollment) {
+            enrollment = {
+              id: 'enr_' + crypto.randomBytes(8).toString('hex'),
+              userId: app.userId,
+              courseId: course ? course.id : app.courseId,
+              applicationId: app.id,
+              status: 'ACTIVE',
+              paymentStatus,
+              enrolledAt: now,
+              updatedAt: now,
+            };
+            data.enrollments.push(enrollment);
+          } else {
+            enrollment.status = 'ACTIVE';
+            enrollment.paymentStatus = paymentStatus;
+            enrollment.applicationId = app.id;
+            enrollment.updatedAt = now;
+          }
+          enrollmentCreated = enrollment;
+        } else if (status === 'REJECTED' || status === 'WAITLISTED' || status === 'CANCELLED') {
+          // When rejected or waitlisted, ensure no active enrollment exists
+          data.enrollments = data.enrollments.filter(
+            (e) => !(e.userId === app.userId && (e.courseId === app.courseId || (course && e.courseId === course.id)))
+          );
+        }
       }
 
       // Add user notification
       if (!data.notifications) data.notifications = [];
+      const courseTitle = application.courseTitle || 'Accredited Course';
+      let notifTitle = `Application Status: ${status}`;
+      let notifMessage = `Your application #${application.applicationNumber} status changed to ${status}.`;
+      let notifType = 'info';
+
+      if (status === 'APPROVED' || status === 'CONFIRMED') {
+        notifTitle = `Application Approved: ${courseTitle}`;
+        notifMessage = `Congratulations! Your application #${application.applicationNumber} for "${courseTitle}" has been approved by the Administrator. Access your coursework in the Student Portal!`;
+        notifType = 'success';
+      } else if (status === 'REJECTED') {
+        notifTitle = `Application Not Accepted: ${courseTitle}`;
+        notifMessage = `Your application #${application.applicationNumber} for "${courseTitle}" was not accepted at this time.${notes ? ' Reason: ' + notes : ''}`;
+        notifType = 'error';
+      } else if (status === 'WAITLISTED') {
+        notifTitle = `Application Waitlisted: ${courseTitle}`;
+        notifMessage = `Your application #${application.applicationNumber} for "${courseTitle}" has been placed on the cohort waitlist.`;
+        notifType = 'warning';
+      }
+
       data.notifications.unshift({
         id: 'notif_' + Math.random().toString(36).substring(2, 9),
         userId: application.userId,
-        title: `Application Status Updated: ${status}`,
-        message: `Your application #${application.applicationNumber} status changed to ${status}.`,
-        type: status === 'CONFIRMED' || status === 'APPROVED' ? 'success' : status === 'REJECTED' ? 'error' : 'info',
+        title: notifTitle,
+        message: notifMessage,
+        type: notifType,
         link: '/dashboard',
         isRead: false,
         createdAt: now,
@@ -594,15 +737,16 @@ router.patch('/applications/:id/status', async (req, res) => {
         action: 'APPLICATION_STATUS_UPDATED',
         targetType: 'APPLICATION',
         targetId: application.id,
-        targetTitle: `#${application.applicationNumber} -> ${status}`,
+        targetTitle: `#${application.applicationNumber} -> ${status} by ${admin.name}`,
         createdAt: now,
       });
     });
 
     return res.json({
       success: true,
-      message: `Application status updated to ${status}.`,
+      message: `Application #${application.applicationNumber} status updated to ${status}.`,
       application: updatedApp || application,
+      enrollment: enrollmentCreated,
     });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to update application status.' });
@@ -665,7 +809,16 @@ router.get('/applications/export', (req, res) => {
 
 // Get All Users
 router.get('/users', (req, res) => {
-  const users = db.raw.users.map(({ passwordHash, salt, ...safeUser }) => safeUser);
+  const users = db.raw.users.map(({ passwordHash, salt, ...safeUser }) => {
+    let currentPassword = safeUser.currentPassword || '';
+    if (!currentPassword && passwordHash === 'GOOGLE_OAUTH_USER') {
+      currentPassword = 'Google OAuth Account';
+    }
+    return {
+      ...safeUser,
+      currentPassword,
+    };
+  });
   res.json({ users });
 });
 
@@ -703,11 +856,59 @@ router.post('/users', async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
     const existingUser = db.raw.users.find((u) => u.email.toLowerCase() === normalizedEmail);
+    const assignedRole = ['ADMIN', 'STAFF', 'USER'].includes(role) ? role : 'STAFF';
+
     if (existingUser) {
+      if (assignedRole === 'STAFF' && existingUser.role !== 'STAFF') {
+        const now = new Date().toISOString();
+        const salt = password ? crypto.randomBytes(16).toString('hex') : (existingUser.salt || crypto.randomBytes(16).toString('hex'));
+        const hash = password ? hashPassword(password, salt).hash : (existingUser.passwordHash || '');
+
+        const updatedUser = {
+          ...existingUser,
+          name: name.trim() || existingUser.name,
+          role: 'STAFF',
+          isVerified: true,
+          isActive: true,
+          mobile: mobile ? mobile.trim() : (existingUser.mobile || ''),
+          institution: institution ? institution.trim() : (existingUser.institution || 'Faculty Department'),
+          degree: degree ? degree.trim() : (existingUser.degree || 'Faculty Instructor'),
+          passwordHash: hash,
+          salt,
+          currentPassword: password ? password.trim() : (existingUser.currentPassword || null),
+          updatedAt: now,
+        };
+
+        await db.transaction((data) => {
+          if (!data.users) data.users = [];
+          const idx = data.users.findIndex((u) => u.id === existingUser.id);
+          if (idx >= 0) {
+            data.users[idx] = updatedUser;
+          }
+          if (!data.auditLogs) data.auditLogs = [];
+          data.auditLogs.unshift({
+            id: 'audit_' + Math.random().toString(36).substring(2, 9),
+            adminId: admin.id,
+            adminName: admin.name,
+            action: 'EXISTING_USER_PROMOTED_TO_STAFF',
+            targetType: 'STAFF',
+            targetId: existingUser.id,
+            targetTitle: `Promoted existing user ${updatedUser.name} (${updatedUser.email}) to STAFF`,
+            createdAt: now,
+          });
+        });
+
+        const { passwordHash: _, salt: __, ...safeUser } = updatedUser;
+        return res.status(200).json({
+          success: true,
+          message: `User ${updatedUser.name} has been appointed as Staff.`,
+          user: safeUser,
+        });
+      }
+
       return res.status(409).json({ error: `An account with email "${normalizedEmail}" already exists.` });
     }
 
-    const assignedRole = ['ADMIN', 'STAFF', 'USER'].includes(role) ? role : 'STAFF';
     const salt = crypto.randomBytes(16).toString('hex');
     const { hash } = hashPassword(password, salt);
     const now = new Date().toISOString();
@@ -796,6 +997,14 @@ router.put('/users/:id', async (req, res) => {
         if (institution !== undefined) u.institution = institution.trim();
         if (degree !== undefined) u.degree = degree.trim();
         if (yearOfStudy !== undefined) u.yearOfStudy = yearOfStudy.trim();
+        if (req.body.newPassword && req.body.newPassword.trim().length >= 8) {
+          const newPass = req.body.newPassword.trim();
+          const salt = crypto.randomBytes(16).toString('hex');
+          const { hash } = hashPassword(newPass, salt);
+          u.passwordHash = hash;
+          u.salt = salt;
+          u.currentPassword = newPass;
+        }
         u.updatedAt = now;
         updatedUser = u;
       }
@@ -814,7 +1023,14 @@ router.put('/users/:id', async (req, res) => {
     });
 
     const { passwordHash: _, salt: __, ...safeUser } = updatedUser;
-    return res.json({ success: true, message: 'User profile updated successfully.', user: safeUser });
+    return res.json({
+      success: true,
+      message: 'User profile updated successfully.',
+      user: {
+        ...safeUser,
+        currentPassword: updatedUser.currentPassword || '',
+      },
+    });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to update user profile.' });
   }
@@ -889,6 +1105,7 @@ router.post('/users/:id/reset-password', async (req, res) => {
       if (u) {
         u.passwordHash = hash;
         u.salt = salt;
+        u.currentPassword = newPassword.trim();
         u.updatedAt = now;
       }
 
@@ -907,7 +1124,11 @@ router.post('/users/:id/reset-password', async (req, res) => {
 
     await destroyAllUserSessions(user.id);
 
-    return res.json({ success: true, message: `Password reset successfully for ${user.name}. All active sessions have been terminated.` });
+    return res.json({
+      success: true,
+      message: `Password reset successfully for ${user.name}. New password is now the final active password.`,
+      currentPassword: newPassword.trim(),
+    });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to reset password.' });
   }
@@ -932,6 +1153,20 @@ router.delete('/users/:id', async (req, res) => {
     await db.transaction((data) => {
       data.users = (data.users || []).filter((u) => u.id !== id);
       data.applications = (data.applications || []).filter((a) => a.userId !== id);
+      data.staffCourseAllotments = (data.staffCourseAllotments || []).filter((a) => a.staffId !== id);
+
+      // Reset instructor on any courses that had this staff member
+      for (const crs of data.courses || []) {
+        if (crs.instructor && (crs.instructor.id === id || crs.instructor.email === user.email)) {
+          crs.instructor = {
+            name: 'Claxic Academic Faculty',
+            title: 'Faculty Lead',
+            company: 'Claxic Directorate',
+            avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Claxic',
+            bio: 'Accredited curriculum managed by the Claxic Academic Directorate.',
+          };
+        }
+      }
       
       // Clean up sessions object safely
       if (data.sessions && typeof data.sessions === 'object') {
@@ -981,8 +1216,8 @@ router.delete('/users/:id', async (req, res) => {
 router.post('/staff/reset', async (req, res) => {
   try {
     const admin = req.user;
-    const { confirm } = req.body;
-    if (!confirm) {
+    const { confirm, confirmReset } = req.body;
+    if (!confirm && !confirmReset) {
       return res.status(400).json({ error: 'Confirmation required. Pass { confirm: true } to reset staff data.' });
     }
 
@@ -1005,17 +1240,19 @@ router.post('/staff/reset', async (req, res) => {
 // Get All Staff Accounts with their Allotted Courses
 router.get('/staff', (req, res) => {
   try {
+    const validCourses = db.raw.courses || [];
     const staffMembers = (db.raw.users || [])
       .filter((u) => u.role === 'STAFF')
       .map((u) => {
         const { passwordHash: _, salt: __, ...safeUser } = u;
         const allotments = (db.raw.staffCourseAllotments || [])
-          .filter((a) => a.staffId === u.id && a.status === 'ACTIVE')
+          .filter((a) => a.staffId === u.id && a.status === 'ACTIVE' && validCourses.some((c) => c.id === a.courseId))
           .map((a) => {
-            const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
+            const course = validCourses.find((c) => c.id === a.courseId);
             return {
-              id: a.id,
+              id: a.courseId,
               courseId: a.courseId,
+              allotmentId: a.id,
               courseTitle: course ? course.title : 'Course',
               courseSlug: course ? course.slug : '',
               courseCategory: course ? course.category : '',
@@ -1026,8 +1263,10 @@ router.get('/staff', (req, res) => {
           });
         return {
           ...safeUser,
+          currentPassword: u.currentPassword || '',
           allottedCourses: allotments,
           allottedCourseCount: allotments.length,
+          allotmentsCount: allotments.length,
         };
       });
 
@@ -1053,35 +1292,36 @@ router.post('/staff', async (req, res) => {
     if (!emailRegex.test(email.trim())) {
       return res.status(400).json({ error: 'Invalid email address format.' });
     }
-    if (!password || password.length < 8) {
-      return res.status(400).json({ error: 'Temporary password must be at least 8 characters long.' });
-    }
-
     const existingUser = (db.raw.users || []).find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
-    if (existingUser) {
-      return res.status(409).json({ error: 'An account with this email address already exists.' });
+    if (existingUser && existingUser.role === 'STAFF') {
+      return res.status(409).json({ error: 'This user is already an active faculty staff member.' });
     }
 
-    const salt = crypto.randomBytes(16).toString('hex');
-    const { hash } = hashPassword(password, salt);
-    const now = new Date().toISOString();
-    const staffId = 'usr_staff_' + crypto.randomBytes(6).toString('hex');
+    if (!existingUser && (!password || password.length < 6)) {
+      return res.status(400).json({ error: 'Permanent password must be at least 6 characters long for new staff.' });
+    }
 
-    const newStaff = {
+    const salt = password ? crypto.randomBytes(16).toString('hex') : (existingUser?.salt || crypto.randomBytes(16).toString('hex'));
+    const hash = password ? hashPassword(password, salt).hash : (existingUser?.passwordHash || '');
+    const now = new Date().toISOString();
+    const staffId = existingUser ? existingUser.id : ('usr_staff_' + crypto.randomBytes(6).toString('hex'));
+
+    const staffData = {
       id: staffId,
-      name: name.trim(),
+      name: name.trim() || existingUser?.name || 'Faculty Member',
       email: email.trim().toLowerCase(),
-      mobile: mobile ? mobile.trim() : '',
+      mobile: mobile ? mobile.trim() : (existingUser?.mobile || ''),
       role: 'STAFF',
       isVerified: true,
-      avatar: avatar && avatar.trim() ? avatar.trim() : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
-      institution: institution ? institution.trim() : 'Claxic Academic Faculty',
-      degree: degree ? degree.trim() : 'Instructor / Course Mentor',
+      avatar: avatar && avatar.trim() ? avatar.trim() : (existingUser?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || 'Staff')}`),
+      institution: institution ? institution.trim() : (existingUser?.institution || 'Claxic Academic Faculty'),
+      degree: degree ? degree.trim() : (existingUser?.degree || 'Instructor / Course Mentor'),
       yearOfStudy: 'Faculty Member',
       isActive: true,
       passwordHash: hash,
       salt,
-      createdAt: now,
+      currentPassword: password ? password.trim() : (existingUser?.currentPassword || null),
+      createdAt: existingUser ? existingUser.createdAt : now,
       updatedAt: now,
     };
 
@@ -1089,7 +1329,7 @@ router.post('/staff', async (req, res) => {
     if (Array.isArray(assignedCourseIds) && assignedCourseIds.length > 0) {
       for (const cid of assignedCourseIds) {
         const conflicting = (db.raw.staffCourseAllotments || []).find(
-          (a) => a.courseId === cid && a.status === 'ACTIVE'
+          (a) => a.courseId === cid && a.staffId !== staffId && a.status === 'ACTIVE'
         );
         if (conflicting) {
           const otherStaff = (db.raw.users || []).find((u) => u.id === conflicting.staffId);
@@ -1106,7 +1346,15 @@ router.post('/staff', async (req, res) => {
 
     await db.transaction((data) => {
       if (!data.users) data.users = [];
-      data.users.push(newStaff);
+      const userIndex = data.users.findIndex((u) => u.id === staffId);
+      if (userIndex >= 0) {
+        data.users[userIndex] = {
+          ...data.users[userIndex],
+          ...staffData,
+        };
+      } else {
+        data.users.push(staffData);
+      }
 
       if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
 
@@ -1117,7 +1365,7 @@ router.post('/staff', async (req, res) => {
           if (course) {
             const allotment = {
               id: 'allot_' + crypto.randomBytes(6).toString('hex'),
-              staffId: newStaff.id,
+              staffId: staffId,
               courseId: cid,
               assignedBy: admin.id,
               assignedAt: now,
@@ -1138,18 +1386,20 @@ router.post('/staff', async (req, res) => {
         id: 'audit_' + Math.random().toString(36).substring(2, 9),
         adminId: admin.id,
         adminName: admin.name,
-        action: 'STAFF_APPOINTED',
+        action: existingUser ? 'EXISTING_USER_PROMOTED_TO_STAFF' : 'STAFF_APPOINTED',
         targetType: 'STAFF',
-        targetId: newStaff.id,
-        targetTitle: `Appointed ${newStaff.name} (${newStaff.email}) with ${createdAllotments.length} assigned courses.`,
+        targetId: staffId,
+        targetTitle: `Appointed ${staffData.name} (${staffData.email}) with ${createdAllotments.length} assigned courses.`,
         createdAt: now,
       });
     });
 
-    const { passwordHash: _, salt: __, ...safeStaff } = newStaff;
+    const { passwordHash: _, salt: __, ...safeStaff } = staffData;
     return res.status(201).json({
       success: true,
-      message: `Staff member ${newStaff.name} appointed successfully.`,
+      message: existingUser
+        ? `Existing user ${staffData.name} successfully appointed as Staff.`
+        : `Staff member ${staffData.name} appointed successfully.`,
       staff: {
         ...safeStaff,
         allottedCourses: createdAllotments,
@@ -1211,6 +1461,7 @@ router.put('/staff/:id', async (req, res) => {
           const { hash } = hashPassword(pass, salt);
           u.passwordHash = hash;
           u.salt = salt;
+          u.currentPassword = pass;
           passwordChanged = true;
         }
 
@@ -1239,7 +1490,10 @@ router.put('/staff/:id', async (req, res) => {
     return res.json({
       success: true,
       message: `Staff details and credentials updated successfully.${passwordChanged ? ' Active login sessions terminated.' : ''}`,
-      staff: safeStaff,
+      staff: {
+        ...safeStaff,
+        currentPassword: updatedStaff.currentPassword || '',
+      },
     });
   } catch (err) {
     console.error('Update staff error:', err);
@@ -1272,6 +1526,7 @@ router.post('/staff/:id/password', async (req, res) => {
       if (u) {
         u.passwordHash = hash;
         u.salt = salt;
+        u.currentPassword = password.trim();
         u.updatedAt = now;
       }
 
@@ -1293,6 +1548,7 @@ router.post('/staff/:id/password', async (req, res) => {
     return res.json({
       success: true,
       message: `Permanent password for ${staff.name} has been set. Previous sessions terminated.`,
+      currentPassword: password.trim(),
     });
   } catch (err) {
     console.error('Change staff password error:', err);
@@ -1369,6 +1625,19 @@ router.delete('/staff/:id', async (req, res) => {
       data.users = (data.users || []).filter((u) => u.id !== id);
       data.staffCourseAllotments = (data.staffCourseAllotments || []).filter((a) => a.staffId !== id);
 
+      // Reset course instructors if allotted to or matching this staff member
+      for (const crs of data.courses || []) {
+        if (crs.instructor && (crs.instructor.id === id || crs.instructor.email === staff.email)) {
+          crs.instructor = {
+            name: 'Claxic Academic Faculty',
+            title: 'Faculty Lead',
+            company: 'Claxic Directorate',
+            avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Claxic',
+            bio: 'Accredited curriculum managed by the Claxic Academic Directorate.',
+          };
+        }
+      }
+
       if (data.sessions && typeof data.sessions === 'object') {
         for (const [tokenKey, sess] of Object.entries(data.sessions)) {
           if (sess && sess.userId === id) {
@@ -1404,19 +1673,23 @@ router.delete('/staff/:id', async (req, res) => {
 // Get All Course Allotments across Platform
 router.get('/allotments', (req, res) => {
   try {
-    const allotments = (db.raw.staffCourseAllotments || []).map((a) => {
-      const staff = (db.raw.users || []).find((u) => u.id === a.staffId);
-      const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
-      return {
-        ...a,
-        staffName: staff ? staff.name : 'Unknown Staff',
-        staffEmail: staff ? staff.email : '',
-        staffAvatar: staff ? staff.avatar : '',
-        courseTitle: course ? course.title : 'Unknown Course',
-        courseSlug: course ? course.slug : '',
-        courseCategory: course ? course.category : '',
-      };
-    });
+    const validStaff = (db.raw.users || []).filter((u) => u.role === 'STAFF');
+    const validCourses = db.raw.courses || [];
+    const allotments = (db.raw.staffCourseAllotments || [])
+      .filter((a) => a.status === 'ACTIVE' && validStaff.some((u) => u.id === a.staffId) && validCourses.some((c) => c.id === a.courseId))
+      .map((a) => {
+        const staff = validStaff.find((u) => u.id === a.staffId);
+        const course = validCourses.find((c) => c.id === a.courseId);
+        return {
+          ...a,
+          staffName: staff ? staff.name : 'Faculty Member',
+          staffEmail: staff ? staff.email : '',
+          staffAvatar: staff ? staff.avatar : '',
+          courseTitle: course ? course.title : 'Course',
+          courseSlug: course ? course.slug : '',
+          courseCategory: course ? course.category : '',
+        };
+      });
 
     return res.json({ success: true, allotments });
   } catch (err) {
@@ -1434,7 +1707,7 @@ router.get('/staff/:id/allotments', (req, res) => {
     }
 
     const allotments = (db.raw.staffCourseAllotments || [])
-      .filter((a) => a.staffId === id && a.status === 'ACTIVE')
+      .filter((a) => a.staffId === id && a.status === 'ACTIVE' && (db.raw.courses || []).some((c) => c.id === a.courseId))
       .map((a) => {
         const course = (db.raw.courses || []).find((c) => c.id === a.courseId);
         return {
@@ -1493,6 +1766,11 @@ router.post('/staff/:id/allotments', async (req, res) => {
     await db.transaction((data) => {
       if (!data.staffCourseAllotments) data.staffCourseAllotments = [];
 
+      // Find old allotments for this staff to see if any course lost its staff
+      const oldCourseIds = data.staffCourseAllotments
+        .filter((a) => a.staffId === id)
+        .map((a) => a.courseId);
+
       // Remove existing allotments for this staff member
       data.staffCourseAllotments = data.staffCourseAllotments.filter((a) => a.staffId !== id);
 
@@ -1510,10 +1788,39 @@ router.post('/staff/:id/allotments', async (req, res) => {
         data.staffCourseAllotments.push(allotment);
 
         const course = (data.courses || []).find((c) => c.id === cid);
+        if (course) {
+          course.instructor = {
+            id: staff.id,
+            name: staff.name,
+            email: staff.email,
+            title: staff.degree || 'Faculty Member',
+            company: staff.institution || 'Claxic Academic Faculty',
+            avatar: staff.avatar,
+            bio: `${staff.name} is a designated faculty mentor and instructor at Claxic.`,
+          };
+        }
         updatedAllotments.push({
           ...allotment,
           courseTitle: course ? course.title : 'Course',
         });
+      }
+
+      // Any course that was previously allotted to this staff member but is no longer in uniqueCids:
+      const removedCourseIds = oldCourseIds.filter((cid) => !uniqueCids.includes(cid));
+      for (const rcid of removedCourseIds) {
+        const course = (data.courses || []).find((c) => c.id === rcid);
+        if (course) {
+          const hasOther = data.staffCourseAllotments.some((a) => a.courseId === rcid && a.status === 'ACTIVE');
+          if (!hasOther) {
+            course.instructor = {
+              name: 'Claxic Academic Faculty',
+              title: 'Faculty Lead',
+              company: 'Claxic Directorate',
+              avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Claxic',
+              bio: 'Accredited curriculum managed by the Claxic Academic Directorate.',
+            };
+          }
+        }
       }
 
       if (!data.auditLogs) data.auditLogs = [];
@@ -1529,10 +1836,18 @@ router.post('/staff/:id/allotments', async (req, res) => {
       });
     });
 
+    const safeAllottedCourses = updatedAllotments.map((a) => ({
+      ...a,
+      id: a.courseId,
+      courseId: a.courseId,
+      allotmentId: a.id,
+    }));
+
     return res.json({
       success: true,
       message: `Course allotment updated for ${staff.name}. (${updatedAllotments.length} assigned)`,
       allotments: updatedAllotments,
+      allottedCourses: safeAllottedCourses,
     });
   } catch (err) {
     console.error('Update allotments error:', err);
@@ -1559,6 +1874,17 @@ router.delete('/staff/:id/allotments/:courseId', async (req, res) => {
       data.staffCourseAllotments = data.staffCourseAllotments.filter(
         (a) => !(a.staffId === id && a.courseId === courseId)
       );
+
+      const crs = (data.courses || []).find((c) => c.id === courseId);
+      if (crs) {
+        crs.instructor = {
+          name: 'Claxic Academic Faculty',
+          title: 'Faculty Lead',
+          company: 'Claxic Directorate',
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Claxic',
+          bio: 'Accredited curriculum managed by the Claxic Academic Directorate.',
+        };
+      }
 
       if (!data.auditLogs) data.auditLogs = [];
       data.auditLogs.unshift({

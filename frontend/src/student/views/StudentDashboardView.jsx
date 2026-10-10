@@ -1373,8 +1373,8 @@ export const StudentDashboardView = ({
                         </div>
                         <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
                           {typeof activeCourse.instructor === 'object'
-                            ? activeCourse.instructor?.name || 'Dr. Sarah Jenkins'
-                            : activeCourse.instructor || 'Dr. Sarah Jenkins'}
+                            ? activeCourse.instructor?.name || 'Claxic Faculty Mentor'
+                            : activeCourse.instructor || 'Claxic Faculty Mentor'}
                         </h3>
                         <p className="text-xs text-slate-500 font-medium">
                           {typeof activeCourse.instructor === 'object'
@@ -1387,23 +1387,6 @@ export const StudentDashboardView = ({
                           </p>
                         )}
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2.5 shrink-0">
-                      <a
-                        href="mailto:faculty.office@claxic.edu"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#EE2D02] text-xs font-bold border border-slate-200 transition-all shadow-2xs cursor-pointer"
-                      >
-                        <Mail className="w-4 h-4 text-[#EE2D02]" />
-                        <span>Contact Faculty</span>
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => window.open('https://meet.google.com', '_blank')}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#EE2D02] hover:bg-[#D02600] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-                      >
-                        <Video className="w-4 h-4 text-white" />
-                        <span>Faculty Mentorship & Office Hours</span>
-                      </button>
                     </div>
                   </div>
 

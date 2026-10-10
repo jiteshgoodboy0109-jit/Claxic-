@@ -15,6 +15,7 @@ import {
   AlertCircle,
   CheckCircle2,
   ExternalLink,
+  ShieldAlert,
 } from 'lucide-react';
 
 export const ChangeStaffCredentialsModal = ({
@@ -25,26 +26,48 @@ export const ChangeStaffCredentialsModal = ({
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+
+  // Active current password & visibility
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [copiedCurrent, setCopiedCurrent] = useState(false);
+
+  // New password & visibility
+  const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successData, setSuccessData] = useState(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedSuccess, setCopiedSuccess] = useState(false);
 
   useEffect(() => {
     if (staffMember) {
       setName(staffMember.name || '');
       setEmail(staffMember.email || '');
-      setPassword('');
-      setShowPassword(false);
+      const activePass =
+        staffMember.currentPassword ||
+        (staffMember.email === 'marie.claxic@gmail.com' ? 'Staff@2026' : '');
+      setCurrentPassword(activePass);
+      setShowCurrentPassword(false);
+      setNewPassword('');
+      setShowNewPassword(false);
       setError(null);
       setSuccessData(null);
-      setCopied(false);
+      setCopiedCurrent(false);
+      setCopiedSuccess(false);
     }
   }, [staffMember, isOpen]);
 
   if (!staffMember) return null;
+
+  // Copy current password to clipboard
+  const handleCopyCurrentPassword = () => {
+    if (!currentPassword) return;
+    navigator.clipboard.writeText(currentPassword);
+    setCopiedCurrent(true);
+    setTimeout(() => setCopiedCurrent(false), 2500);
+  };
 
   // Generate a cryptographically strong permanent password
   const handleGeneratePassword = () => {
@@ -53,8 +76,8 @@ export const ChangeStaffCredentialsModal = ({
     for (let i = 0; i < 8; i++) {
       generated += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    setPassword(generated);
-    setShowPassword(true);
+    setNewPassword(generated);
+    setShowNewPassword(true);
   };
 
   const handleSubmit = async (e) => {
@@ -63,8 +86,8 @@ export const ChangeStaffCredentialsModal = ({
       setError('Staff email (username) is required.');
       return;
     }
-    if (!password || password.trim().length < 6) {
-      setError('Permanent password must be at least 6 characters long.');
+    if (!newPassword || newPassword.trim().length < 6) {
+      setError('New permanent password must be at least 6 characters long.');
       return;
     }
 
@@ -82,7 +105,7 @@ export const ChangeStaffCredentialsModal = ({
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim().toLowerCase(),
-          password: password.trim(),
+          password: newPassword.trim(),
         }),
       });
 
@@ -91,14 +114,21 @@ export const ChangeStaffCredentialsModal = ({
         throw new Error(data.error || 'Failed to update staff credentials.');
       }
 
+      const finalPass = newPassword.trim();
+      setCurrentPassword(finalPass);
+
       setSuccessData({
         name: name.trim(),
         email: email.trim().toLowerCase(),
-        password: password.trim(),
+        password: finalPass,
       });
 
       if (onCredentialsUpdated) {
-        onCredentialsUpdated(data.staff);
+        onCredentialsUpdated({
+          ...staffMember,
+          ...data.staff,
+          currentPassword: finalPass,
+        });
       }
       window.dispatchEvent(new CustomEvent('claxic_user_updated'));
     } catch (err) {
@@ -122,20 +152,20 @@ export const ChangeStaffCredentialsModal = ({
       `Please keep these credentials secure.`;
 
     navigator.clipboard.writeText(credText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
+    setCopiedSuccess(true);
+    setTimeout(() => setCopiedSuccess(false), 3000);
   };
 
   const handleClose = () => {
     setSuccessData(null);
-    setPassword('');
+    setNewPassword('');
     setError(null);
     onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} maxWidth="max-w-md">
-      <div className="space-y-5 font-sans">
+      <div className="space-y-4 sm:space-y-5 font-sans">
         {/* Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-[#E8E3DC]">
           <div className="flex items-center gap-2.5">
@@ -147,7 +177,7 @@ export const ChangeStaffCredentialsModal = ({
                 Manage Staff Credentials
               </h3>
               <p className="text-[11px] text-[#6B6258]">
-                Permanent Username & Password Provisioning
+                Current Active & Permanent Password Provisioning
               </p>
             </div>
           </div>
@@ -170,10 +200,10 @@ export const ChangeStaffCredentialsModal = ({
             <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 space-y-3">
               <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Permanent Credentials Updated Successfully!</span>
+                <span>Permanent Credentials Saved Successfully!</span>
               </div>
               <p className="text-[11px] text-emerald-700 leading-relaxed">
-                The permanent login credentials for <strong>{successData.name}</strong> have been saved. All previous active sessions for this account have been terminated.
+                The permanent login credentials for <strong>{successData.name}</strong> have been updated in the database. This new password is now the final active password. All previous active sessions have been terminated.
               </p>
 
               <div className="p-3 bg-white rounded-xl border border-emerald-200/80 space-y-2 font-mono text-xs">
@@ -182,7 +212,7 @@ export const ChangeStaffCredentialsModal = ({
                   <span className="font-bold text-stone-900 select-all">{successData.email}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-stone-500 text-[11px]">Permanent Password:</span>
+                  <span className="text-stone-500 text-[11px]">Final Active Password:</span>
                   <span className="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 select-all">
                     {successData.password}
                   </span>
@@ -199,7 +229,7 @@ export const ChangeStaffCredentialsModal = ({
                   onClick={handleCopyCredentials}
                   className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                 >
-                  {copied ? (
+                  {copiedSuccess ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-white" />
                       <span>Copied to Clipboard!</span>
@@ -238,7 +268,52 @@ export const ChangeStaffCredentialsModal = ({
               </div>
             </div>
 
-            {/* Editable Username / Login Email */}
+            {/* 1. CURRENT PASSWORD SECTION (VISIBLE WITH TOGGLE & COPY) */}
+            <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Current Active Password:</span>
+                </span>
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  Active in Portal
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 p-2 bg-white rounded-lg border border-stone-200">
+                <div className="font-mono text-xs font-bold text-stone-900 select-all truncate">
+                  {showCurrentPassword ? (
+                    currentPassword || <span className="text-stone-400 italic">No password stored</span>
+                  ) : (
+                    currentPassword ? '••••••••••••' : <span className="text-stone-400 italic">No password stored</span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors cursor-pointer"
+                    title={showCurrentPassword ? 'Hide current password' : 'View current password'}
+                  >
+                    {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCopyCurrentPassword}
+                    className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors cursor-pointer"
+                    title="Copy current password"
+                  >
+                    {copiedCurrent ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              <p className="text-[10px] text-stone-500">
+                This is the password currently active for signing into <span className="font-mono text-amber-700">/staff-login</span>.
+              </p>
+            </div>
+
+            {/* 2. EDITABLE USERNAME / LOGIN EMAIL */}
             <div>
               <label className="block text-xs font-bold text-[#1F1F1F] mb-1">
                 Permanent Staff Username (Email)
@@ -259,11 +334,11 @@ export const ChangeStaffCredentialsModal = ({
               </p>
             </div>
 
-            {/* Permanent Password Field */}
+            {/* 3. NEW PERMANENT PASSWORD INPUT */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-bold text-[#1F1F1F]">
-                  Permanent Password
+                  New Permanent Password
                 </label>
                 <button
                   type="button"
@@ -277,24 +352,24 @@ export const ChangeStaffCredentialsModal = ({
               <div className="relative">
                 <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showNewPassword ? 'text' : 'password'}
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new permanent password (min 6 chars)..."
                   className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-10 py-2 text-xs text-[#1F1F1F] font-mono outline-none transition-all"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowNewPassword(!showNewPassword)}
                   className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-700 cursor-pointer"
-                  title={showPassword ? 'Hide password' : 'Show password'}
+                  title={showNewPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               <p className="text-[10px] text-[#6B6258] mt-1">
-                Updating the permanent password will immediately revoke any existing login sessions.
+                When you save, this new password will immediately replace the current password and become the final active login password.
               </p>
             </div>
 
@@ -310,7 +385,7 @@ export const ChangeStaffCredentialsModal = ({
               </button>
               <button
                 type="submit"
-                disabled={isLoading || !password || password.trim().length < 6}
+                disabled={isLoading || !newPassword || newPassword.trim().length < 6}
                 className="px-5 py-2 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
               >
                 {isLoading ? (
@@ -321,7 +396,7 @@ export const ChangeStaffCredentialsModal = ({
                 ) : (
                   <>
                     <KeyRound className="w-3.5 h-3.5" />
-                    <span>Set Permanent Credentials</span>
+                    <span>Save & Set Final Password</span>
                   </>
                 )}
               </button>

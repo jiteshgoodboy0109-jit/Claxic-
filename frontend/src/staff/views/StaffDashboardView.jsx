@@ -734,6 +734,38 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
     }
   };
 
+  // Delete Allotted Course
+  const handleDeleteCourse = async (courseId) => {
+    const courseToDelete = courses.find((c) => c.id === courseId || c.slug === courseId);
+    const courseName = courseToDelete ? courseToDelete.title : 'this course';
+    if (!window.confirm(`Are you sure you want to permanently delete "${courseName}"? All curriculum classes, video lessons, and student enrollments will be completely removed.`)) {
+      return;
+    }
+    try {
+      setCourses((prev) => prev.filter((c) => c.id !== courseId && c.slug !== courseId));
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/staff/courses/${courseId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        showToast(`Course "${courseName}" has been permanently deleted.`);
+        fetchStaffData();
+        if (selectedCourseId === courseId) {
+          setSelectedCourseId('');
+        }
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to delete course.');
+        fetchStaffData();
+      }
+    } catch (err) {
+      console.error('Delete course error:', err);
+      alert('Network error while deleting course.');
+      fetchStaffData();
+    }
+  };
+
   // Open Modal for New Class
   const handleOpenNewClassModal = () => {
     setClassToEdit(null);
@@ -2876,6 +2908,15 @@ export const StaffDashboardView = ({ initialTab = 'overview', onNavigate }) => {
                           title="Course Settings"
                         >
                           <Sliders className="w-3.5 h-3.5 text-[#6B6258]" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCourse(c.id)}
+                          className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center"
+                          title="Delete Course Program"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>

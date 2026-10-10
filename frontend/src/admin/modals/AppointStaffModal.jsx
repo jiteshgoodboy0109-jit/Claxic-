@@ -19,9 +19,22 @@ import {
   EyeOff,
   UserPlus,
   ExternalLink,
+  BookOpen,
+  Search,
+  ArrowRight,
 } from 'lucide-react';
 
-export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
+export const AppointStaffModal = ({
+  isOpen,
+  onClose,
+  onStaffAppointed,
+  existingUsers = [],
+  courses = [],
+}) => {
+  const [mode, setMode] = useState('EXISTING'); // 'EXISTING' or 'NEW'
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +42,7 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
   const [department, setDepartment] = useState('Department of Computer Science & Engineering');
   const [designation, setDesignation] = useState('Lead Faculty Instructor');
   const [mobile, setMobile] = useState('');
+  const [selectedCourses, setSelectedCourses] = useState([]);
   const [isVerified, setIsVerified] = useState(true);
   const [isActive, setIsActive] = useState(true);
 
@@ -37,6 +51,35 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
   const [error, setError] = useState(null);
   const [successData, setSuccessData] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  // Filter existing users that can be appointed (non-staff, or all students/users)
+  const candidateUsers = existingUsers.filter((u) => {
+    if (!u) return false;
+    const matchesSearch =
+      !userSearchTerm.trim() ||
+      (u.name && u.name.toLowerCase().includes(userSearchTerm.toLowerCase())) ||
+      (u.email && u.email.toLowerCase().includes(userSearchTerm.toLowerCase()));
+    return matchesSearch && u.role !== 'STAFF';
+  });
+
+  const handleSelectExistingUser = (uId) => {
+    setSelectedUserId(uId);
+    const found = existingUsers.find((u) => u.id === uId);
+    if (found) {
+      setName(found.name || '');
+      setEmail(found.email || '');
+      setMobile(found.mobile ? found.mobile.replace(/\+91\s*/, '') : '');
+      setDepartment(found.institution || 'Department of Computer Science & Engineering');
+      setDesignation(found.degree || 'Lead Faculty Instructor');
+      setPassword(''); // Blank means keep existing password
+    }
+  };
+
+  const handleToggleCourse = (courseId) => {
+    setSelectedCourses((prev) =>
+      prev.includes(courseId) ? prev.filter((id) => id !== courseId) : [...prev, courseId]
+    );
+  };
 
   // Generate strong random password
   const handleGeneratePassword = () => {
@@ -62,6 +105,8 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
   };
 
   const handleReset = () => {
+    setSelectedUserId('');
+    setUserSearchTerm('');
     setName('');
     setEmail('');
     setPassword('');
@@ -69,6 +114,7 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
     setDepartment('Department of Computer Science & Engineering');
     setDesignation('Lead Faculty Instructor');
     setMobile('');
+    setSelectedCourses([]);
     setIsVerified(true);
     setIsActive(true);
     setError(null);
@@ -78,12 +124,12 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !password) {
-      setError('Please fill in all required fields (Name, Email, and Password).');
+    if (!name.trim() || !email.trim()) {
+      setError('Please provide the faculty member Name and Email.');
       return;
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long.');
+    if (mode === 'NEW' && (!password || password.length < 6)) {
+      setError('Password must be at least 6 characters long for new staff accounts.');
       return;
     }
     if (mobile && mobile.length !== 10) {
@@ -96,7 +142,7 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
 
     try {
       const token = localStorage.getItem('claxic_token');
-      const res = await fetch('/api/admin/users', {
+      const res = await fetch('/api/admin/staff', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -105,13 +151,12 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim().toLowerCase(),
-          password,
-          role,
+          password: password ? password.trim() : undefined,
+          role: 'STAFF',
           institution: department.trim(),
           degree: designation.trim(),
           mobile: mobile ? `+91 ${mobile.trim()}` : '',
-          isVerified,
-          isActive,
+          assignedCourseIds: selectedCourses,
         }),
       });
 
@@ -121,14 +166,16 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
       }
 
       setSuccessData({
-        user: data.user,
-        tempPassword: password,
+        user: data.staff,
+        tempPassword: password ? password : '(Retained existing account password)',
+        allottedCourses: data.staff?.allottedCourses || [],
       });
 
       if (onStaffAppointed) {
-        onStaffAppointed(data.user);
+        onStaffAppointed(data.staff);
       }
       window.dispatchEvent(new CustomEvent('claxic_user_updated'));
+      window.dispatchEvent(new CustomEvent('claxic_staff_updated'));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -138,16 +185,18 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
 
   const handleCopyCredentials = () => {
     if (!successData) return;
-    const loginUrl = `${window.location.origin}${successData.user.role === 'ADMIN' ? '/admin-login' : '/staff-login'}`;
-    const credText = `Claxic Academic Faculty Portal Access\n` +
+    const loginUrl = `${window.location.origin}/staff-login`;
+    const credText =
+      `Claxic Academic Faculty Portal Access\n` +
       `------------------------------------\n` +
       `Name: ${successData.user.name}\n` +
       `Role: ${successData.user.role}\n` +
       `Email (Username): ${successData.user.email}\n` +
-      `Permanent Password: ${successData.tempPassword}\n` +
+      `Password: ${successData.tempPassword}\n` +
+      `Allotted Courses: ${successData.allottedCourses.length} course(s)\n` +
       `Portal Login: ${loginUrl}\n` +
       `------------------------------------\n` +
-      `Please use these permanent credentials to sign in.`;
+      `Please use your permanent faculty credentials to sign in.`;
 
     navigator.clipboard.writeText(credText);
     setCopied(true);
@@ -175,14 +224,51 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                 Appoint Academic Faculty & Staff
               </h2>
               <p className="text-xs text-[#6B6258]">
-                Authorize new faculty instructors, curriculum reviewers, or administrative staff
+                Authorize new faculty instructors or promote existing users to Staff role
               </p>
             </div>
           </div>
           <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#FFF7E6] text-[#D97706] border border-[#FEDDAA]">
-            RBAC Provisioning
+            Staff RBAC
           </span>
         </div>
+
+        {/* Mode Selector Tabs (Appoint Existing vs Create New) */}
+        {!successData && (
+          <div className="flex rounded-xl bg-[#F5F2EB] p-1 border border-[#E8E3DC]">
+            <button
+              type="button"
+              onClick={() => {
+                setMode('EXISTING');
+                setError(null);
+              }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                mode === 'EXISTING'
+                  ? 'bg-white text-[#D97706] shadow-xs'
+                  : 'text-[#6B6258] hover:text-[#1F1F1F]'
+              }`}
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>Appoint Existing Registered User</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('NEW');
+                setSelectedUserId('');
+                setError(null);
+              }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                mode === 'NEW'
+                  ? 'bg-white text-[#D97706] shadow-xs'
+                  : 'text-[#6B6258] hover:text-[#1F1F1F]'
+              }`}
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Create New Staff Account</span>
+            </button>
+          </div>
+        )}
 
         {/* Error Alert */}
         {error && (
@@ -201,8 +287,8 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                 <span>Faculty Appointment Successfully Confirmed!</span>
               </div>
               <p className="text-xs text-emerald-900 leading-relaxed">
-                <strong>{successData.user.name}</strong> has been provisioned with <strong>{successData.user.role}</strong> privileges.
-                Their account is active and verified for instant portal access.
+                <strong>{successData.user.name}</strong> has been appointed with <strong>STAFF</strong> privileges.
+                Their account can now sign in via the Staff Portal and manage their allotted courses.
               </p>
 
               {/* Credential Slip */}
@@ -212,26 +298,26 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                   <span className="font-bold text-stone-900">{successData.user.email}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-1.5">
-                  <span className="text-slate-500 font-sans">Temporary Password:</span>
+                  <span className="text-slate-500 font-sans">Staff Password:</span>
                   <span className="font-bold text-[#D97706] bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                     {successData.tempPassword}
                   </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-1.5">
-                  <span className="text-slate-500 font-sans">Designated Role:</span>
-                  <span className="font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
-                    {successData.user.role}
+                  <span className="text-slate-500 font-sans">Allotted Courses:</span>
+                  <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    {successData.allottedCourses.length} Course(s) Allotted
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500 font-sans">Portal URL:</span>
+                  <span className="text-slate-500 font-sans">Staff Portal URL:</span>
                   <a
-                    href={successData.user.role === 'ADMIN' ? '/admin/login' : '/staff/login'}
+                    href="/staff-login"
                     target="_blank"
                     rel="noreferrer"
                     className="font-bold text-amber-600 underline flex items-center gap-1"
                   >
-                    <span>{successData.user.role === 'ADMIN' ? '/admin/login' : '/staff/login'}</span>
+                    <span>/staff-login</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -284,6 +370,51 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
         ) : (
           /* Main Creation Form */
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Mode 1: Appoint Existing User Selector */}
+            {mode === 'EXISTING' && (
+              <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-[#1F1F1F]">
+                    Select Registered User / Student to Appoint as Faculty <span className="text-rose-500">*</span>
+                  </label>
+                  <span className="text-[11px] text-[#6B6258] font-medium">
+                    {candidateUsers.length} eligible accounts
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-[#82684D] absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    placeholder="Search candidate by name or email..."
+                    className="w-full bg-white border border-[#E8E3DC] focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-3 py-1.5 text-xs text-[#1F1F1F] outline-none"
+                  />
+                </div>
+
+                <select
+                  value={selectedUserId}
+                  onChange={(e) => handleSelectExistingUser(e.target.value)}
+                  className="w-full bg-white border border-[#E8E3DC] focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl p-2.5 text-xs text-[#1F1F1F] font-semibold outline-none cursor-pointer"
+                >
+                  <option value="">-- Choose a user to promote to Staff --</option>
+                  {candidateUsers.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.email}) - Current role: {u.role || 'USER'}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedUserId && (
+                  <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Selected user account found. Their student data and ID will be securely preserved.</span>
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Row 1: Name & Role */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
@@ -305,18 +436,16 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
 
               <div>
                 <label className="block text-xs font-semibold text-[#6B6258] mb-1">
-                  System Role & Authority <span className="text-rose-500">*</span>
+                  Designated Role <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <Shield className="w-4 h-4 text-[#82684D] absolute left-3 top-2.5" />
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1F1F1F] font-semibold outline-none transition-all cursor-pointer"
-                  >
-                    <option value="STAFF">STAFF (Faculty & Course Instructor)</option>
-                    <option value="ADMIN">ADMIN (System & Executive Directorate)</option>
-                  </select>
+                  <input
+                    type="text"
+                    readOnly
+                    value="STAFF (Faculty & Course Instructor)"
+                    className="w-full bg-[#F5F2EB]/60 border border-[#E8E3DC] rounded-xl pl-9 pr-3 py-2 text-xs text-[#1F1F1F] font-bold outline-none cursor-not-allowed"
+                  />
                 </div>
               </div>
             </div>
@@ -332,10 +461,15 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                   <input
                     type="email"
                     required
+                    readOnly={mode === 'EXISTING' && Boolean(selectedUserId)}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="faculty@claxic.edu"
-                    className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1F1F1F] font-mono outline-none transition-all"
+                    className={`w-full border border-[#E8E3DC] rounded-xl pl-9 pr-3 py-2 text-xs text-[#1F1F1F] font-mono outline-none transition-all ${
+                      mode === 'EXISTING' && selectedUserId
+                        ? 'bg-[#F5F2EB]/60 cursor-not-allowed'
+                        : 'bg-[#FAFAF7] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20'
+                    }`}
                   />
                 </div>
               </div>
@@ -343,7 +477,7 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-[#6B6258]">
-                    Permanent Password <span className="text-rose-500">*</span>
+                    {mode === 'EXISTING' ? 'Set New Password (Optional)' : 'Permanent Password *'}
                   </label>
                   <button
                     type="button"
@@ -358,10 +492,10 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                   <Lock className="w-4 h-4 text-[#82684D] absolute left-3 top-2.5" />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    required
+                    required={mode === 'NEW'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimum 8 characters"
+                    placeholder={mode === 'EXISTING' ? 'Leave blank to keep existing password' : 'Minimum 6 characters'}
                     className="w-full bg-[#FAFAF7] border border-[#E8E3DC] focus:bg-white focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 rounded-xl pl-9 pr-8 py-2 text-xs text-[#1F1F1F] font-mono outline-none transition-all"
                   />
                   <button
@@ -410,8 +544,8 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
               </div>
             </div>
 
-            {/* Row 4: Mobile & Direct Verification */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {/* Row 4: Mobile & Initial Course Allotments */}
+            <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-[#6B6258] mb-1 flex items-center justify-between">
                   <span>Faculty Mobile (Optional)</span>
@@ -438,27 +572,48 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 pt-4 sm:pt-6">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={isVerified}
-                    onChange={(e) => setIsVerified(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#F59E0B] focus:ring-[#F59E0B] accent-[#F59E0B] cursor-pointer"
-                  />
-                  <span className="text-xs font-semibold text-[#1F1F1F]">Pre-Verified Account</span>
-                </label>
-
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#F59E0B] focus:ring-[#F59E0B] accent-[#F59E0B] cursor-pointer"
-                  />
-                  <span className="text-xs font-semibold text-[#1F1F1F]">Active Immediately</span>
-                </label>
-              </div>
+              {/* Course Allotment Checklist */}
+              {courses.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-[#1F1F1F] flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-[#D97706]" />
+                      <span>Allot Courses Immediately (Optional)</span>
+                    </label>
+                    <span className="text-[11px] text-[#6B6258]">
+                      {selectedCourses.length} selected
+                    </span>
+                  </div>
+                  <div className="max-h-36 overflow-y-auto rounded-xl border border-[#E8E3DC] bg-[#FAFAF7] p-2 space-y-1">
+                    {courses.map((course) => {
+                      const isChecked = selectedCourses.includes(course.id);
+                      return (
+                        <label
+                          key={course.id}
+                          className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all text-xs ${
+                            isChecked
+                              ? 'bg-amber-500/10 border border-amber-500/30 font-bold text-[#1F1F1F]'
+                              : 'hover:bg-white text-[#6B6258]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => handleToggleCourse(course.id)}
+                              className="w-3.5 h-3.5 rounded text-[#D97706] focus:ring-[#D97706] accent-[#D97706]"
+                            />
+                            <span>{course.title}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-[#82684D]">
+                            {course.category || 'General'}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer Buttons */}
@@ -468,7 +623,7 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
               </Button>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || (mode === 'EXISTING' && !name)}
                 className="px-5 py-2.5 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {isLoading ? (
@@ -479,7 +634,9 @@ export const AppointStaffModal = ({ isOpen, onClose, onStaffAppointed }) => {
                 ) : (
                   <>
                     <UserPlus className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Appoint Faculty Member</span>
+                    <span>
+                      {mode === 'EXISTING' ? 'Promote & Appoint as Staff' : 'Appoint New Staff Member'}
+                    </span>
                   </>
                 )}
               </button>

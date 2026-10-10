@@ -50,12 +50,35 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
     },
   ]);
 
-  // Lead Faculty
-  const [instructorName, setInstructorName] = useState('Dr. Alex Morgan');
-  const [instructorTitle, setInstructorTitle] = useState('Principal AI Architect');
-  const [instructorCompany, setInstructorCompany] = useState('Ex-Google & DeepMind Fellow');
-  const [instructorAvatar, setInstructorAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300');
-  const [instructorBio, setInstructorBio] = useState('Principal architect with 14+ years designing high-scale AI applications.');
+  // Lead Faculty - strictly bound to real appointed staff in the platform
+  const [appointedStaff, setAppointedStaff] = useState([]);
+  const [selectedStaffId, setSelectedStaffId] = useState('');
+  const [instructorName, setInstructorName] = useState('');
+  const [instructorTitle, setInstructorTitle] = useState('');
+  const [instructorCompany, setInstructorCompany] = useState('');
+  const [instructorAvatar, setInstructorAvatar] = useState('');
+  const [instructorBio, setInstructorBio] = useState('');
+
+  // Fetch appointed staff accounts from DB
+  useEffect(() => {
+    if (!isOpen) return;
+    const loadStaff = async () => {
+      try {
+        const token = localStorage.getItem('claxic_token');
+        const res = await fetch('/api/admin/staff', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const staffArr = data.staff || [];
+          setAppointedStaff(staffArr);
+        }
+      } catch (e) {
+        console.warn('Failed loading staff for course modal', e);
+      }
+    };
+    loadStaff();
+  }, [isOpen]);
 
   // Program FAQs
   const [faqList, setFaqList] = useState([
@@ -100,12 +123,35 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
         setModules([]);
       }
 
-      if (courseToEdit.instructor) {
-        setInstructorName(courseToEdit.instructor.name || '');
-        setInstructorTitle(courseToEdit.instructor.title || '');
-        setInstructorCompany(courseToEdit.instructor.company || '');
+      // Match instructor with real appointed staff
+      const matchingStaff = appointedStaff.find(
+        (s) =>
+          s.id === courseToEdit.instructor?.id ||
+          (s.email && courseToEdit.instructor?.email && s.email.toLowerCase() === courseToEdit.instructor?.email.toLowerCase()) ||
+          (s.name && courseToEdit.instructor?.name && s.name.trim().toLowerCase() === courseToEdit.instructor?.name.trim().toLowerCase())
+      );
+
+      if (matchingStaff) {
+        setSelectedStaffId(matchingStaff.id);
+        setInstructorName(matchingStaff.name);
+        setInstructorTitle(matchingStaff.degree || courseToEdit.instructor?.title || 'Faculty Member');
+        setInstructorCompany(matchingStaff.institution || courseToEdit.instructor?.company || 'Claxic Academic Faculty');
+        setInstructorAvatar(matchingStaff.avatar || courseToEdit.instructor?.avatar || '');
+        setInstructorBio(courseToEdit.instructor?.bio || `${matchingStaff.name} is a designated faculty mentor and instructor at Claxic.`);
+      } else if (courseToEdit.instructor && typeof courseToEdit.instructor === 'object' && courseToEdit.instructor.name) {
+        setSelectedStaffId('');
+        setInstructorName(courseToEdit.instructor.name);
+        setInstructorTitle(courseToEdit.instructor.title || 'Faculty Lead');
+        setInstructorCompany(courseToEdit.instructor.company || 'Claxic Academic Faculty');
         setInstructorAvatar(courseToEdit.instructor.avatar || '');
         setInstructorBio(courseToEdit.instructor.bio || '');
+      } else {
+        setSelectedStaffId('');
+        setInstructorName('Claxic Faculty Lead');
+        setInstructorTitle('Faculty Lead');
+        setInstructorCompany('Claxic Directorate');
+        setInstructorAvatar('https://api.dicebear.com/7.x/initials/svg?seed=Claxic');
+        setInstructorBio('Accredited curriculum managed by the Claxic Academic Directorate.');
       }
 
       if (courseToEdit.faq && Array.isArray(courseToEdit.faq)) {
@@ -139,11 +185,25 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
           topics: ['System Design Patterns', 'API Layer Construction', 'Performance Optimization'],
         },
       ]);
-      setInstructorName('Dr. Alex Morgan');
-      setInstructorTitle('Principal AI Architect');
-      setInstructorCompany('Ex-Google & DeepMind Fellow');
-      setInstructorAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300');
-      setInstructorBio('Principal architect with 14+ years designing high-scale AI applications.');
+
+      // When creating a course, default to real appointed staff if available
+      if (appointedStaff.length > 0) {
+        const staff = appointedStaff[0];
+        setSelectedStaffId(staff.id);
+        setInstructorName(staff.name);
+        setInstructorTitle(staff.degree || 'Faculty Member & Mentor');
+        setInstructorCompany(staff.institution || 'Claxic Academic Faculty');
+        setInstructorAvatar(staff.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(staff.name)}`);
+        setInstructorBio(staff.bio || `${staff.name} is a designated faculty mentor and instructor at Claxic.`);
+      } else {
+        setSelectedStaffId('');
+        setInstructorName('Claxic Faculty Lead');
+        setInstructorTitle('Faculty Lead');
+        setInstructorCompany('Claxic Directorate');
+        setInstructorAvatar('https://api.dicebear.com/7.x/initials/svg?seed=Claxic');
+        setInstructorBio('Accredited curriculum managed by the Claxic Academic Directorate.');
+      }
+
       setFaqList([
         {
           question: 'What are the hardware prerequisites?',
@@ -153,7 +213,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
     }
     setActiveSection('basic');
     setError(null);
-  }, [courseToEdit, isOpen]);
+  }, [courseToEdit, isOpen, appointedStaff]);
 
   // Handle Photo Upload
   const handlePhotoUpload = (e) => {
@@ -236,6 +296,26 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
     setFaqList(faqList.filter((_, i) => i !== idx));
   };
 
+  const handleSelectStaff = (staffId) => {
+    setSelectedStaffId(staffId);
+    if (!staffId) {
+      setInstructorName('Claxic Faculty Lead');
+      setInstructorTitle('Faculty Lead');
+      setInstructorCompany('Claxic Directorate');
+      setInstructorAvatar('https://api.dicebear.com/7.x/initials/svg?seed=Claxic');
+      setInstructorBio('Curated by Claxic Academic Directorate.');
+      return;
+    }
+    const staff = appointedStaff.find((s) => s.id === staffId);
+    if (staff) {
+      setInstructorName(staff.name);
+      setInstructorTitle(staff.degree || 'Faculty Member & Mentor');
+      setInstructorCompany(staff.institution || 'Claxic Academic Faculty');
+      setInstructorAvatar(staff.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(staff.name)}`);
+      setInstructorBio(staff.bio || `${staff.name} is a designated faculty mentor and instructor at Claxic.`);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -275,12 +355,14 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
           duration: m.duration || '2 Weeks',
           topics: Array.isArray(m.topics) ? m.topics : [],
         })),
+        staffId: selectedStaffId || undefined,
         instructor: {
-          name: instructorName.trim() || 'Dr. Alex Morgan',
-          title: instructorTitle.trim() || 'Lead Faculty',
+          id: selectedStaffId || undefined,
+          name: instructorName.trim() || 'Claxic Faculty Lead',
+          title: instructorTitle.trim() || 'Faculty Lead',
           company: instructorCompany.trim() || 'Claxic Directorate',
-          avatar: instructorAvatar.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
-          bio: instructorBio.trim() || 'Distinguished academic lead and faculty director.',
+          avatar: instructorAvatar.trim() || 'https://api.dicebear.com/7.x/initials/svg?seed=Claxic',
+          bio: instructorBio.trim() || 'Accredited curriculum managed by the Claxic Academic Directorate.',
         },
         faq: faqList.map((f) => ({
           question: f.question || '',
@@ -305,6 +387,33 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
       if (onSaved) onSaved();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteCourseFromModal = async () => {
+    if (!courseToEdit) return;
+    if (!window.confirm(`Are you sure you want to permanently delete "${courseToEdit.title}"? All curriculum classes, video lessons, faculty allotments, and enrolled progress will be completely wiped.`)) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('claxic_token');
+      const res = await fetch(`/api/admin/courses/${courseToEdit.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        onClose();
+        if (onSaved) onSaved();
+        window.dispatchEvent(new CustomEvent('claxic_course_updated'));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to delete course.');
+      }
+    } catch (err) {
+      alert('Network error while deleting course.');
     } finally {
       setIsLoading(false);
     }
@@ -680,6 +789,37 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
         {/* SECTION 3: LEAD FACULTY PROFILE */}
         {activeSection === 'faculty' && (
           <div className="space-y-4">
+            {/* Appointed Staff Selector */}
+            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90 space-y-2">
+              <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider flex items-center justify-between">
+                <span>Appoint Real Faculty Member</span>
+                <span className="text-[10px] text-amber-800 lowercase font-mono">
+                  {appointedStaff.length} faculty registered
+                </span>
+              </label>
+              <select
+                value={selectedStaffId}
+                onChange={(e) => handleSelectStaff(e.target.value)}
+                className="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 outline-none font-semibold shadow-xs"
+              >
+                <option value="">-- Select Appointed Faculty Member --</option>
+                {appointedStaff.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.email}) — {s.degree || 'Faculty Member'}
+                  </option>
+                ))}
+              </select>
+              {appointedStaff.length === 0 ? (
+                <p className="text-[11px] text-amber-900 font-medium">
+                  Notice: No faculty members appointed yet. Please appoint staff members in the Staff Directorate tab first.
+                </p>
+              ) : (
+                <p className="text-[11px] text-amber-900">
+                  Selecting a staff member automatically allots this program to them and showcases their verified credentials on the course card.
+                </p>
+              )}
+            </div>
+
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -689,7 +829,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
                     required
                     value={instructorName}
                     onChange={(e) => setInstructorName(e.target.value)}
-                    placeholder="Dr. Alex Morgan"
+                    placeholder="Faculty Member Name"
                     className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 outline-none font-semibold"
                   />
                 </div>
@@ -699,7 +839,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
                     type="text"
                     value={instructorTitle}
                     onChange={(e) => setInstructorTitle(e.target.value)}
-                    placeholder="Principal AI Architect"
+                    placeholder="Faculty Member & Mentor"
                     className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 outline-none"
                   />
                 </div>
@@ -707,12 +847,12 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Company / Affiliation</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Department / Institution</label>
                   <input
                     type="text"
                     value={instructorCompany}
                     onChange={(e) => setInstructorCompany(e.target.value)}
-                    placeholder="Ex-Google & DeepMind Fellow"
+                    placeholder="Claxic Academic Faculty"
                     className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 outline-none"
                   />
                 </div>
@@ -722,7 +862,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
                     type="url"
                     value={instructorAvatar}
                     onChange={(e) => setInstructorAvatar(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
+                    placeholder="https://api.dicebear.com/..."
                     className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 outline-none"
                   />
                 </div>
@@ -734,7 +874,7 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
                   rows={4}
                   value={instructorBio}
                   onChange={(e) => setInstructorBio(e.target.value)}
-                  placeholder="Distinguished researcher and course director with 14+ years architecting scalable cloud and AI platforms..."
+                  placeholder="Designated faculty mentor and instructor at Claxic..."
                   className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-900 outline-none leading-relaxed"
                 />
               </div>
@@ -801,9 +941,23 @@ export const CourseModal = ({ isOpen, onClose, courseToEdit, onSaved }) => {
 
         {/* Modal Action Buttons */}
         <div className="pt-4 flex items-center justify-between border-t border-[#E8E3DC]">
-          <Button variant="ghost" onClick={onClose} type="button">
-            Cancel
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={onClose} type="button">
+              Cancel
+            </Button>
+            {courseToEdit && (
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={handleDeleteCourseFromModal}
+                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                title="Permanently Delete Course"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <span>Delete Program</span>
+              </button>
+            )}
+          </div>
           <button
             type="submit"
             disabled={isLoading}
